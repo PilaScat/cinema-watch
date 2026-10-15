@@ -119,6 +119,7 @@ export interface HuntState {
   lastRun: { at: number; ok: boolean; error: string | null; showings: number } | null;
   failures: number;
   manualRunAt: number | null;
+  errorNotifiedDay: IsoDay | null;
 }
 
 export interface State {
@@ -127,6 +128,7 @@ export interface State {
   lastDigestDate: IsoDay | null;
   lastVersionCheckAt: number | null;
   latestVersion: string | null;
+  historyDays: Record<string, IsoDay>;
 }
 
 export interface ObservedShowing {

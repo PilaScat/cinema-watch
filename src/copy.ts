@@ -2,6 +2,24 @@ const SEPARATOR = " · ";
 
 export const copy = {
   ui: {},
+  hall: {
+    labels: {
+      screen: "SCHERMO",
+      free: "Liberi",
+      sold: "Venduti",
+      blocked: "Nel carrello",
+      reserved: "Riservati",
+      accessible: "Disabili",
+      best: "Migliori",
+      zone: "Zona buona",
+    },
+    subtitle: (theatre: string, room: string, day: string, time: string): string =>
+      [theatre, room, `${day} ${time}`].join(SEPARATOR),
+  },
+  errors: {
+    huntFailed: (name: string, detail: string): string => `⚠️ <b>${name}</b>: lettura non riuscita\n${detail}`,
+    hallChanged: (name: string, room: string): string => `⚠️ <b>${name}</b>: pianta cambiata in ${room}, zona buona da riconfermare`,
+  },
   telegram: {
     huntHeader: (name: string): string => `🎬 <b>${name}</b>`,
     sections: {

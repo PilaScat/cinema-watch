@@ -23,6 +23,7 @@ export function emptyHuntState(): HuntState {
     lastRun: null,
     failures: 0,
     manualRunAt: null,
+    errorNotifiedDay: null,
   };
 }
 

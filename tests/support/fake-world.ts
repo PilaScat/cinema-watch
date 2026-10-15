@@ -30,7 +30,7 @@ function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 }
 
-async function bodyOf(init: RequestInit | undefined): Promise<Record<string, unknown>> {
+function bodyOf(init: RequestInit | undefined): Record<string, unknown> {
   if (typeof init?.body === "string") return JSON.parse(init.body) as Record<string, unknown>;
   if (init?.body instanceof FormData) {
     const fields: Record<string, unknown> = {};
@@ -72,12 +72,15 @@ export function createFakeWorld(): FakeWorld {
     setOccupancy: (localId, performanceId, body) => occupancies.set(`${localId}-${performanceId}`, body),
     failHost: (host, status) => failing.set(host, status),
     restoreHost: (host) => failing.delete(host),
-    fetch: async (input, init) => {
+    fetch: (input, init) => Promise.resolve(respond(input, init)),
+  };
+
+  function respond(input: Parameters<typeof fetch>[0], init: RequestInit | undefined): Response {
       const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
       requests.push(`${init?.method ?? "GET"} ${url.hostname}${url.pathname}`);
       const failure = failing.get(url.hostname);
       if (failure !== undefined) return json({ message: "down" }, failure);
-      const body = await bodyOf(init);
+      const body = bodyOf(init);
 
       if (url.hostname.startsWith("myuci---")) {
         const path = url.pathname.replace(/^\/api/, "");
@@ -108,7 +111,7 @@ export function createFakeWorld(): FakeWorld {
         const media = maybeJson(body.media);
         telegram.push({
           method,
-          chatId: body.chat_id === undefined ? null : String(body.chat_id),
+          chatId: typeof body.chat_id === "string" || typeof body.chat_id === "number" ? String(body.chat_id) : null,
           text: typeof body.text === "string" ? body.text : null,
           caption: typeof body.caption === "string" ? body.caption : Array.isArray(media) ? String((media[0] as { caption?: string }).caption ?? "") : null,
           photos: countPhotos(body),
@@ -123,7 +126,7 @@ export function createFakeWorld(): FakeWorld {
       }
 
       return json({ message: `unexpected ${url.href}` }, 599);
-    },
-  };
+  }
+
   return world;
 }
