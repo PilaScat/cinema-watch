@@ -499,31 +499,31 @@ describe("loadConfig and saveConfig", () => {
     expect(await loadConfig(createStore(dir))).toEqual(defaultConfig());
   });
 
-  it("backs up a corrupt file and throws a clear ConfigError", async () => {
+  it("backs up a corrupt file under the hash of its content and throws a clear ConfigError", async () => {
     await writeFile(join(dir, "config.json"), "{broken");
-    const failure = loadConfig(createStore(dir), () => 1700000000000);
+    const failure = loadConfig(createStore(dir));
     await expect(failure).rejects.toBeInstanceOf(ConfigError);
-    await expect(failure).rejects.toThrow("config.json.bak-1700000000000");
+    await expect(failure).rejects.toThrow("config.json.bak-be302461cda2");
     await expect(failure).rejects.toThrow("non è JSON valido");
-    expect((await readdir(dir)).sort()).toEqual(["config.json", "config.json.bak-1700000000000"]);
-    expect(await readFile(join(dir, "config.json.bak-1700000000000"), "utf8")).toBe("{broken");
+    expect((await readdir(dir)).sort()).toEqual(["config.json", "config.json.bak-be302461cda2"]);
+    expect(await readFile(join(dir, "config.json.bak-be302461cda2"), "utf8")).toBe("{broken");
   });
 
   it("backs up an invalid file and reports the field errors", async () => {
     const config = defaultConfig();
     config.settings.albumSize = 0;
     await writeFile(join(dir, "config.json"), JSON.stringify(config));
-    const failure = loadConfig(createStore(dir), () => 5);
+    const failure = loadConfig(createStore(dir));
     await expect(failure).rejects.toThrow("settings.albumSize: intero da 1 a 10");
-    await expect(failure).rejects.toThrow("config.json.bak-5");
-    expect(await readdir(dir)).toContain("config.json.bak-5");
+    expect((await readdir(dir)).filter((name) => /^config\.json\.bak-[0-9a-f]{12}$/.test(name))).toHaveLength(1);
   });
 
-  it("uses the system clock for the backup name by default", async () => {
+  it("keeps a single copy when the same broken file is loaded again and again", async () => {
     await writeFile(join(dir, "config.json"), "x");
-    await expect(loadConfig(createStore(dir))).rejects.toBeInstanceOf(ConfigError);
-    const names = await readdir(dir);
-    expect(names.some((name) => /^config\.json\.bak-\d+$/.test(name))).toBe(true);
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await expect(loadConfig(createStore(dir))).rejects.toBeInstanceOf(ConfigError);
+    }
+    expect((await readdir(dir)).filter((name) => name.startsWith("config.json.bak-"))).toHaveLength(1);
   });
 
   it("passes unexpected store failures through", async () => {

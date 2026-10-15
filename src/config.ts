@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import { z } from "zod";
 import { CONFIG_SCHEMA_VERSION, type Config, type Hunt, type Settings } from "./model.js";
 import { StoreError, type createStore } from "./store.js";
@@ -320,19 +322,27 @@ export async function saveConfig(store: Store, config: Config): Promise<void> {
   await store.writeJson(CONFIG_FILE, config, { private: true });
 }
 
-async function rejectConfig(store: Store, now: () => number, detail: string): Promise<never> {
-  const backupName = await store.backup(CONFIG_FILE, String(now()));
+async function contentHash(store: Store): Promise<string> {
+  try {
+    return createHash("sha256").update(await readFile(store.path(CONFIG_FILE))).digest("hex").slice(0, 12);
+  } catch {
+    return "illeggibile";
+  }
+}
+
+async function rejectConfig(store: Store, detail: string): Promise<never> {
+  const backupName = await store.backup(CONFIG_FILE, await contentHash(store));
   throw new ConfigError(
     `${detail}. Copia di sicurezza: ${backupName ?? "non riuscita"}. Correggi ${CONFIG_FILE} o eliminalo per ripartire dalle impostazioni predefinite.`,
   );
 }
 
-export async function loadConfig(store: Store, now: () => number = Date.now): Promise<Config> {
+export async function loadConfig(store: Store): Promise<Config> {
   let raw: unknown;
   try {
     raw = await store.readJson(CONFIG_FILE);
   } catch (error) {
-    if (error instanceof StoreError && error.kind === "corrupt") return rejectConfig(store, now, error.message);
+    if (error instanceof StoreError && error.kind === "corrupt") return rejectConfig(store, error.message);
     throw error;
   }
   if (raw === null) {
@@ -342,5 +352,5 @@ export async function loadConfig(store: Store, now: () => number = Date.now): Pr
   }
   const result = parseConfig(raw);
   if (result.ok) return result.config;
-  return rejectConfig(store, now, `${CONFIG_FILE} non è valido: ${result.errors.join("; ")}`);
+  return rejectConfig(store, `${CONFIG_FILE} non è valido: ${result.errors.join("; ")}`);
 }

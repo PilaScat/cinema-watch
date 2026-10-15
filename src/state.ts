@@ -35,9 +35,15 @@ export function migrateState(raw: unknown): State {
   };
 }
 
+function isNewer(raw: unknown): boolean {
+  return isRecord(raw) && typeof raw.schemaVersion === "number" && raw.schemaVersion > STATE_SCHEMA_VERSION;
+}
+
 export async function loadState(store: Store, now: () => number): Promise<State> {
   try {
-    return migrateState(await store.readJson(STATE_FILE));
+    const raw = await store.readJson(STATE_FILE);
+    if (isNewer(raw)) await store.backup(STATE_FILE, String(now()));
+    return migrateState(raw);
   } catch (error) {
     if (!(error instanceof StoreError) || error.kind !== "corrupt") throw error;
     await store.backup(STATE_FILE, String(now()));
