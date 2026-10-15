@@ -11,7 +11,7 @@ import { createHttpClient } from "./http.js";
 import { createLogger, redact, type Logger } from "./log.js";
 import type { Config, Hunt, HuntEvent, HuntState, OutgoingMessage, State } from "./model.js";
 import { composeDigest, composeRound, type DigestEntry } from "./notify.js";
-import { svgToPng } from "./png.js";
+import { svgToPng, TELEGRAM_PHOTO_WIDTH } from "./png.js";
 import { diffRound } from "./round.js";
 import { observeHunt, type HuntObservation, type RunnerCaches } from "./runner.js";
 import { huntStateOf, loadState, saveState } from "./state.js";
@@ -154,7 +154,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
         labels: copy.hall.labels,
         theme: "dark",
       });
-      photos.set(key, svgToPng(svg));
+      photos.set(key, svgToPng(svg, { width: TELEGRAM_PHOTO_WIDTH }));
     }
     return photos;
   }

@@ -11,10 +11,12 @@ const FONT_FILES = [
   "BebasNeue-Regular.ttf",
 ];
 const DEFAULT_SCALE = 2;
+export const TELEGRAM_PHOTO_WIDTH = 1280;
 const DEFAULT_FONT_FAMILY = "Barlow";
 
 export interface SvgToPngOptions {
   scale?: number;
+  width?: number;
   fontDir?: string;
 }
 
@@ -26,7 +28,7 @@ export function svgToPng(svg: string, options: SvgToPngOptions = {}): Buffer {
       loadSystemFonts: false,
       defaultFontFamily: DEFAULT_FONT_FAMILY,
     },
-    fitTo: { mode: "zoom", value: options.scale ?? DEFAULT_SCALE },
+    fitTo: options.width === undefined ? { mode: "zoom", value: options.scale ?? DEFAULT_SCALE } : { mode: "width", value: options.width },
   });
   return resvg.render().asPng();
 }

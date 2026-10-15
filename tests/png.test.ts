@@ -2,7 +2,7 @@ import fs from "node:fs";
 import { performance } from "node:perf_hooks";
 import { describe, expect, it } from "vitest";
 import { renderHallSvg } from "../src/hall-svg.js";
-import { FONT_DIR, svgToPng } from "../src/png.js";
+import { FONT_DIR, svgToPng, TELEGRAM_PHOTO_WIDTH } from "../src/png.js";
 import { analyzeSeats } from "../src/seats.js";
 import type { Hall, HallLabels, Occupancy, Seat, SeatRule, TakenStatus } from "../src/types.js";
 
@@ -100,10 +100,15 @@ describe("svgToPng", () => {
     expect(png.length).toBeGreaterThan(1000);
   });
 
-  it.skipIf(process.env.STRYKER_MUTATOR_WORKER !== undefined)("renders the Dune hall in under 500 ms after warm-up", () => {
-    svgToPng(svg);
+  it("renders at the width Telegram keeps for photos", () => {
+    const png = svgToPng(svg, { width: TELEGRAM_PHOTO_WIDTH });
+    expect(png.readUInt32BE(16)).toBe(1280);
+  });
+
+  it.skipIf(process.platform === "win32" || process.env.STRYKER_MUTATOR_WORKER !== undefined)("renders the Dune hall for Telegram in under 500 ms on Linux after warm-up", () => {
+    svgToPng(svg, { width: TELEGRAM_PHOTO_WIDTH });
     const start = performance.now();
-    svgToPng(svg);
+    svgToPng(svg, { width: TELEGRAM_PHOTO_WIDTH });
     expect(performance.now() - start).toBeLessThan(500);
   });
 });

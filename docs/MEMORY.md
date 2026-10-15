@@ -23,3 +23,12 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
 - **Formati**: i nomi in programmazione (`XL - INFINITY VISION`, `2D - INFINITY VISION`) e quelli
   dei cinema (`XL`, `2D`) si allineano con `normalizeFormat`.
 - **Login UCI**: Cloudflare e captcha. L'app non fa login e non compra: legge solo dati pubblici.
+
+## Prestazioni
+
+- **resvg su Windows è lento col testo**: la pianta di Verona si disegna in circa 800 ms su
+  Windows e in circa 50 ms su Linux Alpine (misurato il 16/10/2026). Il costo è nella composizione
+  dei testi, non nei pixel né nel caricamento dei font. Il test dei 500 ms vale solo su Linux; su
+  Windows si salta.
+- **Larghezza per Telegram**: le piante si disegnano a 1280 px (`TELEGRAM_PHOTO_WIDTH`), il lato
+  che Telegram tiene per le foto.
