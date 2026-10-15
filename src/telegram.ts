@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { copy } from "./copy.js";
 import type { InlineButton, OutgoingMessage, SentResult } from "./model.js";
 
 export const TELEGRAM_API = "https://api.telegram.org";
@@ -14,8 +15,8 @@ const TRANSIENT_RETRY_MS = 1000;
 const REQUEST_TIMEOUT_MS = 30_000;
 const LONG_POLL_MARGIN_MS = 15_000;
 const DEFAULT_MAX_RETRIES = 3;
-const NOT_CONFIGURED = "Telegram non configurato";
-const INVALID_RESPONSE = "Risposta di Telegram non valida";
+const NOT_CONFIGURED = copy.errors.telegramNotConfigured;
+const INVALID_RESPONSE = copy.errors.telegramInvalid;
 
 export type TelegramErrorKind =
   | "unauthorized"

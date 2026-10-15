@@ -30,6 +30,21 @@ export const copy = {
   errors: {
     huntFailed: (name: string, detail: string): string => `⚠️ <b>${name}</b>: lettura non riuscita\n${detail}`,
     telegramUnknown: "Errore di Telegram senza descrizione",
+    telegramNotConfigured: "Telegram non configurato",
+    telegramInvalid: "Risposta di Telegram non valida",
+    source: (source: string, reason: string): string => `${source}: ${reason}`,
+    reasons: {
+      status: (code: number): string => `risposta ${code}`,
+      timeout: "nessuna risposta",
+      network: "rete non raggiungibile",
+      backoff: "in pausa dopo errori ripetuti",
+      redirect: "risposta deviata",
+      host: "indirizzo non consentito",
+      parse: "risposta non leggibile",
+      shape: "risposta in formato inatteso",
+      refused: (detail: string): string => `richiesta rifiutata (${detail})`,
+      unknown: "errore imprevisto",
+    },
   },
   telegram: {
     huntHeader: (name: string): string => `🎬 <b>${name}</b>`,

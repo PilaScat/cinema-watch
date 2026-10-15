@@ -1,5 +1,7 @@
 import type { TtlCache } from "./cache.js";
+import { copy } from "./copy.js";
 import { resolveWindow } from "./dates.js";
+import { ApiShapeError, HttpError, WebticError } from "./errors.js";
 import type { Hunt, ObservedShowing, RoundObservation, Settings } from "./model.js";
 import { analyzeSeats } from "./seats.js";
 import type { Hall, IsoDay, MovieRef, Occupancy, PerformanceInfo, SeatAnalysis, SeatRule, Showing, ShowingFilter, Zone } from "./types.js";
@@ -36,6 +38,9 @@ export interface HuntObservation {
   unknownSeatTypes: string[];
 }
 
+const UCI_SOURCE = "UCI";
+const WEBTIC_SOURCE = "Webtic";
+
 export function zoneSignature(zone: Zone, together: number): string {
   return JSON.stringify({ zone, together });
 }
@@ -60,8 +65,19 @@ function showingFilter(hunt: Hunt): ShowingFilter {
   };
 }
 
-function describe(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+function reasonOf(error: unknown): string {
+  const reasons = copy.errors.reasons;
+  if (error instanceof HttpError) {
+    if (error.kind === "status") return reasons.status(error.status ?? 0);
+    return reasons[error.kind];
+  }
+  if (error instanceof ApiShapeError) return reasons.shape;
+  if (error instanceof WebticError) return reasons.refused(error.message || String(error.reasonCode ?? ""));
+  return reasons.unknown;
+}
+
+function describe(source: string, error: unknown): string {
+  return copy.errors.source(source, reasonOf(error));
 }
 
 function moviesMatching(hunt: Hunt, showings: Showing[], theatreSlug: string): Array<{ movie: MovieRef; theatreSlug: string }> {
@@ -126,7 +142,7 @@ export async function observeHunt(
       try {
         all = await readDay(deps, theatreSlug, day, options.fresh);
       } catch (error) {
-        errors.push(`${theatreSlug} ${day}: ${describe(error)}`);
+        errors.push(`${theatreSlug} ${day} · ${describe(UCI_SOURCE, error)}`);
         continue;
       }
       if (all.length > 0) round.daysRead.push({ theatreSlug, day });
@@ -140,7 +156,7 @@ export async function observeHunt(
           if (seats.hallChanged) hallChanged.push(showing.key);
           for (const type of seats.detail.analysis.unknownTypes) unknownSeatTypes.add(type);
         } catch (error) {
-          errors.push(`${showing.key}: ${describe(error)}`);
+          errors.push(`${showing.day} ${showing.time} ${showing.room} · ${describe(WEBTIC_SOURCE, error)}`);
           round.showings.push({ showing, performance: null, analysis: null, zoneSignature: null });
         }
       }

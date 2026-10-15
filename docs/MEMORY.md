@@ -24,6 +24,22 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   dei cinema (`XL`, `2D`) si allineano con `normalizeFormat`.
 - **Login UCI**: Cloudflare e captcha. L'app non fa login e non compra: legge solo dati pubblici.
 
+## Avvisi
+
+- **Un avviso non si perde**: se Telegram fallisce o non è configurato, lo stato della caccia non
+  avanza e gli stessi eventi si ripresentano al giro dopo.
+- **Rischio accettato di un doppione**: su un errore di rete Telegram si riprova una volta. Se la
+  risposta si era persa dopo l'invio, il messaggio arriva due volte. È raro e meno grave di un
+  avviso perso.
+- **Annullato**: solo per uno spettacolo futuro assente per 2 giri da un giorno letto con almeno
+  uno spettacolo. Se l'ultimo spettacolo di un giorno sparisce, il giorno torna vuoto e
+  l'annullamento non si vede: è il prezzo per non scambiare una risposta vuota di UCI per una
+  cancellazione di massa.
+- **Giorni nuovi in silenzio**: in una caccia già avviata, gli spettacoli di un giorno letto per la
+  prima volta (finestra "prossimi N giorni" che avanza, cinema aggiunto) si registrano senza avvisare.
+- **Un'operazione alla volta**: giri, Aggiorna ora, Silenzia, Acquistato e conferma dei film passano
+  da un solo mutex nel watcher; lo scheduler sta in `watcher.ts` e non in un modulo suo.
+
 ## Prestazioni
 
 - **resvg su Windows è lento col testo**: la pianta di Verona si disegna in circa 800 ms su

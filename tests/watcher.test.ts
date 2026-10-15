@@ -236,6 +236,8 @@ describe("watcher", () => {
     expect(sameDay).toHaveLength(1);
     expect(sameDay[0]).toContain("Dune IMAX Verona");
     expect(sameDay[0]).toContain("lettura non riuscita");
+    expect(sameDay[0]).toContain("UCI: risposta 500");
+    expect(sameDay[0]).not.toContain("Status");
     expect(world.telegram).toHaveLength(2);
     expect(subject.state().hunts[huntId]?.lastRun?.ok).toBe(false);
   });
