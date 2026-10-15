@@ -32,3 +32,10 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   Windows si salta.
 - **Larghezza per Telegram**: le piante si disegnano a 1280 px (`TELEGRAM_PHOTO_WIDTH`), il lato
   che Telegram tiene per le foto.
+
+## Strumenti
+
+- **Vitest resta alla 4**: con Vitest 5 Stryker 10 non attiva i mutanti (tutti "sopravvissuti",
+  verificato il 16/10/2026). Dependabot ignora Vitest 5 finché Stryker non lo supporta.
+- **Stryker fuori da Nextcloud**: dentro `D:\Nextcloud` la cartella `.stryker-tmp` dà `EPERM` sui
+  file bloccati, quindi si lancia su un clone fuori dalla cartella sincronizzata.

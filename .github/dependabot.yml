@@ -8,6 +8,11 @@ updates:
       time: "09:00"
       timezone: Europe/Rome
     open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: vitest
+        versions: [">=5"]
+      - dependency-name: "@vitest/coverage-v8"
+        versions: [">=5"]
     groups:
       runtime:
         dependency-type: production
