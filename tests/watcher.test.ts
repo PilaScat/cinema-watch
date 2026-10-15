@@ -51,7 +51,7 @@ async function seed(mutate: (config: Config) => void = () => undefined): Promise
   return config;
 }
 
-async function watcher() {
+async function watcher(extra: Partial<Parameters<typeof createWatcher>[0]> = {}) {
   return createWatcher({
     dataDir,
     fetch: world.fetch,
@@ -63,6 +63,7 @@ async function watcher() {
     },
     version: "v0.0.0-test",
     logSink: () => undefined,
+    ...extra,
   });
 }
 
@@ -312,6 +313,22 @@ describe("watcher", () => {
     expect(sameDayCalls).toBe(1);
     expect(githubCalls()).toBe(2);
     expect(subject.state().latestVersion).toBe("v2026.10.1");
+  });
+
+  it("hands messages and halls to an outbox instead of Telegram in a dry run", async () => {
+    await seed();
+    const outbox: Array<{ kinds: string[]; photos: number }> = [];
+    const subject = await watcher({
+      outbox: (messages, photos) => {
+        outbox.push({ kinds: messages.map((message) => message.kind), photos: photos.size });
+        return Promise.resolve();
+      },
+    });
+
+    await subject.tick();
+
+    expect(world.telegram).toEqual([]);
+    expect(outbox).toEqual([{ kinds: ["photo", "text"], photos: 1 }]);
   });
 
   it("keeps hunting without Telegram configured", async () => {
