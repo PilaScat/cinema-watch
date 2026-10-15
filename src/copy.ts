@@ -27,7 +27,7 @@ export const copy = {
   },
   errors: {
     huntFailed: (name: string, detail: string): string => `⚠️ <b>${name}</b>: lettura non riuscita\n${detail}`,
-    hallChanged: (name: string, room: string): string => `⚠️ <b>${name}</b>: pianta cambiata in ${room}, zona buona da riconfermare`,
+    telegramUnknown: "Errore di Telegram senza descrizione",
   },
   telegram: {
     huntHeader: (name: string): string => `🎬 <b>${name}</b>`,

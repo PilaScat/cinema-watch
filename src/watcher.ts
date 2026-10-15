@@ -1,5 +1,5 @@
 import { createTtlCache } from "./cache.js";
-import { effectiveTelegram, huntInterval, loadConfig, saveConfig } from "./config.js";
+import { ConfigError, effectiveTelegram, huntInterval, loadConfig, saveConfig } from "./config.js";
 import { copy } from "./copy.js";
 import { addDays, romeNow, romeToday, timeInRange } from "./dates.js";
 import { escapeHtml, formatDay } from "./format.js";
@@ -46,6 +46,12 @@ export interface RunReport {
   huntId: string;
   events: number;
   error: string | null;
+  skipped: boolean;
+}
+
+interface Delivery {
+  delivered: boolean;
+  errors: string[];
 }
 
 export interface Watcher {
@@ -55,6 +61,7 @@ export interface Watcher {
   resume(huntId: string): Promise<void>;
   markBought(huntId: string): Promise<void>;
   confirmMovie(huntId: string, slug: string): Promise<void>;
+  close(): Promise<void>;
   summaries(huntIds?: string[]): DigestEntry[];
   primaryChat(): string | null;
   history(key: string): Promise<HistoryPoint[]>;
@@ -100,8 +107,11 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   const random = options.random ?? Math.random;
   const env = options.env ?? process.env;
   const store = createStore(options.dataDir);
-  let config = await loadConfig(store, now);
+  const dryRun = options.outbox !== undefined;
+  let config = await loadConfig(store);
   let state = await loadState(store, now);
+  let queue: Promise<unknown> = Promise.resolve();
+  const knownUnknownTypes = new Set<string>();
   const telegramSettings = () => effectiveTelegram(config, env);
   const logger = createLogger({
     secrets: () => [telegramSettings().token ?? ""],
@@ -131,6 +141,16 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   const history = createHistory(store);
   const eventLog = createEventLog(store);
 
+  function exclusive<T>(job: () => Promise<T>): Promise<T> {
+    const run = queue.then(job);
+    queue = run.catch(() => undefined);
+    return run;
+  }
+
+  async function persistState(): Promise<void> {
+    if (!dryRun) await saveState(store, state);
+  }
+
   async function names(): Promise<Record<string, string>> {
     try {
       return await theatreNames.getOrLoad("all", async () =>
@@ -159,9 +179,24 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     return photos;
   }
 
-  async function notify(hunt: Hunt, events: HuntEvent[], observation: HuntObservation): Promise<void> {
-    const chatId = telegramSettings().chatId ?? (options.outbox ? DRY_RUN_CHAT : null);
-    if (chatId === null || events.length === 0) return;
+  function chatFor(): string | null {
+    return telegramSettings().chatId ?? (dryRun ? DRY_RUN_CHAT : null);
+  }
+
+  async function send(messages: OutgoingMessage[], photos: Map<string, Uint8Array>): Promise<Delivery> {
+    if (options.outbox) {
+      await options.outbox(messages, photos);
+      return { delivered: true, errors: [] };
+    }
+    const results = await telegram.deliver(messages, photos);
+    const errors = results.flatMap((result) => (result.ok ? [] : [result.error ?? copy.errors.telegramUnknown]));
+    return { delivered: errors.length === 0, errors };
+  }
+
+  async function notify(hunt: Hunt, events: HuntEvent[], observation: HuntObservation): Promise<Delivery> {
+    if (events.length === 0) return { delivered: true, errors: [] };
+    const chatId = chatFor();
+    if (chatId === null) return { delivered: false, errors: [] };
     const theatres = await names();
     const publicUrl = config.settings.publicUrl;
     const messages = composeRound(events, {
@@ -172,15 +207,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       albumSize: config.settings.albumSize,
       theatreNames: theatres,
     });
-    const photos = renderPhotos(photoKeys(messages), observation, theatres);
-    if (options.outbox) {
-      await options.outbox(messages, photos);
-      return;
-    }
-    const results = await telegram.deliver(messages, photos);
-    for (const result of results) {
-      if (!result.ok) logger.warn("telegram", { hunt: hunt.id, error: result.error });
-    }
+    return send(messages, renderPhotos(photoKeys(messages), observation, theatres));
   }
 
   function eventKey(event: HuntEvent): string | null {
@@ -195,7 +222,12 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     return `${event.showing.day} ${event.showing.time}`;
   }
 
-  async function recordRound(hunt: Hunt, observation: HuntObservation, events: HuntEvent[], at: number): Promise<void> {
+  async function log(entries: EventEntry[]): Promise<void> {
+    if (!dryRun) await eventLog.add(entries);
+  }
+
+  async function recordRound(hunt: Hunt, observation: HuntObservation, events: HuntEvent[], at: number, delivery: Delivery): Promise<void> {
+    if (dryRun) return;
     const historyDays = { ...state.historyDays };
     for (const { showing, analysis } of observation.round.showings) {
       if (!analysis) continue;
@@ -203,7 +235,10 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       historyDays[showing.key] = showing.day;
     }
     state = { ...state, historyDays };
-    await eventLog.add([
+    const newTypes = observation.unknownSeatTypes.filter((type) => !knownUnknownTypes.has(type));
+    newTypes.forEach((type) => knownUnknownTypes.add(type));
+    const secrets = [telegramSettings().token ?? ""];
+    await log([
       {
         t: at,
         huntId: hunt.id,
@@ -213,40 +248,68 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       },
       ...events.map((event) => ({ t: at, huntId: hunt.id, kind: event.kind, key: eventKey(event), detail: eventDetail(event) })),
       ...observation.hallChanged.map((key) => ({ t: at, huntId: hunt.id, kind: "hallChanged", key, detail: null })),
+      ...newTypes.map((type) => ({ t: at, huntId: hunt.id, kind: "unknownSeatType", key: null, detail: type })),
+      ...delivery.errors.map((error) => ({ t: at, huntId: hunt.id, kind: "telegramError", key: null, detail: redact(error, secrets) })),
     ]);
   }
 
   async function warnOnErrors(hunt: Hunt, previous: HuntState, errors: string[], at: number): Promise<string | null> {
     const today = romeToday(new Date(at));
-    const chatId = telegramSettings().chatId;
+    const chatId = chatFor();
     if (errors.length === 0 || previous.errorNotifiedDay === today || chatId === null) return previous.errorNotifiedDay;
     logger.warn("hunt errors", { hunt: hunt.id, errors });
     const detail = errors.length > 1 ? `${errors[0] ?? ""} (+${errors.length - 1})` : (errors[0] ?? "");
     const text = copy.errors.huntFailed(escapeHtml(hunt.name), escapeHtml(redact(detail, [telegramSettings().token ?? ""])));
-    const result = await telegram.sendMessage(chatId, text);
-    return result.ok ? today : previous.errorNotifiedDay;
+    const result = await send([{ kind: "text", chatId, text, keyboard: null }], new Map());
+    return result.delivered ? today : previous.errorNotifiedDay;
+  }
+
+  function nextRunFrom(hunt: Hunt, at: number): number {
+    const interval = huntInterval(hunt, config.settings) * MINUTE;
+    return at + Math.round(interval * (1 + random() * 0.1));
+  }
+
+  async function failRound(hunt: Hunt, previous: HuntState, at: number, error: unknown): Promise<RunReport> {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error("round", { hunt: hunt.id, error: message });
+    setHuntState(hunt.id, {
+      ...previous,
+      nextRunAt: nextRunFrom(hunt, at),
+      lastRun: { at, ok: false, error: message, showings: 0 },
+    });
+    await persistState();
+    try {
+      await log([{ t: at, huntId: hunt.id, kind: "error", key: null, detail: message }]);
+    } catch (logError) {
+      logger.error("event log", { error: logError instanceof Error ? logError.message : String(logError) });
+    }
+    return { huntId: hunt.id, events: 0, error: message, skipped: false };
   }
 
   async function runHunt(hunt: Hunt, fresh: boolean): Promise<RunReport> {
     const at = now();
     const previous = huntStateOf(state, hunt.id);
-    const observation = await observeHunt({ uci, webtic, caches }, hunt, config.settings, new Date(at), { fresh });
-    const { state: next, events } = diffRound(previous, observation.round, hunt);
-    await recordRound(hunt, observation, events, at);
-    const muted = previous.mutedUntil !== null && previous.mutedUntil > at;
-    const allowed = muted ? [] : events.filter((event) => eventAllowed(event, hunt));
-    await notify(hunt, allowed, observation);
-    const errorNotifiedDay = await warnOnErrors(hunt, previous, observation.errors, at);
-    const interval = huntInterval(hunt, config.settings) * MINUTE;
-    const updated: HuntState = {
-      ...next,
-      errorNotifiedDay,
-      nextRunAt: at + Math.round(interval * (1 + random() * 0.1)),
-      lastRun: { at, ok: observation.errors.length === 0, error: observation.errors[0] ?? null, showings: observation.round.showings.length },
-    };
-    setHuntState(hunt.id, updated);
-    await saveState(store, state);
-    return { huntId: hunt.id, events: allowed.length, error: updated.lastRun?.error ?? null };
+    try {
+      const observation = await observeHunt({ uci, webtic, caches }, hunt, config.settings, new Date(at), { fresh });
+      const { state: next, events } = diffRound(previous, observation.round, hunt);
+      const muted = previous.mutedUntil !== null && previous.mutedUntil > at;
+      const allowed = muted ? [] : events.filter((event) => eventAllowed(event, hunt));
+      const delivery = await notify(hunt, allowed, observation);
+      await recordRound(hunt, observation, events, at, delivery);
+      const errorNotifiedDay = await warnOnErrors(hunt, previous, observation.errors, at);
+      const base = delivery.delivered ? next : previous;
+      const lastError = observation.errors[0] ?? delivery.errors[0] ?? null;
+      setHuntState(hunt.id, {
+        ...base,
+        errorNotifiedDay,
+        nextRunAt: nextRunFrom(hunt, at),
+        lastRun: { at, ok: lastError === null, error: lastError, showings: observation.round.showings.length },
+      });
+      await persistState();
+      return { huntId: hunt.id, events: delivery.delivered ? allowed.length : 0, error: lastError, skipped: false };
+    } catch (error) {
+      return failRound(hunt, previous, at, error);
+    }
   }
 
   function due(hunt: Hunt): boolean {
@@ -258,8 +321,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   function quiet(): boolean {
     const hours = config.settings.quietHours;
     if (hours === null) return false;
-    const { time } = romeNow(new Date(now()));
-    return time !== hours.to && timeInRange(time, hours.from, hours.to);
+    return timeInRange(romeNow(new Date(now())).time, hours.from, hours.to);
   }
 
   function manuallyRefreshedRecently(hunt: Hunt): boolean {
@@ -273,6 +335,15 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
 
   function active(hunt: Hunt): boolean {
     return hunt.enabled && hunt.archivedAt === null;
+  }
+
+  async function reloadConfig(): Promise<void> {
+    try {
+      config = await loadConfig(store);
+    } catch (error) {
+      if (!(error instanceof ConfigError)) throw error;
+      logger.error("config", { error: error.message });
+    }
   }
 
   async function writeConfig(next: Config): Promise<void> {
@@ -294,32 +365,26 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     await archive(config.hunts.filter((hunt) => active(hunt) && hunt.window.kind === "fixed" && hunt.window.to < today).map((hunt) => hunt.id));
   }
 
-  async function markBought(huntId: string): Promise<void> {
-    await archive([huntId]);
-  }
-
-  async function confirmMovie(huntId: string, slug: string): Promise<void> {
-    await writeConfig({
-      ...config,
-      hunts: config.hunts.map((hunt) =>
-        hunt.id === huntId && hunt.movie.kind === "title" && !hunt.movie.confirmedSlugs.includes(slug)
-          ? { ...hunt, movie: { ...hunt.movie, confirmedSlugs: [...hunt.movie.confirmedSlugs, slug] } }
-          : hunt,
-      ),
-    });
-    const huntState = huntStateOf(state, huntId);
-    setHuntState(huntId, { ...huntState, pendingMovieSlugs: huntState.pendingMovieSlugs.filter((pending) => pending !== slug) });
-    await saveState(store, state);
-  }
-
-  async function pruneHistory(): Promise<void> {
-    const cutoff = addDays(romeToday(new Date(now())), -RETENTION_DAYS);
+  async function prune(): Promise<void> {
+    const rome = romeNow(new Date(now()));
+    const nowLocal = `${rome.day}T${rome.time}`;
+    const cutoff = addDays(rome.day, -RETENTION_DAYS);
     const expired = Object.entries(state.historyDays).filter(([, day]) => day < cutoff);
-    if (expired.length === 0) return;
     for (const [key] of expired) await history.remove(key);
+    const configured = new Set(config.hunts.map((hunt) => hunt.id));
+    const hunts = Object.fromEntries(
+      Object.entries(state.hunts)
+        .filter(([id]) => configured.has(id))
+        .map(([id, hunt]) => [
+          id,
+          { ...hunt, showings: Object.fromEntries(Object.entries(hunt.showings).filter(([, showing]) => showing.startsAt.slice(0, 16) > nowLocal)) },
+        ]),
+    );
     const historyDays = Object.fromEntries(Object.entries(state.historyDays).filter(([, day]) => day >= cutoff));
-    state = { ...state, historyDays };
-    await saveState(store, state);
+    const next = { ...state, hunts, historyDays };
+    if (JSON.stringify(next) === JSON.stringify(state)) return;
+    state = next;
+    await persistState();
   }
 
   async function checkVersion(): Promise<void> {
@@ -334,19 +399,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       logger.warn("version check", { error: error instanceof Error ? error.message : String(error) });
     }
     state = { ...state, lastVersionCheckAt: now(), latestVersion };
-    await saveState(store, state);
-  }
-
-  async function tick(): Promise<void> {
-    config = await loadConfig(store, now);
-    await archiveFinished();
-    await pruneHistory();
-    if (quiet()) return;
-    await checkVersion();
-    for (const hunt of config.hunts) {
-      if (due(hunt)) await runHunt(hunt, false);
-    }
-    await sendDigestIfDue();
+    await persistState();
   }
 
   function digestEntries(onlyDigest = true): DigestEntry[] {
@@ -363,43 +416,72 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     const rome = romeNow(new Date(now()));
     const chatId = telegramSettings().chatId;
     if (!digest.enabled || chatId === null || rome.time < digest.time || state.lastDigestDate === rome.day) return;
-    for (const text of composeDigest(digestEntries())) await telegram.sendMessage(chatId, text);
+    const messages: OutgoingMessage[] = composeDigest(digestEntries()).map((text) => ({ kind: "text", chatId, text, keyboard: null }));
+    const delivery = await send(messages, new Map());
+    if (!delivery.delivered) {
+      logger.warn("digest", { errors: delivery.errors });
+      return;
+    }
     state = { ...state, lastDigestDate: rome.day };
-    await saveState(store, state);
+    await persistState();
   }
 
-  async function runNow(huntId?: string): Promise<RunReport[]> {
-    config = await loadConfig(store, now);
-    const targets = config.hunts.filter(
-      (hunt) => active(hunt) && (huntId === undefined || hunt.id === huntId) && !manuallyRefreshedRecently(hunt),
-    );
+  async function tickNow(): Promise<void> {
+    await reloadConfig();
+    await archiveFinished();
+    await prune();
+    if (quiet()) return;
+    await checkVersion();
+    for (const hunt of config.hunts) {
+      if (due(hunt)) await runHunt(hunt, false);
+    }
+    await sendDigestIfDue();
+  }
+
+  async function runNowLocked(huntId?: string): Promise<RunReport[]> {
+    await reloadConfig();
+    const targets = config.hunts.filter((hunt) => active(hunt) && (huntId === undefined || hunt.id === huntId));
     const reports: RunReport[] = [];
     for (const hunt of targets) {
+      if (manuallyRefreshedRecently(hunt)) {
+        reports.push({ huntId: hunt.id, events: 0, error: null, skipped: true });
+        continue;
+      }
       const report = await runHunt(hunt, true);
       setHuntState(hunt.id, { ...huntStateOf(state, hunt.id), manualRunAt: now() });
-      await saveState(store, state);
+      await persistState();
       reports.push(report);
     }
     return reports;
   }
 
-  async function mute(huntId: string, durationMs: number): Promise<void> {
-    setHuntState(huntId, { ...huntStateOf(state, huntId), mutedUntil: now() + durationMs });
-    await saveState(store, state);
+  async function confirmMovieLocked(huntId: string, slug: string): Promise<void> {
+    await writeConfig({
+      ...config,
+      hunts: config.hunts.map((hunt) =>
+        hunt.id === huntId && hunt.movie.kind === "title" && !hunt.movie.confirmedSlugs.includes(slug)
+          ? { ...hunt, movie: { ...hunt.movie, confirmedSlugs: [...hunt.movie.confirmedSlugs, slug] } }
+          : hunt,
+      ),
+    });
+    const huntState = huntStateOf(state, huntId);
+    setHuntState(huntId, { ...huntState, pendingMovieSlugs: huntState.pendingMovieSlugs.filter((pending) => pending !== slug) });
+    await persistState();
   }
 
-  async function resume(huntId: string): Promise<void> {
-    setHuntState(huntId, { ...huntStateOf(state, huntId), mutedUntil: null });
-    await saveState(store, state);
+  async function setMute(huntId: string, mutedUntil: number | null): Promise<void> {
+    setHuntState(huntId, { ...huntStateOf(state, huntId), mutedUntil });
+    await persistState();
   }
 
   return {
-    tick,
-    runNow,
-    mute,
-    resume,
-    markBought,
-    confirmMovie,
+    tick: () => exclusive(tickNow),
+    runNow: (huntId?: string) => exclusive(() => runNowLocked(huntId)),
+    mute: (huntId: string, durationMs: number) => exclusive(() => setMute(huntId, now() + durationMs)),
+    resume: (huntId: string) => exclusive(() => setMute(huntId, null)),
+    markBought: (huntId: string) => exclusive(() => archive([huntId])),
+    confirmMovie: (huntId: string, slug: string) => exclusive(() => confirmMovieLocked(huntId, slug)),
+    close: () => exclusive(() => Promise.resolve()),
     summaries: (huntIds?: string[]) =>
       digestEntries(false).filter((entry) => huntIds === undefined || huntIds.includes(entry.hunt.id)),
     primaryChat: () => telegramSettings().chatId,

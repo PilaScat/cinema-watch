@@ -132,7 +132,7 @@ describe("watcher", () => {
     clock += 15_000;
     await subject.runNow();
 
-    expect(throttled).toEqual([]);
+    expect(throttled).toEqual([expect.objectContaining({ skipped: true, events: 0 })]);
     expect(afterThrottled).toBe(afterFirst);
     expect(world.requests.length).toBeGreaterThan(afterThrottled);
   });
@@ -331,16 +331,22 @@ describe("watcher", () => {
     expect(outbox).toEqual([{ kinds: ["photo", "text"], photos: 1 }]);
   });
 
-  it("keeps hunting without Telegram configured", async () => {
-    await seed((config) => {
-      config.settings.telegram = { token: null, chatId: null };
+  it("keeps the alerts for later while Telegram is not configured", async () => {
+    const config = await seed((draft) => {
+      draft.settings.telegram = { token: null, chatId: null };
     });
+    const huntId = config.hunts[0]?.id ?? "";
     const subject = await watcher();
 
     await subject.tick();
+    const lastRun = subject.state().hunts[huntId]?.lastRun;
+    config.settings.telegram = { token: FAKE_TOKEN, chatId: PRIMARY_CHAT };
+    await saveConfig(createStore(dataDir), config);
+    clock += 6 * MINUTE;
+    await subject.tick();
 
-    expect(world.telegram).toEqual([]);
-    expect(Object.keys(Object.values(subject.state().hunts)[0]?.showings ?? {})).toEqual(["5116-575978"]);
+    expect(lastRun?.at).toBe(Date.parse("2026-12-01T10:00:00Z"));
+    expect(sent()).toEqual([`sendPhoto:${PRIMARY_CHAT}:1`, `sendMessage:${PRIMARY_CHAT}:0`]);
   });
 
   it("starts over from a corrupt state file and keeps a copy of it", async () => {
@@ -497,6 +503,210 @@ describe("watcher", () => {
     await subject.tick();
 
     expect(sent()).toEqual([`sendPhoto:${PRIMARY_CHAT}:1`, `sendMessage:${PRIMARY_CHAT}:0`]);
+  });
+
+  it("never runs the same hunt twice at once, so a refresh during a round sends nothing twice", async () => {
+    await seed();
+    const subject = await watcher();
+
+    await Promise.all([subject.tick(), subject.runNow()]);
+
+    expect(sent()).toEqual([`sendPhoto:${PRIMARY_CHAT}:1`, `sendMessage:${PRIMARY_CHAT}:0`]);
+  });
+
+  it("keeps a mute pressed while a round is running", async () => {
+    const config = await seed();
+    const huntId = config.hunts[0]?.id ?? "";
+    const subject = await watcher();
+
+    await Promise.all([subject.tick(), subject.mute(huntId, 24 * 60 * MINUTE)]);
+
+    expect(subject.state().hunts[huntId]?.mutedUntil).not.toBeNull();
+  });
+
+  it("delivers alerts on the next round when Telegram failed", async () => {
+    await seed();
+    world.failHost("api.telegram.org", 500);
+    const subject = await watcher();
+    await subject.tick();
+    const whileDown = sent();
+    world.restoreHost("api.telegram.org");
+    clock += 6 * MINUTE;
+    await subject.tick();
+
+    expect(whileDown).toEqual([]);
+    expect(sent()).toEqual([`sendPhoto:${PRIMARY_CHAT}:1`, `sendMessage:${PRIMARY_CHAT}:0`]);
+    expect((await subject.events(20)).map((entry) => entry.kind)).toContain("telegramError");
+  });
+
+  it("keeps the other hunts going and waits the interval when a hunt fails", async () => {
+    const config = await seed((draft) => {
+      draft.hunts.push(
+        createHunt(
+          { name: "Niente", theatres: ["uci-cinemas-verona"], movie: { kind: "slug", slugs: ["nessun-film"] }, window: { kind: "fixed", from: "2026-12-15", to: "2026-12-16" } },
+          draft.settings,
+          () => 0.7,
+        ),
+      );
+    });
+    const [failing, other] = config.hunts.map((hunt) => hunt.id);
+    const { writeFile } = await import("node:fs/promises");
+    await writeFile(join(dataDir, "history"), "not a folder", "utf8");
+    const subject = await watcher();
+
+    await subject.tick();
+
+    expect(subject.state().hunts[other ?? ""]?.lastRun?.ok).toBe(true);
+    expect(subject.state().hunts[failing ?? ""]?.lastRun?.ok).toBe(false);
+    expect(subject.state().hunts[failing ?? ""]?.nextRunAt).toBeGreaterThan(clock);
+  });
+
+  it("does not report showings as cancelled after the filters of a hunt change", async () => {
+    const config = await seed();
+    const subject = await watcher();
+    await subject.tick();
+    const hunt = config.hunts[0];
+    if (hunt) hunt.timeFrom = "21:00";
+    await saveConfig(createStore(dataDir), config);
+    for (let round = 0; round < 3; round += 1) {
+      clock += 6 * MINUTE;
+      await subject.tick();
+    }
+
+    expect(world.telegram.some((call) => call.text?.includes("Annullati"))).toBe(false);
+  });
+
+  it("does not report cancellations when a day comes back empty", async () => {
+    await seed();
+    const subject = await watcher();
+    await subject.tick();
+    world.setProgramming("uci-cinemas-verona", "2026-12-15", { data: [] });
+    for (let round = 0; round < 3; round += 1) {
+      clock += 6 * MINUTE;
+      await subject.tick();
+    }
+
+    expect(world.telegram.some((call) => call.text?.includes("Annullati"))).toBe(false);
+  });
+
+  it("tries the daily summary again when sending it failed", async () => {
+    await seed();
+    clock = Date.parse("2026-12-01T19:10:00Z");
+    const subject = await watcher();
+    await subject.mute((subject.config().hunts[0]?.id) ?? "", 60 * MINUTE);
+    world.failHost("api.telegram.org", 500);
+    await subject.tick();
+    const failedDigest = subject.state().lastDigestDate;
+    world.restoreHost("api.telegram.org");
+    clock += MINUTE;
+    await subject.tick();
+
+    expect(failedDigest).toBeNull();
+    expect(subject.state().lastDigestDate).toBe("2026-12-01");
+  });
+
+  it("keeps a dry run away from Telegram and from the saved state", async () => {
+    await seed();
+    world.failHost("myuci---uci-backend-production-nfluwp7wga-oc.a.run.app", 500);
+    const outbox: string[] = [];
+    const subject = await watcher({
+      outbox: (messages) => {
+        outbox.push(...messages.map((message) => message.kind));
+        return Promise.resolve();
+      },
+    });
+
+    await subject.runNow();
+    const { readdir } = await import("node:fs/promises");
+
+    expect(world.telegram).toEqual([]);
+    expect(outbox).toEqual(["text"]);
+    expect(await readdir(dataDir)).not.toContain("state.json");
+  });
+
+  it("treats the end of the quiet hours as part of them", async () => {
+    await seed((config) => {
+      config.settings.quietHours = { from: "04:00", to: "07:59" };
+    });
+    clock = Date.parse("2026-12-01T06:59:00Z");
+    const subject = await watcher();
+
+    await subject.tick();
+
+    expect(cinemaRequests()).toEqual([]);
+  });
+
+  it("reads the programming again on a manual refresh instead of using the cache", async () => {
+    await seed();
+    const subject = await watcher();
+    await subject.tick();
+    const reads = () => world.requests.filter((request) => request.endsWith("/programming/2026-12-15")).length;
+    const before = reads();
+    clock += 10_000;
+    await subject.runNow();
+
+    expect(reads()).toBe(before + 1);
+  });
+
+  it("spreads the next round by up to a tenth of the interval", async () => {
+    const config = await seed();
+    const start = clock;
+    const subject = await watcher({ random: () => 0.5 });
+
+    await subject.tick();
+
+    expect(subject.state().hunts[config.hunts[0]?.id ?? ""]?.nextRunAt).toBe(start + 5 * MINUTE * 1.05);
+  });
+
+  it("logs seat types it does not know", async () => {
+    await seed();
+    const store = createStore(dataDir);
+    const screen = fixture("webtic/screen-5116-2.json") as { Data: { Screen: { Seats: Array<{ SeatId: string; Row: number; Column: number; SeatType: string; SectorId: string }> } } };
+    const seats = screen.Data.Screen.Seats.map((seat) => ({
+      id: seat.SeatId,
+      rowLabel: seat.SeatId.split("/")[0],
+      number: Number(seat.SeatId.split("/")[1]),
+      row: seat.Row,
+      column: seat.Column,
+      sector: seat.SectorId,
+      type: seat.SeatId === "A/1" ? "POLTRONA" : seat.SeatType,
+    }));
+    await store.writeJson("screens/5116-2.json", { localId: 5116, screenId: 2, seats, fetchedAt: clock });
+    const subject = await watcher();
+
+    await subject.tick();
+    const entry = (await subject.events(10)).find((item) => item.kind === "unknownSeatType");
+
+    expect(entry?.detail).toBe("POLTRONA");
+  });
+
+  it("drops showings already played and hunts that no longer exist from the state", async () => {
+    const config = await seed((draft) => {
+      const hunt = draft.hunts[0];
+      if (hunt) hunt.window = { kind: "fixed", from: "2026-12-15", to: "2026-12-20" };
+    });
+    const huntId = config.hunts[0]?.id ?? "";
+    const subject = await watcher();
+    await subject.tick();
+    clock = Date.parse("2026-12-16T10:00:00Z");
+    await subject.tick();
+    const afterShow = Object.keys(subject.state().hunts[huntId]?.showings ?? {});
+    config.hunts = [];
+    await saveConfig(createStore(dataDir), config);
+    await subject.tick();
+
+    expect(afterShow).toEqual([]);
+    expect(subject.state().hunts).toEqual({});
+  });
+
+  it("keeps a copy of a state file written by a newer version", async () => {
+    await seed();
+    await createStore(dataDir).writeJson("state.json", { schemaVersion: 99 });
+    const subject = await watcher();
+    await subject.tick();
+    const { readdir } = await import("node:fs/promises");
+
+    expect((await readdir(dataDir)).some((name) => name.startsWith("state.json.bak-"))).toBe(true);
   });
 });
 
