@@ -234,6 +234,6 @@ function settleMissing(showings: Record<string, ShowingState>, observation: Roun
 }
 
 function snapshotFromState(state: ShowingState): ShowingSnapshot {
-  const { firstSeenAt: _first, lastSeenAt: _last, missingRounds: _missing, zoneSignature: _zone, okNotifiedAt: _notified, belowThreshold: _below, ...snapshot } = state;
+  const { firstSeenAt, lastSeenAt, missingRounds, zoneSignature, okNotifiedAt, belowThreshold, ...snapshot } = state;
   return snapshot;
 }
