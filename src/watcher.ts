@@ -64,6 +64,7 @@ export interface Watcher {
   close(): Promise<void>;
   summaries(huntIds?: string[]): DigestEntry[];
   primaryChat(): string | null;
+  botToken(): string | null;
   history(key: string): Promise<HistoryPoint[]>;
   events(limit?: number): Promise<EventEntry[]>;
   config(): Config;
@@ -485,6 +486,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     summaries: (huntIds?: string[]) =>
       digestEntries(false).filter((entry) => huntIds === undefined || huntIds.includes(entry.hunt.id)),
     primaryChat: () => telegramSettings().chatId,
+    botToken: () => telegramSettings().token,
     history: (key: string) => history.read(key),
     events: (limit?: number) => eventLog.list(limit),
     config: () => config,

@@ -19,7 +19,7 @@ export interface FakeWorld {
   setOccupancy(localId: number, performanceId: number, json: unknown): void;
   failHost(host: string, status: number): void;
   pushUpdate(update: unknown): void;
-  conflictOnPoll(): void;
+  conflictOnPoll(on?: boolean): void;
   restoreHost(host: string): void;
   latestRelease: string;
 }
@@ -77,8 +77,8 @@ export function createFakeWorld(): FakeWorld {
     failHost: (host, status) => failing.set(host, status),
     restoreHost: (host) => failing.delete(host),
     pushUpdate: (update) => updates.push(update),
-    conflictOnPoll: () => {
-      pollConflict = true;
+    conflictOnPoll: (on = true) => {
+      pollConflict = on;
     },
     fetch: (input, init) => Promise.resolve(respond(input, init)),
   };

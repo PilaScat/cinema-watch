@@ -59,6 +59,7 @@ async function serve(): Promise<void> {
   const shutdown = async () => {
     clearInterval(timer);
     await bot.stop();
+    await watcher.close();
     watcher.logger.info("stopped");
     process.exit(0);
   };

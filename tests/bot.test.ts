@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createBot } from "../src/bot.js";
+import { saveConfig } from "../src/config.js";
 import type { Config } from "../src/model.js";
+import { createStore } from "../src/store.js";
 import { fixture } from "./support/fake-world.js";
 import { createHarness, PRIMARY_CHAT, type Harness } from "./support/harness.js";
 
@@ -95,14 +97,39 @@ describe("bot", () => {
     expect(answers()).toEqual(["Silenziata per 24 h", "Caccia non trovata"]);
   });
 
-  it("stops polling with a clear error when another program reads the same bot", async () => {
-    const { bot } = await primed();
-    harness.world.conflictOnPoll();
+  it("waits a minute after another program read the same bot, then polls again", async () => {
+    const { bot, config } = await primed();
+    const huntId = config.hunts[0]?.id ?? "";
+    harness.world.conflictOnPoll(true);
+    const before = harness.now();
 
-    bot.start();
-    await bot.stopped();
+    await bot.cycle();
+    const waited = harness.now() - before;
+    const duringConflict = bot.status().error;
+    harness.world.conflictOnPoll(false);
+    harness.world.pushUpdate({ update_id: 20, callback_query: { id: "c20", from: { id: 1 }, data: `m:${huntId}`, message: { chat: { id: 4242 } } } });
+    await bot.cycle();
 
-    expect(bot.status()).toEqual({ running: false, error: "Un altro programma legge gli aggiornamenti di questo bot" });
+    expect(waited).toBe(60_000);
+    expect(duringConflict).toBe("Un altro programma legge gli aggiornamenti di questo bot");
+    expect(bot.status().error).toBeNull();
+    expect(answers()).toEqual(["Silenziata per 24 h"]);
+  });
+
+  it("starts reading from the beginning when the bot token changes", async () => {
+    const { bot, config, watcher } = await primed();
+    const huntId = config.hunts[0]?.id ?? "";
+    harness.world.pushUpdate({ update_id: 500, callback_query: { id: "c500", from: { id: 1 }, data: "a:zzzzzzzz", message: { chat: { id: 4242 } } } });
+    await bot.pollOnce();
+    config.settings.telegram = { token: "987654321:AAAnotherFakeTokenForTests_abcdefghijk", chatId: PRIMARY_CHAT };
+    await saveConfig(createStore(harness.dataDir), config);
+    harness.advance(6 * 60_000);
+    await watcher.tick();
+    harness.world.pushUpdate({ update_id: 3, callback_query: { id: "c3", from: { id: 1 }, data: `m:${huntId}`, message: { chat: { id: 4242 } } } });
+
+    await bot.pollOnce();
+
+    expect(answers()).toContain("Silenziata per 24 h");
   });
 
   it("answers the refresh button with no news, then with updated once seats free up", async () => {
@@ -114,8 +141,22 @@ describe("bot", () => {
     harness.advance(31_000);
     await bot.handleUpdate(callback(2, PRIMARY_CHAT, `a:${huntId}`));
 
-    expect(answers()).toEqual(["Nessuna novità", "Aggiornato"]);
+    const methods = harness.world.telegram.map((call) => (call.method === "answerCallbackQuery" ? "answer" : (call.text?.includes("Nessuna novità") ? "noNews" : call.method)));
+
+    expect(answers()).toEqual(["Aggiornamento in corso", "Aggiornamento in corso"]);
+    expect(methods.slice(0, 2)).toEqual(["answer", "noNews"]);
     expect(harness.world.telegram.some((call) => call.text?.includes("Posti liberati"))).toBe(true);
+  });
+
+  it("tells that a hunt was refreshed moments ago instead of reading again", async () => {
+    const { bot } = await primed();
+    await bot.handleUpdate(command(1, PRIMARY_CHAT, "/aggiorna"));
+    harness.world.telegram.length = 0;
+    harness.advance(10_000);
+
+    await bot.handleUpdate(command(2, PRIMARY_CHAT, "/aggiorna"));
+
+    expect(harness.world.telegram.map((call) => call.text)).toEqual(["Aggiornata meno di 30 s fa"]);
   });
 
   it("lets /aggiorna deliver the alert instead of a no news reply when something changed", async () => {
@@ -135,8 +176,9 @@ describe("bot", () => {
     await bot.handleUpdate(callback(1, "-777", `m:${huntId}`));
     await bot.handleUpdate({ updateId: 2, message: null, callback: null });
     await bot.handleUpdate({ updateId: 3, message: null, callback: { id: "c3", chatId: null, data: `m:${huntId}`, fromId: 1 } });
+    await bot.handleUpdate(callback(4, "-777", "a:zzzzzzzz"));
 
-    expect(answers()).toEqual(["", ""]);
+    expect(answers()).toEqual(["", "", ""]);
   });
 
   it("waits quietly while Telegram is not configured and stops cleanly", async () => {
@@ -146,7 +188,6 @@ describe("bot", () => {
     const bot = createBot({ watcher: await harness.watcher(), sleep: harness.sleep });
 
     bot.start();
-    bot.restart();
     await bot.stop();
 
     expect(bot.status()).toEqual({ running: false, error: null });
