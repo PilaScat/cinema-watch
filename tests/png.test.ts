@@ -100,7 +100,7 @@ describe("svgToPng", () => {
     expect(png.length).toBeGreaterThan(1000);
   });
 
-  it("renders the Dune hall in under 500 ms after warm-up", () => {
+  it.skipIf(process.env.STRYKER_MUTATOR_WORKER !== undefined)("renders the Dune hall in under 500 ms after warm-up", () => {
     svgToPng(svg);
     const start = performance.now();
     svgToPng(svg);
