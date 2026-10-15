@@ -106,6 +106,7 @@ export interface ShowingState extends ShowingSnapshot {
   missingRounds: number;
   zoneSignature: string | null;
   okNotifiedAt: number | null;
+  okBaseline: boolean | null;
   belowThreshold: boolean;
 }
 
@@ -117,7 +118,7 @@ export interface HuntState {
   mutedUntil: number | null;
   nextRunAt: number | null;
   lastRun: { at: number; ok: boolean; error: string | null; showings: number } | null;
-  failures: number;
+  daysSeen: string[];
   manualRunAt: number | null;
   errorNotifiedDay: IsoDay | null;
 }
@@ -142,6 +143,7 @@ export interface RoundObservation {
   now: Date;
   showings: ObservedShowing[];
   daysRead: Array<{ theatreSlug: string; day: IsoDay }>;
+  allKeys: string[];
   moviesSeen: Array<{ movie: MovieRef; theatreSlug: string }>;
 }
 

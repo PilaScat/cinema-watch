@@ -12,6 +12,10 @@ import type {
 import { romeNow } from "./dates.js";
 import type { SeatAnalysis } from "./types.js";
 
+export const SEATS_FREED_COOLDOWN_MS = 30 * 60_000;
+export const LAST_SEATS_REARM = 3;
+export const MISSING_ROUNDS_TO_CANCEL = 2;
+
 export function emptyHuntState(): HuntState {
   return {
     initialized: false,
@@ -21,7 +25,7 @@ export function emptyHuntState(): HuntState {
     mutedUntil: null,
     nextRunAt: null,
     lastRun: null,
-    failures: 0,
+    daysSeen: [],
     manualRunAt: null,
     errorNotifiedDay: null,
   };
@@ -63,7 +67,13 @@ function snapshotOf(observed: ObservedShowing): ShowingSnapshot {
   };
 }
 
+function snapshotFromState(state: ShowingState): ShowingSnapshot {
+  const { firstSeenAt, lastSeenAt, missingRounds, zoneSignature, okNotifiedAt, okBaseline, belowThreshold, ...snapshot } = state;
+  return snapshot;
+}
+
 function freshState(observed: ObservedShowing, now: number, hunt: Hunt): ShowingState {
+  const analysis = observed.analysis;
   return {
     ...snapshotOf(observed),
     firstSeenAt: now,
@@ -71,19 +81,9 @@ function freshState(observed: ObservedShowing, now: number, hunt: Hunt): Showing
     missingRounds: 0,
     zoneSignature: observed.zoneSignature,
     okNotifiedAt: null,
-    belowThreshold: observed.analysis !== null && observed.analysis.freeInZone < hunt.lastSeatsThreshold,
+    okBaseline: analysis ? analysis.ok : null,
+    belowThreshold: analysis !== null && analysis.freeInZone < hunt.lastSeatsThreshold,
   };
-}
-
-export const SEATS_FREED_COOLDOWN_MS = 30 * 60_000;
-export const LAST_SEATS_REARM = 3;
-
-function coolingDown(known: ShowingState, now: number): boolean {
-  return known.okNotifiedAt !== null && now - known.okNotifiedAt < SEATS_FREED_COOLDOWN_MS;
-}
-
-function holdNotOk(state: ShowingState): ShowingState {
-  return state.seats ? { ...state, seats: { ...state.seats, ok: false } } : state;
 }
 
 function refreshed(known: ShowingState, observed: ObservedShowing, now: number): ShowingState {
@@ -101,100 +101,70 @@ function refreshed(known: ShowingState, observed: ObservedShowing, now: number):
   };
 }
 
-export function diffRound(previous: HuntState, observation: RoundObservation, hunt: Hunt): RoundResult {
-  const now = observation.now.getTime();
-  const showings: Record<string, ShowingState> = { ...previous.showings };
-  const events: HuntEvent[] = [];
-  const moves: HuntEvent[] = [];
-  const vanished = vanishedShowings(showings, observation);
-  for (const observed of observation.showings) {
-    const known = showings[observed.showing.key];
-    if (known === undefined) {
-      const state = freshState(observed, now, hunt);
-      showings[state.key] = state;
-      const origin = takeMatch(vanished, observed);
-      if (origin) {
-        delete showings[origin.key];
-        moves.push({ kind: "moved", from: snapshotFromState(origin), to: snapshotOf(observed) });
-      } else {
-        events.push({ kind: "newShowing", showing: snapshotOf(observed) });
-      }
-      continue;
-    }
-    let next = refreshed(known, observed, now);
-    const firstMap = known.seats === null;
-    const sameZone = firstMap || observed.zoneSignature === known.zoneSignature;
-    if (sameZone && known.seats?.ok !== true && observed.analysis?.ok === true) {
-      if (coolingDown(known, now)) {
-        next = holdNotOk(next);
-      } else {
-        events.push({ kind: "seatsFreed", showing: snapshotOf(observed), groups: observed.analysis.groups });
-        next = { ...next, okNotifiedAt: now };
-      }
-    }
-    if (observed.analysis && firstMap) {
-      next = { ...next, belowThreshold: observed.analysis.freeInZone < hunt.lastSeatsThreshold };
-    } else if (observed.analysis) {
-      const freeInZone = observed.analysis.freeInZone;
-      if (!known.belowThreshold && freeInZone < hunt.lastSeatsThreshold) {
-        events.push({ kind: "lastSeats", showing: snapshotOf(observed), freeInZone });
-        next = { ...next, belowThreshold: true };
-      } else if (known.belowThreshold && freeInZone >= hunt.lastSeatsThreshold + LAST_SEATS_REARM) {
-        next = { ...next, belowThreshold: false };
-      }
-    }
-    showings[known.key] = next;
-  }
-  events.push(...moves, ...settleMissing(showings, observation));
-  const movies = appearedMovies(previous, observation, hunt);
-  events.push(...movies.events);
-  return {
-    state: { ...previous, initialized: true, showings, seenMovieSlugs: movies.seen, pendingMovieSlugs: movies.pending },
-    events,
-  };
+function coolingDown(known: ShowingState, now: number): boolean {
+  return known.okNotifiedAt !== null && now - known.okNotifiedAt < SEATS_FREED_COOLDOWN_MS;
 }
 
-function appearedMovies(previous: HuntState, observation: RoundObservation, hunt: Hunt) {
-  const seen = [...previous.seenMovieSlugs];
-  const pending = [...previous.pendingMovieSlugs];
-  const events: HuntEvent[] = [];
-  if (hunt.movie.kind !== "title") return { seen, pending, events };
-  const confirmed = new Set(hunt.movie.confirmedSlugs);
-  for (const { movie, theatreSlug } of observation.moviesSeen) {
-    if (seen.includes(movie.slug)) continue;
-    seen.push(movie.slug);
-    if (confirmed.has(movie.slug)) continue;
-    pending.push(movie.slug);
-    events.push({ kind: "movieAppeared", movie, theatreSlug });
-  }
-  return { seen, pending, events };
+function dayKey(theatreSlug: string, day: string): string {
+  return `${theatreSlug}|${day}`;
 }
-
-export const MISSING_ROUNDS_TO_CANCEL = 2;
 
 function nowLocalOf(observation: RoundObservation): string {
   const rome = romeNow(observation.now);
   return `${rome.day}T${rome.time}`;
 }
 
-function isMissing(known: ShowingState, seen: Set<string>, read: Set<string>): boolean {
-  return !seen.has(known.key) && read.has(`${known.theatreSlug}|${known.day}`);
+function relocated(known: ShowingState, observed: ObservedShowing): boolean {
+  const { showing } = observed;
+  return known.startsAt !== showing.startsAt || known.room !== showing.room;
 }
 
-function readDays(observation: RoundObservation): Set<string> {
-  return new Set(observation.daysRead.map(({ theatreSlug, day }) => `${theatreSlug}|${day}`));
+interface SeatOutcome {
+  next: ShowingState;
+  events: HuntEvent[];
 }
 
-function seenKeys(observation: RoundObservation): Set<string> {
-  return new Set(observation.showings.map((observed) => observed.showing.key));
+function seatChanges(known: ShowingState, observed: ObservedShowing, next: ShowingState, hunt: Hunt, now: number): SeatOutcome {
+  const analysis = observed.analysis;
+  if (!analysis) return { next, events: [] };
+  const threshold = hunt.lastSeatsThreshold;
+  const zoneChanged = known.zoneSignature !== null && observed.zoneSignature !== known.zoneSignature;
+  if (zoneChanged) {
+    return { next: { ...next, okBaseline: analysis.ok, belowThreshold: analysis.freeInZone < threshold }, events: [] };
+  }
+  const events: HuntEvent[] = [];
+  let updated: ShowingState = { ...next, okBaseline: analysis.ok };
+  if (known.okBaseline !== true && analysis.ok) {
+    if (coolingDown(known, now)) {
+      updated = { ...updated, okBaseline: false };
+    } else {
+      events.push({ kind: "seatsFreed", showing: snapshotOf(observed), groups: analysis.groups });
+      updated = { ...updated, okNotifiedAt: now };
+    }
+  }
+  if (known.okBaseline === null) return { next: { ...updated, belowThreshold: analysis.freeInZone < threshold }, events };
+  if (!known.belowThreshold && analysis.freeInZone < threshold) {
+    events.push({ kind: "lastSeats", showing: snapshotOf(observed), freeInZone: analysis.freeInZone });
+    updated = { ...updated, belowThreshold: true };
+  } else if (known.belowThreshold && analysis.freeInZone >= threshold + LAST_SEATS_REARM) {
+    updated = { ...updated, belowThreshold: false };
+  }
+  return { next: updated, events };
 }
 
 function vanishedShowings(showings: Record<string, ShowingState>, observation: RoundObservation): ShowingState[] {
-  const seen = seenKeys(observation);
-  const read = readDays(observation);
+  const seen = new Set(observation.showings.map((observed) => observed.showing.key));
+  const present = new Set(observation.allKeys);
+  const read = new Set(observation.daysRead.map(({ theatreSlug, day }) => dayKey(theatreSlug, day)));
   const nowLocal = nowLocalOf(observation);
   return Object.values(showings)
-    .filter((known) => isMissing(known, seen, read) && known.startsAt.slice(0, 16) > nowLocal)
+    .filter(
+      (known) =>
+        !seen.has(known.key) &&
+        !present.has(known.key) &&
+        read.has(dayKey(known.theatreSlug, known.day)) &&
+        known.startsAt.slice(0, 16) > nowLocal,
+    )
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
 }
 
@@ -213,13 +183,14 @@ function takeMatch(candidates: ShowingState[], observed: ObservedShowing): Showi
 }
 
 function settleMissing(showings: Record<string, ShowingState>, observation: RoundObservation): HuntEvent[] {
-  const seen = seenKeys(observation);
-  const read = readDays(observation);
+  const seen = new Set(observation.showings.map((observed) => observed.showing.key));
+  const present = new Set(observation.allKeys);
+  const read = new Set(observation.daysRead.map(({ theatreSlug, day }) => dayKey(theatreSlug, day)));
   const nowLocal = nowLocalOf(observation);
   const events: HuntEvent[] = [];
   for (const known of Object.values(showings)) {
-    if (!isMissing(known, seen, read)) continue;
-    if (known.startsAt.slice(0, 16) <= nowLocal) {
+    if (seen.has(known.key) || !read.has(dayKey(known.theatreSlug, known.day))) continue;
+    if (present.has(known.key) || known.startsAt.slice(0, 16) <= nowLocal) {
       delete showings[known.key];
       continue;
     }
@@ -234,7 +205,67 @@ function settleMissing(showings: Record<string, ShowingState>, observation: Roun
   return events;
 }
 
-function snapshotFromState(state: ShowingState): ShowingSnapshot {
-  const { firstSeenAt, lastSeenAt, missingRounds, zoneSignature, okNotifiedAt, belowThreshold, ...snapshot } = state;
-  return snapshot;
+function appearedMovies(previous: HuntState, observation: RoundObservation, hunt: Hunt) {
+  const seen = [...previous.seenMovieSlugs];
+  const pending = [...previous.pendingMovieSlugs];
+  const events: HuntEvent[] = [];
+  if (hunt.movie.kind !== "title") return { seen, pending, events };
+  const confirmed = new Set(hunt.movie.confirmedSlugs);
+  for (const { movie, theatreSlug } of observation.moviesSeen) {
+    if (seen.includes(movie.slug)) continue;
+    seen.push(movie.slug);
+    if (confirmed.has(movie.slug)) continue;
+    pending.push(movie.slug);
+    events.push({ kind: "movieAppeared", movie, theatreSlug });
+  }
+  return { seen, pending, events };
+}
+
+function seenDays(previous: HuntState, observation: RoundObservation): string[] {
+  const today = romeNow(observation.now).day;
+  const days = new Set(previous.daysSeen);
+  for (const { theatreSlug, day } of observation.daysRead) days.add(dayKey(theatreSlug, day));
+  return [...days].filter((key) => (key.split("|")[1] ?? "") >= today).sort();
+}
+
+export function diffRound(previous: HuntState, observation: RoundObservation, hunt: Hunt): RoundResult {
+  const now = observation.now.getTime();
+  const showings: Record<string, ShowingState> = { ...previous.showings };
+  const events: HuntEvent[] = [];
+  const moves: HuntEvent[] = [];
+  const knownDays = new Set(previous.daysSeen);
+  const vanished = vanishedShowings(showings, observation);
+  for (const observed of observation.showings) {
+    const known = showings[observed.showing.key];
+    if (known === undefined) {
+      const state = freshState(observed, now, hunt);
+      showings[state.key] = state;
+      const origin = takeMatch(vanished, observed);
+      if (origin) {
+        delete showings[origin.key];
+        moves.push({ kind: "moved", from: snapshotFromState(origin), to: snapshotOf(observed) });
+      } else if (!previous.initialized || knownDays.has(dayKey(observed.showing.theatreSlug, observed.showing.day))) {
+        events.push({ kind: "newShowing", showing: snapshotOf(observed) });
+      }
+      continue;
+    }
+    if (relocated(known, observed)) moves.push({ kind: "moved", from: snapshotFromState(known), to: snapshotOf(observed) });
+    const outcome = seatChanges(known, observed, refreshed(known, observed, now), hunt, now);
+    events.push(...outcome.events);
+    showings[known.key] = outcome.next;
+  }
+  events.push(...moves, ...settleMissing(showings, observation));
+  const movies = appearedMovies(previous, observation, hunt);
+  events.push(...movies.events);
+  return {
+    state: {
+      ...previous,
+      initialized: true,
+      showings,
+      daysSeen: seenDays(previous, observation),
+      seenMovieSlugs: movies.seen,
+      pendingMovieSlugs: movies.pending,
+    },
+    events,
+  };
 }

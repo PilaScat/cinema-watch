@@ -33,6 +33,7 @@ export interface HuntObservation {
   details: Map<string, SeatDetail>;
   errors: string[];
   hallChanged: string[];
+  unknownSeatTypes: string[];
 }
 
 export function zoneSignature(zone: Zone, together: number): string {
@@ -73,8 +74,10 @@ function moviesMatching(hunt: Hunt, showings: Showing[], theatreSlug: string): A
   return [...found.values()].map((movie) => ({ movie, theatreSlug }));
 }
 
-async function readDay(deps: RunnerDeps, theatreSlug: string, day: IsoDay): Promise<Showing[]> {
-  return deps.caches.programming.getOrLoad(`${theatreSlug}|${day}`, () => deps.uci.programmingDay(theatreSlug, day));
+async function readDay(deps: RunnerDeps, theatreSlug: string, day: IsoDay, fresh: boolean): Promise<Showing[]> {
+  return deps.caches.programming.getOrLoad(`${theatreSlug}|${day}`, () => deps.uci.programmingDay(theatreSlug, day), {
+    bypass: fresh,
+  });
 }
 
 async function observeSeats(
@@ -112,20 +115,22 @@ export async function observeHunt(
 ): Promise<HuntObservation> {
   const days = resolveWindow(hunt.window, now);
   const filter = showingFilter(hunt);
-  const round: RoundObservation = { now, showings: [], daysRead: [], moviesSeen: [] };
+  const round: RoundObservation = { now, showings: [], daysRead: [], allKeys: [], moviesSeen: [] };
   const details = new Map<string, SeatDetail>();
   const errors: string[] = [];
   const hallChanged: string[] = [];
+  const unknownSeatTypes = new Set<string>();
   for (const theatreSlug of hunt.theatres) {
     for (const day of days) {
       let all: Showing[];
       try {
-        all = await readDay(deps, theatreSlug, day);
+        all = await readDay(deps, theatreSlug, day, options.fresh);
       } catch (error) {
         errors.push(`${theatreSlug} ${day}: ${describe(error)}`);
         continue;
       }
-      round.daysRead.push({ theatreSlug, day });
+      if (all.length > 0) round.daysRead.push({ theatreSlug, day });
+      round.allKeys.push(...all.map((showing) => showing.key));
       round.moviesSeen.push(...moviesMatching(hunt, all, theatreSlug));
       for (const showing of filterShowings(all, filter, now)) {
         try {
@@ -133,6 +138,7 @@ export async function observeHunt(
           round.showings.push(seats.observed);
           details.set(showing.key, seats.detail);
           if (seats.hallChanged) hallChanged.push(showing.key);
+          for (const type of seats.detail.analysis.unknownTypes) unknownSeatTypes.add(type);
         } catch (error) {
           errors.push(`${showing.key}: ${describe(error)}`);
           round.showings.push({ showing, performance: null, analysis: null, zoneSignature: null });
@@ -140,5 +146,5 @@ export async function observeHunt(
       }
     }
   }
-  return { round, details, errors, hallChanged };
+  return { round, details, errors, hallChanged, unknownSeatTypes: [...unknownSeatTypes] };
 }

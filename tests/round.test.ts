@@ -87,11 +87,12 @@ function observed(show: Showing, seats: SeatAnalysis | null, zoneSignature = "zo
   };
 }
 
-function round(now: Date, showings: ObservedShowing[], days = ["2026-12-16"]): RoundObservation {
+function round(now: Date, showings: ObservedShowing[], days = ["2026-12-16"], otherKeys: string[] = []): RoundObservation {
   return {
     now,
     showings,
     daysRead: days.map((day) => ({ theatreSlug: "uci-cinemas-verona", day })),
+    allKeys: [...showings.map((item) => item.showing.key), ...otherKeys],
     moviesSeen: [],
   };
 }
@@ -279,6 +280,56 @@ describe("diffRound", () => {
       }),
       { numRuns: 300 },
     );
+  });
+
+  it("forgets a showing that no longer passes the filters instead of cancelling it", () => {
+    let state = run(emptyHuntState(), round(at(0), [observed(showing(600001), analysis(0)), observed(showing(600002), analysis(0))])).state;
+    const kinds: string[] = [];
+    for (const minute of [5, 10, 15]) {
+      const result = run(state, round(at(minute), [observed(showing(600001), analysis(0))], ["2026-12-16"], ["5116-600002"]));
+      kinds.push(...result.events.map((event) => event.kind));
+      state = result.state;
+    }
+
+    expect(kinds).toEqual([]);
+    expect(Object.keys(state.showings)).toEqual(["5116-600001"]);
+  });
+
+  it("reports a showing whose time changed under the same key as moved", () => {
+    const first = run(emptyHuntState(), round(at(0), [observed(showing(600001), analysis(0))]));
+    const later = showing(600001, { startsAt: "2026-12-16T21:15:00", time: "21:15" });
+    const second = run(first.state, round(at(5), [observed(later, analysis(0))]));
+
+    expect(second.events.map((event) => (event.kind === "moved" ? `${event.from.time}>${event.to.time}` : event.kind))).toEqual(["20:30>21:15"]);
+  });
+
+  it("records quietly the showings of a day the hunt reads for the first time", () => {
+    const first = run(emptyHuntState(), round(at(0), [observed(showing(600001), analysis(0))], ["2026-12-16"]));
+    const nextDay = showing(600009, { day: "2026-12-17", startsAt: "2026-12-17T20:30:00" });
+    const second = run(first.state, round(at(5), [observed(showing(600001), analysis(0)), observed(nextDay, analysis(0))], ["2026-12-16", "2026-12-17"]));
+    const another = showing(600010, { day: "2026-12-17", startsAt: "2026-12-17T22:30:00", time: "22:30" });
+    const third = run(second.state, round(at(10), [observed(showing(600001), analysis(0)), observed(nextDay, analysis(0)), observed(another, analysis(0))], ["2026-12-16", "2026-12-17"]));
+
+    expect(second.events).toEqual([]);
+    expect(Object.keys(second.state.showings).sort()).toEqual(["5116-600001", "5116-600009"]);
+    expect(third.events.map((event) => event.kind)).toEqual(["newShowing"]);
+  });
+
+  it("does not report last seats when only the good zone changed", () => {
+    const first = run(emptyHuntState(), round(at(0), [observed(showing(600001), analysis(30), "zone-a")]));
+    const second = run(first.state, round(at(5), [observed(showing(600001), analysis(4), "zone-b")]));
+
+    expect(second.events).toEqual([]);
+  });
+
+  it("keeps the real seat summary while it waits to report seats freed again", () => {
+    const freed = group("H", [9, 10, 11], 0.97);
+    let state = emptyHuntState();
+    for (const [minute, free] of [[0, 0], [5, 3], [10, 0], [20, 3]] as const) {
+      state = run(state, round(at(minute), [observed(showing(600001), analysis(free, [freed]))])).state;
+    }
+
+    expect(state.showings["5116-600001"]?.seats?.ok).toBe(true);
   });
 
   it("ignores movies seen by a hunt that targets slugs", () => {
