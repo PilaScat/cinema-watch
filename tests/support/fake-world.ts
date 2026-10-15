@@ -18,6 +18,8 @@ export interface FakeWorld {
   setProgramming(theatreSlug: string, day: string, json: unknown): void;
   setOccupancy(localId: number, performanceId: number, json: unknown): void;
   failHost(host: string, status: number): void;
+  pushUpdate(update: unknown): void;
+  conflictOnPoll(): void;
   restoreHost(host: string): void;
   latestRelease: string;
 }
@@ -61,6 +63,8 @@ export function createFakeWorld(): FakeWorld {
   const occupancies = new Map<string, unknown>();
   const failing = new Map<string, number>();
   const telegram: TelegramCall[] = [];
+  const updates: unknown[] = [];
+  let pollConflict = false;
   const requests: string[] = [];
   let messageId = 1000;
 
@@ -72,6 +76,10 @@ export function createFakeWorld(): FakeWorld {
     setOccupancy: (localId, performanceId, body) => occupancies.set(`${localId}-${performanceId}`, body),
     failHost: (host, status) => failing.set(host, status),
     restoreHost: (host) => failing.delete(host),
+    pushUpdate: (update) => updates.push(update),
+    conflictOnPoll: () => {
+      pollConflict = true;
+    },
     fetch: (input, init) => Promise.resolve(respond(input, init)),
   };
 
@@ -105,9 +113,17 @@ export function createFakeWorld(): FakeWorld {
 
       if (url.hostname === "api.telegram.org") {
         const method = url.pathname.split("/").pop() ?? "";
-        if (method === "getUpdates") return json({ ok: true, result: [] });
+        if (method === "getUpdates") {
+          if (pollConflict) return json({ ok: false, error_code: 409, description: "Conflict: terminated by other getUpdates request" }, 409);
+          const offset = typeof body.offset === "number" ? body.offset : 0;
+          const pending = updates.filter((update) => (update as { update_id: number }).update_id >= offset);
+          return json({ ok: true, result: pending });
+        }
         if (method === "getMe") return json({ ok: true, result: { id: 1, is_bot: true, username: "cinema_watch_test_bot" } });
-        if (method === "answerCallbackQuery") return json({ ok: true, result: true });
+        if (method === "answerCallbackQuery") {
+          telegram.push({ method, chatId: null, text: typeof body.text === "string" ? body.text : null, caption: null, photos: 0, replyMarkup: null });
+          return json({ ok: true, result: true });
+        }
         const media = maybeJson(body.media);
         telegram.push({
           method,

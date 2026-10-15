@@ -26,6 +26,7 @@ const CACHE_TTL_MS = MINUTE;
 const PERFORMANCE_TTL_MS = 24 * 60 * MINUTE;
 const MANUAL_REFRESH_MS = 30_000;
 const RETENTION_DAYS = 30;
+const DRY_RUN_CHAT = "dry-run";
 const VERSION_CHECK_MS = 24 * 60 * MINUTE;
 const RELEASES_URL = "https://api.github.com/repos/PilaScat/cinema-watch/releases/latest";
 
@@ -38,6 +39,7 @@ export interface WatcherOptions {
   sleep?: (ms: number) => Promise<void>;
   env?: NodeJS.ProcessEnv;
   logSink?: (line: string) => void;
+  outbox?: (messages: OutgoingMessage[], photos: Map<string, Uint8Array>) => Promise<void>;
 }
 
 export interface RunReport {
@@ -53,6 +55,8 @@ export interface Watcher {
   resume(huntId: string): Promise<void>;
   markBought(huntId: string): Promise<void>;
   confirmMovie(huntId: string, slug: string): Promise<void>;
+  summaries(huntIds?: string[]): DigestEntry[];
+  primaryChat(): string | null;
   history(key: string): Promise<HistoryPoint[]>;
   events(limit?: number): Promise<EventEntry[]>;
   config(): Config;
@@ -156,7 +160,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   }
 
   async function notify(hunt: Hunt, events: HuntEvent[], observation: HuntObservation): Promise<void> {
-    const chatId = telegramSettings().chatId;
+    const chatId = telegramSettings().chatId ?? (options.outbox ? DRY_RUN_CHAT : null);
     if (chatId === null || events.length === 0) return;
     const theatres = await names();
     const publicUrl = config.settings.publicUrl;
@@ -169,6 +173,10 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       theatreNames: theatres,
     });
     const photos = renderPhotos(photoKeys(messages), observation, theatres);
+    if (options.outbox) {
+      await options.outbox(messages, photos);
+      return;
+    }
     const results = await telegram.deliver(messages, photos);
     for (const result of results) {
       if (!result.ok) logger.warn("telegram", { hunt: hunt.id, error: result.error });
@@ -341,9 +349,9 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     await sendDigestIfDue();
   }
 
-  function digestEntries(): DigestEntry[] {
+  function digestEntries(onlyDigest = true): DigestEntry[] {
     return config.hunts
-      .filter((hunt) => active(hunt) && hunt.notify.digest)
+      .filter((hunt) => active(hunt) && (!onlyDigest || hunt.notify.digest))
       .map((hunt) => {
         const huntState = huntStateOf(state, hunt.id);
         return { hunt, showings: Object.values(huntState.showings), mutedUntil: huntState.mutedUntil };
@@ -392,6 +400,9 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     resume,
     markBought,
     confirmMovie,
+    summaries: (huntIds?: string[]) =>
+      digestEntries(false).filter((entry) => huntIds === undefined || huntIds.includes(entry.hunt.id)),
+    primaryChat: () => telegramSettings().chatId,
     history: (key: string) => history.read(key),
     events: (limit?: number) => eventLog.list(limit),
     config: () => config,

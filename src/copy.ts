@@ -16,6 +16,15 @@ export const copy = {
     subtitle: (theatre: string, room: string, day: string, time: string): string =>
       [theatre, room, `${day} ${time}`].join(SEPARATOR),
   },
+  callbacks: {
+    refreshed: "Aggiornato",
+    noNews: "Nessuna novità",
+    muted: "Silenziata per 24 h",
+    bought: "Caccia archiviata",
+    primaryOnly: "Solo dalla chat principale",
+    notFound: "Caccia non trovata",
+    conflict: "Un altro programma legge gli aggiornamenti di questo bot",
+  },
   errors: {
     huntFailed: (name: string, detail: string): string => `⚠️ <b>${name}</b>: lettura non riuscita\n${detail}`,
     hallChanged: (name: string, room: string): string => `⚠️ <b>${name}</b>: pianta cambiata in ${room}, zona buona da riconfermare`,
