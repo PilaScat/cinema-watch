@@ -138,7 +138,7 @@ function buildSections(events: HuntEvent[], context: ComposeContext): Section[] 
   const { sections } = copy.telegram;
   const freed = ofKind(events, "seatsFreed", (event) => event.showing).map((event) => {
     const lines = [showingLine(event.showing, context, seatsPart(event.showing))];
-    if (event.groups.length > 0) lines.push(copy.telegram.best(event.groups.map(formatGroup).join(", ")));
+    if (event.groups.length > 0) lines.push(copy.telegram.best(event.groups.map((group) => escapeHtml(formatGroup(group))).join(", ")));
     return lines;
   });
   const created = ofKind(events, "newShowing", (event) => event.showing).map((event) => [
@@ -298,11 +298,25 @@ export function composeRound(events: HuntEvent[], context: ComposeContext): Outg
   ]);
 }
 
-function digestLine(entry: DigestEntry): string {
-  const withSeats = entry.showings.filter((showing) => showing.seats?.ok === true).length;
-  const line = copy.telegram.digest.huntLine(escapeHtml(entry.hunt.name), entry.showings.length, withSeats);
+function withMutedSuffix(line: string, entry: DigestEntry): string {
   if (entry.mutedUntil === null) return line;
   return `${line}${copy.telegram.separator}${copy.telegram.digest.mutedUntil(formatTime(entry.mutedUntil))}`;
+}
+
+function digestLine(entry: DigestEntry): string {
+  const withSeats = entry.showings.filter((showing) => showing.seats?.ok === true).length;
+  return withMutedSuffix(
+    copy.telegram.digest.huntLine(escapeHtml(entry.hunt.name), entry.showings.length, withSeats),
+    entry,
+  );
+}
+
+function noNewsLine(entry: DigestEntry): string {
+  const freeInZone = entry.showings.reduce((sum, showing) => sum + (showing.seats?.freeInZone ?? 0), 0);
+  return withMutedSuffix(
+    copy.telegram.noNews.huntLine(escapeHtml(entry.hunt.name), entry.showings.length, freeInZone),
+    entry,
+  );
 }
 
 function chunkLines(header: string, lines: string[]): string[] {
@@ -325,5 +339,5 @@ export function composeDigest(entries: DigestEntry[]): string[] {
 }
 
 export function composeNoNews(entries: DigestEntry[]): string[] {
-  return chunkLines(copy.telegram.noNews.header, entries.map(digestLine));
+  return chunkLines(copy.telegram.noNews.header, entries.map(noNewsLine));
 }

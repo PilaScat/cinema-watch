@@ -116,6 +116,27 @@ describe("sendMessage", () => {
     });
   });
 
+  it("retries once without the keyboard after a 400", async () => {
+    const { telegram, fetchMock } = setup([failure(400, "Bad Request: wrong URL"), okMessage(7)]);
+    const result = await telegram.sendMessage("555", "x", [[{ text: "Apri", url: "bad" }]]);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(jsonBody(fetchMock, 0)).toHaveProperty("reply_markup");
+    expect(jsonBody(fetchMock, 1)).toEqual({
+      chat_id: "555",
+      text: "x",
+      parse_mode: "HTML",
+      link_preview_options: { is_disabled: true },
+    });
+    expect(result).toEqual({ ok: true, messageIds: [7], error: null });
+  });
+
+  it("does not retry a 400 without a keyboard", async () => {
+    const { telegram, fetchMock } = setup([failure(400, "Bad Request: nope")]);
+    const result = await telegram.sendMessage("555", "x");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ ok: false, messageIds: [], error: "Bad Request: nope" });
+  });
+
   it("omits reply_markup for a null keyboard", async () => {
     const { telegram, fetchMock } = setup([okMessage(1)]);
     await telegram.sendMessage("555", "x", null);

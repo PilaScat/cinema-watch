@@ -266,6 +266,23 @@ export function createTelegram(options: TelegramOptions): Telegram {
     }
   }
 
+  async function requestWithFallback<T>(
+    method: string,
+    body: Record<string, unknown> | FormData,
+    fallbackBody: Record<string, unknown> | null,
+    units: number,
+    chatId: string,
+    schema: z.ZodType<T>,
+  ): Promise<T> {
+    try {
+      return await request(method, body, schema);
+    } catch (error) {
+      if (fallbackBody === null || !(error instanceof TelegramError) || error.kind !== "bad_request") throw error;
+      await throttle(chatId, units);
+      return await request(method, fallbackBody, schema);
+    }
+  }
+
   async function send<T>(
     chatId: string,
     units: number,
@@ -273,12 +290,13 @@ export function createTelegram(options: TelegramOptions): Telegram {
     body: Record<string, unknown> | FormData,
     schema: z.ZodType<T>,
     ids: (result: T) => number[],
+    fallbackBody: Record<string, unknown> | null = null,
   ): Promise<SentResult> {
     if (options.token() === null) return failed(NOT_CONFIGURED);
     return enqueue(chatId, async () => {
       await throttle(chatId, units);
       try {
-        const result = await request(method, body, schema);
+        const result = await requestWithFallback(method, body, fallbackBody, units, chatId, schema);
         return { ok: true, messageIds: ids(result), error: null };
       } catch (error) {
         return failed(error instanceof TelegramError ? error.description : INVALID_RESPONSE);
@@ -292,14 +310,17 @@ export function createTelegram(options: TelegramOptions): Telegram {
     keyboard: InlineButton[][] | null = null,
   ): Promise<SentResult> {
     if (text.length > MAX_TEXT_LENGTH) throw new Error(`Testo oltre ${MAX_TEXT_LENGTH} caratteri`);
-    const body: Record<string, unknown> = {
+    const plain: Record<string, unknown> = {
       chat_id: chatId,
       text,
       parse_mode: "HTML",
       link_preview_options: { is_disabled: true },
-      ...(keyboard === null ? {} : { reply_markup: replyMarkup(keyboard) }),
     };
-    return await send(chatId, 1, "sendMessage", body, sentMessageSchema, (r) => [r.message_id]);
+    if (keyboard === null) {
+      return await send(chatId, 1, "sendMessage", plain, sentMessageSchema, (r) => [r.message_id]);
+    }
+    const body = { ...plain, reply_markup: replyMarkup(keyboard) };
+    return await send(chatId, 1, "sendMessage", body, sentMessageSchema, (r) => [r.message_id], plain);
   }
 
   async function sendPhoto(

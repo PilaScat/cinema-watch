@@ -17,6 +17,8 @@ export const copy = {
       [theatre, room, `${day} ${time}`].join(SEPARATOR),
   },
   callbacks: {
+    refreshing: "Aggiornamento in corso",
+    tooSoon: "Aggiornata meno di 30 s fa",
     refreshed: "Aggiornato",
     noNews: "Nessuna novità",
     muted: "Silenziata per 24 h",
@@ -72,6 +74,12 @@ export const copy = {
           : `<b>${name}</b>: ${showings} ${showings === 1 ? "spettacolo" : "spettacoli"}, ${withSeats} con posti vicini nella zona buona`,
       mutedUntil: (time: string): string => `silenziata fino alle ${time}`,
     },
-    noNews: { header: "🔄 Nessuna novità" },
+    noNews: {
+      header: "🔄 Nessuna novità",
+      huntLine: (name: string, showings: number, freeInZone: number): string =>
+        showings === 0
+          ? `<b>${name}</b>: nessuno spettacolo`
+          : `<b>${name}</b>: ${showings} ${showings === 1 ? "spettacolo" : "spettacoli"}, ${freeInZone} liberi nella zona buona`,
+    },
   },
 } as const;

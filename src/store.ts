@@ -1,6 +1,8 @@
 import * as nodeFs from "node:fs/promises";
 import { dirname, join } from "node:path";
 
+const PRIVATE_MODE = 0o600;
+
 export type StoreFs = Pick<
   typeof nodeFs,
   "mkdir" | "writeFile" | "rename" | "readFile" | "open" | "appendFile" | "rm" | "readdir" | "chmod" | "copyFile"
@@ -71,7 +73,7 @@ export function createStore(dir: string, options: StoreOptions = {}) {
     counter += 1;
     const temp = `${file}.tmp-${process.pid}-${counter}`;
     try {
-      const handle = await fs.open(temp, "w");
+      const handle = await (isPrivate ? fs.open(temp, "w", PRIVATE_MODE) : fs.open(temp, "w"));
       try {
         await handle.writeFile(content);
         await handle.sync();
@@ -84,7 +86,7 @@ export function createStore(dir: string, options: StoreOptions = {}) {
       throw new StoreError("io", `Scrittura di ${file} non riuscita`);
     }
     if (isPrivate && platform !== "win32") {
-      await fs.chmod(file, 0o600).catch(() => {
+      await fs.chmod(file, PRIVATE_MODE).catch(() => {
         throw new StoreError("io", `Permessi di ${file} non applicati`);
       });
     }

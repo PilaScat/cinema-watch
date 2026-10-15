@@ -219,6 +219,11 @@ describe("composeRound basics", () => {
     expect(text).toContain("40 liberi, 8 nella zona buona · da 14,90 €");
   });
 
+  it("escapes HTML in best groups", () => {
+    const event: HuntEvent = { kind: "seatsFreed", showing: showing(), groups: [group("<A", 1, 3)] };
+    expect(firstText(composeRound([event], context()))).toContain("\nMigliori: &lt;A 1-3");
+  });
+
   it("lists freed seats with the best groups", () => {
     const event: HuntEvent = {
       kind: "seatsFreed",
@@ -529,9 +534,32 @@ describe("composeDigest", () => {
 });
 
 describe("composeNoNews", () => {
-  it("opens with the no-news header then lists the hunts", () => {
+  it("opens with the no-news header then lists the hunts with free seats in the zone", () => {
     expect(composeNoNews(digestEntries())).toEqual([
-      "🔄 Nessuna novità\n\n<b>Dune IMAX</b>: 3 spettacoli, 1 con posti vicini nella zona buona\n<b>Tenet</b>: nessuno spettacolo",
+      "🔄 Nessuna novità\n\n<b>Dune IMAX</b>: 3 spettacoli, 16 liberi nella zona buona\n<b>Tenet</b>: nessuno spettacolo",
+    ]);
+  });
+
+  it("sums the zone seats and uses the singular", () => {
+    const entries: DigestEntry[] = [
+      {
+        hunt: hunt({ name: "Solo" }),
+        showings: [showing({ seats: seats({ freeInZone: 5 }) }), showing({ key: "k2", seats: seats({ freeInZone: 4 }) })],
+        mutedUntil: null,
+      },
+      { hunt: hunt({ id: "bbbb2222", name: "Uno" }), showings: [showing({ seats: seats({ freeInZone: 0 }) })], mutedUntil: null },
+    ];
+    expect(composeNoNews(entries)).toEqual([
+      "🔄 Nessuna novità\n\n<b>Solo</b>: 2 spettacoli, 9 liberi nella zona buona\n<b>Uno</b>: 1 spettacolo, 0 liberi nella zona buona",
+    ]);
+  });
+
+  it("marks muted hunts with the Rome time", () => {
+    const entries: DigestEntry[] = [
+      { hunt: hunt({ name: "Dune IMAX" }), showings: [showing()], mutedUntil: Date.UTC(2026, 11, 15, 19, 30) },
+    ];
+    expect(composeNoNews(entries)).toEqual([
+      "🔄 Nessuna novità\n\n<b>Dune IMAX</b>: 1 spettacolo, 8 liberi nella zona buona · silenziata fino alle 20:30",
     ]);
   });
 });

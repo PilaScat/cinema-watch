@@ -106,6 +106,25 @@ describe("store atomic writes", () => {
     expect((await stat(join(dir, "open.json"))).mode & 0o777).not.toBe(0o600);
   });
 
+  it("opens the temp file with mode 0600 only for private writes", async () => {
+    const opened: Array<{ path: string; mode: unknown }> = [];
+    const fs: StoreFs = {
+      ...realFs,
+      open: ((path: string, flags: string, mode?: number) => {
+        opened.push({ path, mode });
+        return realFs.open(path, flags, mode);
+      }) as StoreFs["open"],
+    };
+    const store = createStore(dir, { fs, platform: "win32" });
+    await store.writeJson("s.json", 1, { private: true });
+    await store.writeJson("o.json", 1);
+    expect(opened).toHaveLength(2);
+    expect(opened[0]?.path).toContain("s.json.tmp-");
+    expect(opened[0]?.mode).toBe(0o600);
+    expect(opened[1]?.path).toContain("o.json.tmp-");
+    expect(opened[1]?.mode).toBeUndefined();
+  });
+
   it("skips chmod on win32", async () => {
     const chmodCalls: string[] = [];
     const fs: StoreFs = {
