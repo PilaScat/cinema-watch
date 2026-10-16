@@ -67,8 +67,12 @@ async function watcher(extra: Partial<Parameters<typeof createWatcher>[0]> = {})
   });
 }
 
+function hostOf(request: string): string {
+  return new URL(`https://${request.split(" ")[1] ?? ""}`).hostname;
+}
+
 function cinemaRequests() {
-  return world.requests.filter((request) => !request.includes("api.github.com"));
+  return world.requests.filter((request) => hostOf(request) !== "api.github.com");
 }
 
 function sent() {
@@ -334,7 +338,7 @@ describe("watcher", () => {
   it("checks GitHub for a new release once a day and survives when GitHub is down", async () => {
     await seed();
     const subject = await watcher();
-    const githubCalls = () => world.requests.filter((request) => request.includes("api.github.com")).length;
+    const githubCalls = () => world.requests.filter((request) => hostOf(request) === "api.github.com").length;
 
     await subject.tick();
     const found = subject.state().latestVersion;
@@ -440,9 +444,9 @@ describe("watcher", () => {
     const refusing: typeof world.fetch = (input, init) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
       const body = init?.body;
-      const field = body instanceof FormData ? body.get("chat_id") : body;
+      const field = body instanceof FormData ? body.get("chat_id") : typeof body === "string" ? (JSON.parse(body) as { chat_id?: unknown }).chat_id : null;
       const chat = typeof field === "string" ? field : "";
-      if (url.includes("api.telegram.org") && chat.includes("-1009999")) {
+      if (new URL(url).hostname === "api.telegram.org" && chat === "-1009999") {
         return Promise.resolve(new Response(JSON.stringify({ ok: false, error_code: 400, description: "Bad Request: chat not found" }), { status: 400 }));
       }
       return world.fetch(input, init);

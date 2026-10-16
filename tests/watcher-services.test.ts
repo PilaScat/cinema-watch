@@ -17,7 +17,7 @@ function refuseUrlButtons(host: string) {
   harness.world.fetch = (input, init) => {
     const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
     const body = typeof init?.body === "string" ? (JSON.parse(init.body) as { reply_markup?: unknown }) : {};
-    if (url.includes("api.telegram.org") && JSON.stringify(body.reply_markup ?? null).includes(host)) {
+    if (new URL(url).hostname === "api.telegram.org" && JSON.stringify(body.reply_markup ?? null).includes(host)) {
       return Promise.resolve(new Response(JSON.stringify({ ok: false, error_code: 400, description: "Bad Request: wrong HTTP URL" }), { status: 400 }));
     }
     return original(input, init);

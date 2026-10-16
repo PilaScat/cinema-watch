@@ -5,7 +5,7 @@ import { createApp } from "../src/web/app.js";
 import { FAKE_TOKEN } from "./support/fake-world.js";
 import { createHarness, PRIMARY_CHAT, type Harness } from "./support/harness.js";
 import { fakeBotToken } from "./support/tokens.js";
-import { createWebApp } from "./support/web.js";
+import { createWebApp, scriptTags } from "./support/web.js";
 
 const publicDir = fileURLToPath(new URL("../src/web/public/", import.meta.url));
 const assetsDir = fileURLToPath(new URL("../assets/", import.meta.url));
@@ -254,7 +254,7 @@ describe("settings page in general", () => {
 
     expect(html).not.toContain("style=");
     expect(nonce).not.toBe("");
-    expect([...html.matchAll(/<script\b[^>]*>/g)].every(([tag]) => tag.includes(`nonce="${nonce}"`))).toBe(true);
+    expect(scriptTags(html).every((tag) => tag.includes(`nonce="${nonce}"`))).toBe(true);
   });
 
   it("refuses posts without the right origin", async () => {

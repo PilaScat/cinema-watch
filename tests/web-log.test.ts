@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createStore } from "../src/store.js";
 import { createApp } from "../src/web/app.js";
 import { createHarness, type Harness } from "./support/harness.js";
+import { scriptTags } from "./support/web.js";
 
 const publicDir = fileURLToPath(new URL("../src/web/public/", import.meta.url));
 const assetsDir = fileURLToPath(new URL("../assets/", import.meta.url));
@@ -82,6 +83,6 @@ describe("log page", () => {
     const nonce = /'nonce-([^']+)'/.exec(response.headers.get("content-security-policy") ?? "")?.[1] ?? "";
 
     expect(html).not.toContain("style=");
-    expect([...html.matchAll(/<script\b[^>]*>/g)].every(([tag]) => tag.includes(`nonce="${nonce}"`))).toBe(true);
+    expect(scriptTags(html).every((tag) => tag.includes(`nonce="${nonce}"`))).toBe(true);
   });
 });

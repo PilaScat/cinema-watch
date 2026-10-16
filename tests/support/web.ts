@@ -51,6 +51,17 @@ export function huntForm(overrides: Record<string, string | string[]> = {}): Arr
   return Object.entries(base).flatMap(([key, value]): Array<[string, string]> => (Array.isArray(value) ? value.map((item): [string, string] => [key, item]) : [[key, value]]));
 }
 
+export function scriptTags(html: string): string[] {
+  const tags: string[] = [];
+  let start = html.indexOf("<script");
+  while (start !== -1) {
+    const end = html.indexOf(">", start);
+    tags.push(html.slice(start, end + 1));
+    start = html.indexOf("<script", end);
+  }
+  return tags;
+}
+
 export function occupancyWithout(occupancy: unknown, seatIds: string[]): unknown {
   const copyOf = structuredClone(occupancy) as { Data: { Occupancy: { Seats: Array<{ SeatId: string }> } } };
   copyOf.Data.Occupancy.Seats = copyOf.Data.Occupancy.Seats.filter((seat) => !seatIds.includes(seat.SeatId));

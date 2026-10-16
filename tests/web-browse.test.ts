@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../src/web/app.js";
 import { createHarness, MINUTE, type Harness } from "./support/harness.js";
 import { fixture } from "./support/fake-world.js";
+import { scriptTags } from "./support/web.js";
 
 const publicDir = fileURLToPath(new URL("../src/web/public/", import.meta.url));
 const assetsDir = fileURLToPath(new URL("../assets/", import.meta.url));
@@ -31,7 +32,7 @@ async function page(instance: Awaited<ReturnType<typeof app>>["instance"], path:
   const nonce = /'nonce-([^']+)'/.exec(response.headers.get("content-security-policy") ?? "")?.[1] ?? "";
   expect(response.status).toBe(status);
   expect(html).not.toContain("style=");
-  expect([...html.matchAll(/<script\b[^>]*>/g)].every(([tag]) => tag.includes(`nonce="${nonce}"`))).toBe(true);
+  expect(scriptTags(html).every((tag) => tag.includes(`nonce="${nonce}"`))).toBe(true);
   return html;
 }
 

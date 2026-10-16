@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Config } from "../src/model.js";
 import { createApp } from "../src/web/app.js";
 import { createHarness, type Harness } from "./support/harness.js";
+import { scriptTags } from "./support/web.js";
 
 const publicDir = fileURLToPath(new URL("../src/web/public/", import.meta.url));
 const assetsDir = fileURLToPath(new URL("../assets/", import.meta.url));
@@ -43,7 +44,7 @@ describe("web app", () => {
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).not.toContain("unsafe-inline");
     expect(nonce).toBeTruthy();
-    expect([...html.matchAll(/<script\b[^>]*>/g)].every(([tag]) => tag.includes(`nonce="${nonce ?? ""}"`))).toBe(true);
+    expect(scriptTags(html).every((tag) => tag.includes(`nonce="${nonce ?? ""}"`))).toBe(true);
     expect(response.headers.get("referrer-policy")).toBe("no-referrer");
   });
 

@@ -5,7 +5,7 @@ import { createApp } from "../src/web/app.js";
 import { createStore } from "../src/store.js";
 import { fixture } from "./support/fake-world.js";
 import { createHarness, PRIMARY_CHAT, type Harness } from "./support/harness.js";
-import { occupancyWithTaken } from "./support/web.js";
+import { occupancyWithTaken, scriptTags } from "./support/web.js";
 
 const publicDir = fileURLToPath(new URL("../src/web/public/", import.meta.url));
 const assetsDir = fileURLToPath(new URL("../assets/", import.meta.url));
@@ -340,7 +340,7 @@ describe("hunt pages in general", () => {
       expect(response.status).toBe(200);
       expect(html).not.toContain("style=");
       expect(nonce).not.toBe("");
-      expect([...html.matchAll(/<script\b[^>]*>/g)].every(([tag]) => tag.includes(`nonce="${nonce}"`))).toBe(true);
+      expect(scriptTags(html).every((tag) => tag.includes(`nonce="${nonce}"`))).toBe(true);
     }
   });
 

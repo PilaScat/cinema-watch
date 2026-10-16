@@ -227,7 +227,7 @@ describe("backoff", () => {
 
   it("is tracked per host", async () => {
     const { client } = setup((url) =>
-      (typeof url === "string" && url.includes("a.example.com")) ? new Response("err", { status: 500 }) : jsonResponse({ ok: true }),
+      (typeof url === "string" && new URL(url).hostname === "a.example.com") ? new Response("err", { status: 500 }) : jsonResponse({ ok: true }),
     );
     await catchHttpError(client.getJson(URL_A));
     expect(await client.getJson(URL_B)).toEqual({ ok: true });
