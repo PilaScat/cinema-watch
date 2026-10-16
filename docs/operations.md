@@ -15,9 +15,10 @@ I comandi `docker run` e `docker compose` sono nel [README](../README.md#avvio-r
 
 Il template [deploy/cinema-watch.xml](../deploy/cinema-watch.xml) crea il container con le opzioni di sicurezza e le variabili d'ambiente. Per usarlo, copiarlo in `/boot/config/plugins/dockerMan/templates-user/my-cinema-watch.xml` e aggiungere il container dalla scheda Docker scegliendo il template.
 
-- **Percorso dei dati**: `/mnt/cache/appdata/cinema-watch` e non `/mnt/user/...`. Il FUSE di Unraid sotto `/mnt/user` non applica `chown` e `chmod`, e `config.json` deve restare con permessi `600`.
-- **Proprietario**: la cartella è di 99:100 (`chown 99:100 /mnt/cache/appdata/cinema-watch`).
-- **Rete**: il template usa la rete `docker-network`. Se non esiste sul proprio server, va sostituita con `bridge`.
+- **Percorso dei dati**: `/mnt/cache/appdata/cinema-watch` e non `/mnt/user/...`. Il FUSE di Unraid sotto `/mnt/user` non applica `chown` e `chmod`, e `config.json` deve restare con permessi `600`. `cache` è il nome del pool: se il pool ha un altro nome, va cambiato il percorso. Una cartella sotto `/mnt` senza pool finisce in RAM e si perde al riavvio.
+- **Proprietario**: la cartella va creata prima di avviare il container e data a 99:100 (`mkdir -p /mnt/cache/appdata/cinema-watch && chown 99:100 /mnt/cache/appdata/cinema-watch`). Se la crea Unraid è di root, e l'app non riesce a scriverci.
+- **Rete**: il template usa `bridge`; si può scegliere un'altra rete nella scheda del container.
+- **Template**: una volta creato il container, Unraid salva i valori inseriti (password compresa) in `my-cinema-watch.xml`. Ricopiare il template del repo sopra quel file li cancella.
 
 [deploy/deploy.sh](../deploy/deploy.sh) è lo script usato dall'autore sul suo server Unraid: copia il template, prepara la cartella dati 99:100 e pubblica il servizio. L'indirizzo del server si passa con `UNRAID_HOST`.
 

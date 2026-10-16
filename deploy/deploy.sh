@@ -13,8 +13,12 @@ if grep -q "$(printf '\r')" "$TEMPLATE" "$0"; then
   exit 1
 fi
 
-scp -q "$TEMPLATE" "$HOST:$TEMPLATES_DIR/my-cinema-watch.xml"
-echo "Template copiato in $TEMPLATES_DIR/my-cinema-watch.xml"
+if ssh "$HOST" "test -e '$TEMPLATES_DIR/my-cinema-watch.xml'"; then
+  echo "Template già presente: lo lascio com'è, contiene i valori impostati in Unraid"
+else
+  scp -q "$TEMPLATE" "$HOST:$TEMPLATES_DIR/my-cinema-watch.xml"
+  echo "Template copiato in $TEMPLATES_DIR/my-cinema-watch.xml"
+fi
 
 ssh "$HOST" "mkdir -p '$APPDATA' && chown 99:100 '$APPDATA' && chmod 750 '$APPDATA' && stat -c '%a %u:%g %n' '$APPDATA'"
 

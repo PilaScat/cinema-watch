@@ -3,7 +3,7 @@
   <Name>cinema-watch</Name>
   <Repository>ghcr.io/pilascat/cinema-watch:latest</Repository>
   <Registry>https://github.com/PilaScat/cinema-watch/pkgs/container/cinema-watch</Registry>
-  <Network>docker-network</Network>
+  <Network>bridge</Network>
   <MyIP/>
   <Shell>sh</Shell>
   <Privileged>false</Privileged>
