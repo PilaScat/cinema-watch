@@ -1,1 +1,17 @@
-export const performance = {} as const;
+export const performance = {
+  subtitle: (room: string, day: string, time: string): string => [room, `${day} ${time}`].join(" · "),
+  priceFrom: (price: string): string => `da ${price}`,
+  hallTitle: "Pianta",
+  hallError: "Pianta non disponibile.",
+  free: "Liberi",
+  freeGood: "Liberi nella zona buona",
+  best: "Migliori posti",
+  noBest: "Nessun posto vicino nella zona buona.",
+  addHunt: "Aggiungi caccia",
+  trendTitle: "Andamento",
+  trendWaiting: "Andamento disponibile dopo due letture diverse.",
+  legendFree: "Liberi",
+  legendGood: "Nella zona buona",
+  tableSummary: "Tabella dei valori",
+  columnTime: "Ora",
+} as const;
