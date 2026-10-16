@@ -50,7 +50,7 @@ jobs:
       - run: npm audit signatures
       - run: npm run check:licenses
       - name: Sezione del CHANGELOG
-        run: grep -q "^## $TAG" CHANGELOG.md
+        run: awk -v tag="$TAG" '$1 == "##" && $2 == tag { found = 1 } END { exit !found }' CHANGELOG.md
 
   scan:
     name: Trivy sull'immagine amd64
@@ -180,7 +180,7 @@ jobs:
           persist-credentials: false
       - name: Note dal CHANGELOG e commit
         run: |
-          awk -v tag="$TAG" '/^## / { inside = index($0, "## " tag) == 1; next } inside' CHANGELOG.md > notes.md
+          awk -v tag="$TAG" '$1 == "##" { inside = ($2 == tag); next } inside' CHANGELOG.md > notes.md
           previous=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || true)
           range="$TAG"
           [ -n "$previous" ] && range="$previous..$TAG"
