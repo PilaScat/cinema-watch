@@ -3,6 +3,7 @@ import { raw } from "hono/html";
 import { copy } from "../copy.js";
 import { Badge, cx, Icon } from "./components.js";
 import type { IconName } from "./icon-set.js";
+import { isNewerVersion } from "./version.js";
 
 export type Section = "hunts" | "theatres" | "search" | "log" | "settings" | "none";
 
@@ -30,10 +31,6 @@ const themes: Array<{ choice: "light" | "dark" | "system"; icon: IconName }> = [
   { choice: "dark", icon: "moon" },
   { choice: "system", icon: "monitor" },
 ];
-
-function newer(latest: string | null, current: string): boolean {
-  return latest !== null && current !== "dev" && latest !== current && latest > current;
-}
 
 export function Layout(props: { title: string; section: Section; context: PageContext; children: Child }) {
   const ui = copy.ui.common;
@@ -93,7 +90,7 @@ export function Layout(props: { title: string; section: Section; context: PageCo
         <main class="mx-auto max-w-6xl px-4 py-6 sm:py-8">{props.children}</main>
         <footer class="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 pb-8 text-xs text-muted">
           <span>{ui.version.current(props.context.version)}</span>
-          {newer(props.context.latestVersion, props.context.version) && props.context.latestVersion ? (
+          {isNewerVersion(props.context.latestVersion, props.context.version) && props.context.latestVersion ? (
             <a href="https://github.com/PilaScat/cinema-watch/releases" target="_blank" rel="noopener noreferrer">
               <Badge tone="gold">{ui.version.update(props.context.latestVersion)}</Badge>
             </a>
