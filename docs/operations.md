@@ -54,7 +54,7 @@ Le piante si riscaricano da sole; senza `history/` l'andamento ricomincia da zer
 |---|---|
 | Togliere "Caccia attiva" nel form della caccia | La caccia è in pausa: nessun giro e nessun avviso. Si riprende rimettendo la spunta |
 | Silenzia 24 h (home o avviso su Telegram) | Per 24 ore la caccia continua a leggere ma non manda avvisi, e quelli di quelle ore non si recuperano. Riattiva toglie il silenzio prima |
-| Acquistato (avviso su Telegram) | Archivia la caccia: non è più attiva e compare fra le Archiviate |
+| Acquistato (pagina della caccia o avviso su Telegram) | Archivia la caccia: non è più attiva e compare fra le Archiviate |
 | Date finite | Una caccia con date fisse si archivia da sola quando l'ultimo giorno è passato |
 | Elimina | Cancella la caccia dalla configurazione |
 
