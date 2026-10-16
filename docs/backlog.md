@@ -21,7 +21,7 @@ toglie da qui e va nel [CHANGELOG](../CHANGELOG.md).
 | Ripristinare una caccia archiviata | Un pulsante "Ripristina" fra le Archiviate: oggi dopo Acquistato non si torna indietro, se non importando la configurazione. |
 | Trivy sulle immagini pubblicate | Un job in `release.yml` che scansiona il digest di ogni piattaforma; oggi la scansione è su una build amd64 separata e l'arm64 non si scansiona. |
 | Telegram attraverso `http.ts` | Far passare anche le chiamate a `api.telegram.org` dal client unico con gli host consentiti. Oggi l'URL è una costante in `telegram.ts`, quindi il guadagno è di coerenza. |
-| Dividere `src/watcher.ts` | Scheduler e mutex restano lì; invio Telegram, disegno delle foto, pulizia, controllo versione e riepilogo in moduli loro. |
+| Dividere `src/watcher.ts` | Scheduler e mutex restano lì; invio Telegram, disegno delle foto, pulizia, controllo versione e riepilogo in moduli loro. Poi rafforzarne i test: è il file con il mutation score più basso (80%, 114 mutanti sopravvissuti, alla v2026.10.1). |
 | Dividere `src/web/routes/hunts.tsx` | Mappatura form-caccia, picker e pagina della zona fuori dalle route. |
 | Un solo posto per le regex comuni | `SLUG`, `HALL_KEY` e `ISO_DAY` sono definite in `config.ts`, `hunts.tsx` e `browse.tsx`. |
 | `huntById` e `telegramConfigured()` nel watcher | Togliere le ricerche ripetute di una caccia per id e il controllo `botToken() !== null` sparso nelle route. |
