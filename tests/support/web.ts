@@ -13,7 +13,7 @@ const assetsDir = fileURLToPath(new URL("../../assets/", import.meta.url));
 
 export async function createWebApp(harness: Harness, options: { env?: NodeJS.ProcessEnv; mutate?: (config: Config) => void; publicDir?: string } = {}) {
   const config = await harness.seed(options.mutate);
-  const watcher = await harness.watcher();
+  const watcher = await harness.watcher({ env: options.env ?? {} });
   const instance = await createApp({
     watcher,
     version: "v2026.10.1",

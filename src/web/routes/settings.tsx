@@ -1,5 +1,6 @@
 import type { Hono } from "hono";
 import { copy } from "../../copy.js";
+import type { TelegramSource } from "../../config.js";
 import type { Config, Settings } from "../../model.js";
 import { renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { Button, Card, inputClass, LinkButton, Notice, PageHeader, type Tone } from "../components.js";
@@ -119,14 +120,22 @@ function settingsFieldOf(rest: string): string | null {
   return SETTINGS_FIELDS[head] ?? null;
 }
 
-function tokenPlaceholder(token: string | null): string {
-  return token === null ? ui.fields.tokenEmptyPlaceholder : ui.fields.tokenPlaceholder(token.slice(-TOKEN_TAIL));
+interface TelegramView {
+  token: string | null;
+  chatId: string | null;
+  source: { token: TelegramSource; chatId: TelegramSource };
+}
+
+function tokenPlaceholder(telegram: TelegramView): string {
+  if (telegram.token === null) return ui.fields.tokenEmptyPlaceholder;
+  const tail = telegram.token.slice(-TOKEN_TAIL);
+  return telegram.source.token === "env" ? ui.fields.tokenFromEnv(tail) : ui.fields.tokenPlaceholder(tail);
 }
 
 function SettingsPage(props: {
   values: SettingsValues;
   errors: FieldErrors;
-  token: string | null;
+  telegram: TelegramView;
   zoneKept: string | undefined;
   notice: PageNotice | null;
 }) {
@@ -165,12 +174,19 @@ function SettingsPage(props: {
                 label={ui.fields.token}
                 value=""
                 type="password"
-                placeholder={tokenPlaceholder(props.token)}
-                hint={ui.fields.tokenHint}
+                placeholder={tokenPlaceholder(props.telegram)}
+                hint={props.telegram.source.token === "env" ? ui.fields.envHint : ui.fields.tokenHint}
                 error={fieldError["token"]}
                 autocomplete="off"
               />
-              <TextField name="chatId" label={ui.fields.chatId} value={values.chatId} hint={ui.fields.chatIdHint} error={fieldError["chatId"]} />
+              <TextField
+                name="chatId"
+                label={ui.fields.chatId}
+                value={values.chatId}
+                placeholder={props.telegram.source.chatId === "env" && props.telegram.chatId !== null ? ui.fields.chatIdFromEnv(props.telegram.chatId) : undefined}
+                hint={props.telegram.source.chatId === "env" ? ui.fields.envHint : ui.fields.chatIdHint}
+                error={fieldError["chatId"]}
+              />
               <Wide>
                 <CheckBox name="clearToken" value="1" label={ui.fields.clearToken} checked={false} />
               </Wide>
@@ -259,7 +275,7 @@ export function registerSettingsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
         <SettingsPage
           values={options.values ?? valuesOfSettings(config.settings)}
           errors={options.errors ?? noErrors()}
-          token={config.settings.telegram.token}
+          telegram={{ token: watcher.botToken(), chatId: watcher.primaryChat(), source: watcher.telegramSource() }}
           zoneKept={zone ? ui.fields.zoneKept(zone.rows, zone.seats) : undefined}
           notice={options.notice ?? null}
         />

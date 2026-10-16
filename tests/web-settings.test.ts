@@ -4,6 +4,8 @@ import type { Config } from "../src/model.js";
 import { createApp } from "../src/web/app.js";
 import { FAKE_TOKEN } from "./support/fake-world.js";
 import { createHarness, PRIMARY_CHAT, type Harness } from "./support/harness.js";
+import { fakeBotToken } from "./support/tokens.js";
+import { createWebApp } from "./support/web.js";
 
 const publicDir = fileURLToPath(new URL("../src/web/public/", import.meta.url));
 const assetsDir = fileURLToPath(new URL("../assets/", import.meta.url));
@@ -244,5 +246,58 @@ describe("settings page in general", () => {
     expect(statuses).toEqual([403, 403, 403]);
     expect(harness.world.telegram).toEqual([]);
     expect(watcher.config().settings.telegram.token).toBe(FAKE_TOKEN);
+  });
+});
+
+describe("telegram values from the environment", () => {
+  const ENV_TOKEN = fakeBotToken(987654321, "e");
+
+  async function envApp(env: NodeJS.ProcessEnv) {
+    return createWebApp(harness, {
+      env,
+      mutate: (config) => {
+        config.settings.telegram = { token: null, chatId: null };
+      },
+    });
+  }
+
+  it("says the token and the chat come from the environment without writing the token", async () => {
+    const { instance } = await envApp({ TELEGRAM_TOKEN: ENV_TOKEN, TELEGRAM_CHAT_ID: "-100777" });
+
+    const html = await (await instance.request("/settings")).text();
+
+    expect(html).not.toContain(ENV_TOKEN);
+    expect(html).toMatch(new RegExp(`name="token"[^>]*placeholder="Dalle variabili d&#39;ambiente [(]…${ENV_TOKEN.slice(-4)}[)]"`));
+    expect(html).toMatch(/name="chatId"[^>]*value=""[^>]*placeholder="Dalle variabili d&#39;ambiente \(-100777\)"/);
+    expect(html.match(/Un valore qui lo sostituisce/g)).toHaveLength(2);
+    expect(html).not.toContain("Nessun token");
+  });
+
+  it("keeps saying Nessun token when neither the UI nor the environment has one", async () => {
+    const { instance } = await envApp({});
+
+    const html = await (await instance.request("/settings")).text();
+
+    expect(html).toContain("Nessun token");
+    expect(html).not.toContain("Dalle variabili d&#39;ambiente");
+  });
+
+  it("prefers the value saved in the UI over the environment", async () => {
+    const { instance } = await createWebApp(harness, { env: { TELEGRAM_TOKEN: ENV_TOKEN, TELEGRAM_CHAT_ID: "-100777" } });
+
+    const html = await (await instance.request("/settings")).text();
+
+    expect(html).toContain(`Impostato, termina con ${FAKE_TOKEN.slice(-4)}`);
+    expect(html).toMatch(/name="chatId"[^>]*value="4242"/);
+    expect(html).not.toContain("Dalle variabili d&#39;ambiente");
+  });
+
+  it("reports the source of each value from the watcher", async () => {
+    await harness.seed((config) => {
+      config.settings.telegram = { token: null, chatId: "4242" };
+    });
+
+    expect((await harness.watcher({ env: { TELEGRAM_TOKEN: ENV_TOKEN, TELEGRAM_CHAT_ID: "-100777" } })).telegramSource()).toEqual({ token: "env", chatId: "config" });
+    expect((await harness.watcher({ env: {} })).telegramSource()).toEqual({ token: null, chatId: "config" });
   });
 });

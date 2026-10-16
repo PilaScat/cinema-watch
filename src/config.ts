@@ -80,6 +80,18 @@ export function effectiveTelegram(
   };
 }
 
+export type TelegramSource = "config" | "env" | null;
+
+function sourceOf(saved: string | null, fromEnv: string | undefined): TelegramSource {
+  if (filled(saved) !== null) return "config";
+  return filled(fromEnv) === null ? null : "env";
+}
+
+export function telegramSource(config: Config, env: NodeJS.ProcessEnv): { token: TelegramSource; chatId: TelegramSource } {
+  const { token, chatId } = config.settings.telegram;
+  return { token: sourceOf(token, env["TELEGRAM_TOKEN"]), chatId: sourceOf(chatId, env["TELEGRAM_CHAT_ID"]) };
+}
+
 const SLUG = /^[a-z0-9-]+$/;
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 const TOKEN_FORMAT = /^\d{6,}:[A-Za-z0-9_-]{30,}$/;

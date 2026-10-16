@@ -1,5 +1,17 @@
 import { createTtlCache } from "./cache.js";
-import { ConfigError, effectiveTelegram, exportConfig, huntInterval, importConfig, loadConfig, parseConfig, saveConfig, type ParseResult } from "./config.js";
+import {
+  ConfigError,
+  effectiveTelegram,
+  exportConfig,
+  huntInterval,
+  importConfig,
+  loadConfig,
+  parseConfig,
+  saveConfig,
+  telegramSource,
+  type ParseResult,
+  type TelegramSource,
+} from "./config.js";
 import { copy } from "./copy.js";
 import { addDays, romeNow, romeToday, timeInRange } from "./dates.js";
 import { escapeHtml, formatDay } from "./format.js";
@@ -86,6 +98,7 @@ export interface Watcher {
   summaries(huntIds?: string[]): DigestEntry[];
   primaryChat(): string | null;
   botToken(): string | null;
+  telegramSource(): { token: TelegramSource; chatId: TelegramSource };
   history(key: string): Promise<HistoryPoint[]>;
   events(limit?: number): Promise<EventEntry[]>;
   config(): Config;
@@ -559,6 +572,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       digestEntries(false).filter((entry) => huntIds === undefined || huntIds.includes(entry.hunt.id)),
     primaryChat: () => telegramSettings().chatId,
     botToken: () => telegramSettings().token,
+    telegramSource: () => telegramSource(config, env),
     history: (key: string) => history.read(key),
     events: (limit?: number) => eventLog.list(limit),
     config: () => config,

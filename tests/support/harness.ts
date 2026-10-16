@@ -17,7 +17,7 @@ export interface Harness {
   advance(ms: number): void;
   set(at: number): void;
   seed(mutate?: (config: Config) => void): Promise<Config>;
-  watcher(): ReturnType<typeof createWatcher>;
+  watcher(options?: { env?: NodeJS.ProcessEnv }): ReturnType<typeof createWatcher>;
   sleep: (ms: number) => Promise<void>;
   dispose(): Promise<void>;
 }
@@ -65,8 +65,9 @@ export async function createHarness(start = Date.parse("2026-12-01T10:00:00Z")):
       await saveConfig(createStore(dataDir), config);
       return config;
     },
-    watcher: () =>
+    watcher: (options = {}) =>
       createWatcher({
+        env: options.env ?? {},
         dataDir,
         fetch: world.fetch,
         now: () => clock,
