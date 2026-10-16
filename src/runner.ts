@@ -1,5 +1,6 @@
 import type { TtlCache } from "./cache.js";
 import { copy } from "./copy.js";
+import { formatDay } from "./format.js";
 import { resolveWindow } from "./dates.js";
 import { ApiShapeError, HttpError, WebticError } from "./errors.js";
 import type { Hunt, ObservedShowing, RoundObservation, Settings } from "./model.js";
@@ -142,7 +143,7 @@ export async function observeHunt(
       try {
         all = await readDay(deps, theatreSlug, day, options.fresh);
       } catch (error) {
-        errors.push(`${theatreSlug} ${day} · ${describe(UCI_SOURCE, error)}`);
+        errors.push(`${theatreSlug} ${formatDay(day)} · ${describe(UCI_SOURCE, error)}`);
         continue;
       }
       round.daysChecked.push({ theatreSlug, day });
@@ -157,7 +158,7 @@ export async function observeHunt(
           if (seats.hallChanged) hallChanged.push(showing.key);
           for (const type of seats.detail.analysis.unknownTypes) unknownSeatTypes.add(type);
         } catch (error) {
-          errors.push(`${showing.day} ${showing.time} ${showing.room} · ${describe(WEBTIC_SOURCE, error)}`);
+          errors.push(`${formatDay(showing.day)} ${showing.time} ${showing.room} · ${describe(WEBTIC_SOURCE, error)}`);
           round.showings.push({ showing, performance: null, analysis: null, zoneSignature: null });
         }
       }

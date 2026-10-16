@@ -75,7 +75,7 @@ describe("alerts for every kind of change", () => {
 
     expect(afterOne).toBe(0);
     expect(harness.world.telegram.some((call) => call.text?.includes("Annullati"))).toBe(true);
-    expect((await watcher.events(10)).some((entry) => entry.kind === "cancelled" && entry.key === "5116-575978" && entry.detail === "2026-12-15 20:30")).toBe(true);
+    expect((await watcher.events(10)).some((entry) => entry.kind === "cancelled" && entry.key === "5116-575978" && entry.detail === "mar 15/12 20:30")).toBe(true);
   });
 
   it("keeps quiet about a cancelled showing when cancellations are off", async () => {
@@ -113,7 +113,7 @@ describe("alerts for every kind of change", () => {
     await watcher.tick();
 
     expect(harness.world.telegram.some((call) => call.text?.includes("Spostati"))).toBe(true);
-    expect((await watcher.events(10)).find((entry) => entry.kind === "moved")?.detail).toBe("2026-12-15 20:30 → 2026-12-15 21:15");
+    expect((await watcher.events(10)).find((entry) => entry.kind === "moved")?.detail).toBe("mar 15/12 20:30 → mar 15/12 21:15");
   });
 
   it("warns when the zone falls under the last seats threshold, when that alert is on", async () => {
@@ -132,7 +132,7 @@ describe("alerts for every kind of change", () => {
     await watcher.tick();
 
     expect(harness.world.telegram.some((call) => call.text?.includes("Ultimi posti"))).toBe(true);
-    expect((await watcher.events(10)).find((entry) => entry.kind === "lastSeats")?.detail).toBe("2026-12-15 20:30");
+    expect((await watcher.events(10)).find((entry) => entry.kind === "lastSeats")?.detail).toBe("mar 15/12 20:30");
   });
 
   it("does not warn about last seats when that alert is off", async () => {
@@ -162,7 +162,7 @@ describe("reading problems are described by their cause", () => {
 
     await watcher.tick();
 
-    expect(await errorDetails(watcher)).toContain("uci-cinemas-verona 2026-12-15 · UCI: risposta in formato inatteso");
+    expect(await errorDetails(watcher)).toContain("uci-cinemas-verona mar 15/12 · UCI: risposta in formato inatteso");
   });
 
   it("says the seats request was refused, with the reason Webtic gives", async () => {
@@ -172,7 +172,7 @@ describe("reading problems are described by their cause", () => {
 
     await watcher.tick();
 
-    expect(await errorDetails(watcher)).toContain("2026-12-15 20:30 SALA 1 IMAX · Webtic: richiesta rifiutata (Spettacolo chiuso)");
+    expect(await errorDetails(watcher)).toContain("mar 15/12 20:30 SALA 1 IMAX · Webtic: richiesta rifiutata (Spettacolo chiuso)");
   });
 
   it("falls back to the reason code when Webtic gives no message", async () => {
@@ -182,7 +182,7 @@ describe("reading problems are described by their cause", () => {
 
     await watcher.tick();
 
-    expect(await errorDetails(watcher)).toContain("2026-12-15 20:30 SALA 1 IMAX · Webtic: richiesta rifiutata (12)");
+    expect(await errorDetails(watcher)).toContain("mar 15/12 20:30 SALA 1 IMAX · Webtic: richiesta rifiutata (12)");
   });
 
   it("leaves the detail empty when Webtic gives neither message nor code", async () => {
@@ -192,7 +192,7 @@ describe("reading problems are described by their cause", () => {
 
     await watcher.tick();
 
-    expect(await errorDetails(watcher)).toContain("2026-12-15 20:30 SALA 1 IMAX · Webtic: richiesta rifiutata ()");
+    expect(await errorDetails(watcher)).toContain("mar 15/12 20:30 SALA 1 IMAX · Webtic: richiesta rifiutata ()");
   });
 
   it("says the answer was not readable when the cinema sends something that is not json", async () => {
@@ -202,7 +202,7 @@ describe("reading problems are described by their cause", () => {
 
     await watcher.tick();
 
-    expect(await errorDetails(watcher)).toContain("uci-cinemas-verona 2026-12-15 · UCI: risposta non leggibile");
+    expect(await errorDetails(watcher)).toContain("uci-cinemas-verona mar 15/12 · UCI: risposta non leggibile");
   });
 
   it("reports several failures of one hunt with a count, once a day", async () => {

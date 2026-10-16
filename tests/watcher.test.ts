@@ -432,6 +432,33 @@ describe("watcher", () => {
     expect(buttons).not.toContain("Acquistato");
   });
 
+  it("does not resend the alerts to everyone when only an extra chat refuses them", async () => {
+    await seed((config) => {
+      const hunt = config.hunts[0];
+      if (hunt) hunt.extraChatIds = ["-1009999"];
+    });
+    const refusing: typeof world.fetch = (input, init) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      const body = init?.body;
+      const field = body instanceof FormData ? body.get("chat_id") : body;
+      const chat = typeof field === "string" ? field : "";
+      if (url.includes("api.telegram.org") && chat.includes("-1009999")) {
+        return Promise.resolve(new Response(JSON.stringify({ ok: false, error_code: 400, description: "Bad Request: chat not found" }), { status: 400 }));
+      }
+      return world.fetch(input, init);
+    };
+    const subject = await watcher({ fetch: refusing });
+
+    await subject.tick();
+    const afterFirst = sent();
+    clock += 6 * MINUTE;
+    await subject.tick();
+
+    expect(afterFirst).toEqual([`sendPhoto:${PRIMARY_CHAT}:1`, `sendMessage:${PRIMARY_CHAT}:0`]);
+    expect(sent()).toEqual(afterFirst);
+    expect((await subject.events()).some((event) => event.kind === "telegramError")).toBe(true);
+  });
+
   it("asks to confirm a movie found by title and follows it once confirmed", async () => {
     const config = await seed((draft) => {
       const hunt = draft.hunts[0];

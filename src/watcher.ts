@@ -148,8 +148,9 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   let queue: Promise<unknown> = Promise.resolve();
   const knownUnknownTypes = new Set<string>();
   const telegramSettings = () => effectiveTelegram(config, env);
+  const secrets = () => [telegramSettings().token ?? ""];
   const logger = createLogger({
-    secrets: () => [telegramSettings().token ?? ""],
+    secrets,
     now,
     ...(options.logSink ? { sink: options.logSink } : {}),
   });
@@ -256,8 +257,9 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       return { delivered: true, errors: [] };
     }
     const results = await telegram.deliver(messages, photos);
-    const errors = results.flatMap((result) => (result.ok ? [] : [result.error ?? copy.errors.telegramUnknown]));
-    return { delivered: errors.length === 0, errors };
+    const primary = chatFor();
+    const failures = results.flatMap((result, index) => (result.ok ? [] : [{ chatId: messages[index]?.chatId, error: result.error ?? copy.errors.telegramUnknown }]));
+    return { delivered: failures.every((failure) => failure.chatId !== primary), errors: failures.map((failure) => failure.error) };
   }
 
   async function notify(hunt: Hunt, events: HuntEvent[], observation: HuntObservation): Promise<Delivery> {
@@ -285,8 +287,8 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
 
   function eventDetail(event: HuntEvent): string | null {
     if (event.kind === "movieAppeared") return event.movie.title;
-    if (event.kind === "moved") return `${event.from.day} ${event.from.time} → ${event.to.day} ${event.to.time}`;
-    return `${event.showing.day} ${event.showing.time}`;
+    if (event.kind === "moved") return `${formatDay(event.from.day)} ${event.from.time} → ${formatDay(event.to.day)} ${event.to.time}`;
+    return `${formatDay(event.showing.day)} ${event.showing.time}`;
   }
 
   async function log(entries: EventEntry[]): Promise<void> {
@@ -304,7 +306,6 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     state = { ...state, historyDays };
     const newTypes = observation.unknownSeatTypes.filter((type) => !knownUnknownTypes.has(type));
     newTypes.forEach((type) => knownUnknownTypes.add(type));
-    const secrets = [telegramSettings().token ?? ""];
     await log([
       {
         t: at,
@@ -316,7 +317,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       ...events.map((event) => ({ t: at, huntId: hunt.id, kind: event.kind, key: eventKey(event), detail: eventDetail(event) })),
       ...observation.hallChanged.map((key) => ({ t: at, huntId: hunt.id, kind: "hallChanged", key, detail: null })),
       ...newTypes.map((type) => ({ t: at, huntId: hunt.id, kind: "unknownSeatType", key: null, detail: type })),
-      ...delivery.errors.map((error) => ({ t: at, huntId: hunt.id, kind: "telegramError", key: null, detail: redact(error, secrets) })),
+      ...delivery.errors.map((error) => ({ t: at, huntId: hunt.id, kind: "telegramError", key: null, detail: redact(error, secrets()) })),
     ]);
   }
 
@@ -326,7 +327,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     if (errors.length === 0 || previous.errorNotifiedDay === today || chatId === null) return previous.errorNotifiedDay;
     logger.warn("hunt errors", { hunt: hunt.id, errors });
     const detail = errors.length > 1 ? `${errors[0] ?? ""} (+${errors.length - 1})` : (errors[0] ?? "");
-    const text = copy.errors.huntFailed(escapeHtml(hunt.name), escapeHtml(redact(detail, [telegramSettings().token ?? ""])));
+    const text = copy.errors.huntFailed(escapeHtml(hunt.name), escapeHtml(redact(detail, secrets())));
     const result = await send([{ kind: "text", chatId, text, keyboard: null }], new Map());
     return result.delivered ? today : previous.errorNotifiedDay;
   }
@@ -337,7 +338,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   }
 
   async function failRound(hunt: Hunt, previous: HuntState, at: number, error: unknown): Promise<RunReport> {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = redact(error instanceof Error ? error.message : String(error), secrets());
     logger.error("round", { hunt: hunt.id, error: message });
     setHuntState(hunt.id, {
       ...previous,
@@ -365,7 +366,8 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       await recordRound(hunt, observation, events, at, delivery);
       const errorNotifiedDay = await warnOnErrors(hunt, previous, observation.errors, at);
       const base = delivery.delivered ? next : previous;
-      const lastError = observation.errors[0] ?? delivery.errors[0] ?? null;
+      const firstError = observation.errors[0] ?? delivery.errors[0];
+      const lastError = firstError === undefined ? null : redact(firstError, secrets());
       setHuntState(hunt.id, {
         ...base,
         errorNotifiedDay,
