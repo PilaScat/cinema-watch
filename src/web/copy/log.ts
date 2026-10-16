@@ -1,1 +1,27 @@
-export const log = {} as const;
+export const log = {
+  title: "Registro",
+  description: "Gli ultimi eventi delle cacce, dal più recente.",
+  empty: "Nessun evento.",
+  filters: {
+    hunt: "Caccia",
+    kind: "Tipo",
+    all: "Tutte",
+    allKinds: "Tutti",
+    apply: "Filtra",
+  },
+  deletedHunt: "Caccia eliminata",
+  openShowing: "Apri spettacolo",
+  kinds: {
+    round: "Giro",
+    newShowing: "Nuovo spettacolo",
+    seatsFreed: "Posti liberati",
+    lastSeats: "Ultimi posti",
+    cancelled: "Annullato",
+    moved: "Spostato",
+    movieAppeared: "Film comparso",
+    error: "Errore",
+    hallChanged: "Pianta cambiata",
+    unknownSeatType: "Tipo di posto sconosciuto",
+    telegramError: "Errore Telegram",
+  },
+} as const;
