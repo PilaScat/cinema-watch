@@ -208,7 +208,7 @@ describe("composeRound basics", () => {
       {
         kind: "text",
         chatId: "100",
-        text: "🎬 <b>Dune IMAX</b>\n\n<b>Nuovi spettacoli</b>\nmar 15/12 20:30 · Torino Lingotto · Sala 3 · IMAX · 40 liberi, 8 nella zona buona",
+        text: "🎬 <b>Dune IMAX</b>\n\n<b>Nuovi spettacoli</b>\nmar 15/12 20:30 · Torino Lingotto · Sala 3 · IMAX · 40 liberi, 8 nella zona buona\nMigliori: H 9-11",
         keyboard: [[{ text: "Acquista", url: "https://cart.example/1" }], REFRESH_ROW],
       },
     ]);
@@ -262,10 +262,13 @@ describe("composeRound basics", () => {
         "",
         "<b>Nuovi spettacoli</b>",
         "mar 15/12 22:00 · Torino Lingotto · Sala 3 · IMAX · 40 liberi, 8 nella zona buona",
+        "Migliori: H 9-11",
         "mer 16/12 19:00 · Torino Lingotto · Sala 3 · IMAX · 40 liberi, 8 nella zona buona",
+        "Migliori: H 9-11",
         "",
         "<b>Ultimi posti</b>",
         "mar 15/12 20:30 · Torino Lingotto · Sala 3 · IMAX · 2 liberi nella zona buona",
+        "Migliori: H 9-11",
         "",
         "<b>Spostati</b>",
         "mar 15/12 20:30 → mer 16/12 21:00 · Torino Lingotto · Sala 3",
@@ -403,7 +406,7 @@ describe("composeRound hall link", () => {
 
   it("adds Apri sala to the text when not a button", () => {
     const text = texts(composeRound([created("k1")], context({ publicUrl: "https://cw.example", openAsButton: false })))[0];
-    expect(text?.text.endsWith("40 liberi, 8 nella zona buona\n\nApri sala: https://cw.example/performances/11/900")).toBe(true);
+    expect(text?.text.endsWith("40 liberi, 8 nella zona buona\nMigliori: H 9-11\n\nApri sala: https://cw.example/performances/11/900")).toBe(true);
     expect(text?.keyboard).toEqual([[{ text: "Acquista", url: "https://cart.example/1" }], REFRESH_ROW]);
   });
 

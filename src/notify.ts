@@ -1,6 +1,7 @@
 import { copy } from "./copy.js";
 import { escapeHtml, formatDay, formatEur, formatGroup, formatTime } from "./format.js";
 import type { Hunt, HuntEvent, InlineButton, OutgoingMessage, SeatSummary, ShowingSnapshot } from "./model.js";
+import type { SeatGroup } from "./types.js";
 
 export const TELEGRAM_TEXT_LIMIT = 4096;
 export const TELEGRAM_CAPTION_LIMIT = 1024;
@@ -134,18 +135,24 @@ function ofKind<K extends HuntEvent["kind"]>(
     .sort((a, b) => start(a).startsAt.localeCompare(start(b).startsAt));
 }
 
+function bestLine(groups: SeatGroup[]): string[] {
+  if (groups.length === 0) return [];
+  return [copy.telegram.best(groups.map((group) => escapeHtml(formatGroup(group))).join(", "))];
+}
+
 function buildSections(events: HuntEvent[], context: ComposeContext): Section[] {
   const { sections } = copy.telegram;
-  const freed = ofKind(events, "seatsFreed", (event) => event.showing).map((event) => {
-    const lines = [showingLine(event.showing, context, seatsPart(event.showing))];
-    if (event.groups.length > 0) lines.push(copy.telegram.best(event.groups.map((group) => escapeHtml(formatGroup(group))).join(", ")));
-    return lines;
-  });
+  const freed = ofKind(events, "seatsFreed", (event) => event.showing).map((event) => [
+    showingLine(event.showing, context, seatsPart(event.showing)),
+    ...bestLine(event.groups),
+  ]);
   const created = ofKind(events, "newShowing", (event) => event.showing).map((event) => [
     showingLine(event.showing, context, seatsPart(event.showing)),
+    ...bestLine(event.showing.seats?.best ?? []),
   ]);
   const lastSeats = ofKind(events, "lastSeats", (event) => event.showing).map((event) => [
     showingLine(event.showing, context, copy.telegram.lastSeats(event.freeInZone)),
+    ...bestLine(event.showing.seats?.best ?? []),
   ]);
   const moved = ofKind(events, "moved", (event) => event.to).map((event) => [
     copy.telegram.moved(
