@@ -56,6 +56,15 @@ describe("guards", () => {
     expect(withCr).toEqual([]);
   });
 
+  it("never stores anything shaped like a Telegram bot token", () => {
+    const tokenShaped = /\d{6,}:[A-Za-z0-9_-]{30,}/;
+    const offenders = files
+      .filter((path) => textExtensions.has(extensionOf(path)))
+      .filter((path) => tokenShaped.test(readFileSync(path, "utf8")))
+      .map((path) => relative(root, path));
+    expect(offenders).toEqual([]);
+  });
+
   it("has no comments in code, directives aside", () => {
     const offenders = files
       .filter((path) => codeExtensions.has(extensionOf(path)))

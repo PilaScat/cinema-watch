@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
+import { fakeBotToken } from "./tokens.js";
 
-export const FAKE_TOKEN = "123456789:AAFakeTokenForTestsOnly_abcdefghijklmn";
+export const FAKE_TOKEN = fakeBotToken(123456789, "f");
 
 export interface TelegramCall {
   method: string;

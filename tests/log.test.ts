@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { createLogger, redact } from "../src/log.js";
+import { fakeBotToken } from "./support/tokens.js";
 
-const TOKEN = "123456789:AAEhBP0av28ZqcwPEvIrK3sYlWb4nT9dXcQ";
+const TOKEN = fakeBotToken(123456789, "a");
 
 describe("redact", () => {
   it("replaces configured secrets", () => {

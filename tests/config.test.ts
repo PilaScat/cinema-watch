@@ -20,9 +20,10 @@ import {
 } from "../src/config.js";
 import type { AbsoluteZone, Config, Hunt } from "../src/model.js";
 import { createStore, type StoreFs } from "../src/store.js";
+import { fakeBotToken } from "./support/tokens.js";
 
-const TOKEN = "123456789:AAEhBP0av28ZqcwPEvIrK3sYlWb4nT9dXcQ";
-const OTHER_TOKEN = "987654321:BBFiCQ1bw39ArdxQFwJsL4tZmXc5oU0eYdR";
+const TOKEN = fakeBotToken(123456789, "a");
+const OTHER_TOKEN = fakeBotToken(987654321, "b");
 
 function sequence(values: number[]): () => number {
   let index = 0;

@@ -5,6 +5,7 @@ import type { Config } from "../src/model.js";
 import { createStore } from "../src/store.js";
 import { fixture } from "./support/fake-world.js";
 import { createHarness, PRIMARY_CHAT, type Harness } from "./support/harness.js";
+import { fakeBotToken } from "./support/tokens.js";
 
 let harness: Harness;
 
@@ -121,7 +122,7 @@ describe("bot", () => {
     const huntId = config.hunts[0]?.id ?? "";
     harness.world.pushUpdate({ update_id: 500, callback_query: { id: "c500", from: { id: 1 }, data: "a:zzzzzzzz", message: { chat: { id: 4242 } } } });
     await bot.pollOnce();
-    config.settings.telegram = { token: "987654321:AAAnotherFakeTokenForTests_abcdefghijk", chatId: PRIMARY_CHAT };
+    config.settings.telegram = { token: fakeBotToken(987654321, "b"), chatId: PRIMARY_CHAT };
     await saveConfig(createStore(harness.dataDir), config);
     harness.advance(6 * 60_000);
     await watcher.tick();
