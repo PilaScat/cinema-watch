@@ -12,7 +12,7 @@ import { createLogger, redact, type Logger } from "./log.js";
 import type { Config, Hunt, HuntEvent, HuntState, OutgoingMessage, State } from "./model.js";
 import { composeDigest, composeRound, type DigestEntry } from "./notify.js";
 import { svgToPng, TELEGRAM_PHOTO_WIDTH } from "./png.js";
-import { diffRound } from "./round.js";
+import { diffRound, snapshotOf } from "./round.js";
 import { observeHunt, zoneFor, type HuntObservation, type RunnerCaches, type SeatDetail } from "./runner.js";
 import { analyzeSeats } from "./seats.js";
 import { huntStateOf, loadState, saveState } from "./state.js";
@@ -75,6 +75,7 @@ export interface Watcher {
   importConfig(text: string): Promise<ParseResult>;
   exportConfig(includeToken: boolean): string;
   sendTest(): Promise<SentResult>;
+  sendSnapshot(huntId: string): Promise<boolean>;
   services: WatcherServices;
   runNow(huntId?: string): Promise<RunReport[]>;
   mute(huntId: string, durationMs: number): Promise<void>;
@@ -522,6 +523,14 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     await persistState();
   }
 
+  async function sendSnapshotLocked(huntId: string): Promise<boolean> {
+    const hunt = config.hunts.find((item) => item.id === huntId);
+    if (!hunt) return false;
+    const observation = await observeHunt({ uci, webtic, caches }, hunt, config.settings, new Date(now()), { fresh: true });
+    const events: HuntEvent[] = observation.round.showings.map((observed) => ({ kind: "newShowing", showing: snapshotOf(observed) }));
+    return (await notify(hunt, events, observation)).delivered && events.length > 0;
+  }
+
   async function setMute(huntId: string, mutedUntil: number | null): Promise<void> {
     setHuntState(huntId, { ...huntStateOf(state, huntId), mutedUntil });
     await persistState();
@@ -533,6 +542,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     importConfig: (text: string) => exclusive(() => importLocked(text)),
     exportConfig: (includeToken: boolean) => exportConfig(config, { includeToken }),
     sendTest,
+    sendSnapshot: (huntId: string) => exclusive(() => sendSnapshotLocked(huntId)),
     services: {
       theatres,
       programming: (theatreSlug: string) => fullProgramming.getOrLoad(theatreSlug, () => uci.programmingAll(theatreSlug)),

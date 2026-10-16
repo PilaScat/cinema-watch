@@ -83,6 +83,21 @@ describe("watcher services for the web UI", () => {
     expect(withDefault.rule.zone).toEqual(config.settings.defaultZone);
   });
 
+  it("sends the current situation of a hunt on request without touching its state", async () => {
+    const config = await harness.seed();
+    const huntId = config.hunts[0]?.id ?? "";
+    const watcher = await harness.watcher();
+    await watcher.tick();
+    harness.world.telegram.length = 0;
+    const before = JSON.stringify(watcher.state());
+
+    const result = await watcher.sendSnapshot(huntId);
+
+    expect(result).toBe(true);
+    expect(harness.world.telegram.map((call) => call.method)).toEqual(["sendPhoto", "sendMessage"]);
+    expect(JSON.stringify(watcher.state())).toBe(before);
+  });
+
   it("adds a hunt through saveConfig and runs it on the next round", async () => {
     const config = await harness.seed((draft) => {
       draft.hunts = [];

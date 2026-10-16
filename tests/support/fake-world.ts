@@ -94,6 +94,13 @@ export function createFakeWorld(): FakeWorld {
       if (url.hostname.startsWith("myuci---")) {
         const path = url.pathname.replace(/^\/api/, "");
         if (path === "/theatres") return json(fixture("uci/theatres.json"));
+        const all = /^\/theatres\/([a-z0-9-]+)\/programming$/.exec(path);
+        if (all) {
+          const days = [...programming.entries()]
+            .filter(([key]) => key.startsWith(`${all[1]}|`))
+            .map(([key, body]) => ({ [key.split("|")[1] ?? ""]: (body as { data: unknown[] }).data }));
+          return json({ data: days });
+        }
         const day = /^\/theatres\/([a-z0-9-]+)\/programming\/(\d{4}-\d{2}-\d{2})$/.exec(path);
         if (day) return json(programming.get(`${day[1]}|${day[2]}`) ?? { data: [] });
         if (path === "/movies/dune-parte-tre") return json(fixture("uci/movie-dune-parte-tre.json"));

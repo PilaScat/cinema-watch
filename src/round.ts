@@ -42,7 +42,7 @@ function seatSummary(analysis: SeatAnalysis): SeatSummary {
   };
 }
 
-function snapshotOf(observed: ObservedShowing): ShowingSnapshot {
+export function snapshotOf(observed: ObservedShowing): ShowingSnapshot {
   const { showing, performance, analysis } = observed;
   return {
     key: showing.key,
