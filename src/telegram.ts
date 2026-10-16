@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { copy } from "./copy.js";
+import { escapeHtml } from "./format.js";
 import type { InlineButton, OutgoingMessage, SentResult } from "./model.js";
 
 export const TELEGRAM_API = "https://api.telegram.org";
@@ -305,6 +306,18 @@ export function createTelegram(options: TelegramOptions): Telegram {
     });
   }
 
+  function withLinksInText(plain: Record<string, unknown>, text: string, keyboard: InlineButton[][]): Record<string, unknown> {
+    const buttons = keyboard.flat();
+    const links = buttons.flatMap((button) => (button.url === undefined ? [] : [`${escapeHtml(button.text)}: ${escapeHtml(button.url)}`]));
+    const commands = keyboard.map((row) => row.filter((button) => button.url === undefined)).filter((row) => row.length > 0);
+    const linked = links.length === 0 ? text : `${text}\n\n${links.join("\n")}`;
+    return {
+      ...plain,
+      text: linked.length > MAX_TEXT_LENGTH ? text : linked,
+      ...(commands.length > 0 ? { reply_markup: replyMarkup(commands) } : {}),
+    };
+  }
+
   async function sendMessage(
     chatId: string,
     text: string,
@@ -321,7 +334,7 @@ export function createTelegram(options: TelegramOptions): Telegram {
       return await send(chatId, 1, "sendMessage", plain, sentMessageSchema, (r) => [r.message_id]);
     }
     const body = { ...plain, reply_markup: replyMarkup(keyboard) };
-    return await send(chatId, 1, "sendMessage", body, sentMessageSchema, (r) => [r.message_id], plain);
+    return await send(chatId, 1, "sendMessage", body, sentMessageSchema, (r) => [r.message_id], withLinksInText(plain, text, keyboard));
   }
 
   async function sendPhoto(
