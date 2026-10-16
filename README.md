@@ -109,6 +109,7 @@ Le Impostazioni mostrano quando token o chat arrivano dall'ambiente.
 | [docs/homepage.md](docs/homepage.md) | Widget per gethomepage. |
 | [docs/operations.md](docs/operations.md) | Deploy, aggiornamenti, backup, rilascio e smoke test. |
 | [docs/UI-COPY.md](docs/UI-COPY.md) | Regole per i testi visibili. |
+| [docs/backlog.md](docs/backlog.md) | Cosa resta da decidere o da fare nei prossimi rilasci. |
 | [CHANGELOG.md](CHANGELOG.md) | Note di ogni versione. |
 | [SECURITY.md](SECURITY.md) | Come segnalare una vulnerabilità. |
 
