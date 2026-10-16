@@ -1,0 +1,198 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag già pushato da rilasciare, ad esempio v2026.10.1
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/pilascat/cinema-watch
+  TAG: ${{ inputs.tag || github.ref_name }}
+
+jobs:
+  verify:
+    name: Verifica del codice
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Formato del tag
+        run: |
+          case "$TAG" in
+            v[0-9][0-9][0-9][0-9].[0-9][0-9].[0-9]*) ;;
+            *) echo "Tag non valido: $TAG"; exit 1 ;;
+          esac
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: refs/tags/${{ env.TAG }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: npm ci
+      - run: npm test
+      - run: npx tsc --noEmit
+      - run: npm run lint
+      - run: npm run build
+      - run: npm audit --audit-level=high
+      - run: npm audit signatures
+      - run: npm run check:licenses
+      - name: Sezione del CHANGELOG
+        run: grep -q "^## $TAG" CHANGELOG.md
+
+  scan:
+    name: Trivy sull'immagine amd64
+    needs: verify
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: refs/tags/${{ env.TAG }}
+          persist-credentials: false
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: cinema-watch:scan
+          build-args: VERSION=${{ env.TAG }}
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          image-ref: cinema-watch:scan
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          version: v0.76.0
+
+  build:
+    name: Immagine ${{ matrix.platform }}
+    needs: scan
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-24.04
+            slug: amd64
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            slug: arm64
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: refs/tags/${{ env.TAG }}
+          persist-credentials: false
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc
+        with:
+          context: .
+          platforms: ${{ matrix.platform }}
+          build-args: VERSION=${{ env.TAG }}
+          sbom: true
+          provenance: mode=max
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+      - name: Digest
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          mkdir -p digests
+          touch "digests/${DIGEST#sha256:}"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: digest-${{ matrix.slug }}
+          path: digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    name: Manifest e attestazione
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          pattern: digest-*
+          path: digests
+          merge-multiple: true
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Manifest amd64 + arm64
+        working-directory: digests
+        run: |
+          set --
+          for digest in *; do set -- "$@" "$IMAGE@sha256:$digest"; done
+          docker buildx imagetools create -t "$IMAGE:$TAG" -t "$IMAGE:latest" "$@"
+      - id: manifest
+        name: Digest del manifest
+        run: echo "digest=$(docker buildx imagetools inspect "$IMAGE:$TAG" --format '{{json .Manifest}}' | jq -r .digest)" >> "$GITHUB_OUTPUT"
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
+        with:
+          subject-name: ${{ env.IMAGE }}
+          subject-digest: ${{ steps.manifest.outputs.digest }}
+          push-to-registry: true
+
+  release:
+    name: Release su GitHub
+    needs: publish
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: refs/tags/${{ env.TAG }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Note dal CHANGELOG e commit
+        run: |
+          awk -v tag="$TAG" '/^## / { inside = index($0, "## " tag) == 1; next } inside' CHANGELOG.md > notes.md
+          previous=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || true)
+          range="$TAG"
+          [ -n "$previous" ] && range="$previous..$TAG"
+          {
+            echo
+            echo "## Commit"
+            echo
+            git log --no-merges --format='- %s (%h)' "$range"
+            echo
+            echo "Immagine: \`$IMAGE:$TAG\` (amd64, arm64)"
+          } >> notes.md
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$TAG" --verify-tag --title "$TAG" --notes-file notes.md

@@ -29,3 +29,14 @@ updates:
     groups:
       actions:
         patterns: ["*"]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: tuesday
+      time: "09:00"
+      timezone: Europe/Rome
+    groups:
+      images:
+        patterns: ["*"]
