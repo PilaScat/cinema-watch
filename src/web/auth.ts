@@ -1,9 +1,11 @@
-import { randomBytes, timingSafeEqual, createHash } from "node:crypto";
+import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { readFile, writeFile, chmod } from "node:fs/promises";
 import { join } from "node:path";
 
 const LOCK_ATTEMPTS = 5;
 const LOCK_MS = 15 * 60_000;
+const COMPARE_SALT = randomBytes(16);
+const COMPARE_LENGTH = 32;
 
 export async function loadSecret(dataDir: string): Promise<string> {
   const file = join(dataDir, "secret");
@@ -23,10 +25,12 @@ async function createSecret(file: string): Promise<string> {
   return secret;
 }
 
+function stretched(password: string): Buffer {
+  return scryptSync(password, COMPARE_SALT, COMPARE_LENGTH);
+}
+
 export function samePassword(given: string, expected: string): boolean {
-  const a = createHash("sha256").update(given).digest();
-  const b = createHash("sha256").update(expected).digest();
-  return timingSafeEqual(a, b);
+  return timingSafeEqual(stretched(given), stretched(expected));
 }
 
 export function createLockout(now: () => number) {
