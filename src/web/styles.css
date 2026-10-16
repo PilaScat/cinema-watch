@@ -1,0 +1,130 @@
+@import "tailwindcss" source(none);
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@font-face {
+  font-family: "Bebas Neue";
+  src: url("/assets/fonts/BebasNeue-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow";
+  font-weight: 400;
+  src: url("/assets/fonts/Barlow-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow";
+  font-weight: 600;
+  src: url("/assets/fonts/Barlow-SemiBold.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow";
+  font-weight: 700;
+  src: url("/assets/fonts/Barlow-Bold.ttf") format("truetype");
+  font-display: swap;
+}
+
+:root {
+  --background: #faf7f2;
+  --surface: #ffffff;
+  --surface-2: #f2ede5;
+  --border: #e3dcd2;
+  --foreground: #1c1917;
+  --muted: #6b625a;
+  --primary: #b91c1c;
+  --primary-hover: #991b1b;
+  --primary-foreground: #fff7ed;
+  --gold: #a77c08;
+  --gold-soft: #fbefc7;
+  --success: #1f7a45;
+  --success-soft: #dcf3e5;
+  --danger: #b91c1c;
+  --danger-soft: #fde4e1;
+  --ring: #d4a017;
+}
+
+.dark {
+  --background: #121014;
+  --surface: #1c191e;
+  --surface-2: #252128;
+  --border: #34303a;
+  --foreground: #f4efe6;
+  --muted: #a39a90;
+  --primary: #c0392b;
+  --primary-hover: #a93226;
+  --primary-foreground: #fff7ed;
+  --gold: #f5c518;
+  --gold-soft: #3a3016;
+  --success: #2fbf71;
+  --success-soft: #16301f;
+  --danger: #ef6b5b;
+  --danger-soft: #3a1a17;
+  --ring: #f5c518;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-ring: var(--ring);
+  --font-display: "Bebas Neue", "Barlow", sans-serif;
+  --font-sans: "Barlow", system-ui, sans-serif;
+}
+
+@source "../";
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+.hall-svg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+[data-armed="true"] {
+  background: var(--danger);
+  color: var(--primary-foreground);
+}
+
+[data-busy="true"] .busy-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

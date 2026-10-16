@@ -1,7 +1,9 @@
+import { ui } from "./web/copy/index.js";
+
 const SEPARATOR = " · ";
 
 export const copy = {
-  ui: {},
+  ui,
   hall: {
     labels: {
       screen: "SCHERMO",
@@ -88,6 +90,10 @@ export const copy = {
           ? `<b>${name}</b>: nessuno spettacolo`
           : `<b>${name}</b>: ${showings} ${showings === 1 ? "spettacolo" : "spettacoli"}, ${withSeats} con posti vicini nella zona buona`,
       mutedUntil: (time: string): string => `silenziata fino alle ${time}`,
+    },
+    test: {
+      header: "✅ Prova di cinema-watch",
+      body: "Gli avvisi delle cacce arriveranno in questa chat.",
     },
     noNews: {
       header: "🔄 Nessuna novità",

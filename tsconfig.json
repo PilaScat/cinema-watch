@@ -13,6 +13,8 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "types": ["node"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
     "noEmit": true
   },
   "include": ["src", "tests", "scripts", "*.config.ts"]

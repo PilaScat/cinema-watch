@@ -30,6 +30,10 @@ export default tseslint.config(
     ...tseslint.configs.disableTypeChecked,
   },
   {
+    files: ["src/web/public/**/*.js"],
+    languageOptions: { globals: { ...globals.browser } },
+  },
+  {
     files: ["tests/**/*.ts", "scripts/**"],
     rules: {
       "no-console": "off",
