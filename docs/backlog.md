@@ -25,6 +25,8 @@ toglie da qui e va nel [CHANGELOG](../CHANGELOG.md).
 | Dividere `src/web/routes/hunts.tsx` | Mappatura form-caccia, picker e pagina della zona fuori dalle route. |
 | Un solo posto per le regex comuni | `SLUG`, `HALL_KEY` e `ISO_DAY` sono definite in `config.ts`, `hunts.tsx` e `browse.tsx`. |
 | `huntById` e `telegramConfigured()` nel watcher | Togliere le ricerche ripetute di una caccia per id e il controllo `botToken() !== null` sparso nelle route. |
+| Scorecard: `SECURITY.md` più completo | Security-Policy vale 4/10: aggiungere i tempi di risposta e il link alla segnalazione privata di GitHub. Il punteggio totale alla v2026.10.1 è 7/10; Code-Review e Branch-Protection restano basse per la scelta dei push diretti su main. |
+| Scorecard: badge OpenSSF Best Practices | Iscrivere il progetto su bestpractices.dev e compilare il questionario (CII-Best-Practices vale 0). |
 | Chiave dello spettacolo e della sala in una funzione | `${localId}-${performanceId}` e `${localId}-${screenId}` sono costruite a mano in più file. |
 
 ## Scelte confermate dopo le revisioni
