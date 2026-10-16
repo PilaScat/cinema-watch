@@ -45,7 +45,8 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
 - **resvg su Windows è lento col testo**: la pianta di Verona si disegna in circa 800 ms su
   Windows e in circa 50 ms su Linux Alpine (misurato il 16/10/2026). Il costo è nella composizione
   dei testi, non nei pixel né nel caricamento dei font. Il test dei 500 ms vale solo su Linux; su
-  Windows si salta.
+  Windows si salta. Per lo stesso motivo il limite dei test di Vitest è 15 s: con tutti i file in
+  parallelo i test che disegnano piante su Windows superano i 5 s predefiniti.
 - **Larghezza per Telegram**: le piante si disegnano a 1280 px (`TELEGRAM_PHOTO_WIDTH`), il lato
   che Telegram tiene per le foto.
 

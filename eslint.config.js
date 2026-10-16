@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ["dist/", "coverage/", "reports/", ".stryker-tmp/", "node_modules/", "assets/"],
+    ignores: ["dist/", "coverage/", "reports/", ".stryker-tmp/", "node_modules/", "assets/", "scratch_*"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
