@@ -37,6 +37,9 @@ updates:
       day: tuesday
       time: "09:00"
       timezone: Europe/Rome
+    ignore:
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
     groups:
       images:
         patterns: ["*"]
