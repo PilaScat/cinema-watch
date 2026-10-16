@@ -303,6 +303,23 @@ function withMutedSuffix(line: string, entry: DigestEntry): string {
   return `${line}${copy.telegram.separator}${copy.telegram.digest.mutedUntil(formatTime(entry.mutedUntil))}`;
 }
 
+function bestShowing(showings: ShowingSnapshot[]): ShowingSnapshot | null {
+  const score = (showing: ShowingSnapshot): number => showing.seats?.best[0]?.score ?? -1;
+  const candidates = showings
+    .filter((showing) => showing.seats?.ok === true && showing.seats.best.length > 0)
+    .sort((a, b) => score(b) - score(a) || a.startsAt.localeCompare(b.startsAt));
+  return candidates[0] ?? null;
+}
+
+function bestLines(entry: DigestEntry): string[] {
+  const showing = bestShowing(entry.showings);
+  const group = showing?.seats?.best[0];
+  if (!showing || !group) return [];
+  const parts = [dayTime(showing), escapeHtml(showing.room), copy.telegram.best(escapeHtml(formatGroup(group)))];
+  if (showing.priceFrom !== null) parts.push(copy.telegram.price(formatEur(showing.priceFrom)));
+  return [parts.join(copy.telegram.separator)];
+}
+
 function digestLine(entry: DigestEntry): string {
   const withSeats = entry.showings.filter((showing) => showing.seats?.ok === true).length;
   return withMutedSuffix(
@@ -335,9 +352,9 @@ function chunkLines(header: string, lines: string[]): string[] {
 }
 
 export function composeDigest(entries: DigestEntry[]): string[] {
-  return chunkLines(copy.telegram.digest.header, entries.map(digestLine));
+  return chunkLines(copy.telegram.digest.header, entries.flatMap((entry) => [digestLine(entry), ...bestLines(entry)]));
 }
 
 export function composeNoNews(entries: DigestEntry[]): string[] {
-  return chunkLines(copy.telegram.noNews.header, entries.map(noNewsLine));
+  return chunkLines(copy.telegram.noNews.header, entries.flatMap((entry) => [noNewsLine(entry), ...bestLines(entry)]));
 }

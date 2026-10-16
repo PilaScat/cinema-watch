@@ -482,14 +482,33 @@ describe("telegram style", () => {
 describe("composeDigest", () => {
   it("lists one line per hunt", () => {
     expect(composeDigest(digestEntries())).toEqual([
-      "🗓 Riepilogo delle cacce\n\n<b>Dune IMAX</b>: 3 spettacoli, 1 con posti vicini nella zona buona\n<b>Tenet</b>: nessuno spettacolo",
+      "🗓 Riepilogo delle cacce\n\n<b>Dune IMAX</b>: 3 spettacoli, 1 con posti vicini nella zona buona\nmar 15/12 20:30 · Sala 3 · Migliori: H 9-11\n<b>Tenet</b>: nessuno spettacolo",
     ]);
+  });
+
+  it("adds under each hunt the showing with the best seats and its price", () => {
+    const entries: DigestEntry[] = [
+      {
+        hunt: hunt({ name: "Dune IMAX" }),
+        showings: [
+          showing({ key: "a", seats: seats({ best: [group("C", 1, 2, 2)] }) }),
+          showing({ key: "b", day: "2026-12-16", startsAt: "2026-12-16T21:00:00", time: "21:00", priceFrom: 14.9, seats: seats({ best: [group("H", 9, 11, 5)] }) }),
+          showing({ key: "c", seats: seats({ ok: false, best: [group("A", 1, 3, 9)] }) }),
+        ],
+        mutedUntil: null,
+      },
+      { hunt: hunt({ id: "bbbb2222", name: "Senza posti" }), showings: [showing({ seats: seats({ ok: false }) })], mutedUntil: null },
+    ];
+    expect(composeDigest(entries)).toEqual([
+      "🗓 Riepilogo delle cacce\n\n<b>Dune IMAX</b>: 3 spettacoli, 2 con posti vicini nella zona buona\nmer 16/12 21:00 · Sala 3 · Migliori: H 9-11 · da 14,90 €\n<b>Senza posti</b>: 1 spettacolo, 0 con posti vicini nella zona buona",
+    ]);
+    expect(composeNoNews(entries)[0]).toContain("\nmer 16/12 21:00 · Sala 3 · Migliori: H 9-11 · da 14,90 €\n");
   });
 
   it("uses the singular for one showing", () => {
     const entries = [{ hunt: hunt({ name: "Solo" }), showings: [showing()], mutedUntil: null }];
     expect(composeDigest(entries)).toEqual([
-      "🗓 Riepilogo delle cacce\n\n<b>Solo</b>: 1 spettacolo, 1 con posti vicini nella zona buona",
+      "🗓 Riepilogo delle cacce\n\n<b>Solo</b>: 1 spettacolo, 1 con posti vicini nella zona buona\nmar 15/12 20:30 · Sala 3 · Migliori: H 9-11",
     ]);
   });
 
@@ -499,7 +518,7 @@ describe("composeDigest", () => {
       { hunt: hunt({ name: "Tenet" }), showings: [], mutedUntil: Date.UTC(2026, 11, 15, 8, 5) },
     ];
     expect(composeDigest(entries)).toEqual([
-      "🗓 Riepilogo delle cacce\n\n<b>Dune IMAX</b>: 1 spettacolo, 1 con posti vicini nella zona buona · silenziata fino alle 20:30\n<b>Tenet</b>: nessuno spettacolo · silenziata fino alle 09:05",
+      "🗓 Riepilogo delle cacce\n\n<b>Dune IMAX</b>: 1 spettacolo, 1 con posti vicini nella zona buona · silenziata fino alle 20:30\nmar 15/12 20:30 · Sala 3 · Migliori: H 9-11\n<b>Tenet</b>: nessuno spettacolo · silenziata fino alle 09:05",
     ]);
   });
 
@@ -536,7 +555,7 @@ describe("composeDigest", () => {
 describe("composeNoNews", () => {
   it("opens with the no-news header then lists the hunts with free seats in the zone", () => {
     expect(composeNoNews(digestEntries())).toEqual([
-      "🔄 Nessuna novità\n\n<b>Dune IMAX</b>: 3 spettacoli, 16 liberi nella zona buona\n<b>Tenet</b>: nessuno spettacolo",
+      "🔄 Nessuna novità\n\n<b>Dune IMAX</b>: 3 spettacoli, 16 liberi nella zona buona\nmar 15/12 20:30 · Sala 3 · Migliori: H 9-11\n<b>Tenet</b>: nessuno spettacolo",
     ]);
   });
 
@@ -550,7 +569,7 @@ describe("composeNoNews", () => {
       { hunt: hunt({ id: "bbbb2222", name: "Uno" }), showings: [showing({ seats: seats({ freeInZone: 0 }) })], mutedUntil: null },
     ];
     expect(composeNoNews(entries)).toEqual([
-      "🔄 Nessuna novità\n\n<b>Solo</b>: 2 spettacoli, 9 liberi nella zona buona\n<b>Uno</b>: 1 spettacolo, 0 liberi nella zona buona",
+      "🔄 Nessuna novità\n\n<b>Solo</b>: 2 spettacoli, 9 liberi nella zona buona\nmar 15/12 20:30 · Sala 3 · Migliori: H 9-11\n<b>Uno</b>: 1 spettacolo, 0 liberi nella zona buona\nmar 15/12 20:30 · Sala 3 · Migliori: H 9-11",
     ]);
   });
 
@@ -559,7 +578,7 @@ describe("composeNoNews", () => {
       { hunt: hunt({ name: "Dune IMAX" }), showings: [showing()], mutedUntil: Date.UTC(2026, 11, 15, 19, 30) },
     ];
     expect(composeNoNews(entries)).toEqual([
-      "🔄 Nessuna novità\n\n<b>Dune IMAX</b>: 1 spettacolo, 8 liberi nella zona buona · silenziata fino alle 20:30",
+      "🔄 Nessuna novità\n\n<b>Dune IMAX</b>: 1 spettacolo, 8 liberi nella zona buona · silenziata fino alle 20:30\nmar 15/12 20:30 · Sala 3 · Migliori: H 9-11",
     ]);
   });
 });
