@@ -2,7 +2,10 @@ import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Config } from "../src/model.js";
 import { createApp } from "../src/web/app.js";
+import { createStore } from "../src/store.js";
+import { fixture } from "./support/fake-world.js";
 import { createHarness, PRIMARY_CHAT, type Harness } from "./support/harness.js";
+import { occupancyWithTaken } from "./support/web.js";
 
 const publicDir = fileURLToPath(new URL("../src/web/public/", import.meta.url));
 const assetsDir = fileURLToPath(new URL("../assets/", import.meta.url));
@@ -53,6 +56,56 @@ function huntForm(overrides: Record<string, string | string[]> = {}): Array<[str
 function zoneForm(overrides: Record<string, string> = {}): Array<[string, string]> {
   return Object.entries({ performance: PERFORMANCE, rows: "F, G", seatFrom: "5", seatTo: "16", ...overrides });
 }
+
+async function changeSeatMap() {
+  const screen = fixture("webtic/screen-5116-2.json") as { Data: { Screen: { Seats: Array<{ SeatId: string; Row: number; Column: number; SeatType: string; SectorId: string }> } } };
+  const seats = screen.Data.Screen.Seats.filter((seat) => seat.SeatId !== "A/1").map((seat) => ({
+    id: seat.SeatId,
+    rowLabel: seat.SeatId.split("/")[0],
+    number: Number(seat.SeatId.split("/")[1]),
+    row: seat.Row,
+    column: seat.Column,
+    sector: seat.SectorId,
+    type: seat.SeatType,
+  }));
+  await createStore(harness.dataDir).writeJson("screens/5116-2.json", { localId: 5116, screenId: 2, seats, fetchedAt: harness.now() });
+  harness.world.setOccupancy(5116, 575978, occupancyWithTaken(fixture("webtic/occupancy-5116-575978.json"), "A/1"));
+}
+
+describe("hall zone to confirm again", () => {
+  it("marks the zone of a changed seat map and clears it once the zone is saved again", async () => {
+    const { instance, watcher, huntId } = await app((config) => {
+      const hunt = config.hunts[0];
+      if (hunt) hunt.hallZones = { "5116-2": { kind: "absolute", rows: ["F", "G"], seatFrom: 5, seatTo: 16 } };
+    });
+    await changeSeatMap();
+    await watcher.tick();
+
+    const flagged = await (await instance.request(`/hunts/${huntId}`)).text();
+    const saved = await instance.request(`/hunts/${huntId}/zone`, post(zoneForm()));
+    const after = await (await instance.request(`/hunts/${huntId}`)).text();
+
+    expect(flagged).toContain("Pianta cambiata: zona da riconfermare");
+    expect(saved.status).toBe(303);
+    expect(after).not.toContain("Pianta cambiata: zona da riconfermare");
+  });
+
+  it("forgets the request when the zone is removed", async () => {
+    const { instance, watcher, huntId } = await app((config) => {
+      const hunt = config.hunts[0];
+      if (hunt) hunt.hallZones = { "5116-2": { kind: "absolute", rows: ["F", "G"], seatFrom: 5, seatTo: 16 } };
+    });
+    await changeSeatMap();
+    await watcher.tick();
+    const flagged = watcher.state().hunts[huntId]?.hallsToReconfirm;
+
+    await instance.request(`/hunts/${huntId}/zones/5116-2/delete`, post());
+
+    expect(flagged).toEqual(["5116-2"]);
+
+    expect(watcher.state().hunts[huntId]?.hallsToReconfirm).toEqual([]);
+  });
+});
 
 describe("hunt form", () => {
   it("prefills a new hunt from the query", async () => {

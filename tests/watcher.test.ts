@@ -502,6 +502,57 @@ describe("watcher", () => {
     expect((await subject.events(10)).map((entry) => entry.kind)).toContain("hallChanged");
   });
 
+  it("asks to confirm again the hall zone of a seat map that changed, until it is confirmed", async () => {
+    const config = await seed((draft) => {
+      const hunt = draft.hunts[0];
+      if (hunt) hunt.hallZones = { "5116-2": { kind: "absolute", rows: ["F", "G"], seatFrom: 5, seatTo: 16 } };
+    });
+    const huntId = config.hunts[0]?.id ?? "";
+    const store = createStore(dataDir);
+    const screen = fixture("webtic/screen-5116-2.json") as { Data: { Screen: { Seats: Array<{ SeatId: string; Row: number; Column: number; SeatType: string; SectorId: string }> } } };
+    const seats = screen.Data.Screen.Seats.filter((seat) => seat.SeatId !== "A/1").map((seat) => ({
+      id: seat.SeatId,
+      rowLabel: seat.SeatId.split("/")[0],
+      number: Number(seat.SeatId.split("/")[1]),
+      row: seat.Row,
+      column: seat.Column,
+      sector: seat.SectorId,
+      type: seat.SeatType,
+    }));
+    await store.writeJson("screens/5116-2.json", { localId: 5116, screenId: 2, seats, fetchedAt: clock });
+    world.setOccupancy(5116, 575978, withExtraTaken(fixture("webtic/occupancy-5116-575978.json"), "A/1"));
+    const subject = await watcher();
+
+    await subject.tick();
+    const flagged = subject.state().hunts[huntId]?.hallsToReconfirm;
+    await subject.confirmHallZone(huntId, "5116-2");
+
+    expect(flagged).toEqual(["5116-2"]);
+    expect(subject.state().hunts[huntId]?.hallsToReconfirm).toEqual([]);
+  });
+
+  it("does not ask to confirm a hall without its own zone", async () => {
+    const config = await seed();
+    const store = createStore(dataDir);
+    const screen = fixture("webtic/screen-5116-2.json") as { Data: { Screen: { Seats: Array<{ SeatId: string; Row: number; Column: number; SeatType: string; SectorId: string }> } } };
+    const seats = screen.Data.Screen.Seats.filter((seat) => seat.SeatId !== "A/1").map((seat) => ({
+      id: seat.SeatId,
+      rowLabel: seat.SeatId.split("/")[0],
+      number: Number(seat.SeatId.split("/")[1]),
+      row: seat.Row,
+      column: seat.Column,
+      sector: seat.SectorId,
+      type: seat.SeatType,
+    }));
+    await store.writeJson("screens/5116-2.json", { localId: 5116, screenId: 2, seats, fetchedAt: clock });
+    world.setOccupancy(5116, 575978, withExtraTaken(fixture("webtic/occupancy-5116-575978.json"), "A/1"));
+    const subject = await watcher();
+
+    await subject.tick();
+
+    expect(subject.state().hunts[config.hunts[0]?.id ?? ""]?.hallsToReconfirm).toEqual([]);
+  });
+
   it("applies the time, weekday and language filters of a hunt", async () => {
     const cases: Array<[Partial<Hunt>, number]> = [
       [{ timeFrom: "21:00", timeTo: "23:59" }, 0],

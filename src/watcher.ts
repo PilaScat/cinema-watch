@@ -94,6 +94,7 @@ export interface Watcher {
   resume(huntId: string): Promise<void>;
   markBought(huntId: string): Promise<void>;
   confirmMovie(huntId: string, slug: string): Promise<void>;
+  confirmHallZone(huntId: string, hallKey: string): Promise<void>;
   close(): Promise<void>;
   summaries(huntIds?: string[]): DigestEntry[];
   primaryChat(): string | null;
@@ -315,7 +316,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
         detail: observation.errors[0] ?? `${observation.round.showings.length}`,
       },
       ...events.map((event) => ({ t: at, huntId: hunt.id, kind: event.kind, key: eventKey(event), detail: eventDetail(event) })),
-      ...observation.hallChanged.map((key) => ({ t: at, huntId: hunt.id, kind: "hallChanged", key, detail: null })),
+      ...observation.hallChanged.map(({ showingKey }) => ({ t: at, huntId: hunt.id, kind: "hallChanged", key: showingKey, detail: null })),
       ...newTypes.map((type) => ({ t: at, huntId: hunt.id, kind: "unknownSeatType", key: null, detail: type })),
       ...delivery.errors.map((error) => ({ t: at, huntId: hunt.id, kind: "telegramError", key: null, detail: redact(error, secrets()) })),
     ]);
@@ -371,6 +372,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       setHuntState(hunt.id, {
         ...base,
         errorNotifiedDay,
+        hallsToReconfirm: hallsToReconfirm(hunt, previous, observation),
         nextRunAt: nextRunFrom(hunt, at),
         lastRun: { at, ok: lastError === null, error: lastError, showings: observation.round.showings.length },
       });
@@ -524,6 +526,18 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     return reports;
   }
 
+  function hallsToReconfirm(hunt: Hunt, previous: HuntState, observation: HuntObservation): string[] {
+    const changed = observation.hallChanged.map(({ hallKey }) => hallKey).filter((hallKey) => hunt.hallZones[hallKey] !== undefined);
+    return [...new Set([...previous.hallsToReconfirm, ...changed])].sort();
+  }
+
+  async function confirmHallZoneLocked(huntId: string, hallKey: string): Promise<void> {
+    const huntState = huntStateOf(state, huntId);
+    if (!huntState.hallsToReconfirm.includes(hallKey)) return;
+    setHuntState(huntId, { ...huntState, hallsToReconfirm: huntState.hallsToReconfirm.filter((key) => key !== hallKey) });
+    await persistState();
+  }
+
   async function confirmMovieLocked(huntId: string, slug: string): Promise<void> {
     await writeConfig({
       ...config,
@@ -569,6 +583,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     resume: (huntId: string) => exclusive(() => setMute(huntId, null)),
     markBought: (huntId: string) => exclusive(() => archive([huntId])),
     confirmMovie: (huntId: string, slug: string) => exclusive(() => confirmMovieLocked(huntId, slug)),
+    confirmHallZone: (huntId: string, hallKey: string) => exclusive(() => confirmHallZoneLocked(huntId, hallKey)),
     close: () => exclusive(() => Promise.resolve()),
     summaries: (huntIds?: string[]) =>
       digestEntries(false).filter((entry) => huntIds === undefined || huntIds.includes(entry.hunt.id)),

@@ -70,6 +70,7 @@ export const hunts = {
     digest: "Riepilogo giornaliero",
   },
   unknownRegion: "Altre regioni",
+  hallChanged: "Pianta cambiata: zona da riconfermare",
   empty: {
     showings: "Nessuno spettacolo seguito.",
     halls: "Nessuna zona ritoccata.",

@@ -35,7 +35,7 @@ export interface HuntObservation {
   round: RoundObservation;
   details: Map<string, SeatDetail>;
   errors: string[];
-  hallChanged: string[];
+  hallChanged: Array<{ showingKey: string; hallKey: string }>;
   unknownSeatTypes: string[];
 }
 
@@ -103,7 +103,7 @@ async function observeSeats(
   settings: Settings,
   showing: Showing,
   fresh: boolean,
-): Promise<{ observed: ObservedShowing; detail: SeatDetail; hallChanged: boolean }> {
+): Promise<{ observed: ObservedShowing; detail: SeatDetail; hallChanged: boolean; hallKey: string }> {
   const performance = await deps.caches.performance.getOrLoad(showing.key, () =>
     deps.webtic.performance(showing.localId, showing.performanceId),
   );
@@ -120,6 +120,7 @@ async function observeSeats(
     observed: { showing, performance, analysis, zoneSignature: zoneSignature(zone, hunt.together) },
     detail: { hall, occupancy, analysis, rule },
     hallChanged: changed,
+    hallKey: `${showing.localId}-${performance.screenId}`,
   };
 }
 
@@ -135,7 +136,7 @@ export async function observeHunt(
   const round: RoundObservation = { now, showings: [], daysWithShowings: [], daysChecked: [], allKeys: [], moviesSeen: [] };
   const details = new Map<string, SeatDetail>();
   const errors: string[] = [];
-  const hallChanged: string[] = [];
+  const hallChanged: HuntObservation["hallChanged"] = [];
   const unknownSeatTypes = new Set<string>();
   for (const theatreSlug of hunt.theatres) {
     for (const day of days) {
@@ -155,7 +156,7 @@ export async function observeHunt(
           const seats = await observeSeats(deps, hunt, settings, showing, options.fresh);
           round.showings.push(seats.observed);
           details.set(showing.key, seats.detail);
-          if (seats.hallChanged) hallChanged.push(showing.key);
+          if (seats.hallChanged) hallChanged.push({ showingKey: showing.key, hallKey: seats.hallKey });
           for (const type of seats.detail.analysis.unknownTypes) unknownSeatTypes.add(type);
         } catch (error) {
           errors.push(`${formatDay(showing.day)} ${showing.time} ${showing.room} · ${describe(WEBTIC_SOURCE, error)}`);

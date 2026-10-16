@@ -536,6 +536,7 @@ function HallZonesCard(props: { hunt: Hunt; state: HuntState | undefined }) {
     if (key !== null && !rooms.has(key)) rooms.set(key, { room: showing.screenName ?? showing.room, performanceId: showing.performanceId });
   }
   const zones = Object.entries(hunt.hallZones);
+  const toReconfirm = props.state?.hallsToReconfirm ?? [];
   return (
     <Card title={ui.sections.halls}>
       {zones.length === 0 ? <p class="text-sm text-muted">{ui.empty.halls}</p> : null}
@@ -546,6 +547,7 @@ function HallZonesCard(props: { hunt: Hunt; state: HuntState | undefined }) {
               <span class="font-semibold">{rooms.get(key)?.room ?? key}</span>
               <span class="text-muted">{` · ${ui.zonePage.zoneSummary(zone.rows.join(", "), zone.seatFrom, zone.seatTo)}`}</span>
             </span>
+            {toReconfirm.includes(key) ? <Badge tone="danger">{ui.hallChanged}</Badge> : null}
             <ActionForm action={`/hunts/${hunt.id}/zones/${key}/delete`}>
               <Button label={ui.actions.removeZone} icon="trash2" size="sm" variant="danger" />
             </ActionForm>
@@ -722,6 +724,7 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const hallZones = Object.fromEntries(Object.entries(hunt.hallZones).filter(([key]) => key !== hallKey));
     const config = watcher.config();
     await watcher.saveConfig({ ...config, hunts: config.hunts.map((item) => (item.id === hunt.id ? { ...item, hallZones } : item)) });
+    await watcher.confirmHallZone(hunt.id, hallKey);
     return c.redirect(`/hunts/${hunt.id}`, 303);
   });
 
@@ -829,7 +832,10 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
       hunts: config.hunts.map((item) => (item.id === hunt.id ? { ...item, hallZones: { ...item.hallZones, [hallKey]: zone } } : item)),
     };
     const result = await watcher.saveConfig(next);
-    if (result.ok) return c.redirect(`/hunts/${hunt.id}`, 303);
+    if (result.ok) {
+      await watcher.confirmHallZone(hunt.id, hallKey);
+      return c.redirect(`/hunts/${hunt.id}`, 303);
+    }
     return zonePage(c, { hunt, performance, values, errors: splitErrors(result.errors, `hunts[${index}].hallZones.${hallKey}`, zoneFieldOf), status: 400 });
   });
 }
