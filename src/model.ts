@@ -142,7 +142,8 @@ export interface ObservedShowing {
 export interface RoundObservation {
   now: Date;
   showings: ObservedShowing[];
-  daysRead: Array<{ theatreSlug: string; day: IsoDay }>;
+  daysWithShowings: Array<{ theatreSlug: string; day: IsoDay }>;
+  daysChecked: Array<{ theatreSlug: string; day: IsoDay }>;
   allKeys: string[];
   moviesSeen: Array<{ movie: MovieRef; theatreSlug: string }>;
 }

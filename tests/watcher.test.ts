@@ -90,6 +90,41 @@ describe("watcher", () => {
     expect(sent()).toEqual(afterFirst);
   });
 
+  it("announces showings that appear on a day that was already checked and empty", async () => {
+    await seed((config) => {
+      config.hunts = [duneHunt(config, { window: { kind: "fixed", from: "2026-12-16", to: "2026-12-16" } })];
+    });
+    world.setProgramming("uci-cinemas-verona", "2026-12-16", { data: [] });
+    const subject = await watcher();
+    await subject.tick();
+    const afterEmpty = sent();
+
+    const release = JSON.parse(JSON.stringify(fixture("uci/programming-uci-cinemas-verona-2026-12-15.json")).split("2026-12-15").join("2026-12-16")) as unknown;
+    world.setProgramming("uci-cinemas-verona", "2026-12-16", release);
+    clock += 6 * MINUTE;
+    await subject.tick();
+
+    expect(afterEmpty).toEqual([]);
+    expect(sent()).toEqual([`sendPhoto:${PRIMARY_CHAT}:1`, `sendMessage:${PRIMARY_CHAT}:0`]);
+    expect(world.telegram[1]?.text).toContain("20:30");
+  });
+
+  it("stays quiet about a day that enters a rolling window with showings already on sale", async () => {
+    clock = Date.parse("2026-12-13T10:00:00Z");
+    await seed((config) => {
+      config.hunts = [duneHunt(config, { window: { kind: "next", days: 2 } })];
+    });
+    const subject = await watcher();
+    await subject.tick();
+    const afterFirst = sent();
+
+    clock = Date.parse("2026-12-14T10:00:00Z");
+    await subject.tick();
+
+    expect(afterFirst).toEqual([]);
+    expect(sent()).toEqual([]);
+  });
+
   it("sends the hall and a seats freed summary when three seats together free up in the good zone", async () => {
     await seed();
     const subject = await watcher();

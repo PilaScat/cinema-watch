@@ -35,8 +35,10 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   uno spettacolo. Se l'ultimo spettacolo di un giorno sparisce, il giorno torna vuoto e
   l'annullamento non si vede: è il prezzo per non scambiare una risposta vuota di UCI per una
   cancellazione di massa.
-- **Giorni nuovi in silenzio**: in una caccia già avviata, gli spettacoli di un giorno letto per la
-  prima volta (finestra "prossimi N giorni" che avanza, cinema aggiunto) si registrano senza avvisare.
+- **Giorni nuovi in silenzio**: in una caccia già avviata, gli spettacoli di un giorno controllato per
+  la prima volta (finestra "prossimi N giorni" che avanza, cinema aggiunto) si registrano senza
+  avvisare. Un giorno conta come controllato appena UCI risponde, **anche se è vuoto**: così gli
+  spettacoli che escono in un giorno già nella finestra avvisano. È il caso per cui l'app esiste.
 - **Un'operazione alla volta**: giri, Aggiorna ora, Silenzia, Acquistato e conferma dei film passano
   da un solo mutex nel watcher; lo scheduler sta in `watcher.ts` e non in un modulo suo.
 

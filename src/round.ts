@@ -155,7 +155,7 @@ function seatChanges(known: ShowingState, observed: ObservedShowing, next: Showi
 function vanishedShowings(showings: Record<string, ShowingState>, observation: RoundObservation): ShowingState[] {
   const seen = new Set(observation.showings.map((observed) => observed.showing.key));
   const present = new Set(observation.allKeys);
-  const read = new Set(observation.daysRead.map(({ theatreSlug, day }) => dayKey(theatreSlug, day)));
+  const read = new Set(observation.daysWithShowings.map(({ theatreSlug, day }) => dayKey(theatreSlug, day)));
   const nowLocal = nowLocalOf(observation);
   return Object.values(showings)
     .filter(
@@ -185,7 +185,7 @@ function takeMatch(candidates: ShowingState[], observed: ObservedShowing): Showi
 function settleMissing(showings: Record<string, ShowingState>, observation: RoundObservation): HuntEvent[] {
   const seen = new Set(observation.showings.map((observed) => observed.showing.key));
   const present = new Set(observation.allKeys);
-  const read = new Set(observation.daysRead.map(({ theatreSlug, day }) => dayKey(theatreSlug, day)));
+  const read = new Set(observation.daysWithShowings.map(({ theatreSlug, day }) => dayKey(theatreSlug, day)));
   const nowLocal = nowLocalOf(observation);
   const events: HuntEvent[] = [];
   for (const known of Object.values(showings)) {
@@ -224,7 +224,7 @@ function appearedMovies(previous: HuntState, observation: RoundObservation, hunt
 function seenDays(previous: HuntState, observation: RoundObservation): string[] {
   const today = romeNow(observation.now).day;
   const days = new Set(previous.daysSeen);
-  for (const { theatreSlug, day } of observation.daysRead) days.add(dayKey(theatreSlug, day));
+  for (const { theatreSlug, day } of observation.daysChecked) days.add(dayKey(theatreSlug, day));
   return [...days].filter((key) => (key.split("|")[1] ?? "") >= today).sort();
 }
 

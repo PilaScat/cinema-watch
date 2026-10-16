@@ -91,7 +91,8 @@ function round(now: Date, showings: ObservedShowing[], days = ["2026-12-16"], ot
   return {
     now,
     showings,
-    daysRead: days.map((day) => ({ theatreSlug: "uci-cinemas-verona", day })),
+    daysWithShowings: days.map((day) => ({ theatreSlug: "uci-cinemas-verona", day })),
+    daysChecked: days.map((day) => ({ theatreSlug: "uci-cinemas-verona", day })),
     allKeys: [...showings.map((item) => item.showing.key), ...otherKeys],
     moviesSeen: [],
   };

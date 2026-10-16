@@ -131,7 +131,7 @@ export async function observeHunt(
 ): Promise<HuntObservation> {
   const days = resolveWindow(hunt.window, now);
   const filter = showingFilter(hunt);
-  const round: RoundObservation = { now, showings: [], daysRead: [], allKeys: [], moviesSeen: [] };
+  const round: RoundObservation = { now, showings: [], daysWithShowings: [], daysChecked: [], allKeys: [], moviesSeen: [] };
   const details = new Map<string, SeatDetail>();
   const errors: string[] = [];
   const hallChanged: string[] = [];
@@ -145,7 +145,8 @@ export async function observeHunt(
         errors.push(`${theatreSlug} ${day} · ${describe(UCI_SOURCE, error)}`);
         continue;
       }
-      if (all.length > 0) round.daysRead.push({ theatreSlug, day });
+      round.daysChecked.push({ theatreSlug, day });
+      if (all.length > 0) round.daysWithShowings.push({ theatreSlug, day });
       round.allKeys.push(...all.map((showing) => showing.key));
       round.moviesSeen.push(...moviesMatching(hunt, all, theatreSlug));
       for (const showing of filterShowings(all, filter, now)) {
