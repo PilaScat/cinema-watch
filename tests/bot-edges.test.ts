@@ -149,3 +149,26 @@ describe("bot waits after failures", () => {
     expect(slept.every((ms) => ms === 60_000)).toBe(true);
   });
 });
+
+describe("bot shutdown", () => {
+  it("stops at once while it is waiting to retry", async () => {
+    await harness.seed((config) => {
+      config.settings.telegram = { token: null, chatId: null };
+    });
+    let waiting = false;
+    const bot = createBot({
+      watcher: await harness.watcher(),
+      sleep: () => {
+        waiting = true;
+        return new Promise<void>(() => undefined);
+      },
+    });
+
+    bot.start();
+    for (let turn = 0; turn < 20 && !waiting; turn += 1) await Promise.resolve();
+    const stopped = await Promise.race([bot.stop().then(() => "stopped"), new Promise((resolve) => setTimeout(() => resolve("stuck"), 200))]);
+
+    expect(waiting).toBe(true);
+    expect(stopped).toBe("stopped");
+  });
+});

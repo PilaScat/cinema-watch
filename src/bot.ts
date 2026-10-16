@@ -38,6 +38,14 @@ export function createBot(options: BotOptions) {
   let error: string | null = null;
   let controller: AbortController | null = null;
   let loop: Promise<void> = Promise.resolve();
+  let wake: () => void = () => undefined;
+
+  function pause(ms: number): Promise<void> {
+    return new Promise<void>((resolve) => {
+      wake = resolve;
+      void sleep(ms).then(resolve);
+    });
+  }
 
   function huntsForChat(chatId: string): string[] | null {
     const hunts = watcher.config().hunts;
@@ -121,7 +129,7 @@ export function createBot(options: BotOptions) {
       await pollOnce();
       error = null;
     } catch (failure) {
-      await sleep(retryDelay(failure));
+      await pause(retryDelay(failure));
     }
   }
 
@@ -139,6 +147,7 @@ export function createBot(options: BotOptions) {
   async function stop(): Promise<void> {
     running = false;
     controller?.abort();
+    wake();
     await loop;
   }
 
