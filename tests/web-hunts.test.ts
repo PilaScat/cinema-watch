@@ -64,7 +64,7 @@ describe("hunt form", () => {
     expect(response.status).toBe(200);
     expect(html).toMatch(/name="theatre" value="uci-cinemas-verona" checked/);
     expect(html).toMatch(/name="format" value="IMAX" checked/);
-    expect(html).toMatch(/name="movieSlugs"[^>]*value="dune-parte-tre"/);
+    expect(html).toMatch(/<option value="dune-parte-tre" selected/);
     expect(html).toMatch(/name="windowFrom"[^>]*value="2026-12-15"/);
     expect(html).toMatch(/name="windowKind" value="fixed" checked/);
     expect(html).toContain("Aggiungi caccia");

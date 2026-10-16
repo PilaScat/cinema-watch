@@ -84,8 +84,17 @@ await open("/hunts/new");
 await evaluate(`(() => {
   document.querySelector('input[name=name]').value = 'E2E Avengers XL';
   document.querySelectorAll('details').forEach((d) => { d.open = true; });
-  document.querySelector('input[name=theatre][value=uci-cinemas-verona]').checked = true;
-  document.querySelector('input[name=movieSlugs]').value = 'avengers-doomsday';
+  const verona = document.querySelector('input[name=theatre][value=uci-cinemas-verona]');
+  verona.checked = true;
+  verona.dispatchEvent(new Event('change', { bubbles: true }));
+})()`);
+for (let attempt = 0; attempt < 40 && !(await evaluate("[...document.querySelectorAll('select[name=movieListed] option')].some((o) => o.value === 'avengers-doomsday')")); attempt += 1) {
+  await new Promise((resolve) => setTimeout(resolve, 150));
+}
+const listed = await evaluate("[...document.querySelectorAll('select[name=movieListed] option')].map((o) => o.value).filter(Boolean)");
+check("menu dei film ricaricato dai cinema scelti", listed.includes("avengers-doomsday") && listed.includes("dune-parte-tre"), listed.join(", "));
+await evaluate(`(() => {
+  document.querySelector('select[name=movieListed]').value = 'avengers-doomsday';
   document.querySelectorAll('input[name=format]').forEach((box) => { box.checked = box.value === 'XL'; });
   document.querySelector('input[name=windowKind][value=fixed]').checked = true;
   document.querySelector('input[name=windowFrom]').value = '2026-12-16';

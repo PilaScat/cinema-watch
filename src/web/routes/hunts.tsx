@@ -7,7 +7,7 @@ import { renderHallSvg } from "../../hall-svg.js";
 import type { Config, Hunt, HuntState, NotifyFlags } from "../../model.js";
 import type { Theatre } from "../../types.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { ActionForm, Badge, Button, Card, LinkButton, Notice, PageHeader } from "../components.js";
+import { ActionForm, Badge, Button, Card, Field, inputClass, LinkButton, Notice, PageHeader } from "../components.js";
 import {
   absoluteSummary,
   bodyText,
@@ -33,6 +33,7 @@ import {
   type ZoneValues,
 } from "../parts/forms.js";
 import { HUNT_ID } from "./home.js";
+import { listedMovies, MAX_MOVIE_THEATRES, type ListedMovie } from "../parts/movies.js";
 import { movieTitleFor } from "../parts/titles.js";
 
 type PageContext = Parameters<typeof renderPage>[0];
@@ -50,7 +51,8 @@ interface HuntValues {
   name: string;
   theatres: string[];
   theatreText: string;
-  movieKind: "slug" | "title";
+  movieKind: "listed" | "slug" | "title";
+  movieListed: string;
   movieSlugs: string;
   movieWords: string;
   formats: string[];
@@ -81,6 +83,7 @@ function valuesOfHunt(hunt: Hunt): HuntValues {
     theatres: hunt.theatres,
     theatreText: "",
     movieKind: hunt.movie.kind,
+    movieListed: "",
     movieSlugs: hunt.movie.kind === "slug" ? hunt.movie.slugs.join(", ") : "",
     movieWords: hunt.movie.kind === "title" ? hunt.movie.words.join(" ") : "",
     formats: hunt.formats,
@@ -102,12 +105,27 @@ function valuesOfHunt(hunt: Hunt): HuntValues {
   };
 }
 
+function movieKindOf(text: string): HuntValues["movieKind"] {
+  if (text === "slug" || text === "title") return text;
+  return "listed";
+}
+
+function preferListed(values: HuntValues, movies: ListedMovie[] | null): HuntValues {
+  if (values.movieKind !== "slug") return values;
+  const slugs = splitWords(values.movieSlugs);
+  if (slugs.length === 0) return { ...values, movieKind: "listed" };
+  const [slug] = slugs;
+  if (slugs.length === 1 && movies?.some((movie) => movie.slug === slug)) return { ...values, movieKind: "listed", movieListed: slug ?? "", movieSlugs: "" };
+  return values;
+}
+
 function valuesOfBody(body: FormBody): HuntValues {
   return {
     name: bodyText(body, "name"),
     theatres: bodyValues(body, "theatre"),
     theatreText: bodyText(body, "theatreText"),
-    movieKind: bodyText(body, "movieKind") === "title" ? "title" : "slug",
+    movieKind: movieKindOf(bodyText(body, "movieKind")),
+    movieListed: bodyText(body, "movieListed"),
     movieSlugs: bodyText(body, "movieSlugs"),
     movieWords: bodyText(body, "movieWords"),
     formats: bodyValues(body, "format"),
@@ -151,9 +169,11 @@ function huntOfValues(values: HuntValues, base: Hunt): Hunt {
     enabled: values.enabled,
     theatres: [...values.theatres, ...splitList(values.theatreText)],
     movie:
-      values.movieKind === "slug"
-        ? { kind: "slug", slugs: splitWords(values.movieSlugs) }
-        : { kind: "title", words: splitWords(values.movieWords), confirmedSlugs: base.movie.kind === "title" ? base.movie.confirmedSlugs : [] },
+      values.movieKind === "listed"
+        ? { kind: "slug", slugs: splitWords(values.movieListed) }
+        : values.movieKind === "slug"
+          ? { kind: "slug", slugs: splitWords(values.movieSlugs) }
+          : { kind: "title", words: splitWords(values.movieWords), confirmedSlugs: base.movie.kind === "title" ? base.movie.confirmedSlugs : [] },
     formats: values.formats,
     window:
       values.windowKind === "fixed"
@@ -257,7 +277,48 @@ function ErrorList(props: { errors: string[] }) {
   );
 }
 
-function HuntFormBody(props: { values: HuntValues; errors: FieldErrors; theatres: Theatre[] | null; zoneKept: string | undefined; action: string }) {
+function movieOptions(values: HuntValues, movies: ListedMovie[] | null): Array<{ value: string; label: string }> {
+  if (values.theatres.length === 0) return [{ value: "", label: ui.fields.movieListedNoTheatres }];
+  if (movies === null) return [{ value: "", label: ui.fields.movieListedError }];
+  const listed = movies.map((movie) => ({ value: movie.slug, label: movie.label }));
+  const kept = values.movieListed !== "" && !movies.some((movie) => movie.slug === values.movieListed) ? [{ value: values.movieListed, label: values.movieListed }] : [];
+  if (listed.length === 0 && kept.length === 0) return [{ value: "", label: ui.fields.movieListedNone }];
+  return [{ value: "", label: ui.fields.movieListedPick }, ...listed, ...kept];
+}
+
+function MovieSelect(props: { values: HuntValues; movies: ListedMovie[] | null; error: string | undefined }) {
+  return (
+    <Field label={ui.fields.movieListed} for="movieListed" error={props.error}>
+      <select
+        id="movieListed"
+        name="movieListed"
+        aria-invalid={props.error ? "true" : undefined}
+        class={inputClass}
+        data-movie-picker
+        data-max={String(MAX_MOVIE_THEATRES)}
+        data-text-pick={ui.fields.movieListedPick}
+        data-text-no-theatres={ui.fields.movieListedNoTheatres}
+        data-text-none={ui.fields.movieListedNone}
+        data-text-error={ui.fields.movieListedError}
+      >
+        {movieOptions(props.values, props.movies).map((option) => (
+          <option value={option.value} selected={option.value !== "" && option.value === props.values.movieListed}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </Field>
+  );
+}
+
+function HuntFormBody(props: {
+  values: HuntValues;
+  errors: FieldErrors;
+  theatres: Theatre[] | null;
+  movies: ListedMovie[] | null;
+  zoneKept: string | undefined;
+  action: string;
+}) {
   const { values, errors } = props;
   const fieldError = errors.fields;
   const formats = [...ui.formats, ...values.formats.filter((format) => !ui.formats.some((known) => known === format))];
@@ -272,10 +333,14 @@ function HuntFormBody(props: { values: HuntValues; errors: FieldErrors; theatres
           <Wide>
             <Group legend={ui.fields.movieKind}>
               <div class="flex flex-wrap gap-4">
+                <Radio name="movieKind" value="listed" label={ui.movieKinds.listed} checked={values.movieKind === "listed"} />
                 <Radio name="movieKind" value="slug" label={ui.movieKinds.slug} checked={values.movieKind === "slug"} />
                 <Radio name="movieKind" value="title" label={ui.movieKinds.title} checked={values.movieKind === "title"} />
               </div>
             </Group>
+          </Wide>
+          <Wide>
+            <MovieSelect values={values} movies={props.movies} error={values.movieKind === "listed" ? movieError : undefined} />
           </Wide>
           <TextField
             name="movieSlugs"
@@ -544,6 +609,8 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
 
   async function huntPage(c: PageContext, page: { hunt: Hunt | null; base: Hunt; values: HuntValues; errors: FieldErrors; status: 200 | 400 }) {
     const theatres = await loadTheatres(deps);
+    const movies = await listedMovies(deps, page.values.theatres);
+    const values = page.status === 200 ? preferListed(page.values, movies) : page.values;
     const theatreNames = Object.fromEntries((theatres ?? []).map((theatre) => [theatre.slug, theatre.name]));
     const zone = absoluteSummary(page.base.zone);
     const { hunt } = page;
@@ -568,12 +635,14 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
             </div>
           ) : null}
           <HuntFormBody
-            values={page.values}
+            values={values}
             errors={page.errors}
             theatres={theatres}
+            movies={movies}
             zoneKept={zone ? ui.fields.zoneKept(zone.rows, zone.seats) : undefined}
             action={hunt ? `/hunts/${hunt.id}` : "/hunts"}
           />
+          <script src="/assets/movie-picker.js" defer nonce={pageContext(c, deps).nonce}></script>
         </>
       ),
     });
@@ -601,6 +670,15 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
   });
 
   app.post("/hunts", (c) => saveHunt(c, null));
+
+  app.get("/api/movies", async (c) => {
+    const query = c.req.query("theatres");
+    const theatres = (query ?? "").split(",").map((slug) => slug.trim()).filter((slug) => slug !== "");
+    if (query === undefined || theatres.length > MAX_MOVIE_THEATRES || !theatres.every((slug) => SLUG.test(slug))) return c.json({ error: "invalid theatres" }, 400);
+    const movies = await listedMovies(deps, theatres);
+    if (movies === null) return c.json({ error: "programming unavailable" }, 502);
+    return c.json(movies);
+  });
 
   app.get("/hunts/:id", (c) => {
     const hunt = findHunt(c.req.param("id"));
