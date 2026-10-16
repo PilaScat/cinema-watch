@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>cinema-watch</Name>
+  <Repository>ghcr.io/pilascat/cinema-watch:latest</Repository>
+  <Registry>https://github.com/PilaScat/cinema-watch/pkgs/container/cinema-watch</Registry>
+  <Network>docker-network</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/PilaScat/cinema-watch/issues</Support>
+  <Project>https://github.com/PilaScat/cinema-watch</Project>
+  <Overview>Cacce ai biglietti dei cinema UCI: avvisa su Telegram, con la pianta della sala, quando escono gli spettacoli e quando si liberano o finiscono i posti buoni. Cacce, cinema e impostazioni si gestiscono dalla web UI.</Overview>
+  <Category>Tools: Other:</Category>
+  <WebUI>http://[IP]:[PORT:8790]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/PilaScat/cinema-watch/main/deploy/cinema-watch.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/PilaScat/cinema-watch/main/assets/icons/icon-512.png</Icon>
+  <ExtraParams>--read-only --tmpfs /tmp --cap-drop=ALL --security-opt=no-new-privileges --log-opt max-size=10m --log-opt max-file=3</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebUI" Target="8790" Default="8790" Mode="tcp" Description="Porta della web UI." Type="Port" Display="always" Required="true" Mask="false">8790</Config>
+  <Config Name="Dati" Target="/data" Default="/mnt/cache/appdata/cinema-watch" Mode="rw" Description="Configurazione, stato, piante, andamento e registro. Va su /mnt/cache e non su /mnt/user: il FUSE di Unraid non applica chown e chmod, e config.json deve restare a 600. La cartella è di 99:100." Type="Path" Display="always" Required="true" Mask="false">/mnt/cache/appdata/cinema-watch</Config>
+  <Config Name="UI_PASSWORD" Target="UI_PASSWORD" Default="" Mode="{3}" Description="Password della web UI. Vuota: nessuna password." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="TRUST_PROXY" Target="TRUST_PROXY" Default="" Mode="{3}" Description="1 se davanti c'è un reverse proxy che imposta X-Forwarded-For. Serve solo con la password, per il blocco dei tentativi per IP." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="TELEGRAM_TOKEN" Target="TELEGRAM_TOKEN" Default="" Mode="{3}" Description="Token del bot, se non lo si imposta dalla web UI. Quello della UI vince." Type="Variable" Display="advanced" Required="false" Mask="true"/>
+  <Config Name="TELEGRAM_CHAT_ID" Target="TELEGRAM_CHAT_ID" Default="" Mode="{3}" Description="Chat principale, se non la si imposta dalla web UI. Quella della UI vince." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+</Container>
