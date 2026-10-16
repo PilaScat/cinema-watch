@@ -2,6 +2,14 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.10.2
+
+### Correzioni
+
+- I form della web UI aperta da `http://IP:porta` rispondevano "Forbidden": con
+  `Referrer-Policy: no-referrer` il browser mandava `Origin: null` e il controllo CSRF li
+  rifiutava. Ora la policy è `same-origin`: il referrer resta nascosto ai siti esterni.
+
 ## v2026.10.1
 
 Primo rilascio.

@@ -52,6 +52,15 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
 - **Larghezza per Telegram**: le piante si disegnano a 1280 px (`TELEGRAM_PHOTO_WIDTH`), il lato
   che Telegram tiene per le foto.
 
+## Browser e sicurezza
+
+- **`Referrer-Policy: same-origin`, non `no-referrer`**: con `no-referrer` Chrome ed Edge mandano
+  `Origin: null` su ogni POST. Su `http://IP` (contesto non sicuro) non mandano nemmeno
+  `Sec-Fetch-Site`, quindi il CSRF di Hono rifiuta tutti i form con "Forbidden". Su HTTPS e su
+  localhost `Sec-Fetch-Site` arriva e il problema non si vede: per questo l'e2e va lanciato anche
+  sull'IP di LAN (`node scripts/e2e-ui.mjs http://<IP>:<porta>`). Trovato il 16/10/2026 alla prima
+  installazione.
+
 ## Strumenti
 
 - **Vitest resta alla 4**: con Vitest 5 Stryker 10 non attiva i mutanti (tutti "sopravvissuti",

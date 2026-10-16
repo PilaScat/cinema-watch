@@ -27,6 +27,7 @@ toglie da qui e va nel [CHANGELOG](../CHANGELOG.md).
 | `huntById` e `telegramConfigured()` nel watcher | Togliere le ricerche ripetute di una caccia per id e il controllo `botToken() !== null` sparso nelle route. |
 | Scorecard: `SECURITY.md` più completo | Security-Policy vale 4/10: aggiungere i tempi di risposta e il link alla segnalazione privata di GitHub. Il punteggio totale alla v2026.10.1 è 7/10; Code-Review e Branch-Protection restano basse per la scelta dei push diretti su main. |
 | Scorecard: badge OpenSSF Best Practices | Iscrivere il progetto su bestpractices.dev e compilare il questionario (CII-Best-Practices vale 0). |
+| Avvisi in console su `http://IP` | Da `http` Edge ignora `Cross-Origin-Opener-Policy` e lo scrive in console a ogni pagina; via HTTPS no. Decidere se mandare l'header solo quando la richiesta arriva in HTTPS, o lasciarlo. L'e2e su LAN fallisce solo su questo controllo. |
 | Chiave dello spettacolo e della sala in una funzione | `${localId}-${performanceId}` e `${localId}-${screenId}` sono costruite a mano in più file. |
 
 ## Scelte confermate dopo le revisioni
