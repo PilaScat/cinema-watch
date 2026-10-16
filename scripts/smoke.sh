@@ -50,16 +50,16 @@ status=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/")
 [ "$status" = "200" ]; check "home 200" $?
 curl -s "$BASE/api/status" | grep -q '"version":"v0.0.0-smoke"'; check "/api/status con la versione dell'immagine" $?
 
+movie=$(curl -s "$BASE/api/movies?theatres=uci-cinemas-verona" | sed 's/},{/}\n{/g' | grep "\"firstDay\":\"$(date +%F)\"" | head -1 | sed -n 's/.*"slug":"\([a-z0-9-]*\)".*/\1/p')
+[ -n "$movie" ]; check "film in programmazione a Verona: ${movie:-nessuno}" $?
+
 created=$(curl -s -o /dev/null -w '%{http_code}' -H "Origin: $BASE" \
-  --data-urlencode "name=Smoke Dune IMAX" \
+  --data-urlencode "name=Smoke" \
   --data-urlencode "theatre=uci-cinemas-verona" \
   --data-urlencode "movieKind=listed" \
-  --data-urlencode "movieListed=dune-parte-tre" \
-  --data-urlencode "format=IMAX" \
-  --data-urlencode "windowKind=fixed" \
-  --data-urlencode "windowFrom=2026-12-15" \
-  --data-urlencode "windowTo=2026-12-31" \
-  --data-urlencode "windowDays=30" \
+  --data-urlencode "movieListed=$movie" \
+  --data-urlencode "windowKind=next" \
+  --data-urlencode "windowDays=14" \
   --data-urlencode "together=3" \
   --data-urlencode "threshold=10" \
   --data-urlencode "notify=newShowings" \
