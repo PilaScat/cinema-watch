@@ -77,6 +77,7 @@ export const copy = {
     buttons: {
       buy: (time: string | null): string => (time === null ? "Acquista" : `Acquista ${time}`),
       openHall: "Apri sala",
+      openApp: "Apri cinema-watch",
       refresh: "Aggiorna ora",
       mute: "Silenzia 24 h",
       bought: "Acquistato",

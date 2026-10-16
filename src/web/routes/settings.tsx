@@ -136,6 +136,7 @@ function SettingsPage(props: {
   values: SettingsValues;
   errors: FieldErrors;
   telegram: TelegramView;
+  urlRefused: boolean;
   zoneKept: string | undefined;
   notice: PageNotice | null;
 }) {
@@ -191,7 +192,7 @@ function SettingsPage(props: {
                 <CheckBox name="clearToken" value="1" label={ui.fields.clearToken} checked={false} />
               </Wide>
               <Wide>
-                <TextField name="publicUrl" label={ui.fields.publicUrl} value={values.publicUrl} type="url" hint={ui.fields.publicUrlHint} error={fieldError["publicUrl"]} />
+                <TextField name="publicUrl" label={ui.fields.publicUrl} value={values.publicUrl} type="url" hint={props.urlRefused ? ui.fields.publicUrlRefused : ui.fields.publicUrlHint} error={fieldError["publicUrl"]} />
               </Wide>
             </FormGrid>
           </Card>
@@ -261,6 +262,11 @@ function SettingsPage(props: {
 export function registerSettingsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
   const watcher = deps.watcher;
 
+  function urlRefused(config: Config): boolean {
+    const check = watcher.state().publicUrlCheck;
+    return check !== null && check.url === config.settings.publicUrl && !check.accepted;
+  }
+
   function page(
     c: PageContext,
     options: { status?: 200 | 400; values?: SettingsValues; errors?: FieldErrors; notice?: PageNotice | null; importText?: string },
@@ -276,6 +282,7 @@ export function registerSettingsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
           values={options.values ?? valuesOfSettings(config.settings)}
           errors={options.errors ?? noErrors()}
           telegram={{ token: watcher.botToken(), chatId: watcher.primaryChat(), source: watcher.telegramSource() }}
+          urlRefused={urlRefused(config)}
           zoneKept={zone ? ui.fields.zoneKept(zone.rows, zone.seats) : undefined}
           notice={options.notice ?? null}
         />

@@ -131,6 +131,7 @@ export interface State {
   lastVersionCheckAt: number | null;
   latestVersion: string | null;
   historyDays: Record<string, IsoDay>;
+  publicUrlCheck: { url: string; accepted: boolean } | null;
 }
 
 export interface ObservedShowing {

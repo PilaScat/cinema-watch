@@ -216,10 +216,33 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     return result;
   }
 
-  async function sendTest(): Promise<SentResult> {
+  async function rememberUrlCheck(url: string, accepted: boolean): Promise<void> {
+    state = { ...state, publicUrlCheck: { url, accepted } };
+    await persistState();
+  }
+
+  async function sendTestLocked(): Promise<SentResult> {
     const chatId = telegramSettings().chatId;
     if (chatId === null) return { ok: false, messageIds: [], error: copy.errors.telegramNotConfigured };
-    return telegram.sendMessage(chatId, `${copy.telegram.test.header}\n${copy.telegram.test.body}`);
+    const text = `${copy.telegram.test.header}\n${copy.telegram.test.body}`;
+    const publicUrl = config.settings.publicUrl;
+    if (publicUrl === null) return telegram.sendMessage(chatId, text);
+    const openApp = copy.telegram.buttons.openApp;
+    const withButton = await telegram.sendMessage(chatId, text, [[{ text: openApp, url: publicUrl }]], false);
+    if (withButton.ok) {
+      await rememberUrlCheck(publicUrl, true);
+      return withButton;
+    }
+    const withLink = await telegram.sendMessage(chatId, `${text}\n\n${openApp}: ${escapeHtml(publicUrl)}`);
+    if (withLink.ok) await rememberUrlCheck(publicUrl, false);
+    return withLink;
+  }
+
+  function urlButtonsAccepted(publicUrl: string | null): boolean {
+    if (publicUrl === null) return false;
+    const check = state.publicUrlCheck;
+    if (check !== null && check.url === publicUrl) return check.accepted;
+    return publicUrl.startsWith("https://");
   }
 
   async function names(): Promise<Record<string, string>> {
@@ -273,7 +296,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       hunt,
       chats: { primary: chatId, extra: hunt.extraChatIds },
       publicUrl,
-      openAsButton: publicUrl?.startsWith("https://") === true,
+      openAsButton: urlButtonsAccepted(publicUrl),
       albumSize: config.settings.albumSize,
       theatreNames: theatres,
     });
@@ -570,7 +593,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     saveConfig: (next: Config) => exclusive(() => saveValidated(next)),
     importConfig: (text: string) => exclusive(() => importLocked(text)),
     exportConfig: (includeToken: boolean) => exportConfig(config, { includeToken }),
-    sendTest,
+    sendTest: () => exclusive(sendTestLocked),
     sendSnapshot: (huntId: string) => exclusive(() => sendSnapshotLocked(huntId)),
     services: {
       theatres,

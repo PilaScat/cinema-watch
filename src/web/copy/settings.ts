@@ -20,6 +20,7 @@ export const settings = {
     chatIdHint: "Numero o @nome",
     publicUrl: "URL pubblico",
     publicUrlHint: "Usato nei link dei messaggi",
+    publicUrlRefused: "Telegram non lo accetta come pulsante: i link vanno nel testo",
     interval: "Intervallo predefinito (minuti)",
     quietFrom: "Silenzio dalle",
     quietTo: "Silenzio alle",

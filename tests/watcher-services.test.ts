@@ -12,6 +12,18 @@ afterEach(async () => {
   await harness.dispose();
 });
 
+function refuseUrlButtons(host: string) {
+  const original = harness.world.fetch;
+  harness.world.fetch = (input, init) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    const body = typeof init?.body === "string" ? (JSON.parse(init.body) as { reply_markup?: unknown }) : {};
+    if (url.includes("api.telegram.org") && JSON.stringify(body.reply_markup ?? null).includes(host)) {
+      return Promise.resolve(new Response(JSON.stringify({ ok: false, error_code: 400, description: "Bad Request: wrong HTTP URL" }), { status: 400 }));
+    }
+    return original(input, init);
+  };
+}
+
 describe("watcher services for the web UI", () => {
   it("saves a valid configuration and refuses an invalid one with the field errors", async () => {
     const config = await harness.seed();
@@ -55,6 +67,37 @@ describe("watcher services for the web UI", () => {
     expect(result.ok).toBe(true);
     expect(harness.world.telegram.map((call) => [call.method, call.chatId])).toEqual([["sendMessage", PRIMARY_CHAT]]);
     expect(harness.world.telegram[0]?.text).toContain("Prova di cinema-watch");
+  });
+
+  it("checks with the test message that Telegram accepts the public URL as a button", async () => {
+    await harness.seed((config) => {
+      config.settings.publicUrl = "https://cw.example";
+    });
+    const watcher = await harness.watcher();
+
+    const result = await watcher.sendTest();
+
+    expect(result.ok).toBe(true);
+    expect(JSON.stringify(harness.world.telegram[0]?.replyMarkup)).toContain("https://cw.example");
+    expect(watcher.state().publicUrlCheck).toEqual({ url: "https://cw.example", accepted: true });
+  });
+
+  it("puts the hall links in the text after Telegram refuses the public URL as a button", async () => {
+    await harness.seed((config) => {
+      config.settings.publicUrl = "https://cw.example";
+    });
+    refuseUrlButtons("cw.example");
+    const watcher = await harness.watcher();
+
+    const result = await watcher.sendTest();
+    await watcher.tick();
+    const summary = harness.world.telegram.find((call) => call.method === "sendMessage" && call.text?.includes("Dune IMAX Verona"));
+
+    expect(result.ok).toBe(true);
+    expect(harness.world.telegram[0]?.text).toContain("https://cw.example");
+    expect(watcher.state().publicUrlCheck).toEqual({ url: "https://cw.example", accepted: false });
+    expect(summary?.text).toContain("Apri sala: https://cw.example/performances/5116/575978");
+    expect(JSON.stringify(summary?.replyMarkup)).not.toContain("cw.example");
   });
 
   it("lists the cinemas and reads the whole programming of one", async () => {

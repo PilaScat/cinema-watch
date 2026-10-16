@@ -151,6 +151,25 @@ describe("telegram test", () => {
     expect(page).toContain("Messaggio di prova inviato.");
   });
 
+  it("says under the public URL when Telegram refused it as a button", async () => {
+    await harness.seed((config) => {
+      config.settings.publicUrl = "https://cw.example";
+    });
+    const original = harness.world.fetch;
+    harness.world.fetch = (input, init) => {
+      const body = typeof init?.body === "string" ? init.body : "";
+      if (body.includes("reply_markup")) return Promise.resolve(new Response(JSON.stringify({ ok: false, error_code: 400, description: "Bad Request" }), { status: 400 }));
+      return original(input, init);
+    };
+    const watcher = await harness.watcher();
+    const instance = await createApp({ watcher, version: "v2026.10.1", dataDir: harness.dataDir, env: {}, now: () => harness.now(), publicDir, assetsDir });
+
+    await instance.request("/settings/test", post());
+    const page = await (await instance.request("/settings")).text();
+
+    expect(page).toContain("Telegram non lo accetta come pulsante: i link vanno nel testo");
+  });
+
   it("reports a failure when Telegram is not configured", async () => {
     const { instance } = await app();
     await instance.request("/settings", post(settingsForm({ clearToken: "1", chatId: "" })));

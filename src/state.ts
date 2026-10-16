@@ -14,6 +14,7 @@ export function emptyState(): State {
     lastVersionCheckAt: null,
     latestVersion: null,
     historyDays: {},
+    publicUrlCheck: null,
   };
 }
 

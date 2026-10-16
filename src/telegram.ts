@@ -60,7 +60,7 @@ export interface TelegramOptions {
 }
 
 export interface Telegram {
-  sendMessage(chatId: string, text: string, keyboard?: InlineButton[][] | null): Promise<SentResult>;
+  sendMessage(chatId: string, text: string, keyboard?: InlineButton[][] | null, fallback?: boolean): Promise<SentResult>;
   sendPhoto(
     chatId: string,
     png: Uint8Array,
@@ -322,6 +322,7 @@ export function createTelegram(options: TelegramOptions): Telegram {
     chatId: string,
     text: string,
     keyboard: InlineButton[][] | null = null,
+    fallback = true,
   ): Promise<SentResult> {
     if (text.length > MAX_TEXT_LENGTH) throw new Error(`Testo oltre ${MAX_TEXT_LENGTH} caratteri`);
     const plain: Record<string, unknown> = {
@@ -334,7 +335,7 @@ export function createTelegram(options: TelegramOptions): Telegram {
       return await send(chatId, 1, "sendMessage", plain, sentMessageSchema, (r) => [r.message_id]);
     }
     const body = { ...plain, reply_markup: replyMarkup(keyboard) };
-    return await send(chatId, 1, "sendMessage", body, sentMessageSchema, (r) => [r.message_id], withLinksInText(plain, text, keyboard));
+    return await send(chatId, 1, "sendMessage", body, sentMessageSchema, (r) => [r.message_id], fallback ? withLinksInText(plain, text, keyboard) : null);
   }
 
   async function sendPhoto(
