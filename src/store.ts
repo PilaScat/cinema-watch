@@ -1,5 +1,6 @@
 import * as nodeFs from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { copy } from "./copy.js";
 
 const PRIVATE_MODE = 0o600;
 
@@ -39,7 +40,7 @@ export function createStore(dir: string, options: StoreOptions = {}) {
       /^[A-Za-z]:/.test(name) ||
       parts.some((part) => part === ".." || part === "." || part === "")
     ) {
-      throw new StoreError("path", `Percorso non valido: ${name}`);
+      throw new StoreError("path", copy.storage.invalidPath(name));
     }
     return join(dir, ...parts);
   }
@@ -50,7 +51,7 @@ export function createStore(dir: string, options: StoreOptions = {}) {
     try {
       return JSON.parse(text) as unknown;
     } catch {
-      throw new StoreError("corrupt", `${name} non è JSON valido`);
+      throw new StoreError("corrupt", copy.storage.notJson(name));
     }
   }
 
@@ -83,11 +84,11 @@ export function createStore(dir: string, options: StoreOptions = {}) {
       await fs.rename(temp, file);
     } catch {
       await fs.rm(temp, { force: true }).catch(() => undefined);
-      throw new StoreError("io", `Scrittura di ${file} non riuscita`);
+      throw new StoreError("io", copy.storage.writeFailed(file));
     }
     if (isPrivate && platform !== "win32") {
       await fs.chmod(file, PRIVATE_MODE).catch(() => {
-        throw new StoreError("io", `Permessi di ${file} non applicati`);
+        throw new StoreError("io", copy.storage.permissionsNotApplied(file));
       });
     }
   }
@@ -104,7 +105,7 @@ export function createStore(dir: string, options: StoreOptions = {}) {
         await fs.mkdir(dirname(file), { recursive: true });
         await fs.appendFile(file, `${line}\n`, "utf8");
       } catch {
-        throw new StoreError("io", `Aggiunta a ${name} non riuscita`);
+        throw new StoreError("io", copy.storage.appendFailed(name));
       }
     });
   }
@@ -115,7 +116,7 @@ export function createStore(dir: string, options: StoreOptions = {}) {
     } catch (error) {
       if (isNotFound(error)) return null;
       if (error instanceof StoreError) throw error;
-      throw new StoreError("io", `Lettura di ${name} non riuscita`);
+      throw new StoreError("io", copy.storage.readFailed(name));
     }
   }
 
@@ -141,7 +142,7 @@ export function createStore(dir: string, options: StoreOptions = {}) {
       try {
         await fs.rm(file, { force: true });
       } catch {
-        throw new StoreError("io", `Rimozione di ${name} non riuscita`);
+        throw new StoreError("io", copy.storage.removeFailed(name));
       }
     });
   }
@@ -152,7 +153,7 @@ export function createStore(dir: string, options: StoreOptions = {}) {
       return await fs.readdir(folder);
     } catch (error) {
       if (isNotFound(error)) return [];
-      throw new StoreError("io", `Elenco di ${subdir} non riuscito`);
+      throw new StoreError("io", copy.storage.listFailed(subdir));
     }
   }
 
@@ -166,7 +167,7 @@ export function createStore(dir: string, options: StoreOptions = {}) {
         return backupName;
       } catch (error) {
         if (isNotFound(error)) return null;
-        throw new StoreError("io", `Backup di ${name} non riuscito`);
+        throw new StoreError("io", copy.storage.backupFailed(name));
       }
     });
   }

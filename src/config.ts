@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { z } from "zod";
 import { CONFIG_SCHEMA_VERSION, type Config, type Hunt, type Settings } from "./model.js";
+import { copy } from "./copy.js";
 import { StoreError, type createStore } from "./store.js";
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -117,14 +118,14 @@ function isPublicUrl(value: string): boolean {
 }
 
 function intIn(min: number, max: number) {
-  const message = `intero da ${min} a ${max}`;
+  const message = copy.validation.integerFrom(min, max);
   return z.number().int(message).min(min, message).max(max, message);
 }
 
-const seatNumber = z.number().int("intero da 1").min(1, "intero da 1");
-const slug = z.string().regex(SLUG, "solo minuscole, cifre e trattini");
-const time = z.string().regex(TIME, "formato HH:MM");
-const chatId = z.string().regex(CHAT_ID, "numero o @nome");
+const seatNumber = z.number().int(copy.validation.integerFromOne).min(1, copy.validation.integerFromOne);
+const slug = z.string().regex(SLUG, copy.validation.slugFormat);
+const time = z.string().regex(TIME, copy.validation.timeFormat);
+const chatId = z.string().regex(CHAT_ID, copy.validation.chatIdFormat);
 const percent = intIn(0, 100);
 
 const relativeZone = z
@@ -134,29 +135,29 @@ const relativeZone = z
     rowsToPercent: percent,
     centerPercent: intIn(1, 100),
   })
-  .refine((zone) => zone.rowsFromPercent <= zone.rowsToPercent, "le file iniziano dopo che finiscono");
+  .refine((zone) => zone.rowsFromPercent <= zone.rowsToPercent, copy.validation.rowsStartAfterEnd);
 
 const absoluteZone = z
   .strictObject({
     kind: z.literal("absolute"),
-    rows: z.array(z.string().min(1, "etichetta vuota")).min(1, "almeno una fila"),
+    rows: z.array(z.string().min(1, copy.validation.emptyLabel)).min(1, copy.validation.atLeastOneRow),
     seatFrom: seatNumber.nullable(),
     seatTo: seatNumber.nullable(),
   })
   .refine(
     (zone) => zone.seatFrom === null || zone.seatTo === null || zone.seatFrom <= zone.seatTo,
-    "il primo posto viene dopo l'ultimo",
+    copy.validation.firstSeatAfterLast,
   );
 
 const zone = z.discriminatedUnion("kind", [relativeZone, absoluteZone]);
 
 const movie = z.discriminatedUnion("kind", [
-  z.strictObject({ kind: z.literal("slug"), slugs: z.array(slug).min(1, "almeno un film") }),
+  z.strictObject({ kind: z.literal("slug"), slugs: z.array(slug).min(1, copy.validation.atLeastOneMovie) }),
   z.strictObject({
     kind: z.literal("title"),
     words: z
-      .array(z.string().refine((word) => word.trim() !== "", "parola vuota"))
-      .min(1, "almeno una parola"),
+      .array(z.string().refine((word) => word.trim() !== "", copy.validation.emptyWord))
+      .min(1, copy.validation.atLeastOneWord),
     confirmedSlugs: z.array(slug),
   }),
 ]);
@@ -165,22 +166,22 @@ const window = z.discriminatedUnion("kind", [
   z
     .strictObject({
       kind: z.literal("fixed"),
-      from: z.string().refine(isRealDay, "giorno non valido (AAAA-MM-GG)"),
-      to: z.string().refine(isRealDay, "giorno non valido (AAAA-MM-GG)"),
+      from: z.string().refine(isRealDay, copy.validation.invalidDay),
+      to: z.string().refine(isRealDay, copy.validation.invalidDay),
     })
     .refine((value) => !isRealDay(value.from) || !isRealDay(value.to) || value.from <= value.to, {
       path: ["to"],
-      message: "precede l'inizio",
+      message: copy.validation.precedesStart,
     }),
   z.strictObject({ kind: z.literal("next"), days: intIn(1, 60) }),
 ]);
 
 const huntSchema = z.strictObject({
-  id: z.string().regex(ID_FORMAT, "8 caratteri tra minuscole e cifre"),
-  name: z.string().min(1, "da 1 a 80 caratteri").max(80, "da 1 a 80 caratteri"),
+  id: z.string().regex(ID_FORMAT, copy.validation.idFormat),
+  name: z.string().min(1, copy.validation.nameLength).max(80, copy.validation.nameLength),
   enabled: z.boolean(),
   archivedAt: z.string().nullable(),
-  theatres: z.array(slug).min(1, "almeno un cinema"),
+  theatres: z.array(slug).min(1, copy.validation.atLeastOneTheatre),
   movie,
   formats: z.array(z.string()),
   window,
@@ -188,14 +189,14 @@ const huntSchema = z.strictObject({
   timeTo: time.nullable(),
   weekdays: z
     .array(intIn(1, 7))
-    .min(1, "almeno un giorno")
-    .refine((days) => new Set(days).size === days.length, "giorni ripetuti")
+    .min(1, copy.validation.atLeastOneDay)
+    .refine((days) => new Set(days).size === days.length, copy.validation.repeatedDays)
     .nullable(),
   languages: z.array(z.string()).nullable(),
   zone,
   hallZones: z
     .record(z.string(), absoluteZone)
-    .refine((zones) => Object.keys(zones).every((key) => HALL_KEY.test(key)), "chiavi nel formato cinema-sala"),
+    .refine((zones) => Object.keys(zones).every((key) => HALL_KEY.test(key)), copy.validation.hallKeyFormat),
   together: intIn(1, 10),
   intervalMinutes: intIn(1, 1440).nullable(),
   lastSeatsThreshold: intIn(0, 500),
@@ -213,16 +214,16 @@ const huntSchema = z.strictObject({
 
 const settingsSchema = z.strictObject({
   telegram: z.strictObject({
-    token: z.string().regex(TOKEN_FORMAT, "formato del token non valido").nullable(),
+    token: z.string().regex(TOKEN_FORMAT, copy.validation.tokenFormat).nullable(),
     chatId: chatId.nullable(),
   }),
-  publicUrl: z.string().refine(isPublicUrl, "URL http o https senza credenziali").nullable(),
+  publicUrl: z.string().refine(isPublicUrl, copy.validation.publicUrlFormat).nullable(),
   defaultIntervalMinutes: intIn(1, 1440),
   quietHours: z.strictObject({ from: time, to: time }).nullable(),
   digest: z.strictObject({ enabled: z.boolean(), time }),
   albumSize: intIn(1, 10),
   defaultLastSeatsThreshold: intIn(0, 500),
-  sellableTypes: z.array(z.string().min(1, "tipo vuoto")).min(1, "almeno un tipo"),
+  sellableTypes: z.array(z.string().min(1, copy.validation.emptyType)).min(1, copy.validation.atLeastOneType),
   defaultZone: zone,
 });
 
@@ -236,7 +237,7 @@ const configSchema = z
     const seen = new Set<string>();
     config.hunts.forEach((item, index) => {
       if (seen.has(item.id)) {
-        ctx.addIssue({ code: "custom", path: ["hunts", index, "id"], message: "id ripetuto" });
+        ctx.addIssue({ code: "custom", path: ["hunts", index, "id"], message: copy.validation.repeatedId });
       }
       seen.add(item.id);
     });
@@ -245,11 +246,11 @@ const configSchema = z
 function italianMessage(issue: { code: string }): string {
   switch (issue.code) {
     case "invalid_type":
-      return "tipo non valido";
+      return copy.validation.invalidType;
     case "unrecognized_keys":
-      return "chiave sconosciuta";
+      return copy.validation.unknownKey;
     default:
-      return "valore non ammesso";
+      return copy.validation.valueNotAllowed;
   }
 }
 
@@ -281,7 +282,7 @@ export function parseConfig(json: unknown): ParseResult {
     typeof migrated["schemaVersion"] === "number" &&
     migrated["schemaVersion"] > CONFIG_SCHEMA_VERSION
   ) {
-    return { ok: false, errors: ["schemaVersion: versione più recente dell'app"] };
+    return { ok: false, errors: [`schemaVersion: ${copy.validation.newerSchema}`] };
   }
   const result = configSchema.safeParse(migrated, { error: italianMessage });
   if (result.success) return { ok: true, config: result.data };
@@ -289,29 +290,29 @@ export function parseConfig(json: unknown): ParseResult {
   for (const issue of result.error.issues) {
     const base = formatPath(issue.path);
     if (issue.code === "unrecognized_keys") {
-      for (const key of issue.keys) errors.push(`${base === "" ? key : `${base}.${key}`}: chiave sconosciuta`);
+      for (const key of issue.keys) errors.push(`${base === "" ? key : `${base}.${key}`}: ${copy.validation.unknownKey}`);
     } else {
-      errors.push(`${base === "" ? "(radice)" : base}: ${issue.message}`);
+      errors.push(`${base === "" ? copy.validation.root : base}: ${issue.message}`);
     }
   }
   return { ok: false, errors };
 }
 
 export function exportConfig(config: Config, options: { includeToken: boolean }): string {
-  const copy = structuredClone(config);
-  if (!options.includeToken) copy.settings.telegram.token = null;
-  return JSON.stringify(copy, null, 2);
+  const clone = structuredClone(config);
+  if (!options.includeToken) clone.settings.telegram.token = null;
+  return JSON.stringify(clone, null, 2);
 }
 
 const IMPORT_LIMIT_BYTES = 1024 * 1024;
 
 export function importConfig(current: Config, text: string): ParseResult {
-  if (Buffer.byteLength(text, "utf8") > IMPORT_LIMIT_BYTES) return { ok: false, errors: ["file oltre 1 MB"] };
+  if (Buffer.byteLength(text, "utf8") > IMPORT_LIMIT_BYTES) return { ok: false, errors: [copy.validation.fileTooLarge] };
   let raw: unknown;
   try {
     raw = JSON.parse(text);
   } catch {
-    return { ok: false, errors: ["JSON non valido"] };
+    return { ok: false, errors: [copy.validation.invalidJson] };
   }
   if (isRecord(raw) && isRecord(raw["settings"]) && isRecord(raw["settings"]["telegram"])) {
     const telegram = raw["settings"]["telegram"];
@@ -338,15 +339,13 @@ async function contentHash(store: Store): Promise<string> {
   try {
     return createHash("sha256").update(await readFile(store.path(CONFIG_FILE))).digest("hex").slice(0, 12);
   } catch {
-    return "illeggibile";
+    return copy.storage.unreadable;
   }
 }
 
 async function rejectConfig(store: Store, detail: string): Promise<never> {
   const backupName = await store.backup(CONFIG_FILE, await contentHash(store));
-  throw new ConfigError(
-    `${detail}. Copia di sicurezza: ${backupName ?? "non riuscita"}. Correggi ${CONFIG_FILE} o eliminalo per ripartire dalle impostazioni predefinite.`,
-  );
+  throw new ConfigError(copy.storage.configRejected(detail, backupName ?? copy.storage.backupNotDone, CONFIG_FILE));
 }
 
 export async function loadConfig(store: Store): Promise<Config> {
@@ -364,5 +363,5 @@ export async function loadConfig(store: Store): Promise<Config> {
   }
   const result = parseConfig(raw);
   if (result.ok) return result.config;
-  return rejectConfig(store, `${CONFIG_FILE} non è valido: ${result.errors.join("; ")}`);
+  return rejectConfig(store, copy.storage.configInvalid(CONFIG_FILE, result.errors.join("; ")));
 }
