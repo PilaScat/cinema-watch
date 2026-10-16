@@ -473,6 +473,9 @@ function StatusCards(props: { hunt: Hunt; state: HuntState | undefined; theatreN
             <ActionForm action={`/hunts/${hunt.id}/send`}>
               <Button label={ui.actions.send} icon="send" size="sm" variant="outline" />
             </ActionForm>
+            <ActionForm action={`/hunts/${hunt.id}/bought`}>
+              <Button label={ui.actions.bought} icon="ticket" size="sm" variant="outline" confirm={ui.actions.confirmBought} />
+            </ActionForm>
             <ActionForm action={`/hunts/${hunt.id}/delete`}>
               <Button label={ui.actions.deleteHunt} icon="trash2" size="sm" variant="danger" confirm={common.actions.confirmDelete} />
             </ActionForm>

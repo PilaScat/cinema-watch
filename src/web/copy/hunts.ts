@@ -83,6 +83,8 @@ export const hunts = {
   actions: {
     confirm: "Conferma",
     send: "Invia ora su Telegram",
+    bought: "Acquistato",
+    confirmBought: "Conferma e archivia",
     deleteHunt: "Elimina caccia",
     removeZone: "Elimina zona",
     setZone: "Fissa la zona su questa sala",

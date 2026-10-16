@@ -197,6 +197,17 @@ describe("hunt form", () => {
     expect(watcher.config().hunts).toEqual([]);
   });
 
+  it("archives a hunt marked as bought from its page, asking to confirm first", async () => {
+    const { instance, watcher, huntId } = await app();
+
+    const page = await (await instance.request(`/hunts/${huntId}`)).text();
+    const response = await instance.request(`/hunts/${huntId}/bought`, post());
+
+    expect(page).toMatch(new RegExp(`<form[^>]*action="/hunts/${huntId}/bought"[\\s\\S]*?data-confirm="Conferma e archivia"[\\s\\S]*?Acquistato`));
+    expect(response.status).toBe(303);
+    expect(watcher.config().hunts[0]?.archivedAt).not.toBeNull();
+  });
+
   it("lists the followed showings with their link to the hall", async () => {
     const { instance, watcher, huntId } = await app();
     await watcher.tick();
