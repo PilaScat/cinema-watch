@@ -45,7 +45,7 @@ describe("web app", () => {
     expect(csp).not.toContain("unsafe-inline");
     expect(nonce).toBeTruthy();
     expect(scriptTags(html).every((tag) => tag.includes(`nonce="${nonce ?? ""}"`))).toBe(true);
-    expect(response.headers.get("referrer-policy")).toBe("no-referrer");
+    expect(response.headers.get("referrer-policy")).toBe("same-origin");
   });
 
   it("answers health and status for Docker and Homepage", async () => {

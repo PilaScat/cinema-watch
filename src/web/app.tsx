@@ -133,7 +133,7 @@ export async function createApp(deps: AppDeps): Promise<Hono<AppEnv>> {
         baseUri: ["'none'"],
         objectSrc: ["'none'"],
       },
-      referrerPolicy: "no-referrer",
+      referrerPolicy: "same-origin",
       crossOriginEmbedderPolicy: false,
     }),
   );
