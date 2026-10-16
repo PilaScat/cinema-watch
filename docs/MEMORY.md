@@ -1,6 +1,6 @@
 # Memoria del progetto: decisioni e trappole
 
-Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](api.md) (fase 2).
+Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](api.md).
 
 ## Dati UCI e Webtic
 
