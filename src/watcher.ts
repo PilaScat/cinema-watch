@@ -1,5 +1,5 @@
 import { createTtlCache } from "./cache.js";
-import { ConfigError, effectiveTelegram, huntInterval, loadConfig, saveConfig } from "./config.js";
+import { ConfigError, effectiveTelegram, exportConfig, huntInterval, importConfig, loadConfig, parseConfig, saveConfig, type ParseResult } from "./config.js";
 import { copy } from "./copy.js";
 import { addDays, romeNow, romeToday, timeInRange } from "./dates.js";
 import { escapeHtml, formatDay } from "./format.js";
@@ -13,11 +13,13 @@ import type { Config, Hunt, HuntEvent, HuntState, OutgoingMessage, State } from 
 import { composeDigest, composeRound, type DigestEntry } from "./notify.js";
 import { svgToPng, TELEGRAM_PHOTO_WIDTH } from "./png.js";
 import { diffRound } from "./round.js";
-import { observeHunt, type HuntObservation, type RunnerCaches } from "./runner.js";
+import { observeHunt, zoneFor, type HuntObservation, type RunnerCaches, type SeatDetail } from "./runner.js";
+import { analyzeSeats } from "./seats.js";
 import { huntStateOf, loadState, saveState } from "./state.js";
 import { createStore } from "./store.js";
 import { createTelegram, type Telegram } from "./telegram.js";
-import type { Occupancy, PerformanceInfo, Showing } from "./types.js";
+import type { IsoDay, MovieTheatre, Occupancy, PerformanceInfo, Showing, Theatre } from "./types.js";
+import type { SentResult } from "./model.js";
 import { createUciClient, UCI_API_BASE } from "./uci.js";
 import { createWebticClient, WEBTIC_API_BASE } from "./webtic.js";
 
@@ -28,6 +30,8 @@ const MANUAL_REFRESH_MS = 30_000;
 const RETENTION_DAYS = 30;
 const DRY_RUN_CHAT = "dry-run";
 const VERSION_CHECK_MS = 24 * 60 * MINUTE;
+const PROGRAMMING_TTL_MS = 10 * MINUTE;
+const DEFAULT_TOGETHER = 2;
 const RELEASES_URL = "https://api.github.com/repos/PilaScat/cinema-watch/releases/latest";
 
 export interface WatcherOptions {
@@ -54,8 +58,24 @@ interface Delivery {
   errors: string[];
 }
 
+export interface HallView extends SeatDetail {
+  performance: PerformanceInfo;
+}
+
+export interface WatcherServices {
+  theatres(): Promise<Theatre[]>;
+  programming(theatreSlug: string): Promise<Map<IsoDay, Showing[]>>;
+  movieTheatres(movieSlug: string): Promise<MovieTheatre[]>;
+  hall(localId: number, performanceId: number, huntId?: string): Promise<HallView>;
+}
+
 export interface Watcher {
   tick(): Promise<void>;
+  saveConfig(next: Config): Promise<ParseResult>;
+  importConfig(text: string): Promise<ParseResult>;
+  exportConfig(includeToken: boolean): string;
+  sendTest(): Promise<SentResult>;
+  services: WatcherServices;
   runNow(huntId?: string): Promise<RunReport[]>;
   mute(huntId: string, durationMs: number): Promise<void>;
   resume(huntId: string): Promise<void>;
@@ -138,7 +158,8 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   };
   const uci = createUciClient(http);
   const webtic = createWebticClient(http, { hallStore: createFileHallStore(store), now });
-  const theatreNames = createTtlCache<Record<string, string>>({ ttlMs: PERFORMANCE_TTL_MS, clock });
+  const theatreList = createTtlCache<Theatre[]>({ ttlMs: PERFORMANCE_TTL_MS, clock });
+  const fullProgramming = createTtlCache<Map<IsoDay, Showing[]>>({ ttlMs: PROGRAMMING_TTL_MS, maxEntries: 3, clock });
   const history = createHistory(store);
   const eventLog = createEventLog(store);
 
@@ -152,11 +173,42 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     if (!dryRun) await saveState(store, state);
   }
 
+  function theatres(): Promise<Theatre[]> {
+    return theatreList.getOrLoad("all", () => uci.theatres());
+  }
+
+  async function hallView(localId: number, performanceId: number, huntId?: string): Promise<HallView> {
+    const key = `${localId}-${performanceId}`;
+    const performance = await caches.performance.getOrLoad(key, () => webtic.performance(localId, performanceId));
+    const occupancy = await caches.occupancy.getOrLoad(key, () => webtic.occupancy(localId, performanceId));
+    const { hall } = await webtic.hall(localId, performance.screenId, occupancy);
+    const hunt = config.hunts.find((item) => item.id === huntId);
+    const zone = hunt ? zoneFor(hunt, localId, performance.screenId) : config.settings.defaultZone;
+    const rule = { zone, together: hunt?.together ?? DEFAULT_TOGETHER, sellableTypes: config.settings.sellableTypes };
+    return { performance, hall, occupancy, rule, analysis: analyzeSeats(hall, occupancy, rule) };
+  }
+
+  async function saveValidated(next: unknown): Promise<ParseResult> {
+    const result = parseConfig(next);
+    if (result.ok) await writeConfig(result.config);
+    return result;
+  }
+
+  async function importLocked(text: string): Promise<ParseResult> {
+    const result = importConfig(config, text);
+    if (result.ok) await writeConfig(result.config);
+    return result;
+  }
+
+  async function sendTest(): Promise<SentResult> {
+    const chatId = telegramSettings().chatId;
+    if (chatId === null) return { ok: false, messageIds: [], error: copy.errors.telegramNotConfigured };
+    return telegram.sendMessage(chatId, `${copy.telegram.test.header}\n${copy.telegram.test.body}`);
+  }
+
   async function names(): Promise<Record<string, string>> {
     try {
-      return await theatreNames.getOrLoad("all", async () =>
-        Object.fromEntries((await uci.theatres()).map((theatre) => [theatre.slug, theatre.name])),
-      );
+      return Object.fromEntries((await theatres()).map((theatre) => [theatre.slug, theatre.name]));
     } catch {
       return {};
     }
@@ -477,6 +529,16 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
 
   return {
     tick: () => exclusive(tickNow),
+    saveConfig: (next: Config) => exclusive(() => saveValidated(next)),
+    importConfig: (text: string) => exclusive(() => importLocked(text)),
+    exportConfig: (includeToken: boolean) => exportConfig(config, { includeToken }),
+    sendTest,
+    services: {
+      theatres,
+      programming: (theatreSlug: string) => fullProgramming.getOrLoad(theatreSlug, () => uci.programmingAll(theatreSlug)),
+      movieTheatres: (movieSlug: string) => uci.movieTheatres(movieSlug),
+      hall: hallView,
+    },
     runNow: (huntId?: string) => exclusive(() => runNowLocked(huntId)),
     mute: (huntId: string, durationMs: number) => exclusive(() => setMute(huntId, now() + durationMs)),
     resume: (huntId: string) => exclusive(() => setMute(huntId, null)),
