@@ -1,13 +1,17 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { serve as honoServe } from "@hono/node-server";
 import { createBot } from "./bot.js";
 import type { OutgoingMessage } from "./model.js";
+import { createApp } from "./web/app.js";
 import { createWatcher } from "./watcher.js";
 
 const TICK_MS = 30_000;
+const DEFAULT_PORT = 8790;
 
 const dataDir = process.env.DATA_DIR ?? "/data";
 const version = process.env.APP_VERSION ?? "dev";
+const port = Number(process.env.PORT ?? DEFAULT_PORT);
 
 async function dryRun(): Promise<void> {
   const outDir = join(dataDir, "dry-run");
@@ -54,10 +58,13 @@ async function serve(): Promise<void> {
   };
   const timer = setInterval(() => void tick(), TICK_MS);
   bot.start();
-  watcher.logger.info("started", { version, dataDir });
+  const app = await createApp({ watcher, version, dataDir, env: process.env });
+  const server = honoServe({ fetch: app.fetch, port, hostname: "0.0.0.0" });
+  watcher.logger.info("started", { version, dataDir, port });
   void tick();
   const shutdown = async () => {
     clearInterval(timer);
+    server.close();
     await bot.stop();
     await watcher.close();
     watcher.logger.info("stopped");
