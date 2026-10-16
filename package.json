@@ -21,7 +21,8 @@
     "test:watch": "vitest",
     "test:live": "vitest run --config vitest.live.config.ts",
     "check:licenses": "node scripts/check-licenses.mjs",
-    "test:mutation": "stryker run"
+    "test:mutation": "stryker run",
+    "build:icons": "node scripts/build-icons.mjs"
   },
   "dependencies": {
     "@resvg/resvg-js": "2.6.2",
