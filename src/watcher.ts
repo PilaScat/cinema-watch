@@ -53,7 +53,7 @@ import {
 } from "./watcher-rules.js";
 import { loadVenueList, mergeCatalogs, probeVenues, saveVenueList, venuesDue, venuesWithMovie, venueTheatres, type VenueList } from "./venues.js";
 import { createSeatClient, createWebticClient, WEBTIC_API_BASE } from "./webtic.js";
-import { createWebticDirectClient, localIdOfSlug, WEBTIC_DIRECT_BASE, type WebticVenue } from "./webtic-direct.js";
+import { createWebticDirectClient, localIdOfSlug, moviesOf, WEBTIC_DIRECT_BASE, webticSlug, type WebticVenue } from "./webtic-direct.js";
 
 const MINUTE = 60_000;
 const CACHE_TTL_MS = MINUTE;
@@ -195,7 +195,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   const webtic = createWebticClient(http, { hallStore, now });
   const direct = createWebticDirectClient(http);
   const directSeats = createSeatClient(direct.seats, { hallStore, now });
-  const runnerDeps = { uci, webtic, direct: { scheduling: (localId: number) => direct.scheduling(localId), seats: directSeats }, caches };
+  const runnerDeps = { uci, webtic, direct: { scheduling: (localId: number) => roundSchedule(localId), seats: directSeats }, caches };
   let venueList: VenueList | null = await loadVenueList(store);
   let foundVenues: WebticVenue[] = [];
   const probeDirect = createWebticDirectClient(probeHttp);
@@ -244,6 +244,18 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
 
   function currentVenues(): WebticVenue[] {
     return venueList?.venues ?? foundVenues;
+  }
+
+  function refreshVenueMovies(theatreSlug: string, programming: Map<IsoDay, Showing[]>): void {
+    const refreshed = (venues: WebticVenue[]) => venues.map((venue) => (venue.theatre.slug === theatreSlug ? { ...venue, movies: moviesOf(programming) } : venue));
+    if (venueList !== null) venueList = { ...venueList, venues: refreshed(venueList.venues) };
+    foundVenues = refreshed(foundVenues);
+  }
+
+  async function roundSchedule(localId: number): Promise<Map<IsoDay, Showing[]>> {
+    const programming = await direct.scheduling(localId);
+    refreshVenueMovies(webticSlug(localId), programming);
+    return programming;
   }
 
   async function theatres(): Promise<Theatre[]> {

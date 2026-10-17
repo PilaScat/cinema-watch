@@ -107,6 +107,22 @@ describe("hunts on a Webtic cinema", () => {
     expect(harness.world.telegram.find((call) => call.method === "sendMessage")?.text).toContain("Notorious Cascina Merlata");
   });
 
+  it("updates the films of a Webtic cinema in search with the programming read by a hunt", async () => {
+    const stale = merlataVenues(harness.now());
+    const venues = { ...stale, venues: stale.venues.map((venue) => ({ ...venue, movies: [] })) };
+    await harness.seed((config) => {
+      config.hunts = [duneHunt(config, { name: "Dune Merlata", theatres: [MERLATA], formats: [] })];
+    }, { venues });
+    const watcher = await harness.watcher();
+    expect(await watcher.services.movieTheatres("primetime")).toEqual([]);
+
+    await watcher.tick();
+
+    expect((await watcher.services.movieTheatres("primetime")).map((theatre) => theatre.slug)).toEqual([MERLATA]);
+    expect((await watcher.services.movies()).find((movie) => movie.slug === "primetime")).toMatchObject({ title: "Primetime" });
+    expect(harness.world.webticCalls.filter((call) => call === "getFullScheduling")).toHaveLength(1);
+  });
+
   it("reads only the programming of known Webtic cinemas", async () => {
     await harness.seed();
     const watcher = await harness.watcher();
