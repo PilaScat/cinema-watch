@@ -57,7 +57,7 @@ Le piante si riscaricano da sole; senza `history/` l'andamento ricomincia da zer
 | Silenzia 24 h (home o avviso su Telegram) | Per 24 ore la caccia continua a leggere ma non manda avvisi, e quelli di quelle ore non si recuperano. Riattiva toglie il silenzio prima |
 | Acquistato (pagina della caccia o avviso su Telegram) | Archivia la caccia: non è più attiva e compare fra le Archiviate |
 | Date finite | Una caccia con date fisse si archivia da sola quando l'ultimo giorno è passato |
-| Ripristina (fra le Archiviate o nella pagina della caccia) | Toglie l'archiviazione e apre la caccia: se le date erano finite vanno cambiate, altrimenti al giro dopo si riarchivia |
+| Ripristina (fra le Archiviate o nella pagina della caccia) | Toglie l'archiviazione e apre la caccia. Se le date fisse sono finite, apre il form con un avviso: la caccia torna attiva quando la si salva con date nuove |
 | Elimina | Cancella la caccia dalla configurazione |
 
 Gli spettacoli passati escono dallo stato e il loro andamento si toglie dopo 30 giorni. I pulsanti Silenzia e Acquistato sono descritti in [telegram.md](telegram.md#comè-fatto-un-avviso).

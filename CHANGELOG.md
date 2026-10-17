@@ -16,7 +16,8 @@ Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del ta
 
 ### Novità
 
-- **Ripristina** per le cacce archiviate, fra le Archiviate e nella pagina della caccia.
+- **Ripristina** per le cacce archiviate, fra le Archiviate e nella pagina della caccia. Se le
+  date fisse sono finite, chiede prima le date nuove.
 
 ### Sicurezza
 
