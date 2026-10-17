@@ -2,7 +2,7 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
-## v2026.11.1
+## v2026.10.5
 
 ### Novità
 
