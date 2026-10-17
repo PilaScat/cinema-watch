@@ -1,6 +1,7 @@
 import type { createStore } from "./store.js";
 import type { Hall } from "./types.js";
 import type { HallStore } from "./webtic.js";
+import { hallKey } from "./keys.js";
 
 type Store = ReturnType<typeof createStore>;
 
@@ -11,7 +12,7 @@ function isHall(value: unknown): value is Hall {
 }
 
 export function createFileHallStore(store: Store): HallStore {
-  const name = (localId: number, screenId: number) => `screens/${localId}-${screenId}.json`;
+  const name = (localId: number, screenId: number) => `screens/${hallKey(localId, screenId)}.json`;
   return {
     async get(localId, screenId) {
       try {

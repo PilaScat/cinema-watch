@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { isIsoDay, resolveWindow, romeNow, timeInRange, weekdayOf } from "./dates.js";
 import { ApiShapeError } from "./errors.js";
+import { showingKey, SLUG } from "./keys.js";
 import type {
   HttpClient,
   IsoDay,
@@ -16,7 +17,6 @@ export const UCI_SITE = "https://ucicinemas.it";
 export const UCI_HEADERS = { Referer: "https://ucicinemas.it" };
 
 const CART_LINK_PATTERN = /^\/movies\/([a-z0-9-]+)\/acquista\/(\d+)\/(\d+)\/(\d+)$/;
-const SLUG_PATTERN = /^[a-z0-9-]+$/;
 const STARTS_AT_PATTERN = /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})$/;
 const CLOCK_PATTERN = /^(\d{1,2}):(\d{2})/;
 
@@ -148,7 +148,7 @@ function showingsOfMovie(movieJson: unknown, theatreSlug: string): Showing[] {
             continue;
           }
           showings.push({
-            key: `${cart.localId}-${cart.performanceId}`,
+            key: showingKey(cart.localId, cart.performanceId),
             localId: cart.localId,
             eventId: cart.eventId,
             performanceId: cart.performanceId,
@@ -250,7 +250,7 @@ export function filterShowings(showings: Showing[], filter: ShowingFilter, now: 
 }
 
 function assertSlug(slug: string): void {
-  if (!SLUG_PATTERN.test(slug)) {
+  if (!SLUG.test(slug)) {
     throw new ApiShapeError("uci", `Invalid slug: ${slug}`);
   }
 }

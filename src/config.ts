@@ -4,6 +4,7 @@ import { z } from "zod";
 import { CONFIG_SCHEMA_VERSION, type Config, type Hunt, type Settings } from "./model.js";
 import { copy } from "./copy.js";
 import { StoreError, type createStore } from "./store.js";
+import { HALL_KEY, HUNT_ID, SLUG } from "./keys.js";
 
 export const DEFAULT_SETTINGS: Settings = {
   telegram: { token: null, chatId: null },
@@ -93,12 +94,9 @@ export function telegramSource(config: Config, env: NodeJS.ProcessEnv): { token:
   return { token: sourceOf(token, env["TELEGRAM_TOKEN"]), chatId: sourceOf(chatId, env["TELEGRAM_CHAT_ID"]) };
 }
 
-const SLUG = /^[a-z0-9-]+$/;
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 const TOKEN_FORMAT = /^\d{6,}:[A-Za-z0-9_-]{30,}$/;
 const CHAT_ID = /^(-?\d+|@[A-Za-z0-9_]{5,})$/;
-const ID_FORMAT = /^[a-z0-9]{8}$/;
-const HALL_KEY = /^\d+-\d+$/;
 
 function isRealDay(value: string): boolean {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
@@ -177,7 +175,7 @@ const window = z.discriminatedUnion("kind", [
 ]);
 
 const huntSchema = z.strictObject({
-  id: z.string().regex(ID_FORMAT, copy.validation.idFormat),
+  id: z.string().regex(HUNT_ID, copy.validation.idFormat),
   name: z.string().min(1, copy.validation.nameLength).max(80, copy.validation.nameLength),
   enabled: z.boolean(),
   archivedAt: z.string().nullable(),

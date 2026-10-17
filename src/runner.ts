@@ -8,6 +8,7 @@ import { analyzeSeats } from "./seats.js";
 import type { Hall, IsoDay, MovieRef, Occupancy, PerformanceInfo, SeatAnalysis, SeatRule, Showing, ShowingFilter, Zone } from "./types.js";
 import { filterShowings, matchesTitle, type createUciClient } from "./uci.js";
 import type { createWebticClient } from "./webtic.js";
+import { hallKey } from "./keys.js";
 
 type UciClient = ReturnType<typeof createUciClient>;
 type WebticClient = ReturnType<typeof createWebticClient>;
@@ -47,7 +48,7 @@ export function zoneSignature(zone: Zone, together: number): string {
 }
 
 export function zoneFor(hunt: Hunt, localId: number, screenId: number): Zone {
-  return hunt.hallZones[`${localId}-${screenId}`] ?? hunt.zone;
+  return hunt.hallZones[hallKey(localId, screenId)] ?? hunt.zone;
 }
 
 function targetSlugs(hunt: Hunt): string[] {
@@ -120,7 +121,7 @@ async function observeSeats(
     observed: { showing, performance, analysis, zoneSignature: zoneSignature(zone, hunt.together) },
     detail: { hall, occupancy, analysis, rule },
     hallChanged: changed,
-    hallKey: `${showing.localId}-${performance.screenId}`,
+    hallKey: hallKey(showing.localId, performance.screenId),
   };
 }
 

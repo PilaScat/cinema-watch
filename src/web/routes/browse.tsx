@@ -10,10 +10,9 @@ import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { Badge, buttonClass, Card, Empty, Field, inputClass, LinkButton, Notice, PageHeader } from "../components.js";
 import { DayTabs, HallPair, MovieCard, ShowingRow, Stat, TheatreGroup, TrendSection } from "../parts/browse.js";
 import { movieTitleFor } from "../parts/titles.js";
+import { ISO_DAY, showingKey, SLUG } from "../../keys.js";
 
-const SLUG = /^[a-z0-9-]+$/;
 const NUMERIC = /^\d+$/;
-const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 const MAX_SHOWINGS = 12;
 const MAX_QUERY = 100;
 
@@ -292,7 +291,7 @@ async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
   const localId = Number(localParam);
   const performanceId = Number(performanceParam);
   const huntParam = c.req.query("hunt");
-  const huntId = huntParam !== undefined && deps.watcher.config().hunts.some((hunt) => hunt.id === huntParam) ? huntParam : undefined;
+  const huntId = huntParam !== undefined && deps.watcher.huntById(huntParam) !== null ? huntParam : undefined;
   const view = await hallOf(deps, localId, performanceId, huntId);
   if (!view) {
     return renderPage(c, deps, {
@@ -310,15 +309,15 @@ async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
   const day = performance.startTime.slice(0, 10);
   const time = performance.startTime.slice(11, 16);
   const subtitle = ui.subtitle(performance.screenName, formatDay(day), time);
-  const movieTitle = await movieTitleFor(deps, `${localId}-${performanceId}`, performance.title, theatre ? [theatre] : []);
+  const movieTitle = await movieTitleFor(deps, showingKey(localId, performanceId), performance.title, theatre ? [theatre] : []);
   const svgOptions = { title: movieTitle, subtitle, labels: copy.hall.labels };
   const light = renderHallSvg(hall, occupancy, analysis, rule, { ...svgOptions, theme: "light" });
   const dark = renderHallSvg(hall, occupancy, analysis, rule, { ...svgOptions, theme: "dark" });
-  const history = await loadHistory(deps, `${localId}-${performanceId}`);
+  const history = await loadHistory(deps, showingKey(localId, performanceId));
   let format: string | undefined;
   if (theatre && movie) {
     const programming = await loadProgramming(deps, theatre);
-    const key = `${localId}-${performanceId}`;
+    const key = showingKey(localId, performanceId);
     format = [...(programming?.values() ?? [])].flat().find((showing) => showing.key === key)?.formatGroup;
   }
   const buyUrl = movie ? `https://ucicinemas.it/movies/${movie}/acquista/${localId}/${performance.eventId}/${performanceId}` : null;

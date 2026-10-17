@@ -5,7 +5,6 @@ import type { Hunt, HuntState } from "../../model.js";
 import { backTo, renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { ActionForm, Badge, Button, Card, Empty, LinkButton, Notice, PageHeader, type Tone } from "../components.js";
 
-export const HUNT_ID = /^[a-z0-9]{8}$/;
 const MUTE_MS = 24 * 60 * 60_000;
 
 function windowText(hunt: Hunt): string {
@@ -90,7 +89,7 @@ export function registerHomeRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     }
     const current = config.hunts.filter((hunt) => hunt.archivedAt === null);
     const archived = config.hunts.filter((hunt) => hunt.archivedAt !== null);
-    const telegramReady = deps.watcher.botToken() !== null && deps.watcher.primaryChat() !== null;
+    const telegramReady = deps.watcher.telegramConfigured();
     return renderPage(c, deps, {
       title: ui.title,
       section: "hunts",
@@ -149,7 +148,7 @@ export function registerHomeRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
 
   app.post("/hunts/:id/:action{(refresh|mute|resume|bought)}", async (c) => {
     const id = c.req.param("id");
-    if (!HUNT_ID.test(id) || !deps.watcher.config().hunts.some((hunt) => hunt.id === id)) return c.notFound();
+    if (deps.watcher.huntById(id) === null) return c.notFound();
     const action = c.req.param("action");
     if (action === "refresh") await deps.watcher.runNow(id);
     if (action === "mute") await deps.watcher.mute(id, MUTE_MS);

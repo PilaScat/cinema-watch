@@ -34,6 +34,7 @@ import type { IsoDay, MovieTheatre, Occupancy, PerformanceInfo, Showing, Theatre
 import type { SentResult } from "./model.js";
 import { createUciClient, UCI_API_BASE } from "./uci.js";
 import { createWebticClient, WEBTIC_API_BASE } from "./webtic.js";
+import { HUNT_ID, showingKey } from "./keys.js";
 
 const MINUTE = 60_000;
 const CACHE_TTL_MS = MINUTE;
@@ -99,6 +100,8 @@ export interface Watcher {
   summaries(huntIds?: string[]): DigestEntry[];
   primaryChat(): string | null;
   botToken(): string | null;
+  telegramConfigured(): boolean;
+  huntById(id: string): Hunt | null;
   telegramSource(): { token: TelegramSource; chatId: TelegramSource };
   history(key: string): Promise<HistoryPoint[]>;
   events(limit?: number): Promise<EventEntry[]>;
@@ -194,11 +197,11 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   }
 
   async function hallView(localId: number, performanceId: number, huntId?: string): Promise<HallView> {
-    const key = `${localId}-${performanceId}`;
+    const key = showingKey(localId, performanceId);
     const performance = await caches.performance.getOrLoad(key, () => webtic.performance(localId, performanceId));
     const occupancy = await caches.occupancy.getOrLoad(key, () => webtic.occupancy(localId, performanceId));
     const { hall } = await webtic.hall(localId, performance.screenId, occupancy);
-    const hunt = config.hunts.find((item) => item.id === huntId);
+    const hunt = huntId === undefined ? null : huntById(huntId);
     const zone = hunt ? zoneFor(hunt, localId, performance.screenId) : config.settings.defaultZone;
     const rule = { zone, together: hunt?.together ?? DEFAULT_TOGETHER, sellableTypes: config.settings.sellableTypes };
     return { performance, hall, occupancy, rule, analysis: analyzeSeats(hall, occupancy, rule) };
@@ -219,6 +222,11 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   async function rememberUrlCheck(url: string, accepted: boolean): Promise<void> {
     state = { ...state, publicUrlCheck: { url, accepted } };
     await persistState();
+  }
+
+  function huntById(id: string): Hunt | null {
+    if (!HUNT_ID.test(id)) return null;
+    return config.hunts.find((hunt) => hunt.id === id) ?? null;
   }
 
   async function sendTestLocked(): Promise<SentResult> {
@@ -578,7 +586,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   }
 
   async function sendSnapshotLocked(huntId: string): Promise<boolean> {
-    const hunt = config.hunts.find((item) => item.id === huntId);
+    const hunt = huntById(huntId);
     if (!hunt) return false;
     const observation = await observeHunt({ uci, webtic, caches }, hunt, config.settings, new Date(now()), { fresh: true });
     const events: HuntEvent[] = observation.round.showings.map((observed) => ({ kind: "newShowing", showing: snapshotOf(observed) }));
@@ -614,6 +622,11 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       digestEntries(false).filter((entry) => huntIds === undefined || huntIds.includes(entry.hunt.id)),
     primaryChat: () => telegramSettings().chatId,
     botToken: () => telegramSettings().token,
+    telegramConfigured: () => {
+      const { token, chatId } = telegramSettings();
+      return token !== null && chatId !== null;
+    },
+    huntById,
     telegramSource: () => telegramSource(config, env),
     history: (key: string) => history.read(key),
     events: (limit?: number) => eventLog.list(limit),

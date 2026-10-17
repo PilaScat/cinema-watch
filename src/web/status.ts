@@ -47,7 +47,7 @@ export function statusOf(watcher: Watcher, version: string, now: number): Status
     status: "ok",
     version,
     latestVersion: state.latestVersion,
-    telegramConfigured: watcher.botToken() !== null && watcher.primaryChat() !== null,
+    telegramConfigured: watcher.telegramConfigured(),
     activeHunts: active.length,
     showings: active.reduce((sum, hunt) => sum + hunt.showings, 0),
     withSeats: active.reduce((sum, hunt) => sum + hunt.withSeats, 0),

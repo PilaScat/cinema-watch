@@ -71,7 +71,7 @@ export function createBot(options: BotOptions) {
     const chatId = callback.chatId;
     const allowed = chatId === null ? null : huntsForChat(chatId);
     if (parsed === null || chatId === null || allowed === null) return answer("");
-    if (!watcher.config().hunts.some((hunt) => hunt.id === parsed.huntId)) return answer(copy.callbacks.notFound);
+    if (watcher.huntById(parsed.huntId) === null) return answer(copy.callbacks.notFound);
     if (!allowed.includes(parsed.huntId)) return answer("");
     if (parsed.action === "refresh") {
       await answer(copy.callbacks.refreshing);

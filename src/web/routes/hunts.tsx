@@ -32,19 +32,15 @@ import {
   type FormBody,
   type ZoneValues,
 } from "../parts/forms.js";
-import { HUNT_ID } from "./home.js";
 import { listedMovies, MAX_MOVIE_THEATRES, type ListedMovie } from "../parts/movies.js";
 import { movieTitleFor } from "../parts/titles.js";
+import { HALL_KEY, hallKey, ISO_DAY, SHOWING_KEY, showingKey, SLUG } from "../../keys.js";
 
 type PageContext = Parameters<typeof renderPage>[0];
 
 const ui = copy.ui.hunts;
 const common = copy.ui.common;
 const NOTIFY_KEYS: Array<keyof NotifyFlags> = ["newShowings", "seatsFreed", "lastSeats", "cancelled", "moved", "movieAppeared", "digest"];
-const SLUG = /^[a-z0-9-]+$/;
-const HALL_KEY = /^\d+-\d+$/;
-const PERFORMANCE = /^(\d+)-(\d+)$/;
-const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 const DEFAULT_DAYS = "30";
 
 interface HuntValues {
@@ -457,7 +453,7 @@ function HuntFormBody(props: {
 }
 
 function hallKeyOf(showing: { localId: number; screenId: number | null }): string | null {
-  return showing.screenId === null ? null : `${showing.localId}-${showing.screenId}`;
+  return showing.screenId === null ? null : hallKey(showing.localId, showing.screenId);
 }
 
 function StatusCards(props: { hunt: Hunt; state: HuntState | undefined; theatreNames: Record<string, string> }) {
@@ -590,8 +586,8 @@ function zoneFieldOf(rest: string): string | null {
   return ZONE_FIELDS[rest.replace(/^\./, "").split(/[.[]/)[0] ?? ""] ?? null;
 }
 
-function zoneFormValuesOf(hunt: Hunt, hallKey: string): ZoneFormValues {
-  const zone = hunt.hallZones[hallKey] ?? (hunt.zone.kind === "absolute" ? hunt.zone : null);
+function zoneFormValuesOf(hunt: Hunt, key: string): ZoneFormValues {
+  const zone = hunt.hallZones[key] ?? (hunt.zone.kind === "absolute" ? hunt.zone : null);
   if (zone === null) return { rows: "", seatFrom: "", seatTo: "" };
   return {
     rows: zone.rows.join(", "),
@@ -604,8 +600,7 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
   const watcher = deps.watcher;
 
   function findHunt(id: string): Hunt | null {
-    if (!HUNT_ID.test(id)) return null;
-    return watcher.config().hunts.find((hunt) => hunt.id === id) ?? null;
+    return watcher.huntById(id);
   }
 
   function blankHunt(): Hunt {
@@ -722,12 +717,12 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
 
   app.post("/hunts/:id/zones/:hallKey/delete", async (c) => {
     const hunt = findHunt(c.req.param("id"));
-    const hallKey = c.req.param("hallKey");
-    if (!hunt || !HALL_KEY.test(hallKey)) return c.notFound();
-    const hallZones = Object.fromEntries(Object.entries(hunt.hallZones).filter(([key]) => key !== hallKey));
+    const zoneKey = c.req.param("hallKey");
+    if (!hunt || !HALL_KEY.test(zoneKey)) return c.notFound();
+    const hallZones = Object.fromEntries(Object.entries(hunt.hallZones).filter(([key]) => key !== zoneKey));
     const config = watcher.config();
     await watcher.saveConfig({ ...config, hunts: config.hunts.map((item) => (item.id === hunt.id ? { ...item, hallZones } : item)) });
-    await watcher.confirmHallZone(hunt.id, hallKey);
+    await watcher.confirmHallZone(hunt.id, zoneKey);
     return c.redirect(`/hunts/${hunt.id}`, 303);
   });
 
@@ -735,7 +730,7 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     c: PageContext,
     page: { hunt: Hunt; performance: string; values: ZoneFormValues | null; errors: FieldErrors; status: 200 | 400 | 500 },
   ) {
-    const match = PERFORMANCE.exec(page.performance);
+    const match = SHOWING_KEY.exec(page.performance);
     if (!match) return c.notFound();
     const [localId, performanceId] = [Number(match[1]), Number(match[2])];
     const { hunt } = page;
@@ -762,13 +757,13 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
         ),
       });
     }
-    const hallKey = `${view.performance.localId}-${view.performance.screenId}`;
+    const viewHallKey = hallKey(view.performance.localId, view.performance.screenId);
     const options = {
-      title: await movieTitleFor(deps, `${view.performance.localId}-${view.performance.performanceId}`, view.performance.title, hunt.theatres),
+      title: await movieTitleFor(deps, showingKey(view.performance.localId, view.performance.performanceId), view.performance.title, hunt.theatres),
       subtitle: ui.zonePage.hallSubtitle(hunt.name, view.performance.screenName),
       labels: copy.hall.labels,
     };
-    const values = page.values ?? zoneFormValuesOf(hunt, hallKey);
+    const values = page.values ?? zoneFormValuesOf(hunt, viewHallKey);
     const nonce = pageContext(c, deps).nonce;
     return renderPage(c, deps, {
       title: ui.titleZone,
@@ -785,7 +780,7 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
             </Card>
             <Card title={ui.titleZone}>
               <form method="post" action={`/hunts/${hunt.id}/zone`} class="flex flex-col gap-4" data-hall-picker>
-                <input type="hidden" name="performance" value={`${localId}-${performanceId}`} />
+                <input type="hidden" name="performance" value={showingKey(localId, performanceId)} />
                 <p class="text-sm text-muted">{ui.zonePage.pick}</p>
                 <FormGrid>
                   <Wide>
@@ -817,7 +812,7 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     if (!hunt) return c.notFound();
     const body = await c.req.parseBody({ all: true });
     const performance = bodyText(body, "performance");
-    const match = PERFORMANCE.exec(performance);
+    const match = SHOWING_KEY.exec(performance);
     if (!match) return c.notFound();
     const values: ZoneFormValues = { rows: bodyText(body, "rows"), seatFrom: bodyText(body, "seatFrom"), seatTo: bodyText(body, "seatTo") };
     let screenId: number;
@@ -826,19 +821,19 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     } catch {
       return zonePage(c, { hunt, performance, values, errors: noErrors(), status: 500 });
     }
-    const hallKey = `${match[1] ?? ""}-${screenId}`;
+    const savedHallKey = hallKey(Number(match[1]), screenId);
     const config = watcher.config();
     const index = config.hunts.findIndex((item) => item.id === hunt.id);
     const zone = { kind: "absolute" as const, rows: splitList(values.rows), seatFrom: nullableNumber(values.seatFrom), seatTo: nullableNumber(values.seatTo) };
     const next: Config = {
       ...config,
-      hunts: config.hunts.map((item) => (item.id === hunt.id ? { ...item, hallZones: { ...item.hallZones, [hallKey]: zone } } : item)),
+      hunts: config.hunts.map((item) => (item.id === hunt.id ? { ...item, hallZones: { ...item.hallZones, [savedHallKey]: zone } } : item)),
     };
     const result = await watcher.saveConfig(next);
     if (result.ok) {
-      await watcher.confirmHallZone(hunt.id, hallKey);
+      await watcher.confirmHallZone(hunt.id, savedHallKey);
       return c.redirect(`/hunts/${hunt.id}`, 303);
     }
-    return zonePage(c, { hunt, performance, values, errors: splitErrors(result.errors, `hunts[${index}].hallZones.${hallKey}`, zoneFieldOf), status: 400 });
+    return zonePage(c, { hunt, performance, values, errors: splitErrors(result.errors, `hunts[${index}].hallZones.${savedHallKey}`, zoneFieldOf), status: 400 });
   });
 }
