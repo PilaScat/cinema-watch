@@ -2,7 +2,7 @@
   "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
   "testRunner": "vitest",
   "vitest": { "configFile": "vitest.config.ts" },
-  "mutate": ["src/seats.ts", "src/round.ts", "src/notify.ts", "src/runner.ts", "src/watcher.ts"],
+  "mutate": ["src/seats.ts", "src/round.ts", "src/notify.ts", "src/runner.ts", "src/watcher.ts", "src/watcher-rules.ts", "src/round-log.ts", "src/maintenance.ts"],
   "coverageAnalysis": "perTest",
   "ignoreStatic": true,
   "concurrency": 4,
