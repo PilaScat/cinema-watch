@@ -2,6 +2,16 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.11.1
+
+### Novità
+
+- **Cinema Webtic**: oltre a UCI, l'app segue i cinema che vendono con Webtic, fra cui Notorious, Cinelandia, Movie Planet, Starplex e molti indipendenti. Compaiono nella pagina Cinema con l'etichetta Webtic, per regione o per distanza da casa, e si scelgono nel form della caccia come quelli UCI.
+- Le cacce sui cinema Webtic funzionano come quelle UCI: nuovi spettacoli, posti liberati, ultimi posti, annullati e spostati, con la pianta della sala su Telegram. "Acquista" apre lo spettacolo su Webtic dopo il login.
+- La pagina Cerca trova anche i film proiettati solo nei cinema Webtic, e "Cinema con …" elenca i cinema dei due circuiti.
+- Il formato Infinity Vision vale anche per Webtic, dove l'edizione sta nel titolo.
+- L'elenco dei cinema Webtic si aggiorna una volta a settimana in background. Al primo avvio la pagina Cinema avvisa che il controllo è in corso e mostra i cinema man mano che li trova.
+
 ## v2026.10.4
 
 ### Novità

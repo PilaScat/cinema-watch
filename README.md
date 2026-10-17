@@ -1,6 +1,6 @@
 # cinema-watch
 
-Sorveglia la programmazione dei cinema UCI con "cacce" a film, cinema, formati di sala e date. Manda su Telegram, con la pianta della sala, un avviso quando escono gli spettacoli, quando si liberano o finiscono i posti buoni e quando uno spettacolo è annullato o spostato. Una web UI leggera gestisce le cacce.
+Sorveglia la programmazione dei cinema UCI e di quelli che vendono con Webtic (Notorious, Cinelandia, Movie Planet e molti indipendenti) con "cacce" a film, cinema, formati di sala e date. Manda su Telegram, con la pianta della sala, un avviso quando escono gli spettacoli, quando si liberano o finiscono i posti buoni e quando uno spettacolo è annullato o spostato. Una web UI leggera gestisce le cacce.
 
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/PilaScat/cinema-watch/badge)](https://scorecard.dev/viewer/?uri=github.com/PilaScat/cinema-watch)
 
@@ -95,10 +95,11 @@ Le Impostazioni mostrano quando token o chat arrivano dall'ambiente.
 
 ## Limiti
 
-- Funziona solo con UCI Cinemas.
+- Funziona con UCI Cinemas e con i cinema che vendono i biglietti con Webtic; altri circuiti, per esempio The Space, no.
+- L'elenco dei cinema Webtic si aggiorna con un controllo settimanale: al primo avvio si completa in circa mezz'ora.
 - Le API usate sono pubbliche ma non ufficiali e possono cambiare senza preavviso.
 - I posti si leggono senza login.
-- L'acquisto resta a mano: il login UCI ha Cloudflare e captcha e l'app non lo tocca.
+- L'acquisto resta a mano: il login UCI ha Cloudflare e captcha, quello Webtic chiede l'account, e l'app non li tocca.
 
 ## Documentazione
 

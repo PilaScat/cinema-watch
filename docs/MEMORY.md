@@ -31,6 +31,16 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   pulsante "Usa la mia posizione" compare solo via HTTPS.
 - **Login UCI**: Cloudflare e captcha. L'app non fa login e non compra: legge solo dati pubblici.
 
+## Cinema Webtic
+
+- **Due strade per Webtic**: i `LocalId` di UCI sono `LocalId` Webtic, ma il proxy UCI risponde solo per le sedi UCI. Gli altri cinema passano da `secure.webtic.it` diretto, con slug `webtic-<LocalId>`; i cinema UCI restano sul proxy perché dà anche il prezzo. Nel giro si smista per slug, nella pagina dello spettacolo per `LocalId`.
+- **Stessi dati di UCI**: la pianta diretta coincide posto per posto con quella del proxy (Verona, sala 2, verificato il 17/10/2026), quindi asse delle file, posti vendibili e `BLOCCATO` valgono uguali. Anche `Day` è il giorno del cinema: lo spettacolo delle 00:10 del 16 sta nel giorno 15.
+- **Quali sedi sono cinema**: Webtic non lo dice. L'elenco dei titoli per sede di `getLocalsTitles` è fermo al 2024 (mancano 4 Notorious su 9), e fra le 1171 sedi ci sono teatri, discoteche e acquapark. Le candidate sono le sedi con titoli non teatrali in quell'elenco più quelle con un nome da cinema, tolte UCI e TEST: circa 400. Una volta a settimana il watcher chiede la programmazione di ciascuna, in background e una richiesta alla volta, e tiene quelle con film. Ci vogliono 20-30 minuti, perché le sedi chiuse rispondono dopo 12 secondi. Il risultato sta in `/data/webtic-venues.json`; se il controllo fallisce o non trova nulla resta l'elenco di prima e si riprova dopo un'ora. Scelta di Filippo del 17/10/2026.
+- **Il controllo ha un client HTTP suo**: coda e backoff separati da quelli delle cacce, così una sede lenta non ferma i giri e un errore di una caccia non tronca il controllo. Timeout di 30 secondi (le sedi chiuse rispondono a 12) e nessun backoff: una sede che va in timeout si salta, un errore di rete o un 5xx ferma il controllo, che altrimenti salverebbe un elenco troncato per una settimana. `close()` lo interrompe e non salva nulla.
+- **Ricerca e film Webtic**: nella pagina Cerca i film Webtic vengono dal controllo settimanale, quindi un film uscito in settimana compare nei cinema Webtic solo al controllo dopo. Il giro delle cacce invece legge la programmazione vera ogni volta.
+- **Titoli Webtic**: un film ha un titolo per versione ("(Lingua Orig) Avengers: Doomsday", "Avengers: Doomsday Infinity Vision", "Dune - Parte Tre Anteprima"). Lo slug si ricava dal titolo senza i tag fra parentesi, senza "Anteprima" e senza l'edizione, così coincide con quello UCI e una caccia per slug vale per tutti e due i circuiti. "Infinity Vision" diventa il formato `2D - INFINITY VISION`. La lingua viene dalla proprietà `LANGUAGE` (`EN` diventa `ENG` come in UCI; senza la proprietà è `ITA`).
+- **Coordinate**: 179 sedi candidate su 409 hanno le coordinate a 0, compresi 5 Notorious, e stanno in fondo all'ordine per distanza (scelta di Filippo del 17/10/2026). La regione si ricava dalla sigla della provincia (`src/regions.ts`).
+
 ## Avvisi
 
 - **Un avviso non si perde**: se Telegram fallisce o non è configurato, lo stato della caccia non
@@ -67,6 +77,9 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   localhost `Sec-Fetch-Site` arriva e il problema non si vede: per questo l'e2e va lanciato anche
   sull'IP di LAN (`node scripts/e2e-ui.mjs http://<IP>:<porta>`). Trovato il 16/10/2026 alla prima
   installazione.
+- **e2e e cinema Webtic**: la caccia su Notorious Merlata (`webtic-5779`) dell'e2e serve l'elenco
+  dei cinema Webtic. Su una cartella dati nuova arriva solo a fine del primo controllo, circa mezz'ora;
+  prima il controllo "cinema nel form" fallisce con "elenco dei cinema non pronto".
 
 ## Strumenti
 

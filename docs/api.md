@@ -38,6 +38,22 @@ Base: `https://uci-website-webtic-proxy-production-1042268733238.europe-west8.ru
 
 La pianta di una sala (`/Screen`) cambia di rado: l'app la tiene in `screens/` per 7 giorni e la scarica prima se l'occupazione contiene posti che la pianta non ha.
 
+Il proxy risponde solo per i cinema UCI: per un'altra sede dà `Unauthorized` (`ReasonCode` 1).
+
+### Webtic diretto
+
+Base: `https://secure.webtic.it/api/wtjsonservices.ashx`, con il metodo nel parametro `wtid`. Serve ai cinema che non sono UCI (Notorious, Cinelandia, Movie Planet e gli indipendenti). Nessun header particolare. Ogni risposta ha la forma `{ "userdata": { "StatusOk", "ReasonCode", "Message" }, "DS": ... }`; con `StatusOk` falso l'app lo tratta come errore. Una sede chiusa risponde con `StatusOk` falso dopo circa 12 secondi.
+
+| Chiamata | A cosa serve | Campi usati |
+|---|---|---|
+| `GET ?wtid=getLocalsTitles` | Tutte le 1171 sedi, circa 1,3 MB | `LocalsTitles.Locals` (`LocalId`, `Description`, `Town`, `District`, `DistrictAbbreviation`, `Latitude`, `Longitude`) e `LocalsTitles.Titles[]` (`Category`, `Locals[].LocalId`) |
+| `GET ?wtid=getFullScheduling&localid=N` | Programmazione di tutti i giorni di una sede, circa 100 KB | `Scheduling.LocalId` e `Events[]` con `EventId`, `Title`, `Type` (`CINEMA` per i film), `Is3D`, `Duration`, `Picture`, `EventProperties[]` (`EventProperty`, `EventPropertyCategory`: `SCREEN`, `LANGUAGE`), `Days[]` con `Day` (giorno del cinema) e `Performances[]` (`PerformanceId`, `Time`, `ScreenName`, `StartTime`) |
+| `GET ?wtid=getPerformanceInfo&localid=N&performanceid=P` | Spettacolo, senza prezzi | `Performance` (`LocalId`, `EventId`, `PerformanceId`, `ScreenId`, `Screen`, `StartTime`, `Title`) |
+| `POST ?wtid=getMapSeats` con `{ data: { LocalId, ScreenId } }` | Pianta | `MapSeats.posti[]` con `idposto`, `fila`, `colonna`, `settore`, `tipologia`: gli stessi valori di `SeatId`, `Row`, `Column`, `SectorId` e `SeatType` del proxy |
+| `POST ?wtid=getOccupancy` con `{ data: { LocalId, PerformanceId } }` | Posti presi | `Occupancy.posti[]` con `idposto` e `status` (`ACQUISTO`, `BLOCCATO`) |
+
+Le locandine sono `https://secure.webtic.it/api/` seguito dal `Picture` relativo. Il link "Acquista" è `https://secure.webtic.it/angwt/webtic.aspx?lid={LocalId}&lng=it#/shoppingmode/it/0/{LocalId}/{EventId}/{PerformanceId}`: apre il login di Webtic e poi lo spettacolo.
+
 ### Come l'app le chiama
 
 Tutte le chiamate a UCI, Webtic e GitHub passano da `src/http.ts`:
@@ -53,10 +69,11 @@ Tutte le chiamate a UCI, Webtic e GitHub passano da `src/http.ts`:
 |---|---|---|
 | `myuci---uci-backend-production-nfluwp7wga-oc.a.run.app` | Backend UCI | `src/http.ts` |
 | `uci-website-webtic-proxy-production-1042268733238.europe-west8.run.app` | Proxy Webtic | `src/http.ts` |
+| `secure.webtic.it` | Webtic diretto, per i cinema che non sono UCI | `src/http.ts` |
 | `api.github.com` | Ultima Release (`/repos/PilaScat/cinema-watch/releases/latest`), una volta al giorno, per avvisare di una versione nuova | `src/http.ts` |
 | `api.telegram.org` | Invio dei messaggi e lettura dei comandi, vedi [telegram.md](telegram.md) | `src/telegram.ts` |
 
-Il browser di chi usa la UI carica le locandine da `storage.googleapis.com`, ammesso dalla CSP; è il browser a farlo, non l'app. I link "Acquista" portano a `ucicinemas.it` e l'app non li apre.
+Il browser di chi usa la UI carica le locandine da `storage.googleapis.com` e `secure.webtic.it`, ammessi dalla CSP; è il browser a farlo, non l'app. I link "Acquista" portano a `ucicinemas.it` o a `secure.webtic.it` e l'app non li apre.
 
 ## API dell'app
 
