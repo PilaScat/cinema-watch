@@ -141,6 +141,22 @@ await evaluate("document.querySelector('form[action=\"/settings\"]').requestSubm
 await settle();
 check("Impostazioni salvate dal form", (await evaluate("location.search")) === "?saved=1", await evaluate("document.body.innerText.slice(0, 80)"));
 
+async function saveHome(home, radius) {
+  await open("/settings");
+  await evaluate(`(() => {
+    document.querySelector('input[name=home]').value = ${JSON.stringify(home)};
+    document.querySelector('input[name=radiusKm]').value = ${JSON.stringify(radius)};
+    document.querySelector('form[action="/settings"]').requestSubmit();
+  })()`);
+  await settle();
+}
+
+await saveHome("45.4384, 10.9916", "60");
+await open("/theatres");
+const firstTheatre = await evaluate("document.querySelector('a[href^=\"/theatres/\"] .font-semibold')?.textContent ?? ''");
+check("cinema ordinati per distanza da casa", firstTheatre === "UCI Cinemas Verona" && (await evaluate("document.body.innerText")).includes("Entro 60 km"), firstTheatre);
+await saveHome("", "");
+
 await open("/");
 await click("button[data-theme-choice=dark]");
 const darkNow = await evaluate("document.documentElement.classList.contains('dark')");
