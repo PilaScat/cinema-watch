@@ -3,10 +3,11 @@ import { copy } from "../../copy.js";
 import { formatDay, formatEur, formatGroup } from "../../format.js";
 import { renderHallSvg } from "../../hall-svg.js";
 import type { HistoryPoint } from "../../history.js";
-import type { HallView } from "../../watcher.js";
+import type { HallView, VenueStatus } from "../../watcher.js";
 import type { CatalogMovie, IsoDay, Showing, Theatre } from "../../types.js";
 import type { Settings } from "../../model.js";
 import { byDistance, formatKm } from "../../distance.js";
+import { localIdOfSlug, webticCartUrl } from "../../webtic-direct.js";
 import { normalizeTitle } from "../../uci.js";
 import { searchMovies } from "../../movie-search.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
@@ -39,9 +40,9 @@ async function loadProgramming(deps: AppDeps, slug: string): Promise<Map<IsoDay,
   }
 }
 
-async function hallOf(deps: AppDeps, localId: number, performanceId: number, huntId?: string): Promise<HallView | null> {
+async function hallOf(deps: AppDeps, localId: number, performanceId: number, huntId?: string, theatreSlug?: string): Promise<HallView | null> {
   try {
-    return await deps.watcher.services.hall(localId, performanceId, huntId);
+    return await deps.watcher.services.hall(localId, performanceId, huntId, theatreSlug);
   } catch {
     return null;
   }
@@ -98,7 +99,7 @@ function TheatreList(props: { theatres: Theatre[]; settings: Settings; showAll: 
   );
 }
 
-function TheatresPage(props: { theatres: Theatre[] | null; query: string; settings: Settings; showAll: boolean }) {
+function TheatresPage(props: { theatres: Theatre[] | null; query: string; settings: Settings; showAll: boolean; venues: VenueStatus }) {
   const ui = copy.ui.theatres;
   const needle = normalizeTitle(props.query);
   const shown = (props.theatres ?? []).filter((theatre) => needle === "" || normalizeTitle(`${theatre.name} ${theatre.city}`).includes(needle));
@@ -116,6 +117,7 @@ function TheatresPage(props: { theatres: Theatre[] | null; query: string; settin
         </button>
       </form>
       {props.theatres === null ? <Notice tone="danger">{ui.loadError}</Notice> : null}
+      {props.venues.checkedAt === null && props.venues.probing ? <Notice>{ui.venuesLoading(props.venues.venues)}</Notice> : null}
       {shown.length === 0 ? (
         <Empty text={ui.empty} />
       ) : (
@@ -137,7 +139,7 @@ async function nearestFirst(deps: AppDeps, items: Array<{ slug: string; name: st
   const settings = deps.watcher.config().settings;
   if (settings.home === null) return items.map((item) => ({ ...item, km: null, far: false }));
   const known = new Map((await loadTheatres(deps) ?? []).map((theatre) => [theatre.slug, theatre]));
-  const theatres = items.map((item): Theatre => known.get(item.slug) ?? { slug: item.slug, name: item.name, city: "", province: null, region: null, isLuxe: false, screens: [], lat: null, lon: null });
+  const theatres = items.map((item): Theatre => known.get(item.slug) ?? { slug: item.slug, name: item.name, city: "", province: null, region: null, isLuxe: false, screens: [], lat: null, lon: null, chain: localIdOfSlug(item.slug) === null ? "uci" : "webtic" });
   const { near, far } = byDistance(theatres, settings.home, settings.radiusKm);
   const names = new Map(items.map((item) => [item.slug, item.name]));
   const shape = (isFar: boolean) => (entry: { theatre: Theatre; km: number | null }) => ({ slug: entry.theatre.slug, name: names.get(entry.theatre.slug) ?? entry.theatre.name, km: entry.km, far: isFar });
@@ -161,7 +163,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const theatres = await loadTheatres(deps);
     const settings = deps.watcher.config().settings;
     const showAll = c.req.query("all") === "1";
-    return renderPage(c, deps, { title: theatresUi.title, section: "theatres", body: <TheatresPage theatres={theatres} query={query} settings={settings} showAll={showAll} /> });
+    return renderPage(c, deps, { title: theatresUi.title, section: "theatres", body: <TheatresPage theatres={theatres} query={query} settings={settings} showAll={showAll} venues={deps.watcher.services.venueStatus()} /> });
   });
 
   app.get("/theatres/:slug", async (c) => {
@@ -221,7 +223,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const selected = days.find(([day]) => day === dayParam) ?? days[0];
     const ordered = [...(selected?.[1] ?? [])].sort((a, b) => a.time.localeCompare(b.time) || a.room.localeCompare(b.room));
     const shown = ordered.slice(0, MAX_SHOWINGS);
-    const analyses = await Promise.all(shown.map(async (showing) => (await hallOf(deps, showing.localId, showing.performanceId))?.analysis ?? null));
+    const analyses = await Promise.all(shown.map(async (showing) => (await hallOf(deps, showing.localId, showing.performanceId, undefined, showing.theatreSlug))?.analysis ?? null));
     const title = days[0]?.[1][0]?.movie.title ?? movie;
     const huntQuery = queryString({ theatre: slug, movie });
     return renderPage(c, deps, {
@@ -352,7 +354,7 @@ async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
   const performanceId = Number(performanceParam);
   const huntParam = c.req.query("hunt");
   const huntId = huntParam !== undefined && deps.watcher.huntById(huntParam) !== null ? huntParam : undefined;
-  const view = await hallOf(deps, localId, performanceId, huntId);
+  const view = await hallOf(deps, localId, performanceId, huntId, theatre);
   if (!view) {
     return renderPage(c, deps, {
       title: ui.hallTitle,
@@ -380,7 +382,7 @@ async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
     const key = showingKey(localId, performanceId);
     format = [...(programming?.values() ?? [])].flat().find((showing) => showing.key === key)?.formatGroup;
   }
-  const buyUrl = movie ? `https://ucicinemas.it/movies/${movie}/acquista/${localId}/${performance.eventId}/${performanceId}` : null;
+  const buyUrl = view.chain === "webtic" ? webticCartUrl(localId, performance.eventId, performanceId) : movie ? `https://ucicinemas.it/movies/${movie}/acquista/${localId}/${performance.eventId}/${performanceId}` : null;
   const huntHref = theatre && movie ? `/hunts/new?${queryString({ theatre, movie, format, from: day, to: day })}` : null;
   const backHref = theatre && movie ? `/theatres/${theatre}/movies/${movie}?day=${day}` : null;
   return renderPage(c, deps, {

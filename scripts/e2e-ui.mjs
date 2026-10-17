@@ -80,38 +80,44 @@ function check(name, ok, detail = "") {
   results.push({ name, ok: Boolean(ok), detail });
 }
 
-await open("/hunts/new");
-await evaluate(`(() => {
-  document.querySelector('input[name=name]').value = 'E2E Avengers XL';
-  document.querySelectorAll('details').forEach((d) => { d.open = true; });
-  const verona = document.querySelector('input[name=theatre][value=uci-cinemas-verona]');
-  verona.checked = true;
-  verona.dispatchEvent(new Event('change', { bubbles: true }));
-})()`);
-for (let attempt = 0; attempt < 40 && !(await evaluate("[...document.querySelectorAll('select[name=movieListed] option')].some((o) => o.value === 'avengers-doomsday')")); attempt += 1) {
-  await new Promise((resolve) => setTimeout(resolve, 150));
+async function addAndDeleteHunt(label, theatre, movie, format) {
+  await open("/hunts/new");
+  const offered = await evaluate(`Boolean(document.querySelector('input[name=theatre][value=${theatre}]'))`);
+  check(`${label}: cinema nel form`, offered, offered ? "" : "elenco dei cinema non pronto");
+  if (!offered) return;
+  await evaluate(`(() => {
+    document.querySelector('input[name=name]').value = ${JSON.stringify(label)};
+    document.querySelectorAll('details').forEach((d) => { d.open = true; });
+    const box = document.querySelector('input[name=theatre][value=${theatre}]');
+    box.checked = true;
+    box.dispatchEvent(new Event('change', { bubbles: true }));
+  })()`);
+  for (let attempt = 0; attempt < 40 && !(await evaluate(`[...document.querySelectorAll('select[name=movieListed] option')].some((o) => o.value === ${JSON.stringify(movie)})`)); attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+  const listed = await evaluate("[...document.querySelectorAll('select[name=movieListed] option')].map((o) => o.value).filter(Boolean)");
+  check(`${label}: menu dei film ricaricato dal cinema scelto`, listed.includes(movie), listed.join(", "));
+  await evaluate(`(() => {
+    document.querySelector('select[name=movieListed]').value = ${JSON.stringify(movie)};
+    document.querySelectorAll('input[name=format]').forEach((box) => { box.checked = box.value === ${JSON.stringify(format)}; });
+    document.querySelector('input[name=windowKind][value=fixed]').checked = true;
+    document.querySelector('input[name=windowFrom]').value = '2026-12-16';
+    document.querySelector('input[name=windowTo]').value = '2026-12-16';
+  })()`);
+  await evaluate("document.querySelector('form[action=\"/hunts\"]').requestSubmit()");
+  await settle();
+  check(`${label}: caccia aggiunta dal form`, (await evaluate("location.pathname")) === "/" && (await evaluate(`document.body.innerText.toUpperCase().includes(${JSON.stringify(label.toUpperCase())})`)));
+  const href = await evaluate(`[...document.querySelectorAll('a')].find((a) => a.textContent.trim() === ${JSON.stringify(label)})?.getAttribute('href') ?? ''`);
+  await open(href);
+  await click("form[action$='/delete'] button[data-confirm]");
+  const armed = await evaluate("document.querySelector(\"form[action$='/delete'] button\").dataset.armed");
+  await click("form[action$='/delete'] button[data-confirm]");
+  check(`${label}: Elimina si arma al primo clic`, armed === "true");
+  check(`${label}: Elimina conferma al secondo clic`, (await evaluate("location.pathname")) === "/" && !(await evaluate(`document.body.innerText.includes(${JSON.stringify(label)})`)));
 }
-const listed = await evaluate("[...document.querySelectorAll('select[name=movieListed] option')].map((o) => o.value).filter(Boolean)");
-check("menu dei film ricaricato dai cinema scelti", listed.includes("avengers-doomsday") && listed.includes("dune-parte-tre"), listed.join(", "));
-await evaluate(`(() => {
-  document.querySelector('select[name=movieListed]').value = 'avengers-doomsday';
-  document.querySelectorAll('input[name=format]').forEach((box) => { box.checked = box.value === 'XL'; });
-  document.querySelector('input[name=windowKind][value=fixed]').checked = true;
-  document.querySelector('input[name=windowFrom]').value = '2026-12-16';
-  document.querySelector('input[name=windowTo]').value = '2026-12-16';
-})()`);
-await evaluate("document.querySelector('form[action=\"/hunts\"]').requestSubmit()");
-await settle();
-check("aggiunta di una caccia dal form", (await evaluate("location.pathname")) === "/" && (await evaluate("document.body.innerText.includes('E2E AVENGERS XL') || document.body.innerText.includes('E2E Avengers XL')")));
 
-const newHref = await evaluate("[...document.querySelectorAll('a')].find((a) => a.textContent.trim() === 'E2E Avengers XL')?.getAttribute('href') ?? ''");
-await open(newHref);
-await click("form[action$='/delete'] button[data-confirm]");
-const armed = await evaluate("document.querySelector(\"form[action$='/delete'] button\").dataset.armed");
-const armedLabel = await evaluate("document.querySelector(\"form[action$='/delete'] button [data-label]\").textContent");
-await click("form[action$='/delete'] button[data-confirm]");
-check("Elimina si arma al primo clic", armed === "true", armedLabel);
-check("Elimina conferma al secondo clic", (await evaluate("location.pathname")) === "/" && !(await evaluate("document.body.innerText.includes('E2E Avengers XL')")));
+await addAndDeleteHunt("E2E Avengers XL", "uci-cinemas-verona", "avengers-doomsday", "XL");
+await addAndDeleteHunt("E2E Notorious Merlata", "webtic-5779", "avengers-doomsday", "INFINITY VISION");
 
 if (huntId) {
   await open(`/hunts/${huntId}/zone?performance=5116-575978`);

@@ -24,7 +24,10 @@ export function TheatreGroup(props: { region: string; theatres: Theatre[]; dista
           <a href={`/theatres/${theatre.slug}`} class="block rounded-xl border border-border bg-surface p-4 hover:border-primary">
             <div class="flex items-start justify-between gap-2">
               <span class="font-semibold">{theatre.name}</span>
-              {theatre.isLuxe ? <Badge tone="gold">{ui.luxe}</Badge> : null}
+              <span class="flex shrink-0 gap-1.5">
+                {theatre.isLuxe ? <Badge tone="gold">{ui.luxe}</Badge> : null}
+                <Badge tone="muted">{ui.chains[theatre.chain]}</Badge>
+              </span>
             </div>
             <p class="mt-1 flex items-center gap-1 text-sm text-muted">
               <Icon name="mapPin" />
