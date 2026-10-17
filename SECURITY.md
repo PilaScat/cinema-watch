@@ -7,10 +7,19 @@ Riceve correzioni solo l'ultima release pubblicata.
 ## Come segnalare una vulnerabilità
 
 Non aprire una issue pubblica. Usa la segnalazione privata di GitHub:
-**Security → Report a vulnerability** in questo repository.
+**Security → Report a vulnerability** in questo repository, oppure direttamente
+<https://github.com/PilaScat/cinema-watch/security/advisories/new>.
 
 Nella segnalazione servono la versione, i passi per riprodurre il problema e l'impatto. La
 prima risposta arriva entro 7 giorni.
+
+## Divulgazione coordinata (coordinated disclosure)
+
+1. La segnalazione resta privata finché non esce la correzione.
+2. La correzione esce in una release nuova, con una voce nel [CHANGELOG](CHANGELOG.md).
+3. Insieme alla release si pubblica un GitHub Security Advisory con la descrizione della
+   vulnerabilità, le versioni colpite e quella corretta, e il nome di chi l'ha segnalata, se lo
+   desidera.
 
 ## Cosa rientra
 
@@ -19,3 +28,11 @@ prima risposta arriva entro 7 giorni.
 - le chiamate verso UCI, Webtic, Telegram e GitHub.
 
 Le API di UCI e Webtic non sono di questo progetto: i loro problemi vanno segnalati a UCI Cinemas.
+
+## Verificare un'immagine
+
+Ogni immagine pubblicata ha un'attestazione di provenienza:
+
+```sh
+gh attestation verify oci://ghcr.io/pilascat/cinema-watch:<versione> -R PilaScat/cinema-watch
+```
