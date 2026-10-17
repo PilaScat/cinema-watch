@@ -50,12 +50,14 @@ describe("defaults", () => {
       defaultLastSeatsThreshold: 10,
       sellableTypes: ["STANDARD"],
       defaultZone: { kind: "relative", rowsFromPercent: 40, rowsToPercent: 85, centerPercent: 60 },
+      home: null,
+      radiusKm: null,
     });
   });
 
   it("builds an empty default config with a fresh copy of the settings", () => {
     const config = defaultConfig();
-    expect(config).toEqual({ schemaVersion: 1, settings: DEFAULT_SETTINGS, hunts: [] });
+    expect(config).toEqual({ schemaVersion: 2, settings: DEFAULT_SETTINGS, hunts: [] });
     config.settings.sellableTypes.push("X");
     expect(DEFAULT_SETTINGS.sellableTypes).toEqual(["STANDARD"]);
     expect(defaultConfig().settings.sellableTypes).toEqual(["STANDARD"]);
@@ -195,6 +197,8 @@ function fullConfig(): Config {
     defaultLastSeatsThreshold: 20,
     sellableTypes: ["STANDARD", "PREMIUM"],
     defaultZone: { kind: "absolute", rows: ["E", "F"], seatFrom: 3, seatTo: null },
+    home: { lat: 45.4384, lon: 10.9916 },
+    radiusKm: 80,
   };
   config.hunts = [
     {
@@ -348,10 +352,23 @@ describe("parseConfig invalid", () => {
 });
 
 describe("migration and versions", () => {
-  it("treats a missing schemaVersion as version 1", () => {
-    const input = { settings: DEFAULT_SETTINGS, hunts: [] };
-    expect(migrateConfig(input)).toEqual({ schemaVersion: 1, settings: DEFAULT_SETTINGS, hunts: [] });
+  it("treats a missing schemaVersion as version 1 and brings it to the current one", () => {
+    const { home, radiusKm, ...settings } = DEFAULT_SETTINGS;
+    const input = { settings, hunts: [] };
+    expect(migrateConfig(input)).toEqual({ schemaVersion: 2, settings: { ...settings, home: null, radiusKm: null }, hunts: [] });
     expect(input).not.toHaveProperty("schemaVersion");
+    expect([home, radiusKm]).toEqual([null, null]);
+  });
+
+  it("adds home and radius to a version 1 config without touching the rest", () => {
+    const { home, radiusKm, ...settings } = DEFAULT_SETTINGS;
+    const v1 = { schemaVersion: 1, settings: { ...settings, publicUrl: "https://cw.example" }, hunts: [] };
+    const result = parseConfig(v1);
+    expect(result.ok).toBe(true);
+    expect(result.ok ? result.config.settings : null).toEqual({ ...settings, publicUrl: "https://cw.example", home: null, radiusKm: null });
+    expect(result.ok ? result.config.schemaVersion : null).toBe(2);
+    expect(v1.settings).not.toHaveProperty("home");
+    expect([home, radiusKm]).toEqual([null, null]);
   });
 
   it("leaves current versions and non objects alone", () => {
@@ -367,7 +384,7 @@ describe("migration and versions", () => {
   });
 
   it("rejects a version newer than the app", () => {
-    expect(parseConfig({ ...defaultConfig(), schemaVersion: 2 })).toEqual({
+    expect(parseConfig({ ...defaultConfig(), schemaVersion: 3 })).toEqual({
       ok: false,
       errors: ["schemaVersion: versione più recente dell'app"],
     });
@@ -378,6 +395,26 @@ describe("migration and versions", () => {
       ok: false,
       errors: ["schemaVersion: valore non ammesso"],
     });
+  });
+});
+
+describe("home and radius", () => {
+  function withSettings(patch: Partial<Config["settings"]>): unknown {
+    const config = defaultConfig();
+    return { ...config, settings: { ...config.settings, ...patch } };
+  }
+
+  it("accepts a home position and a radius", () => {
+    const result = parseConfig(withSettings({ home: { lat: 45.4384, lon: 10.9916 }, radiusKm: 60 }));
+    expect(result.ok ? result.config.settings.home : null).toEqual({ lat: 45.4384, lon: 10.9916 });
+    expect(result.ok ? result.config.settings.radiusKm : null).toBe(60);
+  });
+
+  it("refuses coordinates out of range and a radius out of 1-1000", () => {
+    expect(parseConfig(withSettings({ home: { lat: 91, lon: 10 } }))).toEqual({ ok: false, errors: ["settings.home.lat: latitudine da -90 a 90"] });
+    expect(parseConfig(withSettings({ home: { lat: 45, lon: -181 } }))).toEqual({ ok: false, errors: ["settings.home.lon: longitudine da -180 a 180"] });
+    expect(parseConfig(withSettings({ radiusKm: 0 }))).toEqual({ ok: false, errors: ["settings.radiusKm: intero da 1 a 1000"] });
+    expect(parseConfig(withSettings({ radiusKm: 1001 }))).toMatchObject({ ok: false });
   });
 });
 
@@ -393,7 +430,7 @@ describe("exportConfig and importConfig", () => {
   it("exports indented json without the token by default choice", () => {
     const config = withToken(TOKEN);
     const text = exportConfig(config, { includeToken: false });
-    expect(text.split(LF)[1]).toBe('  "schemaVersion": 1,');
+    expect(text.split(LF)[1]).toBe('  "schemaVersion": 2,');
     expect(text).not.toContain(TOKEN);
     const parsed = JSON.parse(text) as Config;
     expect(parsed.settings.telegram).toEqual({ token: null, chatId: "-100123" });

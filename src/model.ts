@@ -10,7 +10,7 @@ import type {
   Zone,
 } from "./types.js";
 
-export const CONFIG_SCHEMA_VERSION = 1;
+export const CONFIG_SCHEMA_VERSION = 2;
 export const STATE_SCHEMA_VERSION = 1;
 
 export type AbsoluteZone = Extract<Zone, { kind: "absolute" }>;
@@ -61,6 +61,8 @@ export interface Settings {
   defaultLastSeatsThreshold: number;
   sellableTypes: string[];
   defaultZone: Zone;
+  home: { lat: number; lon: number } | null;
+  radiusKm: number | null;
 }
 
 export interface Config {

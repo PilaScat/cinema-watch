@@ -16,6 +16,8 @@ export const DEFAULT_SETTINGS: Settings = {
   defaultLastSeatsThreshold: 10,
   sellableTypes: ["STANDARD"],
   defaultZone: { kind: "relative", rowsFromPercent: 40, rowsToPercent: 85, centerPercent: 60 },
+  home: null,
+  radiusKm: null,
 };
 
 export function defaultConfig(): Config {
@@ -223,6 +225,13 @@ const settingsSchema = z.strictObject({
   defaultLastSeatsThreshold: intIn(0, 500),
   sellableTypes: z.array(z.string().min(1, copy.validation.emptyType)).min(1, copy.validation.atLeastOneType),
   defaultZone: zone,
+  home: z
+    .strictObject({
+      lat: z.number({ error: copy.validation.latitude }).min(-90, copy.validation.latitude).max(90, copy.validation.latitude),
+      lon: z.number({ error: copy.validation.longitude }).min(-180, copy.validation.longitude).max(180, copy.validation.longitude),
+    })
+    .nullable(),
+  radiusKm: intIn(1, 1000).nullable(),
 });
 
 const configSchema = z
@@ -267,10 +276,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function toVersion2(json: Record<string, unknown>): Record<string, unknown> {
+  const settings = json["settings"];
+  return { ...json, schemaVersion: 2, settings: isRecord(settings) ? { home: null, radiusKm: null, ...settings } : settings };
+}
+
 export function migrateConfig(json: unknown): unknown {
   if (!isRecord(json)) return json;
-  if (json["schemaVersion"] === undefined) return { ...json, schemaVersion: 1 };
-  return json;
+  const versioned = json["schemaVersion"] === undefined ? { ...json, schemaVersion: 1 } : json;
+  return versioned["schemaVersion"] === 1 ? toVersion2(versioned) : versioned;
 }
 
 export function parseConfig(json: unknown): ParseResult {

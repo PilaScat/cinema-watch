@@ -5,6 +5,7 @@ export const settings = {
     telegram: "Telegram",
     rounds: "Giri e avvisi",
     zone: "Zona buona predefinita",
+    home: "Casa e distanza",
     backup: "Esporta e importa",
   },
   fields: {
@@ -35,6 +36,11 @@ export const settings = {
     zoneTo: "Alle (%)",
     zoneCenter: "Centro (%)",
     zoneKept: (rows: string, seats: string): string => `Zona fissa: file ${rows}, posti ${seats}`,
+    home: "Casa",
+    homeHint: "Latitudine, longitudine, come le copia Google Maps. Vuoto: nessuna distanza",
+    homeLocate: "Usa la mia posizione",
+    radiusKm: "Raggio massimo (km)",
+    radiusKmHint: "Vuoto: nessun limite",
   },
   actions: {
     save: "Salva",

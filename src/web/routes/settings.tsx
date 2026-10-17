@@ -2,7 +2,7 @@ import type { Hono } from "hono";
 import { copy } from "../../copy.js";
 import type { TelegramSource } from "../../config.js";
 import type { Config, Settings } from "../../model.js";
-import { renderPage, type AppDeps, type AppEnv } from "../app.js";
+import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { Button, Card, inputClass, LinkButton, Notice, PageHeader, type Tone } from "../components.js";
 import {
   absoluteSummary,
@@ -11,6 +11,7 @@ import {
   CheckBox,
   FormGrid,
   noErrors,
+  nullableNumber,
   numberOf,
   optionalText,
   splitErrors,
@@ -44,6 +45,8 @@ interface SettingsValues {
   threshold: string;
   sellableTypes: string;
   zone: ZoneValues;
+  home: string;
+  radiusKm: string;
 }
 
 interface PageNotice {
@@ -65,6 +68,8 @@ function valuesOfSettings(settings: Settings): SettingsValues {
     threshold: String(settings.defaultLastSeatsThreshold),
     sellableTypes: settings.sellableTypes.join(", "),
     zone: zoneValuesOf(settings.defaultZone),
+    home: settings.home === null ? "" : `${settings.home.lat}, ${settings.home.lon}`,
+    radiusKm: settings.radiusKm === null ? "" : String(settings.radiusKm),
   };
 }
 
@@ -81,7 +86,15 @@ function valuesOfBody(body: FormBody): SettingsValues {
     threshold: bodyText(body, "threshold"),
     sellableTypes: bodyText(body, "sellableTypes"),
     zone: zoneValuesFromBody(body, "zone"),
+    home: bodyText(body, "home"),
+    radiusKm: bodyText(body, "radiusKm"),
   };
+}
+
+function homeOf(text: string): { lat: number; lon: number } | null {
+  if (text === "") return null;
+  const [lat, lon, ...rest] = text.split(",").map((part) => numberOf(part.trim()));
+  return rest.length > 0 || lat === undefined || lon === undefined ? { lat: Number.NaN, lon: Number.NaN } : { lat, lon };
 }
 
 function settingsOfValues(values: SettingsValues, tokenChange: { token: string; clear: boolean }, base: Settings): Settings {
@@ -96,6 +109,8 @@ function settingsOfValues(values: SettingsValues, tokenChange: { token: string; 
     defaultLastSeatsThreshold: numberOf(values.threshold),
     sellableTypes: splitList(values.sellableTypes),
     defaultZone: zoneFromValues(values.zone, base.defaultZone),
+    home: homeOf(values.home),
+    radiusKm: nullableNumber(values.radiusKm),
   };
 }
 
@@ -112,11 +127,13 @@ const SETTINGS_FIELDS: Record<string, string> = {
   defaultLastSeatsThreshold: "threshold",
   sellableTypes: "sellableTypes",
   defaultZone: "zone",
+  radiusKm: "radiusKm",
 };
 
 function settingsFieldOf(rest: string): string | null {
   const head = rest.split("[")[0] ?? "";
   if (head.startsWith("defaultZone")) return "zone";
+  if (head.startsWith("home")) return "home";
   return SETTINGS_FIELDS[head] ?? null;
 }
 
@@ -216,6 +233,17 @@ function SettingsPage(props: {
               />
             </FormGrid>
           </Card>
+          <Card title={ui.sections.home}>
+            <FormGrid>
+              <Wide>
+                <TextField name="home" label={ui.fields.home} value={values.home} hint={ui.fields.homeHint} error={fieldError["home"]} />
+                <button type="button" data-home-picker hidden class="mt-2 text-sm font-semibold text-primary hover:underline">
+                  {ui.fields.homeLocate}
+                </button>
+              </Wide>
+              <TextField name="radiusKm" label={ui.fields.radiusKm} value={values.radiusKm} type="number" min={1} max={1000} hint={ui.fields.radiusKmHint} error={fieldError["radiusKm"]} />
+            </FormGrid>
+          </Card>
           <Card title={ui.sections.zone}>
             <ZoneFields
               prefix="zone"
@@ -278,6 +306,7 @@ export function registerSettingsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
       section: "settings",
       status: options.status ?? 200,
       body: (
+        <>
         <SettingsPage
           values={options.values ?? valuesOfSettings(config.settings)}
           errors={options.errors ?? noErrors()}
@@ -286,6 +315,8 @@ export function registerSettingsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
           zoneKept={zone ? ui.fields.zoneKept(zone.rows, zone.seats) : undefined}
           notice={options.notice ?? null}
         />
+        <script src="/assets/home-picker.js" defer nonce={pageContext(c, deps).nonce}></script>
+        </>
       ),
     });
   }

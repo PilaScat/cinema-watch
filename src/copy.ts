@@ -107,6 +107,8 @@ export const copy = {
   validation: {
     integerFrom: (min: number, max: number): string => `intero da ${min} a ${max}`,
     integerFromOne: "intero da 1",
+    latitude: "latitudine da -90 a 90",
+    longitude: "longitudine da -180 a 180",
     slugFormat: "solo minuscole, cifre e trattini",
     timeFormat: "formato HH:MM",
     chatIdFormat: "numero o @nome",

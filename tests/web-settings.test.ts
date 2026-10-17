@@ -320,3 +320,50 @@ describe("telegram values from the environment", () => {
     expect((await harness.watcher({ env: {} })).telegramSource()).toEqual({ token: null, chatId: "config" });
   });
 });
+
+describe("home and radius", () => {
+  it("saves home pasted as latitude, longitude and the radius, and shows them back", async () => {
+    const { instance, watcher } = await app();
+
+    const response = await instance.request("/settings", post(settingsForm({ home: " 45.4384,10.9916 ", radiusKm: "60" })));
+    const page = await (await instance.request("/settings")).text();
+
+    expect(response.status).toBe(303);
+    expect(watcher.config().settings.home).toEqual({ lat: 45.4384, lon: 10.9916 });
+    expect(watcher.config().settings.radiusKm).toBe(60);
+    expect(page).toMatch(/name="home"[^>]*value="45.4384, 10.9916"/);
+    expect(page).toMatch(/name="radiusKm"[^>]*value="60"/);
+  });
+
+  it("clears home and radius when the fields are empty", async () => {
+    const { instance, watcher } = await app();
+    await instance.request("/settings", post(settingsForm({ home: "45.4384, 10.9916", radiusKm: "60" })));
+
+    await instance.request("/settings", post(settingsForm({ home: "", radiusKm: "" })));
+
+    expect(watcher.config().settings.home).toBeNull();
+    expect(watcher.config().settings.radiusKm).toBeNull();
+  });
+
+  it("refuses a home that is not two coordinates and keeps the old one", async () => {
+    const { instance, watcher } = await app();
+
+    const notNumbers = await instance.request("/settings", post(settingsForm({ home: "via Roma 1, Verona" })));
+    const outOfRange = await instance.request("/settings", post(settingsForm({ home: "95, 10" })));
+    const html = await outOfRange.text();
+
+    expect(notNumbers.status).toBe(400);
+    expect(outOfRange.status).toBe(400);
+    expect(html).toContain("latitudine da -90 a 90");
+    expect(watcher.config().settings.home).toBeNull();
+  });
+
+  it("offers the browser position button only through a page script", async () => {
+    const { instance } = await app();
+
+    const html = await (await instance.request("/settings")).text();
+
+    expect(html).toContain('data-home-picker');
+    expect(html).toContain('src="/assets/home-picker.js"');
+  });
+});
