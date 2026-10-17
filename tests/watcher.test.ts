@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createHunt, defaultConfig, saveConfig } from "../src/config.js";
 import type { Config, Hunt } from "../src/model.js";
 import { createStore } from "../src/store.js";
+import { saveVenueList } from "../src/venues.js";
 import { createWatcher } from "../src/watcher.js";
 import { createFakeWorld, FAKE_TOKEN, fixture, type FakeWorld } from "./support/fake-world.js";
 
@@ -47,7 +48,9 @@ async function seed(mutate: (config: Config) => void = () => undefined): Promise
   config.settings.telegram = { token: FAKE_TOKEN, chatId: PRIMARY_CHAT };
   config.hunts.push(duneHunt(config));
   mutate(config);
-  await saveConfig(createStore(dataDir), config);
+  const store = createStore(dataDir);
+  await saveConfig(store, config);
+  await saveVenueList(store, { checkedAt: clock, venues: [] });
   return config;
 }
 
@@ -248,8 +251,8 @@ describe("watcher", () => {
   });
 
   it("archives a hunt whose fixed dates are over without reading anything", async () => {
-    await seed();
     clock = Date.parse("2026-12-17T09:00:00Z");
+    await seed();
     const subject = await watcher();
 
     await subject.tick();

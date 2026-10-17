@@ -16,8 +16,10 @@ export interface FakeWorld {
   fetch: typeof fetch;
   telegram: TelegramCall[];
   requests: string[];
+  webticCalls: string[];
   setProgramming(theatreSlug: string, day: string, json: unknown): void;
   setOccupancy(localId: number, performanceId: number, json: unknown): void;
+  setScheduling(localId: number, json: unknown): void;
   failHost(host: string, status: number): void;
   pushUpdate(update: unknown): void;
   conflictOnPoll(on?: boolean): void;
@@ -62,19 +64,26 @@ export function createFakeWorld(): FakeWorld {
     ["uci-cinemas-verona|2026-12-16", fixture("uci/programming-uci-cinemas-verona-2026-12-16.json")],
   ]);
   const occupancies = new Map<string, unknown>();
+  const schedulings = new Map<number, unknown>([
+    [5779, fixture("webtic-direct/scheduling-5779.json")],
+    [5851, fixture("webtic-direct/scheduling-5851.json")],
+  ]);
   const failing = new Map<string, number>();
   const telegram: TelegramCall[] = [];
   const updates: unknown[] = [];
   let pollConflict = false;
   const requests: string[] = [];
+  const webticCalls: string[] = [];
   let messageId = 1000;
 
   const world: FakeWorld = {
     telegram,
     requests,
+    webticCalls,
     latestRelease: "v2026.10.1",
     setProgramming: (theatreSlug, day, body) => programming.set(`${theatreSlug}|${day}`, body),
     setOccupancy: (localId, performanceId, body) => occupancies.set(`${localId}-${performanceId}`, body),
+    setScheduling: (localId, body) => schedulings.set(localId, body),
     failHost: (host, status) => failing.set(host, status),
     restoreHost: (host) => failing.delete(host),
     pushUpdate: (update) => updates.push(update),
@@ -117,6 +126,24 @@ export function createFakeWorld(): FakeWorld {
         if (method === "Occupancy") {
           const key = `${localId}-${Number(body.PerformanceId)}`;
           return json(occupancies.get(key) ?? fixture(`webtic/occupancy-${key}.json`));
+        }
+      }
+
+      if (url.hostname === "secure.webtic.it") {
+        const wtid = url.searchParams.get("wtid");
+        webticCalls.push(wtid ?? "");
+        const data = (body.data ?? {}) as Record<string, unknown>;
+        const dead = fixture("webtic-direct/scheduling-dead.json");
+        if (wtid === "getLocalsTitles") return json(fixture("webtic-direct/locals.json"));
+        if (wtid === "getFullScheduling") return json(schedulings.get(Number(url.searchParams.get("localid"))) ?? dead);
+        if (wtid === "getPerformanceInfo") {
+          const key = `${url.searchParams.get("localid") ?? ""}-${url.searchParams.get("performanceid") ?? ""}`;
+          return json(key === "5779-51133" ? fixture("webtic-direct/performance-5779-51133.json") : dead);
+        }
+        if (wtid === "getMapSeats") return json(`${String(data.LocalId)}-${String(data.ScreenId)}` === "5779-233" ? fixture("webtic-direct/map-5779-233.json") : dead);
+        if (wtid === "getOccupancy") {
+          const key = `${String(data.LocalId)}-${String(data.PerformanceId)}`;
+          return json(occupancies.get(key) ?? (key === "5779-51133" ? fixture("webtic-direct/occupancy-5779-51133.json") : dead));
         }
       }
 

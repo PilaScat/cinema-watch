@@ -109,7 +109,7 @@ describe("watcher services for the web UI", () => {
     const again = await watcher.services.theatres();
 
     expect(theatres.find((theatre) => theatre.slug === "uci-cinemas-verona")?.name).toBe("UCI Cinemas Verona");
-    expect(again).toBe(theatres);
+    expect(again).toEqual(theatres);
     expect(harness.world.requests.filter((request) => request.endsWith("/api/theatres"))).toHaveLength(1);
   });
 

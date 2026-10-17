@@ -7,21 +7,24 @@ import type { Hunt, ObservedShowing, RoundObservation, Settings } from "./model.
 import { analyzeSeats } from "./seats.js";
 import type { Hall, IsoDay, MovieRef, Occupancy, PerformanceInfo, SeatAnalysis, SeatRule, Showing, ShowingFilter, Zone } from "./types.js";
 import { filterShowings, matchesTitle, type createUciClient } from "./uci.js";
-import type { createWebticClient } from "./webtic.js";
+import type { createSeatClient } from "./webtic.js";
+import { localIdOfSlug } from "./webtic-direct.js";
 import { hallKey } from "./keys.js";
 
 type UciClient = ReturnType<typeof createUciClient>;
-type WebticClient = ReturnType<typeof createWebticClient>;
+type SeatClient = ReturnType<typeof createSeatClient>;
 
 export interface RunnerCaches {
   programming: TtlCache<Showing[]>;
+  schedule: TtlCache<Map<IsoDay, Showing[]>>;
   occupancy: TtlCache<Occupancy>;
   performance: TtlCache<PerformanceInfo>;
 }
 
 export interface RunnerDeps {
   uci: UciClient;
-  webtic: WebticClient;
+  webtic: SeatClient;
+  direct: { scheduling(localId: number): Promise<Map<IsoDay, Showing[]>>; seats: SeatClient };
   caches: RunnerCaches;
 }
 
@@ -92,7 +95,23 @@ function moviesMatching(hunt: Hunt, showings: Showing[], theatreSlug: string): A
   return [...found.values()].map((movie) => ({ movie, theatreSlug }));
 }
 
-async function readDay(deps: RunnerDeps, theatreSlug: string, day: IsoDay, fresh: boolean): Promise<Showing[]> {
+function sourceOf(theatreSlug: string): string {
+  return localIdOfSlug(theatreSlug) === null ? UCI_SOURCE : WEBTIC_SOURCE;
+}
+
+function seatClientOf(deps: RunnerDeps, theatreSlug: string): SeatClient {
+  return localIdOfSlug(theatreSlug) === null ? deps.webtic : deps.direct.seats;
+}
+
+type Schedules = Map<string, Promise<Map<IsoDay, Showing[]>>>;
+
+async function readDay(deps: RunnerDeps, theatreSlug: string, day: IsoDay, fresh: boolean, schedules: Schedules): Promise<Showing[]> {
+  const localId = localIdOfSlug(theatreSlug);
+  if (localId !== null) {
+    const schedule = schedules.get(theatreSlug) ?? deps.caches.schedule.getOrLoad(theatreSlug, () => deps.direct.scheduling(localId), { bypass: fresh });
+    schedules.set(theatreSlug, schedule);
+    return (await schedule).get(day) ?? [];
+  }
   return deps.caches.programming.getOrLoad(`${theatreSlug}|${day}`, () => deps.uci.programmingDay(theatreSlug, day), {
     bypass: fresh,
   });
@@ -105,15 +124,10 @@ async function observeSeats(
   showing: Showing,
   fresh: boolean,
 ): Promise<{ observed: ObservedShowing; detail: SeatDetail; hallChanged: boolean; hallKey: string }> {
-  const performance = await deps.caches.performance.getOrLoad(showing.key, () =>
-    deps.webtic.performance(showing.localId, showing.performanceId),
-  );
-  const occupancy = await deps.caches.occupancy.getOrLoad(
-    showing.key,
-    () => deps.webtic.occupancy(showing.localId, showing.performanceId),
-    { bypass: fresh },
-  );
-  const { hall, changed } = await deps.webtic.hall(showing.localId, performance.screenId, occupancy);
+  const seats = seatClientOf(deps, showing.theatreSlug);
+  const performance = await deps.caches.performance.getOrLoad(showing.key, () => seats.performance(showing.localId, showing.performanceId));
+  const occupancy = await deps.caches.occupancy.getOrLoad(showing.key, () => seats.occupancy(showing.localId, showing.performanceId), { bypass: fresh });
+  const { hall, changed } = await seats.hall(showing.localId, performance.screenId, occupancy);
   const zone = zoneFor(hunt, showing.localId, performance.screenId);
   const rule: SeatRule = { zone, together: hunt.together, sellableTypes: settings.sellableTypes };
   const analysis = analyzeSeats(hall, occupancy, rule);
@@ -139,13 +153,14 @@ export async function observeHunt(
   const errors: string[] = [];
   const hallChanged: HuntObservation["hallChanged"] = [];
   const unknownSeatTypes = new Set<string>();
+  const schedules: Schedules = new Map();
   for (const theatreSlug of hunt.theatres) {
     for (const day of days) {
       let all: Showing[];
       try {
-        all = await readDay(deps, theatreSlug, day, options.fresh);
+        all = await readDay(deps, theatreSlug, day, options.fresh, schedules);
       } catch (error) {
-        errors.push(`${theatreSlug} ${formatDay(day)} · ${describe(UCI_SOURCE, error)}`);
+        errors.push(`${theatreSlug} ${formatDay(day)} · ${describe(sourceOf(theatreSlug), error)}`);
         continue;
       }
       round.daysChecked.push({ theatreSlug, day });

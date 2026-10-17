@@ -12,6 +12,7 @@ import {
   type TelegramSource,
 } from "./config.js";
 import { copy } from "./copy.js";
+import { ApiShapeError } from "./errors.js";
 import { romeNow, romeToday } from "./dates.js";
 import { escapeHtml } from "./format.js";
 import { createEventLog, type EventEntry } from "./events.js";
@@ -31,7 +32,7 @@ import { analyzeSeats } from "./seats.js";
 import { huntStateOf, loadState, saveState } from "./state.js";
 import { createStore } from "./store.js";
 import { createTelegram, type Telegram } from "./telegram.js";
-import type { CatalogMovie, IsoDay, MovieTheatre, Occupancy, PerformanceInfo, Showing, Theatre } from "./types.js";
+import type { CatalogMovie, Chain, IsoDay, MovieTheatre, Occupancy, PerformanceInfo, Showing, Theatre } from "./types.js";
 import { createUciClient, UCI_API_BASE } from "./uci.js";
 import {
   deliveryOf,
@@ -50,7 +51,9 @@ import {
   urlButtonsAccepted,
   type Delivery,
 } from "./watcher-rules.js";
-import { createWebticClient, WEBTIC_API_BASE } from "./webtic.js";
+import { loadVenueList, mergeCatalogs, probeVenues, saveVenueList, venuesDue, venuesWithMovie, venueTheatres, type VenueList } from "./venues.js";
+import { createSeatClient, createWebticClient, WEBTIC_API_BASE } from "./webtic.js";
+import { createWebticDirectClient, localIdOfSlug, WEBTIC_DIRECT_BASE, type WebticVenue } from "./webtic-direct.js";
 
 const MINUTE = 60_000;
 const CACHE_TTL_MS = MINUTE;
@@ -59,6 +62,8 @@ const DRY_RUN_CHAT = "dry-run";
 const PROGRAMMING_TTL_MS = 10 * MINUTE;
 const CATALOG_TTL_MS = 60 * MINUTE;
 const DEFAULT_TOGETHER = 2;
+const VENUE_RETRY_MS = 60 * MINUTE;
+const VENUE_TIMEOUT_MS = 30_000;
 const RELEASES_URL = "https://api.github.com/repos/PilaScat/cinema-watch/releases/latest";
 
 export interface WatcherOptions {
@@ -82,6 +87,13 @@ export interface RunReport {
 
 export interface HallView extends SeatDetail {
   performance: PerformanceInfo;
+  chain: Chain;
+}
+
+export interface VenueStatus {
+  checkedAt: number | null;
+  probing: boolean;
+  venues: number;
 }
 
 export interface WatcherServices {
@@ -89,7 +101,8 @@ export interface WatcherServices {
   programming(theatreSlug: string): Promise<Map<IsoDay, Showing[]>>;
   movieTheatres(movieSlug: string): Promise<MovieTheatre[]>;
   movies(): Promise<CatalogMovie[]>;
-  hall(localId: number, performanceId: number, huntId?: string): Promise<HallView>;
+  hall(localId: number, performanceId: number, huntId?: string, theatreSlug?: string): Promise<HallView>;
+  venueStatus(): VenueStatus;
 }
 
 export interface Watcher {
@@ -147,11 +160,23 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     now,
     ...(options.logSink ? { sink: options.logSink } : {}),
   });
+  const userAgent = `cinema-watch/${options.version} (+https://github.com/PilaScat/cinema-watch)`;
   const http = createHttpClient({
-    allowedHosts: [hostOf(UCI_API_BASE), hostOf(WEBTIC_API_BASE), "api.github.com"],
-    userAgent: `cinema-watch/${options.version} (+https://github.com/PilaScat/cinema-watch)`,
+    allowedHosts: [hostOf(UCI_API_BASE), hostOf(WEBTIC_API_BASE), hostOf(WEBTIC_DIRECT_BASE), "api.github.com"],
+    userAgent,
     now,
     ...(options.fetch ? { fetch: options.fetch } : {}),
+  });
+  const baseFetch = options.fetch ?? globalThis.fetch;
+  const probeAbort = new AbortController();
+  const probeHttp = createHttpClient({
+    allowedHosts: [hostOf(WEBTIC_DIRECT_BASE)],
+    userAgent,
+    now,
+    timeoutMs: VENUE_TIMEOUT_MS,
+    backoffBaseMs: 0,
+    backoffMaxMs: 0,
+    fetch: (input, init) => baseFetch(input, { ...init, signal: init?.signal ? AbortSignal.any([init.signal, probeAbort.signal]) : probeAbort.signal }),
   });
   const telegram = createTelegram({
     token: () => telegramSettings().token,
@@ -161,11 +186,23 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   const clock = { now };
   const caches: RunnerCaches = {
     programming: createTtlCache<Showing[]>({ ttlMs: CACHE_TTL_MS, maxEntries: 500, clock }),
+    schedule: createTtlCache<Map<IsoDay, Showing[]>>({ ttlMs: CACHE_TTL_MS, maxEntries: 100, clock }),
     occupancy: createTtlCache<Occupancy>({ ttlMs: CACHE_TTL_MS, maxEntries: 500, clock }),
     performance: createTtlCache<PerformanceInfo>({ ttlMs: PERFORMANCE_TTL_MS, maxEntries: 2000, clock }),
   };
   const uci = createUciClient(http);
-  const webtic = createWebticClient(http, { hallStore: createFileHallStore(store), now });
+  const hallStore = createFileHallStore(store);
+  const webtic = createWebticClient(http, { hallStore, now });
+  const direct = createWebticDirectClient(http);
+  const directSeats = createSeatClient(direct.seats, { hallStore, now });
+  const runnerDeps = { uci, webtic, direct: { scheduling: (localId: number) => direct.scheduling(localId), seats: directSeats }, caches };
+  let venueList: VenueList | null = await loadVenueList(store);
+  let foundVenues: WebticVenue[] = [];
+  const probeDirect = createWebticDirectClient(probeHttp);
+  let probing = false;
+  let probeRun: Promise<void> = Promise.resolve();
+  let closed = false;
+  let venueRetryAt = 0;
   const theatreList = createTtlCache<Theatre[]>({ ttlMs: PERFORMANCE_TTL_MS, clock });
   const fullProgramming = createTtlCache<Map<IsoDay, Showing[]>>({ ttlMs: PROGRAMMING_TTL_MS, maxEntries: 3, clock });
   const catalog = createTtlCache<CatalogMovie[]>({ ttlMs: CATALOG_TTL_MS, clock });
@@ -205,27 +242,85 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     return config.hunts.find((hunt) => hunt.id === id) ?? null;
   }
 
-  function theatres(): Promise<Theatre[]> {
-    return theatreList.getOrLoad("all", () => uci.theatres());
+  function currentVenues(): WebticVenue[] {
+    return venueList?.venues ?? foundVenues;
+  }
+
+  async function theatres(): Promise<Theatre[]> {
+    const list = await theatreList.getOrLoad("all", () => uci.theatres());
+    return [...list, ...(venueList === null ? foundVenues.map((venue) => venue.theatre) : venueTheatres(venueList))];
+  }
+
+  function isDirectLocal(localId: number): boolean {
+    const slugs = [...currentVenues().map((venue) => venue.theatre.slug), ...config.hunts.flatMap((hunt) => hunt.theatres)];
+    return slugs.some((slug) => localIdOfSlug(slug) === localId);
+  }
+
+  function chainOf(localId: number, theatreSlug?: string): Chain {
+    const known = theatreSlug ?? Object.values(state.hunts).flatMap((hunt) => Object.values(hunt.showings)).find((showing) => showing.localId === localId)?.theatreSlug;
+    if (known !== undefined) return localIdOfSlug(known) === localId ? "webtic" : "uci";
+    return isDirectLocal(localId) ? "webtic" : "uci";
+  }
+
+  function programmingOf(theatreSlug: string): Promise<Map<IsoDay, Showing[]>> {
+    const localId = localIdOfSlug(theatreSlug);
+    if (localId === null) return fullProgramming.getOrLoad(theatreSlug, () => uci.programmingAll(theatreSlug));
+    if (!isDirectLocal(localId)) return Promise.reject(new ApiShapeError("webtic", `unknown cinema: ${theatreSlug}`));
+    return fullProgramming.getOrLoad(theatreSlug, () => direct.scheduling(localId));
+  }
+
+  async function movieTheatres(movieSlug: string): Promise<MovieTheatre[]> {
+    const fromUci = await uci.movieTheatres(movieSlug).catch((): MovieTheatre[] => []);
+    return [...fromUci, ...venuesWithMovie(currentVenues(), movieSlug)];
+  }
+
+  async function finishProbe(list: VenueList): Promise<void> {
+    if (list.venues.length === 0) throw new Error("no Webtic venue with films");
+    venueList = list;
+    await saveVenueList(store, list);
+    logger.info("webtic venues", { venues: list.venues.length });
+  }
+
+  function startVenueProbe(): void {
+    if (closed || probing || dryRun || now() < venueRetryAt || !venuesDue(venueList, now())) return;
+    probing = true;
+    foundVenues = [];
+    probeRun = probeVenues(probeDirect, now, { onFound: (venue) => foundVenues.push(venue), stopped: () => closed })
+      .then(async (list) => {
+        if (!closed) await finishProbe(list);
+      })
+      .catch((error: unknown) => {
+        venueRetryAt = now() + VENUE_RETRY_MS;
+        if (!closed) logger.warn("webtic venues", { error: errorText(error) });
+      })
+      .finally(() => {
+        probing = false;
+      });
+  }
+
+  async function close(): Promise<void> {
+    closed = true;
+    probeAbort.abort();
+    await probeRun;
+    await exclusive(() => Promise.resolve());
   }
 
   async function theatreNames(): Promise<Record<string, string>> {
-    try {
-      return Object.fromEntries((await theatres()).map((theatre) => [theatre.slug, theatre.name]));
-    } catch {
-      return {};
-    }
+    const fromUci = await theatreList.getOrLoad("all", () => uci.theatres()).catch((): Theatre[] => []);
+    return Object.fromEntries([...fromUci, ...currentVenues().map((venue) => venue.theatre)].map((theatre) => [theatre.slug, theatre.name]));
   }
 
-  async function hallView(localId: number, performanceId: number, huntId?: string): Promise<HallView> {
+  async function hallView(localId: number, performanceId: number, huntId?: string, theatreSlug?: string): Promise<HallView> {
     const key = showingKey(localId, performanceId);
-    const performance = await caches.performance.getOrLoad(key, () => webtic.performance(localId, performanceId));
-    const occupancy = await caches.occupancy.getOrLoad(key, () => webtic.occupancy(localId, performanceId));
-    const { hall } = await webtic.hall(localId, performance.screenId, occupancy);
+    const chain = chainOf(localId, theatreSlug);
+    const seats = chain === "webtic" ? directSeats : webtic;
+    const performance = await caches.performance.getOrLoad(key, () => seats.performance(localId, performanceId));
+    const occupancy = await caches.occupancy.getOrLoad(key, () => seats.occupancy(localId, performanceId));
+    const { hall } = await seats.hall(localId, performance.screenId, occupancy);
     const hunt = huntId === undefined ? null : huntById(huntId);
     const zone = hunt ? zoneFor(hunt, localId, performance.screenId) : config.settings.defaultZone;
     const rule = { zone, together: hunt?.together ?? DEFAULT_TOGETHER, sellableTypes: config.settings.sellableTypes };
-    return { performance, hall, occupancy, rule, analysis: analyzeSeats(hall, occupancy, rule) };
+    return { performance, chain, hall, occupancy, rule, analysis: analyzeSeats(hall, occupancy, rule) };
   }
 
   function chatFor(): string | null {
@@ -312,7 +407,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     const at = now();
     const previous = huntStateOf(state, hunt.id);
     try {
-      const observation = await observeHunt({ uci, webtic, caches }, hunt, config.settings, new Date(at), { fresh });
+      const observation = await observeHunt(runnerDeps, hunt, config.settings, new Date(at), { fresh });
       const { state: next, events } = diffRound(previous, observation.round, hunt);
       const allowed = isMuted(previous, at) ? [] : events.filter((event) => eventAllowed(event, hunt));
       const delivery = await notify(hunt, allowed, observation);
@@ -387,6 +482,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     await archive(finishedHuntIds(config, now()));
     await prune();
     if (isQuiet(config.settings, now())) return;
+    startVenueProbe();
     await checkVersion();
     for (const hunt of config.hunts) {
       if (isDue(hunt, state, now())) await runHunt(hunt, false);
@@ -448,7 +544,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   async function sendSnapshotLocked(huntId: string): Promise<boolean> {
     const hunt = huntById(huntId);
     if (!hunt) return false;
-    const observation = await observeHunt({ uci, webtic, caches }, hunt, config.settings, new Date(now()), { fresh: true });
+    const observation = await observeHunt(runnerDeps, hunt, config.settings, new Date(now()), { fresh: true });
     const events: HuntEvent[] = observation.round.showings.map((observed) => ({ kind: "newShowing", showing: snapshotOf(observed) }));
     return (await notify(hunt, events, observation)).delivered && events.length > 0;
   }
@@ -492,10 +588,11 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     sendSnapshot: (huntId: string) => exclusive(() => sendSnapshotLocked(huntId)),
     services: {
       theatres,
-      programming: (theatreSlug: string) => fullProgramming.getOrLoad(theatreSlug, () => uci.programmingAll(theatreSlug)),
-      movieTheatres: (movieSlug: string) => uci.movieTheatres(movieSlug),
-      movies: () => catalog.getOrLoad("all", () => uci.catalog()),
+      programming: programmingOf,
+      movieTheatres,
+      movies: async () => mergeCatalogs(await catalog.getOrLoad("all", () => uci.catalog()), currentVenues()),
       hall: hallView,
+      venueStatus: () => ({ checkedAt: venueList?.checkedAt ?? null, probing, venues: currentVenues().length }),
     },
     runNow: (huntId?: string) => exclusive(() => runNowLocked(huntId)),
     mute: (huntId: string, durationMs: number) => exclusive(() => setMute(huntId, now() + durationMs)),
@@ -504,7 +601,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     restore: (huntId: string) => exclusive(() => restoreLocked(huntId)),
     confirmMovie: (huntId: string, slug: string) => exclusive(() => confirmMovieLocked(huntId, slug)),
     confirmHallZone: (huntId: string, hallKey: string) => exclusive(() => confirmHallZoneLocked(huntId, hallKey)),
-    close: () => exclusive(() => Promise.resolve()),
+    close,
     summaries: (huntIds?: string[]) => digestEntries(config, state, false).filter((entry) => huntIds === undefined || huntIds.includes(entry.hunt.id)),
     primaryChat: () => telegramSettings().chatId,
     botToken: () => telegramSettings().token,
