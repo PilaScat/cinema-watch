@@ -60,7 +60,7 @@ export const hunts = {
   movieOption: (title: string, formats: string, day: string): string => `${title} · ${formats} · dal ${day}`,
   windowKinds: { fixed: "Date fisse", next: "Prossimi giorni" },
   weekdays: ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"],
-  formats: ["IMAX", "XL", "2D", "3D", "ISENSE", "SCREENX", "LUXE"],
+  formats: ["IMAX", "XL", "2D", "3D", "ISENSE", "SCREENX", "LUXE", "INFINITY VISION"],
   notify: {
     newShowings: "Nuovi spettacoli",
     seatsFreed: "Posti liberati",

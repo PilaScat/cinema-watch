@@ -7,6 +7,7 @@ import {
   UCI_HEADERS,
   createUciClient,
   filterShowings,
+  formatEdition,
   matchesTitle,
   normalizeFormat,
   normalizeTitle,
@@ -315,6 +316,25 @@ describe("filterShowings", () => {
     expect(filterShowings([base, imax], { formats: ["xl - infinity vision"] }, now)).toEqual([base]);
     expect(filterShowings([base, imax], { formats: ["Imax", "3D"] }, now)).toEqual([imax]);
     expect(filterShowings([base, imax], { formats: ["3D"] }, now)).toEqual([]);
+  });
+
+  it("filters by edition: INFINITY VISION takes every Infinity Vision hall and no plain one", () => {
+    const xlPlain = make({ key: "1-2", format: "XL", formatGroup: "XL" });
+    const twoD = make({ key: "1-3", format: "2D", formatGroup: "2D" });
+    const twoDiv = make({ key: "1-4", format: "2D - INFINITY VISION", formatGroup: "2D" });
+    const isenseIv = make({ key: "1-5", format: "ISENSE - INFINITY VISION", formatGroup: "ISENSE" });
+    const screenxIv = make({ key: "1-6", format: "SCREENX - INFINITY VISION", formatGroup: "SCREENX" });
+    const all = [base, xlPlain, twoD, twoDiv, isenseIv, screenxIv];
+
+    expect(filterShowings(all, { formats: ["INFINITY VISION"] }, now)).toEqual([base, twoDiv, isenseIv, screenxIv]);
+    expect(filterShowings(all, { formats: ["XL"] }, now)).toEqual([base, xlPlain]);
+    expect(filterShowings(all, { formats: ["2D"] }, now)).toEqual([twoD, twoDiv]);
+  });
+
+  it("reads the edition of a hall name", () => {
+    expect(formatEdition("XL - INFINITY VISION")).toBe("INFINITY VISION");
+    expect(formatEdition("2d - Infinity Vision ")).toBe("INFINITY VISION");
+    expect(formatEdition("IMAX")).toBeNull();
   });
 
   it("filters by window", () => {

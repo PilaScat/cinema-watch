@@ -187,6 +187,17 @@ describe("hunt form", () => {
     expect(hunt?.zone).toEqual(config.hunts[0]?.zone);
   });
 
+  it("offers Infinity Vision as a format and saves it", async () => {
+    const { instance, watcher } = await app();
+
+    const page = await (await instance.request("/hunts/new")).text();
+    const response = await instance.request("/hunts", post(huntForm({ name: "Avengers IV", movieSlugs: "avengers-doomsday", format: ["INFINITY VISION"] })));
+
+    expect(page).toMatch(/name="format" value="INFINITY VISION"/);
+    expect(response.status).toBe(303);
+    expect(watcher.config().hunts.at(-1)?.formats).toEqual(["INFINITY VISION"]);
+  });
+
   it("deletes a hunt", async () => {
     const { instance, watcher, huntId } = await app();
 

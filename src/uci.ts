@@ -87,6 +87,11 @@ export function normalizeFormat(raw: string): string {
   return (raw.split(" - ")[0] ?? "").trim().toUpperCase();
 }
 
+export function formatEdition(raw: string): string | null {
+  const edition = raw.split(" - ")[1]?.trim().toUpperCase() ?? "";
+  return edition === "" ? null : edition;
+}
+
 export function parseCartLink(
   link: string,
 ): { movieSlug: string; localId: number; eventId: number; performanceId: number } | null {
@@ -241,7 +246,7 @@ export function filterShowings(showings: Showing[], filter: ShowingFilter, now: 
       s.startsAt.slice(0, 16) >= nowLocal &&
       (!filter.movieSlugs || filter.movieSlugs.includes(s.movie.slug)) &&
       (!filter.titleWords || matchesTitle(s.movie.title, filter.titleWords)) &&
-      (!filter.formats || includesIgnoreCase(filter.formats, s.formatGroup) || includesIgnoreCase(filter.formats, s.format)) &&
+      (!filter.formats || [s.formatGroup, s.format, formatEdition(s.format)].some((value) => value !== null && includesIgnoreCase(filter.formats ?? [], value))) &&
       (!days || days.has(s.day)) &&
       timeInRange(s.time, filter.timeFrom, filter.timeTo) &&
       (!filter.weekdays || filter.weekdays.includes(weekdayOf(s.day))) &&
