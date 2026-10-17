@@ -14,7 +14,7 @@
   <WebUI>http://[IP]:[PORT:8790]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/PilaScat/cinema-watch/main/deploy/cinema-watch.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/PilaScat/cinema-watch/main/assets/icons/icon-512.png</Icon>
-  <ExtraParams>--read-only --tmpfs /tmp --cap-drop=ALL --security-opt=no-new-privileges --log-opt max-size=10m --log-opt max-file=3</ExtraParams>
+  <ExtraParams>--restart=unless-stopped --read-only --tmpfs /tmp --cap-drop=ALL --security-opt=no-new-privileges --log-opt max-size=10m --log-opt max-file=3</ExtraParams>
   <PostArgs/>
   <CPUset/>
   <DonateText/>
