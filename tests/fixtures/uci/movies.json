@@ -1,0 +1,121 @@
+{
+  "data": [
+    {
+      "id": 7365,
+      "title": "Avengers: Doomsday",
+      "slug": "avengers-doomsday",
+      "poster": "https://storage.googleapis.com/uci-infrastructure-bucket/Common/Movies/Posters/01M3Y2YHH0GFYW6DJ7SXXBP597_resized_at_20261002123624.jpeg",
+      "first_performance": "2026-10-10",
+      "last_performance": "2026-12-30",
+      "screens": [
+        {
+          "name": "ISENSE - INFINITY VISION"
+        },
+        {
+          "name": "2D - INFINITY VISION"
+        },
+        {
+          "name": "SCREENX - INFINITY VISION"
+        },
+        {
+          "name": "XL - INFINITY VISION"
+        },
+        {
+          "name": "XL"
+        },
+        {
+          "name": "3D"
+        },
+        {
+          "name": "2D"
+        }
+      ]
+    },
+    {
+      "id": 7299,
+      "title": "Dune: Parte Tre",
+      "slug": "dune-parte-tre",
+      "poster": "https://storage.googleapis.com/uci-infrastructure-bucket/Common/Movies/Posters/01M20AM4614R6H0DF7SSW9J36M_resized_at_20260908125833.jpg",
+      "first_performance": "2026-10-01",
+      "last_performance": "2026-12-15",
+      "screens": [
+        {
+          "name": "IMAX"
+        },
+        {
+          "name": "ISENSE"
+        },
+        {
+          "name": "XL"
+        },
+        {
+          "name": "2D"
+        }
+      ]
+    },
+    {
+      "id": 7398,
+      "title": "2001: Odissea nello spazio C.A.",
+      "slug": "2001-odissea-nello-spazio",
+      "poster": "https://storage.googleapis.com/uci-infrastructure-bucket/Common/Movies/Posters/jESgHgMRwPBQikE3hJVax45vPlLy2BjUuo2bxQE4_resized_at_20261015124025.jpg",
+      "first_performance": "2026-11-16",
+      "last_performance": "2026-11-18",
+      "screens": [
+        {
+          "name": "2D"
+        }
+      ]
+    },
+    {
+      "id": 7281,
+      "title": "Avengers: Endgame Extra",
+      "slug": "avengers-endgame-extra",
+      "poster": "https://storage.googleapis.com/uci-infrastructure-bucket/Common/Movies/Posters/01M1C9FY1S1MH2G1XDXH1WQD4D_resized_at_20260831181232.jpg",
+      "first_performance": "2026-09-24",
+      "last_performance": "2026-10-23",
+      "screens": [
+        {
+          "name": "XL"
+        },
+        {
+          "name": "2D"
+        }
+      ]
+    },
+    {
+      "id": 7282,
+      "title": "Avengers: Endgame Extra (Infinity Vision)",
+      "slug": "avengers-endgame-extra-infinity-vision",
+      "poster": "https://storage.googleapis.com/uci-infrastructure-bucket/Common/Movies/Posters/01M1E5KAAAXGEVFQMMFK5A2RQK.jpg",
+      "first_performance": "2026-09-24",
+      "last_performance": "2026-10-23",
+      "screens": [
+        {
+          "name": "ISENSE - INFINITY VISION"
+        },
+        {
+          "name": "2D - INFINITY VISION"
+        }
+      ]
+    },
+    {
+      "id": 7297,
+      "title": "L'isola dei ricordi",
+      "slug": "lisola-dei-ricordi",
+      "poster": "https://storage.googleapis.com/uci-infrastructure-bucket/Common/Movies/Posters/01M201M1MPE0QHQD4VE0W7KYN7_resized_at_20260908102041.jpg",
+      "first_performance": "2026-09-24",
+      "last_performance": "2026-10-21",
+      "screens": [
+        {
+          "name": "ISENSE"
+        },
+        {
+          "name": "XL"
+        },
+        {
+          "name": "2D"
+        }
+      ]
+    }
+  ]
+}

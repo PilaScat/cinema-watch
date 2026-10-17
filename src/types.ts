@@ -46,6 +46,15 @@ export interface Showing {
   cartUrl: string;
 }
 
+export interface CatalogMovie {
+  slug: string;
+  title: string;
+  poster: string | null;
+  firstDay: IsoDay | null;
+  lastDay: IsoDay | null;
+  formats: string[];
+}
+
 export interface MovieTheatre {
   slug: string;
   name: string;

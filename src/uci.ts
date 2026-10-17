@@ -3,6 +3,7 @@ import { isIsoDay, resolveWindow, romeNow, timeInRange, weekdayOf } from "./date
 import { ApiShapeError } from "./errors.js";
 import { showingKey, SLUG } from "./keys.js";
 import type {
+  CatalogMovie,
   HttpClient,
   IsoDay,
   MovieRef,
@@ -64,6 +65,15 @@ const performanceSchema = z.object({
   cart_link: z.string(),
 });
 
+const catalogMovieSchema = z.object({
+  slug: z.string().regex(SLUG),
+  title: z.string().min(1),
+  poster: z.string().nullable().catch(null),
+  first_performance: z.string().nullable().catch(null),
+  last_performance: z.string().nullable().catch(null),
+  screens: z.array(z.object({ name: z.string() })).catch([]),
+});
+
 function dataList(json: unknown, what: string): unknown[] {
   const parsed = dataListSchema.safeParse(json);
   if (!parsed.success) {
@@ -90,6 +100,27 @@ export function normalizeFormat(raw: string): string {
 export function formatEdition(raw: string): string | null {
   const edition = raw.split(" - ")[1]?.trim().toUpperCase() ?? "";
   return edition === "" ? null : edition;
+}
+
+function catalogFormats(names: string[]): string[] {
+  const groups = names.map(normalizeFormat).filter((group) => group !== "");
+  const editions = names.flatMap((name) => formatEdition(name) ?? []);
+  return [...new Set([...groups, ...editions])];
+}
+
+function catalogDay(value: string | null): IsoDay | null {
+  return value !== null && isIsoDay(value) ? value : null;
+}
+
+export function parseCatalog(json: unknown): CatalogMovie[] {
+  return parseEach(catalogMovieSchema, dataList(json, "movies")).map((movie) => ({
+    slug: movie.slug,
+    title: movie.title,
+    poster: movie.poster,
+    firstDay: catalogDay(movie.first_performance),
+    lastDay: catalogDay(movie.last_performance),
+    formats: catalogFormats(movie.screens.map((screen) => screen.name)),
+  }));
 }
 
 export function parseCartLink(
@@ -272,6 +303,7 @@ export function createUciClient(http: HttpClient): {
   programmingAll(theatreSlug: string): Promise<Map<IsoDay, Showing[]>>;
   movie(slug: string): Promise<MovieRef>;
   movieTheatres(slug: string): Promise<MovieTheatre[]>;
+  catalog(): Promise<CatalogMovie[]>;
 } {
   const get = (path: string): Promise<unknown> => http.getJson(UCI_API_BASE + path, { headers: UCI_HEADERS });
   return {
@@ -294,6 +326,9 @@ export function createUciClient(http: HttpClient): {
     async movieTheatres(slug) {
       assertSlug(slug);
       return parseMovieTheatres(await get(`/movies/${slug}/theatres`));
+    },
+    async catalog() {
+      return parseCatalog(await get("/movies"));
     },
   };
 }
