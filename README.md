@@ -52,6 +52,7 @@ docker compose up -d
 1. Aprire `http://IP:8790`.
 2. In Impostazioni, sezione Telegram, inserire il token del bot e la chat principale ([come ottenerli](docs/telegram.md)), salvare e premere Invia prova.
 3. Premere Aggiungi caccia e compilare film, cinema, formati e date.
+4. Facoltativo: in Impostazioni, sezione Casa e distanza, impostare la posizione di casa ("lat, lon" da Google Maps, oppure "Usa la mia posizione" aprendo l'app in HTTPS) e un raggio massimo. Cinema, ricerca e scelta dei cinema nelle cacce si ordinano allora per distanza.
 
 ### Sviluppo in locale
 

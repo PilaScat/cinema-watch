@@ -2,6 +2,19 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.10.4
+
+### Novità
+
+- **Distanza da casa**: nelle Impostazioni, sezione Casa e distanza, si imposta la posizione di
+  casa (incollando "lat, lon" da Google Maps, oppure con "Usa la mia posizione" quando l'app è
+  aperta in HTTPS) e un raggio massimo facoltativo.
+- Con la casa impostata, la pagina Cinema e i cinema di un film nella pagina Cerca sono ordinati
+  dal più vicino con i km accanto; quelli oltre il raggio si vedono con "Mostra anche i lontani".
+  Nel form della caccia i cinema vicini stanno in un gruppo "Vicino a casa" in cima.
+- La configurazione passa alla versione 2: le configurazioni salvate ed esportate prima si
+  aggiornano da sole.
+
 ## v2026.10.3
 
 ### Novità
