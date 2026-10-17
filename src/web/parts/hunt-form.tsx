@@ -1,6 +1,7 @@
 import { copy } from "../../copy.js";
 import { ISO_DAY } from "../../keys.js";
-import type { Hunt, NotifyFlags } from "../../model.js";
+import { byDistance, formatKm } from "../../distance.js";
+import type { Hunt, NotifyFlags, Settings } from "../../model.js";
 import type { Theatre } from "../../types.js";
 import { Button, Card, Field, inputClass, Notice } from "../components.js";
 import {
@@ -210,7 +211,28 @@ function groupByRegion(theatres: Theatre[]): Array<[string, Theatre[]]> {
     .map(([region, list]): [string, Theatre[]] => [region, [...list].sort((a, b) => a.name.localeCompare(b.name, "it"))]);
 }
 
-function TheatrePicker(props: { theatres: Theatre[] | null; values: HuntValues; error: string | undefined }) {
+function TheatreChoices(props: { title: string; theatres: Theatre[]; values: HuntValues; open: boolean; km?: Map<string, number | null> }) {
+  return (
+    <details open={props.open || props.theatres.some((theatre) => props.values.theatres.includes(theatre.slug))} class="rounded-lg border border-border px-3 py-2">
+      <summary class="cursor-pointer text-sm font-semibold">{props.title}</summary>
+      <div class="mt-2 grid gap-2 sm:grid-cols-2">
+        {props.theatres.map((theatre) => {
+          const km = props.km?.get(theatre.slug);
+          return (
+            <CheckBox
+              name="theatre"
+              value={theatre.slug}
+              label={km === null || km === undefined ? theatre.name : `${theatre.name} · ${formatKm(km)}`}
+              checked={props.values.theatres.includes(theatre.slug)}
+            />
+          );
+        })}
+      </div>
+    </details>
+  );
+}
+
+function TheatrePicker(props: { theatres: Theatre[] | null; values: HuntValues; error: string | undefined; settings: Settings }) {
   if (props.theatres === null) {
     return (
       <TextField
@@ -221,18 +243,15 @@ function TheatrePicker(props: { theatres: Theatre[] | null; values: HuntValues; 
       />
     );
   }
+  const home = props.settings.home;
+  const { near, far } = home === null ? { near: [], far: props.theatres.map((theatre) => ({ theatre, km: null })) } : byDistance(props.theatres, home, props.settings.radiusKm);
+  const km = new Map(near.map((item) => [item.theatre.slug, item.km]));
   return (
     <Group legend={ui.fields.theatres} error={props.error}>
       <div class="flex flex-col gap-2">
-        {groupByRegion(props.theatres).map(([region, list]) => (
-          <details open={list.some((theatre) => props.values.theatres.includes(theatre.slug))} class="rounded-lg border border-border px-3 py-2">
-            <summary class="cursor-pointer text-sm font-semibold">{region}</summary>
-            <div class="mt-2 grid gap-2 sm:grid-cols-2">
-              {list.map((theatre) => (
-                <CheckBox name="theatre" value={theatre.slug} label={theatre.name} checked={props.values.theatres.includes(theatre.slug)} />
-              ))}
-            </div>
-          </details>
+        {near.length > 0 ? <TheatreChoices title={ui.nearHome} theatres={near.map((item) => item.theatre)} values={props.values} open km={km} /> : null}
+        {groupByRegion(far.map((item) => item.theatre)).map(([region, list]) => (
+          <TheatreChoices title={region} theatres={list} values={props.values} open={false} />
         ))}
       </div>
     </Group>
@@ -290,6 +309,7 @@ export function HuntFormBody(props: {
   values: HuntValues;
   errors: FieldErrors;
   theatres: Theatre[] | null;
+  settings: Settings;
   movies: ListedMovie[] | null;
   zoneKept: string | undefined;
   action: string;
@@ -345,7 +365,7 @@ export function HuntFormBody(props: {
         </FormGrid>
       </Card>
       <Card title={ui.sections.where}>
-        <TheatrePicker theatres={props.theatres} values={values} error={fieldError["theatres"]} />
+        <TheatrePicker theatres={props.theatres} values={values} error={fieldError["theatres"]} settings={props.settings} />
       </Card>
       <Card title={ui.sections.when}>
         <FormGrid>

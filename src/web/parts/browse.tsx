@@ -1,5 +1,6 @@
 import { raw } from "hono/html";
 import { copy } from "../../copy.js";
+import { formatKm } from "../../distance.js";
 import { formatTime } from "../../format.js";
 import type { HistoryPoint } from "../../history.js";
 import { renderTrendSvg } from "../../chart-svg.js";
@@ -9,7 +10,11 @@ import { Badge, Card, cx, Icon } from "../components.js";
 const TREND_WIDTH = 640;
 const TREND_HEIGHT = 240;
 
-export function TheatreGroup(props: { region: string; theatres: Theatre[] }) {
+function kmLabel(city: string, km: number | null | undefined): string {
+  return km === null || km === undefined ? city : [city, formatKm(km)].filter((part) => part !== "").join(" · ");
+}
+
+export function TheatreGroup(props: { region: string; theatres: Theatre[]; distances?: Map<string, number | null> }) {
   const ui = copy.ui.theatres;
   return (
     <section class="mb-8">
@@ -23,7 +28,7 @@ export function TheatreGroup(props: { region: string; theatres: Theatre[] }) {
             </div>
             <p class="mt-1 flex items-center gap-1 text-sm text-muted">
               <Icon name="mapPin" />
-              {theatre.city}
+              {kmLabel(theatre.city, props.distances?.get(theatre.slug))}
             </p>
             <div class="mt-3 flex flex-wrap gap-1.5">
               {theatre.screens.map((screen) => (

@@ -5,6 +5,8 @@ import { renderHallSvg } from "../../hall-svg.js";
 import type { HistoryPoint } from "../../history.js";
 import type { HallView } from "../../watcher.js";
 import type { CatalogMovie, IsoDay, Showing, Theatre } from "../../types.js";
+import type { Settings } from "../../model.js";
+import { byDistance, formatKm } from "../../distance.js";
 import { normalizeTitle } from "../../uci.js";
 import { searchMovies } from "../../movie-search.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
@@ -77,7 +79,26 @@ function queryString(values: Record<string, string | undefined>): string {
   return params.toString();
 }
 
-function TheatresPage(props: { theatres: Theatre[] | null; query: string }) {
+function TheatreList(props: { theatres: Theatre[]; settings: Settings; showAll: boolean; farHref: string }) {
+  const ui = copy.ui.theatres;
+  const home = props.settings.home;
+  if (home === null) return <>{groupByRegion(props.theatres).map(([region, items]) => <TheatreGroup region={region} theatres={items} />)}</>;
+  const { near, far } = byDistance(props.theatres, home, props.settings.radiusKm);
+  const distances = new Map([...near, ...far].map((item) => [item.theatre.slug, item.km]));
+  return (
+    <>
+      {near.length > 0 ? <TheatreGroup region={ui.nearTitle(props.settings.radiusKm)} theatres={near.map((item) => item.theatre)} distances={distances} /> : null}
+      {far.length > 0 && props.showAll ? <TheatreGroup region={ui.farTitle} theatres={far.map((item) => item.theatre)} distances={distances} /> : null}
+      {far.length > 0 && !props.showAll ? (
+        <a href={props.farHref} class="font-semibold text-primary hover:underline">
+          {ui.showFar(far.length)}
+        </a>
+      ) : null}
+    </>
+  );
+}
+
+function TheatresPage(props: { theatres: Theatre[] | null; query: string; settings: Settings; showAll: boolean }) {
   const ui = copy.ui.theatres;
   const needle = normalizeTitle(props.query);
   const shown = (props.theatres ?? []).filter((theatre) => needle === "" || normalizeTitle(`${theatre.name} ${theatre.city}`).includes(needle));
@@ -95,7 +116,11 @@ function TheatresPage(props: { theatres: Theatre[] | null; query: string }) {
         </button>
       </form>
       {props.theatres === null ? <Notice tone="danger">{ui.loadError}</Notice> : null}
-      {shown.length === 0 ? <Empty text={ui.empty} /> : groupByRegion(shown).map(([region, items]) => <TheatreGroup region={region} theatres={items} />)}
+      {shown.length === 0 ? (
+        <Empty text={ui.empty} />
+      ) : (
+        <TheatreList theatres={shown} settings={props.settings} showAll={props.showAll} farHref={`/theatres?${queryString({ q: props.query === "" ? undefined : props.query, all: "1" })}`} />
+      )}
     </>
   );
 }
@@ -106,6 +131,17 @@ async function loadCatalog(deps: AppDeps): Promise<CatalogMovie[] | null> {
   } catch {
     return null;
   }
+}
+
+async function nearestFirst(deps: AppDeps, items: Array<{ slug: string; name: string }>): Promise<Array<{ slug: string; name: string; km: number | null; far: boolean }>> {
+  const settings = deps.watcher.config().settings;
+  if (settings.home === null) return items.map((item) => ({ ...item, km: null, far: false }));
+  const known = new Map((await loadTheatres(deps) ?? []).map((theatre) => [theatre.slug, theatre]));
+  const theatres = items.map((item): Theatre => known.get(item.slug) ?? { slug: item.slug, name: item.name, city: "", province: null, region: null, isLuxe: false, screens: [], lat: null, lon: null });
+  const { near, far } = byDistance(theatres, settings.home, settings.radiusKm);
+  const names = new Map(items.map((item) => [item.slug, item.name]));
+  const shape = (isFar: boolean) => (entry: { theatre: Theatre; km: number | null }) => ({ slug: entry.theatre.slug, name: names.get(entry.theatre.slug) ?? entry.theatre.name, km: entry.km, far: isFar });
+  return [...near.map(shape(false)), ...far.map(shape(true))];
 }
 
 async function loadMovieTheatres(deps: AppDeps, movie: string): Promise<Array<{ slug: string; name: string }>> {
@@ -123,7 +159,9 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
   app.get("/theatres", async (c) => {
     const query = (c.req.query("q") ?? "").trim().slice(0, MAX_QUERY);
     const theatres = await loadTheatres(deps);
-    return renderPage(c, deps, { title: theatresUi.title, section: "theatres", body: <TheatresPage theatres={theatres} query={query} /> });
+    const settings = deps.watcher.config().settings;
+    const showAll = c.req.query("all") === "1";
+    return renderPage(c, deps, { title: theatresUi.title, section: "theatres", body: <TheatresPage theatres={theatres} query={query} settings={settings} showAll={showAll} /> });
   });
 
   app.get("/theatres/:slug", async (c) => {
@@ -230,7 +268,10 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const exactSlug = normalizeTitle(query).replaceAll(" ", "-");
     const selected = chosen ?? (catalog === null && exactSlug !== "" ? exactSlug : results.length === 1 && only ? only.slug : undefined);
     const selectedTitle = (catalog ?? []).find((movie) => movie.slug === selected)?.title ?? selected ?? "";
-    const theatres = selected === undefined ? [] : await loadMovieTheatres(deps, selected);
+    const theatres = selected === undefined ? [] : await nearestFirst(deps, await loadMovieTheatres(deps, selected));
+    const showAll = c.req.query("all") === "1";
+    const visible = showAll ? theatres : theatres.filter((item) => !item.far);
+    const hidden = theatres.length - visible.length;
     const guessed = catalog === null && chosen === undefined;
     const showTheatres = selected !== undefined && !(guessed && theatres.length === 0);
     return renderPage(c, deps, {
@@ -257,15 +298,21 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
                   <p class="text-sm text-muted">{searchUi.noTheatres}</p>
                 ) : (
                   <ul class="grid gap-2 sm:grid-cols-2">
-                    {theatres.map((item) => (
+                    {visible.map((item) => (
                       <li>
                         <a href={`/theatres/${item.slug}/movies/${selected}`} class="font-semibold hover:text-primary">
                           {item.name}
                         </a>
+                        {item.km === null ? null : <span class="text-sm text-muted">{` · ${formatKm(item.km)}`}</span>}
                       </li>
                     ))}
                   </ul>
                 )}
+                {hidden > 0 ? (
+                  <a href={`/search?${queryString({ q: query, movie: selected, all: "1" })}`} class="mt-3 inline-block font-semibold text-primary hover:underline">
+                    {theatresUi.showFar(hidden)}
+                  </a>
+                ) : null}
               </Card>
             ) : null}
             {results.length > 0 ? (

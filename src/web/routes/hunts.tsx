@@ -68,6 +68,7 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
             values={values}
             errors={page.errors}
             theatres={theatres}
+            settings={watcher.config().settings}
             movies={movies}
             zoneKept={zone ? ui.fields.zoneKept(zone.rows, zone.seats) : undefined}
             action={hunt ? `/hunts/${hunt.id}` : "/hunts"}
