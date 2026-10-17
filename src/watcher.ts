@@ -354,7 +354,9 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     if (!versionCheckDue(state, now())) return;
     let latestVersion = state.latestVersion;
     try {
-      latestVersion = releaseTag(await http.getJson(RELEASES_URL, { headers: { Accept: "application/vnd.github+json" } })) ?? latestVersion;
+      const tag = releaseTag(await http.getJson(RELEASES_URL, { headers: { Accept: "application/vnd.github+json" } }));
+      if (tag === null) logger.warn("version check", { error: "release without tag" });
+      latestVersion = tag ?? latestVersion;
     } catch (error) {
       logger.warn("version check", { error: errorText(error) });
     }
@@ -364,14 +366,16 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
 
   async function sendDigestIfDue(): Promise<void> {
     const { chatId, token } = telegramSettings();
-    if (chatId === null || !digestDue(config, state, now(), { chatId, canSend: token !== null || dryRun })) return;
+    const at = now();
+    if (chatId === null || !digestDue(config, state, at, { chatId, canSend: token !== null || dryRun })) return;
+    const day = romeNow(new Date(at)).day;
     const messages: OutgoingMessage[] = composeDigest(digestEntries(config, state, true)).map((text) => ({ kind: "text", chatId, text, keyboard: null }));
     const delivery = await send(messages, new Map());
     if (!delivery.delivered) {
       logger.warn("digest", { errors: delivery.errors });
       return;
     }
-    state = { ...state, lastDigestDate: romeNow(new Date(now())).day };
+    state = { ...state, lastDigestDate: day };
     await persistState();
   }
 

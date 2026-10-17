@@ -310,6 +310,29 @@ describe("watcher", () => {
     expect(logged.filter((line) => line.includes("\"digest\""))).toEqual([]);
   });
 
+  it("records the summary for the day it was due even when sending runs past midnight", async () => {
+    await seed((config) => {
+      config.settings.digest = { enabled: true, time: "23:59" };
+    });
+    clock = Date.parse("2026-12-01T22:59:50Z");
+    let throttled = false;
+    const slow: typeof world.fetch = (input, init) => {
+      const body = typeof init?.body === "string" ? init.body : "";
+      if (!throttled && body.includes("Riepilogo")) {
+        throttled = true;
+        return Promise.resolve(new Response(JSON.stringify({ ok: false, error_code: 429, description: "Too Many Requests", parameters: { retry_after: 20 } }), { status: 429 }));
+      }
+      return world.fetch(input, init);
+    };
+    const subject = await watcher({ fetch: slow });
+
+    await subject.tick();
+
+    expect(throttled).toBe(true);
+    expect(clock).toBeGreaterThan(Date.parse("2026-12-01T23:00:00Z"));
+    expect(subject.state().lastDigestDate).toBe("2026-12-01");
+  });
+
   it("sends the daily summary once after 20:00 Rome time", async () => {
     await seed();
     clock = Date.parse("2026-12-01T18:50:00Z");
@@ -383,6 +406,22 @@ describe("watcher", () => {
     expect(sameDayCalls).toBe(1);
     expect(githubCalls()).toBe(2);
     expect(subject.state().latestVersion).toBe("v2026.10.1");
+  });
+
+  it("logs a release answer without a tag and keeps the version it knew", async () => {
+    await seed();
+    const logged: string[] = [];
+    const untagged: typeof world.fetch = (input, init) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      if (new URL(url).hostname === "api.github.com") return Promise.resolve(new Response("null", { status: 200, headers: { "content-type": "application/json" } }));
+      return world.fetch(input, init);
+    };
+    const subject = await watcher({ fetch: untagged, logSink: (line) => logged.push(line) });
+
+    await subject.tick();
+
+    expect(subject.state().latestVersion).toBeNull();
+    expect(logged.some((line) => line.includes("\"version check\""))).toBe(true);
   });
 
   it("hands messages and halls to an outbox instead of Telegram in a dry run", async () => {
