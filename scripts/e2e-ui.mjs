@@ -130,6 +130,12 @@ if (huntId) {
   check("Riattiva dalla home", !(await evaluate("document.body.innerText")).includes("Silenziata fino alle"));
 }
 
+await open("/search?q=avenger");
+const avengers = await evaluate("[...document.querySelectorAll('a')].find((a) => a.textContent.includes('Avengers: Doomsday'))?.getAttribute('href') ?? ''");
+check("ricerca con parte del titolo", avengers.includes("movie=avengers-doomsday"), avengers);
+await open(avengers);
+check("cinema del film scelto dalla ricerca", (await evaluate("document.body.innerText")).includes("Cinema con Avengers: Doomsday") && (await evaluate("Boolean(document.querySelector('a[href=\"/theatres/uci-cinemas-verona/movies/avengers-doomsday\"]'))")));
+
 await open("/settings");
 await evaluate("document.querySelector('form[action=\"/settings\"]').requestSubmit()");
 await settle();
