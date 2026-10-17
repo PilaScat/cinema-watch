@@ -7,6 +7,8 @@ Cosa resta da decidere o da fare nei prossimi rilasci. Una voce fatta si toglie 
 
 | Voce | Cosa serve |
 |---|---|
+| README da migliorare | Richiesta di Filippo del 17/10: cosa cambiare si decide insieme prima di scriverlo. |
+| Punteggio OpenSSF Scorecard da alzare (oggi 7/10) | Richiesta di Filippo del 17/10: si parte dai controlli sotto 10 nel report di Scorecard e si propone cosa si può alzare dal repo. |
 | Scorecard: badge OpenSSF Best Practices | Iscrivere il progetto su bestpractices.dev con l'account GitHub dell'autore e compilare il questionario (CII-Best-Practices vale 0). Non si fa dal repo. |
 
 ## Scelte confermate dopo le revisioni
