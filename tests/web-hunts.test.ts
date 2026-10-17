@@ -226,6 +226,52 @@ describe("hunt form", () => {
     expect(watcher.config().hunts[0]?.archivedAt).toBeNull();
   });
 
+  it("asks for new dates before restoring a hunt whose fixed dates are over", async () => {
+    const { instance, watcher, huntId } = await app((config) => {
+      const hunt = config.hunts[0];
+      if (hunt) {
+        hunt.archivedAt = "2026-11-16T00:00:00.000Z";
+        hunt.window = { kind: "fixed", from: "2026-11-01", to: "2026-11-15" };
+      }
+    });
+
+    const response = await instance.request(`/hunts/${huntId}/restore`, post());
+    const page = await (await instance.request(response.headers.get("location") ?? "")).text();
+
+    expect(response.headers.get("location")).toBe(`/hunts/${huntId}?restore=dates`);
+    expect(watcher.config().hunts[0]?.archivedAt).not.toBeNull();
+    expect(page).toContain("Le date della caccia sono finite");
+    expect(page).toMatch(/<input[^>]*type="hidden"[^>]*name="restore"[^>]*value="1"/);
+  });
+
+  it("restores the hunt when the form is saved with new dates after Ripristina", async () => {
+    const { instance, watcher, huntId } = await app((config) => {
+      const hunt = config.hunts[0];
+      if (hunt) {
+        hunt.archivedAt = "2026-11-16T00:00:00.000Z";
+        hunt.window = { kind: "fixed", from: "2026-11-01", to: "2026-11-15" };
+      }
+    });
+
+    const response = await instance.request(`/hunts/${huntId}`, post(huntForm({ restore: "1" })));
+    await watcher.tick();
+
+    expect(response.status).toBe(303);
+    expect(watcher.config().hunts[0]?.archivedAt).toBeNull();
+    expect(watcher.config().hunts[0]?.window).toEqual({ kind: "fixed", from: "2026-12-15", to: "2026-12-16" });
+  });
+
+  it("keeps an archived hunt archived when its form is saved without Ripristina", async () => {
+    const { instance, watcher, huntId } = await app((config) => {
+      const hunt = config.hunts[0];
+      if (hunt) hunt.archivedAt = "2026-11-30T10:00:00.000Z";
+    });
+
+    await instance.request(`/hunts/${huntId}`, post(huntForm()));
+
+    expect(watcher.config().hunts[0]?.archivedAt).toBe("2026-11-30T10:00:00.000Z");
+  });
+
   it("does not offer Ripristina for a hunt that is not archived", async () => {
     const { instance, huntId } = await app();
 

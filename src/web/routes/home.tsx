@@ -4,6 +4,7 @@ import { formatDay, formatTime } from "../../format.js";
 import type { Hunt, HuntState } from "../../model.js";
 import { backTo, renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { ActionForm, Badge, Button, Card, Empty, LinkButton, Notice, PageHeader, type Tone } from "../components.js";
+import { windowEnded } from "../../watcher-rules.js";
 
 const MUTE_MS = 24 * 60 * 60_000;
 
@@ -153,7 +154,9 @@ export function registerHomeRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
 
   app.post("/hunts/:id/restore", async (c) => {
     const id = c.req.param("id");
-    if (deps.watcher.huntById(id) === null) return c.notFound();
+    const hunt = deps.watcher.huntById(id);
+    if (hunt === null) return c.notFound();
+    if (windowEnded(hunt, (deps.now ?? Date.now)())) return c.redirect(`/hunts/${id}?restore=dates`, 303);
     await deps.watcher.restore(id);
     return c.redirect(`/hunts/${id}`, 303);
   });

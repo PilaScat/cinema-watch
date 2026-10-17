@@ -35,13 +35,14 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     return createHunt({ name: "", theatres: [], movie: { kind: "slug", slugs: [] } }, watcher.config().settings);
   }
 
-  async function huntPage(c: PageContext, page: { hunt: Hunt | null; base: Hunt; values: HuntValues; errors: FieldErrors; status: 200 | 400 }) {
+  async function huntPage(c: PageContext, page: { hunt: Hunt | null; base: Hunt; values: HuntValues; errors: FieldErrors; status: 200 | 400; restore?: boolean }) {
     const theatres = await loadTheatres(deps);
     const movies = await listedMovies(deps, page.values.theatres);
     const values = page.status === 200 ? preferListed(page.values, movies) : page.values;
     const theatreNames = Object.fromEntries((theatres ?? []).map((theatre) => [theatre.slug, theatre.name]));
     const zone = absoluteSummary(page.base.zone);
     const { hunt } = page;
+    const restore = hunt !== null && hunt.archivedAt !== null && (page.restore === true || c.req.query("restore") === "dates");
     const title = hunt ? hunt.name : ui.titleNew;
     return renderPage(c, deps, {
       title,
@@ -57,6 +58,7 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
           <ErrorList errors={page.errors.general} />
           {hunt && c.req.query("sent") === "ok" ? <Notice tone="success">{ui.sent.ok}</Notice> : null}
           {hunt && c.req.query("sent") === "fail" ? <Notice tone="danger">{ui.sent.fail}</Notice> : null}
+          {restore ? <Notice tone="gold">{ui.restoreDates}</Notice> : null}
           {hunt ? (
             <div class="mb-4 flex flex-col gap-4">
               <StatusCards hunt={hunt} state={watcher.state().hunts[hunt.id]} theatreNames={theatreNames} />
@@ -69,6 +71,7 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
             movies={movies}
             zoneKept={zone ? ui.fields.zoneKept(zone.rows, zone.seats) : undefined}
             action={hunt ? `/hunts/${hunt.id}` : "/hunts"}
+            restore={restore}
           />
           <script src="/assets/movie-picker.js" defer nonce={pageContext(c, deps).nonce}></script>
         </>
@@ -81,7 +84,8 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const base = hunt ?? blankHunt();
     const body = await c.req.parseBody({ all: true });
     const values = valuesOfBody(body);
-    const built = huntOfValues(values, base);
+    const restore = bodyText(body, "restore") === "1";
+    const built = restore ? { ...huntOfValues(values, base), archivedAt: null } : huntOfValues(values, base);
     const index = hunt ? config.hunts.findIndex((item) => item.id === hunt.id) : config.hunts.length;
     const next: Config = {
       ...config,
@@ -89,7 +93,7 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     };
     const result = await watcher.saveConfig(next);
     if (result.ok) return c.redirect("/", 303);
-    return huntPage(c, { hunt, base, values, errors: splitErrors(result.errors, `hunts[${index}].`, huntFieldOf), status: 400 });
+    return huntPage(c, { hunt, base, values, errors: splitErrors(result.errors, `hunts[${index}].`, huntFieldOf), status: 400, restore });
   }
 
   app.get("/hunts/new", (c) => {

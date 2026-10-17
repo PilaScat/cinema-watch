@@ -1,6 +1,7 @@
 export const hunts = {
   titleNew: "Aggiungi caccia",
   sent: { ok: "Situazione inviata su Telegram.", fail: "Invio su Telegram non riuscito." },
+  restoreDates: "Le date della caccia sono finite: cambiarle e salvare per ripristinarla.",
   descriptionNew: "Cosa sorvegliare, dove e con quali posti.",
   descriptionEdit: "Stato, zone e impostazioni di questa caccia.",
   titleZone: "Zona buona di una sala",

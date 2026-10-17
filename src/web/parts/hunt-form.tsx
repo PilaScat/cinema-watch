@@ -293,6 +293,7 @@ export function HuntFormBody(props: {
   movies: ListedMovie[] | null;
   zoneKept: string | undefined;
   action: string;
+  restore: boolean;
 }) {
   const { values, errors } = props;
   const fieldError = errors.fields;
@@ -300,6 +301,7 @@ export function HuntFormBody(props: {
   const movieError = fieldError["movie"];
   return (
     <form method="post" action={props.action} class="flex flex-col gap-4">
+      {props.restore ? <input type="hidden" name="restore" value="1" /> : null}
       <Card title={ui.sections.what}>
         <FormGrid>
           <Wide>

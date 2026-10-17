@@ -61,9 +61,12 @@ export function refreshedRecently(huntState: HuntState, at: number): boolean {
   return huntState.manualRunAt !== null && at - huntState.manualRunAt < MANUAL_REFRESH_MS;
 }
 
+export function windowEnded(hunt: Hunt, at: number): boolean {
+  return hunt.window.kind === "fixed" && hunt.window.to < romeToday(new Date(at));
+}
+
 export function finishedHuntIds(config: Config, at: number): string[] {
-  const today = romeToday(new Date(at));
-  return config.hunts.filter((hunt) => isActive(hunt) && hunt.window.kind === "fixed" && hunt.window.to < today).map((hunt) => hunt.id);
+  return config.hunts.filter((hunt) => isActive(hunt) && windowEnded(hunt, at)).map((hunt) => hunt.id);
 }
 
 export function hallsToReconfirm(hunt: Hunt, previous: HuntState, observation: HuntObservation): string[] {
