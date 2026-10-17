@@ -4,8 +4,9 @@ import { formatDay, formatEur, formatGroup } from "../../format.js";
 import { renderHallSvg } from "../../hall-svg.js";
 import type { HistoryPoint } from "../../history.js";
 import type { HallView } from "../../watcher.js";
-import type { IsoDay, Showing, Theatre } from "../../types.js";
-import { matchesTitle, normalizeTitle } from "../../uci.js";
+import type { CatalogMovie, IsoDay, Showing, Theatre } from "../../types.js";
+import { normalizeTitle } from "../../uci.js";
+import { searchMovies } from "../../movie-search.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { Badge, buttonClass, Card, Empty, Field, inputClass, LinkButton, Notice, PageHeader } from "../components.js";
 import { DayTabs, HallPair, MovieCard, ShowingRow, Stat, TheatreGroup, TrendSection } from "../parts/browse.js";
@@ -99,6 +100,22 @@ function TheatresPage(props: { theatres: Theatre[] | null; query: string }) {
   );
 }
 
+async function loadCatalog(deps: AppDeps): Promise<CatalogMovie[] | null> {
+  try {
+    return await deps.watcher.services.movies();
+  } catch {
+    return null;
+  }
+}
+
+async function loadMovieTheatres(deps: AppDeps, movie: string): Promise<Array<{ slug: string; name: string }>> {
+  try {
+    return (await deps.watcher.services.movieTheatres(movie)).map((item) => ({ slug: item.slug, name: item.name })).sort((a, b) => a.name.localeCompare(b.name, "it"));
+  } catch {
+    return [];
+  }
+}
+
 export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
   const theatresUi = copy.ui.theatres;
   const searchUi = copy.ui.search;
@@ -143,8 +160,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
                   title={entry.title}
                   poster={entry.poster}
                   formats={[...entry.formats]}
-                  days={entry.days.size}
-                  firstDay={formatDay([...entry.days][0] ?? "")}
+                  detail={[theatresUi.days(entry.days.size), theatresUi.firstDay(formatDay([...entry.days][0] ?? ""))].join(" · ")}
                 />
               ))}
             </div>
@@ -206,24 +222,17 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
 
   app.get("/search", async (c) => {
     const query = (c.req.query("q") ?? "").trim().slice(0, MAX_QUERY);
-    const slug = normalizeTitle(query).replaceAll(" ", "-");
-    let found: Array<{ slug: string; name: string }> = [];
-    if (slug !== "") {
-      try {
-        found = (await deps.watcher.services.movieTheatres(slug)).map((item) => ({ slug: item.slug, name: item.name })).sort((a, b) => a.name.localeCompare(b.name, "it"));
-      } catch {
-        found = [];
-      }
-    }
-    const words = query.split(/\s+/).filter((word) => word !== "");
-    const known = new Map<string, string>();
-    if (words.length > 0) {
-      for (const hunt of Object.values(deps.watcher.state().hunts)) {
-        for (const showing of Object.values(hunt.showings)) {
-          if (showing.movieSlug !== slug && matchesTitle(showing.movieTitle, words)) known.set(showing.movieSlug, showing.movieTitle);
-        }
-      }
-    }
+    const chosen = c.req.query("movie");
+    if (chosen !== undefined && !SLUG.test(chosen)) return c.notFound();
+    const catalog = query === "" && chosen === undefined ? [] : await loadCatalog(deps);
+    const results = catalog === null || query === "" ? [] : searchMovies(catalog, query);
+    const [only] = results;
+    const exactSlug = normalizeTitle(query).replaceAll(" ", "-");
+    const selected = chosen ?? (catalog === null && exactSlug !== "" ? exactSlug : results.length === 1 && only ? only.slug : undefined);
+    const selectedTitle = (catalog ?? []).find((movie) => movie.slug === selected)?.title ?? selected ?? "";
+    const theatres = selected === undefined ? [] : await loadMovieTheatres(deps, selected);
+    const guessed = catalog === null && chosen === undefined;
+    const showTheatres = selected !== undefined && !(guessed && theatres.length === 0);
     return renderPage(c, deps, {
       title: searchUi.title,
       section: "search",
@@ -240,38 +249,42 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
               {searchUi.button}
             </button>
           </form>
-          {query === "" ? null : found.length === 0 && known.size === 0 ? (
-            <Empty text={searchUi.empty} hint={searchUi.emptyHint} />
-          ) : (
-            <div class="grid gap-6">
-              {found.length > 0 ? (
-                <Card title={searchUi.theatresTitle(query)}>
+          {catalog === null ? <Notice tone="danger">{searchUi.catalogUnavailable}</Notice> : null}
+          <div class="grid gap-6">
+            {showTheatres ? (
+              <Card title={searchUi.theatresTitle(selectedTitle)}>
+                {theatres.length === 0 ? (
+                  <p class="text-sm text-muted">{searchUi.noTheatres}</p>
+                ) : (
                   <ul class="grid gap-2 sm:grid-cols-2">
-                    {found.map((item) => (
+                    {theatres.map((item) => (
                       <li>
-                        <a href={`/theatres/${item.slug}/movies/${slug}`} class="font-semibold hover:text-primary">
+                        <a href={`/theatres/${item.slug}/movies/${selected}`} class="font-semibold hover:text-primary">
                           {item.name}
                         </a>
                       </li>
                     ))}
                   </ul>
-                </Card>
-              ) : null}
-              {known.size > 0 ? (
-                <Card title={searchUi.suggestionsTitle}>
-                  <ul class="flex flex-wrap gap-2">
-                    {[...known.values()].map((title) => (
-                      <li>
-                        <a href={`/search?${queryString({ q: title })}`}>
-                          <Badge>{title}</Badge>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
-              ) : null}
-            </div>
-          )}
+                )}
+              </Card>
+            ) : null}
+            {results.length > 0 ? (
+              <Card title={searchUi.resultsTitle}>
+                <div class="grid gap-3 md:grid-cols-2">
+                  {results.map((movie) => (
+                    <MovieCard
+                      href={`/search?${queryString({ q: query, movie: movie.slug })}`}
+                      title={movie.title}
+                      poster={movie.poster}
+                      formats={movie.formats}
+                      detail={searchUi.dates(movie.firstDay === null ? null : formatDay(movie.firstDay), movie.lastDay === null ? null : formatDay(movie.lastDay))}
+                    />
+                  ))}
+                </div>
+              </Card>
+            ) : null}
+            {query !== "" && results.length === 0 && !showTheatres ? <Empty text={searchUi.empty} hint={searchUi.emptyHint} /> : null}
+          </div>
         </>
       ),
     });

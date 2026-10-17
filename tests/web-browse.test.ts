@@ -190,22 +190,50 @@ describe("performance", () => {
 });
 
 describe("search", () => {
-  it("finds the theatres that show a movie by its title", async () => {
+  it("finds a film from part of its title and opens the only match on its theatres", async () => {
     const { instance } = await app();
-
-    const html = await page(instance, "/search?q=dune%20parte%20tre");
-
-    expect(html).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre"');
-  });
-
-  it("suggests titles already seen by the hunts", async () => {
-    const { instance, watcher } = await app();
-    await watcher.tick();
 
     const html = await page(instance, "/search?q=dune");
 
-    expect(html).toContain("Film già nelle cacce");
     expect(html).toContain("Dune: Parte Tre");
+    expect(html).toContain("Cinema con Dune: Parte Tre");
+    expect(html).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre"');
+  });
+
+  it("lists every film that matches, each leading to its theatres", async () => {
+    const { instance } = await app();
+
+    const html = await page(instance, "/search?q=avenger");
+
+    expect(html).toContain("Avengers: Doomsday");
+    expect(html).toContain("Avengers: Endgame Extra (Infinity Vision)");
+    expect(html).toContain('href="/search?q=avenger&amp;movie=avengers-doomsday"');
+    expect(html).toContain("INFINITY VISION");
+    expect(html).not.toContain("Cinema con");
+  });
+
+  it("forgives a typo", async () => {
+    const { instance } = await app();
+
+    const html = await page(instance, "/search?q=avangers%20doomday");
+
+    expect(html).toContain("Avengers: Doomsday");
+    expect(html).not.toContain("Avengers: Endgame Extra");
+  });
+
+  it("shows the theatres of the film chosen from the list", async () => {
+    const { instance } = await app();
+
+    const html = await page(instance, "/search?q=d&movie=dune-parte-tre");
+
+    expect(html).toContain("Cinema con Dune: Parte Tre");
+    expect(html).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre"');
+  });
+
+  it("refuses a film that is not a slug", async () => {
+    const { instance } = await app();
+
+    expect((await instance.request("/search?movie=Bad%21")).status).toBe(404);
   });
 
   it("shows only the form without a query and an empty state without results", async () => {
@@ -215,8 +243,8 @@ describe("search", () => {
     const none = await page(instance, "/search?q=zzzz");
 
     expect(blank).toContain('name="q"');
-    expect(blank).not.toContain("Nessun risultato.");
-    expect(none).toContain("Nessun risultato.");
+    expect(blank).not.toContain("Nessun film trovato.");
+    expect(none).toContain("Nessun film trovato.");
   });
 });
 

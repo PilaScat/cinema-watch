@@ -103,6 +103,7 @@ export function createFakeWorld(): FakeWorld {
         }
         const day = /^\/theatres\/([a-z0-9-]+)\/programming\/(\d{4}-\d{2}-\d{2})$/.exec(path);
         if (day) return json(programming.get(`${day[1]}|${day[2]}`) ?? { data: [] });
+        if (path === "/movies") return json(fixture("uci/movies.json"));
         if (path === "/movies/dune-parte-tre") return json(fixture("uci/movie-dune-parte-tre.json"));
         if (path === "/movies/dune-parte-tre/theatres") return json(fixture("uci/movie-dune-parte-tre-theatres.json"));
         return json({ message: "API Endpoint Not Found" }, 404);

@@ -37,8 +37,7 @@ export function TheatreGroup(props: { region: string; theatres: Theatre[] }) {
   );
 }
 
-export function MovieCard(props: { href: string; title: string; poster: string | null; formats: string[]; days: number; firstDay: string }) {
-  const ui = copy.ui.theatres;
+export function MovieCard(props: { href: string; title: string; poster: string | null; formats: string[]; detail: string }) {
   return (
     <a href={props.href} class="flex gap-3 rounded-xl border border-border bg-surface p-3 hover:border-primary">
       {props.poster ? (
@@ -50,7 +49,7 @@ export function MovieCard(props: { href: string; title: string; poster: string |
       )}
       <div class="min-w-0">
         <p class="font-semibold">{props.title}</p>
-        <p class="mt-1 text-sm text-muted">{[ui.days(props.days), ui.firstDay(props.firstDay)].join(" · ")}</p>
+        {props.detail === "" ? null : <p class="mt-1 text-sm text-muted">{props.detail}</p>}
         <div class="mt-2 flex flex-wrap gap-1.5">
           {props.formats.map((format) => (
             <Badge>{format}</Badge>

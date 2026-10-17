@@ -224,24 +224,32 @@ describe("performance page", () => {
 });
 
 describe("search", () => {
-  it("says nothing was found when the cinema is down and no hunt knows the title", async () => {
+  it("says nothing was found when UCI is down", async () => {
     const { instance } = await createWebApp(harness);
     harness.world.failHost(UCI_HOST, 500);
 
     const html = await (await instance.request("/search?q=zzzz")).text();
 
-    expect(html).toContain("Nessun risultato.");
+    expect(html).toContain("Catalogo UCI non disponibile");
+    expect(html).toContain("Nessun film trovato.");
   });
 
-  it("still suggests the titles of the hunts when the cinema is down", async () => {
-    const { instance, watcher } = await createWebApp(harness);
-    await watcher.tick();
-    harness.world.failHost(UCI_HOST, 500);
+  it("falls back to the exact title when only the catalog is down", async () => {
+    failPath(harness, (url) => url.pathname === "/api/movies");
+    const { instance } = await createWebApp(harness);
 
-    const html = await (await instance.request("/search?q=dune")).text();
+    const html = await (await instance.request("/search?q=Dune%3A%20Parte%20Tre")).text();
 
-    expect(html).toContain("Film già nelle cacce");
-    expect(html).not.toContain("Nessun risultato.");
+    expect(html).toContain("Catalogo UCI non disponibile");
+    expect(html).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre"');
+  });
+
+  it("says no theatre shows the chosen film when UCI lists none", async () => {
+    const { instance } = await createWebApp(harness);
+
+    const html = await (await instance.request("/search?q=isola&movie=lisola-dei-ricordi")).text();
+
+    expect(html).toContain("Nessun cinema lo proietta per ora.");
   });
 
   it("limits the query to one hundred characters", async () => {

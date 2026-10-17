@@ -31,7 +31,7 @@ import { analyzeSeats } from "./seats.js";
 import { huntStateOf, loadState, saveState } from "./state.js";
 import { createStore } from "./store.js";
 import { createTelegram, type Telegram } from "./telegram.js";
-import type { IsoDay, MovieTheatre, Occupancy, PerformanceInfo, Showing, Theatre } from "./types.js";
+import type { CatalogMovie, IsoDay, MovieTheatre, Occupancy, PerformanceInfo, Showing, Theatre } from "./types.js";
 import { createUciClient, UCI_API_BASE } from "./uci.js";
 import {
   deliveryOf,
@@ -57,6 +57,7 @@ const CACHE_TTL_MS = MINUTE;
 const PERFORMANCE_TTL_MS = 24 * 60 * MINUTE;
 const DRY_RUN_CHAT = "dry-run";
 const PROGRAMMING_TTL_MS = 10 * MINUTE;
+const CATALOG_TTL_MS = 60 * MINUTE;
 const DEFAULT_TOGETHER = 2;
 const RELEASES_URL = "https://api.github.com/repos/PilaScat/cinema-watch/releases/latest";
 
@@ -87,6 +88,7 @@ export interface WatcherServices {
   theatres(): Promise<Theatre[]>;
   programming(theatreSlug: string): Promise<Map<IsoDay, Showing[]>>;
   movieTheatres(movieSlug: string): Promise<MovieTheatre[]>;
+  movies(): Promise<CatalogMovie[]>;
   hall(localId: number, performanceId: number, huntId?: string): Promise<HallView>;
 }
 
@@ -166,6 +168,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   const webtic = createWebticClient(http, { hallStore: createFileHallStore(store), now });
   const theatreList = createTtlCache<Theatre[]>({ ttlMs: PERFORMANCE_TTL_MS, clock });
   const fullProgramming = createTtlCache<Map<IsoDay, Showing[]>>({ ttlMs: PROGRAMMING_TTL_MS, maxEntries: 3, clock });
+  const catalog = createTtlCache<CatalogMovie[]>({ ttlMs: CATALOG_TTL_MS, clock });
   const history = createHistory(store);
   const eventLog = createEventLog(store);
 
@@ -491,6 +494,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       theatres,
       programming: (theatreSlug: string) => fullProgramming.getOrLoad(theatreSlug, () => uci.programmingAll(theatreSlug)),
       movieTheatres: (movieSlug: string) => uci.movieTheatres(movieSlug),
+      movies: () => catalog.getOrLoad("all", () => uci.catalog()),
       hall: hallView,
     },
     runNow: (huntId?: string) => exclusive(() => runNowLocked(huntId)),
