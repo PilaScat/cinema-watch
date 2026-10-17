@@ -9,6 +9,30 @@ Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del ta
 - I form della web UI aperta da `http://IP:porta` rispondevano "Forbidden": con
   `Referrer-Policy: no-referrer` il browser mandava `Origin: null` e il controllo CSRF li
   rifiutava. Ora la policy è `same-origin`: il referrer resta nascosto ai siti esterni.
+- Il messaggio d'errore giornaliero su Telegram rispetta Silenzia 24 h.
+- Senza token il riepilogo delle 20:00 non si ritenta più ogni 30 secondi riempiendo il log.
+- `Cross-Origin-Opener-Policy` solo quando la pagina arriva in HTTPS: da `http://IP` il browser
+  lo ignorava e lo segnalava in console.
+
+### Novità
+
+- **Ripristina** per le cacce archiviate, fra le Archiviate e nella pagina della caccia.
+
+### Sicurezza
+
+- Anche le chiamate a Telegram passano dalla guardia di uscita: solo HTTPS verso gli host
+  consentiti, nessun redirect seguito.
+- Il rilascio scansiona con Trivy l'immagine pubblicata di ogni piattaforma, arm64 compresa.
+- Dependabot aspetta 7 giorni prima di proporre una versione nuova (gli aggiornamenti di
+  sicurezza restano immediati) e non propone le major di TypeScript e di Node.
+- `SECURITY.md` con il link diretto alla segnalazione privata e la divulgazione coordinata.
+
+### Interno
+
+- `watcher.ts` diviso: regole, registro, piante e manutenzione in moduli di funzioni pure, con
+  test diretti dei casi limite.
+- `hunts.tsx` diviso in form, schede di stato e pagina della zona.
+- Regex e chiavi comuni in `keys.ts`; `huntById` e `telegramConfigured` nel watcher.
 
 ## v2026.10.1
 

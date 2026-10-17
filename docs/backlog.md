@@ -1,34 +1,13 @@
 # Backlog
 
-Cosa resta da decidere o da fare nei prossimi rilasci. Viene dalle revisioni prima della
-v2026.10.1 (code review a due assi, revisione indipendente e avvisi di GitHub). Una voce fatta si
-toglie da qui e va nel [CHANGELOG](../CHANGELOG.md).
-
-## Da decidere
-
-| Voce | Cosa serve |
-|---|---|
-| PR Dependabot #1, TypeScript 7 | Chiuderla o ignorare la major: `typescript-eslint` 8 non lo accetta ancora e la CI è rossa. |
-| PR Dependabot #2, Node 25 | Chiuderla: Node 25 non è LTS. Le major di Node sono già ignorate in `dependabot.yml`. |
-| `cooldown` in Dependabot | Un numero di giorni di attesa prima di proporre una versione nuova (zizmor lo segnala). Proposta: 7. |
-| Messaggio d'errore su Telegram una volta al giorno per caccia | Oggi parte anche a caccia silenziata e il piano non lo chiedeva. Tenerlo, toglierlo o non mandarlo a caccia silenziata. |
-| Piante per giro da 1 a 10 | Il piano diceva i migliori 3. Tenere l'impostazione o fissarla a 3. |
+Cosa resta da decidere o da fare nei prossimi rilasci. Una voce fatta si toglie da qui e va nel
+[CHANGELOG](../CHANGELOG.md).
 
 ## Da fare
 
 | Voce | Cosa serve |
 |---|---|
-| Ripristinare una caccia archiviata | Un pulsante "Ripristina" fra le Archiviate: oggi dopo Acquistato non si torna indietro, se non importando la configurazione. |
-| Trivy sulle immagini pubblicate | Un job in `release.yml` che scansiona il digest di ogni piattaforma; oggi la scansione è su una build amd64 separata e l'arm64 non si scansiona. |
-| Telegram attraverso `http.ts` | Far passare anche le chiamate a `api.telegram.org` dal client unico con gli host consentiti. Oggi l'URL è una costante in `telegram.ts`, quindi il guadagno è di coerenza. |
-| Dividere `src/watcher.ts` | Scheduler e mutex restano lì; invio Telegram, disegno delle foto, pulizia, controllo versione e riepilogo in moduli loro. Poi rafforzarne i test: è il file con il mutation score più basso (80%, 114 mutanti sopravvissuti, alla v2026.10.1). |
-| Dividere `src/web/routes/hunts.tsx` | Mappatura form-caccia, picker e pagina della zona fuori dalle route. |
-| Un solo posto per le regex comuni | `SLUG`, `HALL_KEY` e `ISO_DAY` sono definite in `config.ts`, `hunts.tsx` e `browse.tsx`. |
-| `huntById` e `telegramConfigured()` nel watcher | Togliere le ricerche ripetute di una caccia per id e il controllo `botToken() !== null` sparso nelle route. |
-| Scorecard: `SECURITY.md` più completo | Security-Policy vale 4/10: aggiungere i tempi di risposta e il link alla segnalazione privata di GitHub. Il punteggio totale alla v2026.10.1 è 7/10; Code-Review e Branch-Protection restano basse per la scelta dei push diretti su main. |
-| Scorecard: badge OpenSSF Best Practices | Iscrivere il progetto su bestpractices.dev e compilare il questionario (CII-Best-Practices vale 0). |
-| Avvisi in console su `http://IP` | Da `http` Edge ignora `Cross-Origin-Opener-Policy` e lo scrive in console a ogni pagina; via HTTPS no. Decidere se mandare l'header solo quando la richiesta arriva in HTTPS, o lasciarlo. L'e2e su LAN fallisce solo su questo controllo. |
-| Chiave dello spettacolo e della sala in una funzione | `${localId}-${performanceId}` e `${localId}-${screenId}` sono costruite a mano in più file. |
+| Scorecard: badge OpenSSF Best Practices | Iscrivere il progetto su bestpractices.dev con l'account GitHub dell'autore e compilare il questionario (CII-Best-Practices vale 0). Non si fa dal repo. |
 
 ## Scelte confermate dopo le revisioni
 
@@ -38,3 +17,6 @@ Le revisioni le hanno segnalate. Restano così e sono scritte qui perché non to
 - "Spostato" vale anche per uno spettacolo sparito nel giro prima e non ancora annullato, e per un cambio d'ora o di sala sulla stessa chiave.
 - Lo stato di uno spettacolo esce all'inizio dello spettacolo; l'andamento resta 30 giorni. Il registro ruota a 500 eventi, quindi non si pulisce per spettacolo.
 - Il confronto della password usa `scrypt` con un sale per processo: non si conserva nessun hash.
+- Le piante per giro restano impostabili da 1 a 10 (predefinito 3).
+- Telegram non usa il client JSON di `http.ts` (le code per host bloccherebbero gli invii durante il long polling): condivide la guardia `createGuardedFetch`, cioè solo https verso gli host consentiti e niente redirect.
+- Scorecard Code-Review e Branch-Protection restano basse per la scelta dei push diretti su main.
