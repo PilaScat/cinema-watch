@@ -48,6 +48,25 @@ describe("web app", () => {
     expect(response.headers.get("referrer-policy")).toBe("same-origin");
   });
 
+  it("sends Cross-Origin-Opener-Policy only when the page arrives over HTTPS", async () => {
+    const { instance } = await app();
+    await instance.request("/settings", {
+      method: "POST",
+      body: new URLSearchParams({ token: "", chatId: "4242", publicUrl: "https://cw.example", interval: "5", digestEnabled: "1", digestTime: "20:00", albumSize: "3", threshold: "10", sellableTypes: "STANDARD" }),
+      headers: { "content-type": "application/x-www-form-urlencoded", origin: "http://localhost" },
+    });
+
+    const plain = await instance.request("/");
+    const forwarded = await instance.request("/", { headers: { "x-forwarded-proto": "https" } });
+    const publicHost = await instance.request("http://cw.example/");
+    const secure = await instance.request("https://localhost/");
+
+    expect(plain.headers.get("cross-origin-opener-policy")).toBeNull();
+    expect(forwarded.headers.get("cross-origin-opener-policy")).toBe("same-origin");
+    expect(publicHost.headers.get("cross-origin-opener-policy")).toBe("same-origin");
+    expect(secure.headers.get("cross-origin-opener-policy")).toBe("same-origin");
+  });
+
   it("answers health and status for Docker and Homepage", async () => {
     const { instance } = await app();
 

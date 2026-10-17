@@ -83,6 +83,14 @@ export function backTo(c: Context<AppEnv>, fallback = "/"): Response {
   return c.redirect(target, 303);
 }
 
+function arrivedOverHttps(c: Context<AppEnv>, publicUrl: string | null): boolean {
+  const url = new URL(c.req.url);
+  if (url.protocol === "https:" || c.req.header("x-forwarded-proto") === "https") return true;
+  if (publicUrl === null) return false;
+  const configured = new URL(publicUrl);
+  return configured.protocol === "https:" && configured.host === url.host;
+}
+
 function clientIp(c: Context<AppEnv>, trustProxy: boolean): string {
   if (trustProxy) {
     const forwarded = c.req.header("x-forwarded-for")?.split(",")[0]?.trim();
@@ -135,8 +143,13 @@ export async function createApp(deps: AppDeps): Promise<Hono<AppEnv>> {
       },
       referrerPolicy: "same-origin",
       crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
     }),
   );
+  app.use(async (c, next) => {
+    await next();
+    if (arrivedOverHttps(c, deps.watcher.config().settings.publicUrl)) c.res.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  });
   app.use(bodyLimit({ maxSize: BODY_LIMIT }));
   app.use(csrf());
 
