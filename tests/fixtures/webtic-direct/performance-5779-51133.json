@@ -1,0 +1,75 @@
+{
+ "userdata": {
+  "StatusOk": true,
+  "ReasonCode": 0,
+  "Message": "",
+  "StackTrace": "",
+  "Elapsed": 78.00030000000001,
+  "StartTime": "2026-10-17T17:39:06.4163428+02:00",
+  "EndTime": "2026-10-17T17:39:06.4943431+02:00",
+  "TimeTrace": [],
+  "Errors": []
+ },
+ "DS": {
+  "Performance": {
+   "StatusOk": true,
+   "Message": "",
+   "LocalId": 5779,
+   "EventId": 1223,
+   "PerformanceId": 51133,
+   "Title": "Dune - Parte Tre Anteprima",
+   "Screen": "SALA 1",
+   "EventType": "01",
+   "ScreenId": 233,
+   "Day": "2026-12-15T00:00:00",
+   "StartTime": "2026-12-15T21:00:00",
+   "EndTime": "2026-12-15T23:20:00",
+   "Duration": 140.0,
+   "PriceListId": 693,
+   "SectorChoiceEnabled": false,
+   "AvailableSeats": 141,
+   "IsStreaming": false,
+   "BookingConfig": {
+    "Enabled": true,
+    "PerformanceEnabled": false,
+    "HomeTicket": false,
+    "Timely": true,
+    "CheckSeatsAdjacency": true,
+    "CheckJacketSeat": true,
+    "MaxTickets": 10,
+    "Percentage": 100,
+    "OverCommissionPercentage": 0.0,
+    "MaxTime": 60
+   },
+   "PurchaseConfig": {
+    "Enabled": true,
+    "PerformanceEnabled": true,
+    "HomeTicket": true,
+    "Timely": true,
+    "CheckSeatsAdjacency": true,
+    "CheckJacketSeat": true,
+    "MaxTickets": 10,
+    "Percentage": 100,
+    "OverCommissionPercentage": 0.0,
+    "MaxTime": 60
+   },
+   "CardConfig": {
+    "Enabled": true,
+    "PerformanceEnabled": true,
+    "HomeTicket": true,
+    "Timely": true,
+    "CheckSeatsAdjacency": true,
+    "CheckJacketSeat": true,
+    "MaxTickets": 10,
+    "Percentage": 100,
+    "OverCommissionPercentage": 0.0,
+    "MaxTime": 60
+   },
+   "BestSeatEnabled": false,
+   "PerformanceKey": "5779-51133",
+   "DayOfWeek": 2
+  },
+  "OptinRequired": false,
+  "TicketoFound": false
+ }
+}

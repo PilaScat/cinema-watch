@@ -8,7 +8,7 @@ const VERONA = { lat: 45.4384, lon: 10.9916 };
 const MILANO = { lat: 45.4642, lon: 9.19 };
 
 function theatre(slug: string, lat: number | null, lon: number | null): Theatre {
-  return { slug, name: slug, city: "", province: null, region: null, isLuxe: false, screens: [], lat, lon };
+  return { slug, name: slug, city: "", province: null, region: null, isLuxe: false, screens: [], lat, lon, chain: "uci" };
 }
 
 describe("distanceKm", () => {

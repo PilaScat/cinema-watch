@@ -210,27 +210,43 @@ function hasUnknownSeats(hall: Hall, occupancy: Occupancy): boolean {
   return Object.keys(occupancy.taken).some((id) => !known.has(id));
 }
 
-export function createWebticClient(http: HttpClient, options: WebticClientOptions) {
-  const now = options.now ?? (() => Date.now());
+export interface SeatTransport {
+  performance(localId: number, performanceId: number): Promise<PerformanceInfo>;
+  occupancy(localId: number, performanceId: number): Promise<Occupancy>;
+  screen(localId: number, screenId: number, fetchedAt: number): Promise<Hall>;
+}
 
+export function createProxyTransport(http: HttpClient): SeatTransport {
   function post(path: string, body: Record<string, number>): Promise<unknown> {
     assertPositiveIntegers(body);
     return http.postJson(`${WEBTIC_API_BASE}${path}`, body, { headers: WEBTIC_HEADERS });
   }
+  return {
+    async performance(localId, performanceId) {
+      return parsePerformance(await post("/Performance", { LocalId: localId, PerformanceId: performanceId }));
+    },
+    async occupancy(localId, performanceId) {
+      return parseOccupancy(await post("/Occupancy", { LocalId: localId, PerformanceId: performanceId }));
+    },
+    async screen(localId, screenId, fetchedAt) {
+      return parseHall(await post("/Screen", { LocalId: localId, ScreenId: screenId }), fetchedAt);
+    },
+  };
+}
 
-  async function performance(localId: number, performanceId: number): Promise<PerformanceInfo> {
-    const json = await post("/Performance", { LocalId: localId, PerformanceId: performanceId });
-    return parsePerformance(json);
-  }
+export function createWebticClient(http: HttpClient, options: WebticClientOptions) {
+  return createSeatClient(createProxyTransport(http), options);
+}
 
-  async function occupancy(localId: number, performanceId: number): Promise<Occupancy> {
-    const json = await post("/Occupancy", { LocalId: localId, PerformanceId: performanceId });
-    return parseOccupancy(json);
-  }
+export function createSeatClient(transport: SeatTransport, options: WebticClientOptions) {
+  const now = options.now ?? (() => Date.now());
+
+  const performance = (localId: number, performanceId: number): Promise<PerformanceInfo> => transport.performance(localId, performanceId);
+
+  const occupancy = (localId: number, performanceId: number): Promise<Occupancy> => transport.occupancy(localId, performanceId);
 
   async function downloadHall(localId: number, screenId: number, cached: Hall | null): Promise<HallResult> {
-    const json = await post("/Screen", { LocalId: localId, ScreenId: screenId });
-    const hall = parseHall(json, now());
+    const hall = await transport.screen(localId, screenId, now());
     await options.hallStore.set(hall);
     const changed = cached !== null && !sameMembers(seatIdSet(cached), seatIdSet(hall));
     return { hall, refreshed: true, changed };

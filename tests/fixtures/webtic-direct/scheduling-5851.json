@@ -1,0 +1,171 @@
+{
+ "userdata": {
+  "StatusOk": true,
+  "ReasonCode": 0,
+  "Message": "",
+  "StackTrace": "",
+  "Elapsed": 110.397,
+  "StartTime": "2026-10-17T17:55:54.123546+02:00",
+  "EndTime": "2026-10-17T17:55:54.233943+02:00",
+  "TimeTrace": [
+   "Start GetFullScheduling : 0 - 0",
+   "end getSchedulingCached : 78,0396 - 78,0396",
+   "End GetFullScheduling : 32,3574 - 110,397"
+  ],
+  "Errors": []
+ },
+ "DS": {
+  "Scheduling": {
+   "LocalId": 5851,
+   "LogoPath": "",
+   "Events": [
+    {
+     "EventId": 3224,
+     "Title": "70 Riassunto Delle Puntate Precedenti",
+     "OriginalTitle": "70 RIASSUNTO DELLE PUNTATE PRECEDENTI",
+     "Description": "Alla soglia dei 70 anni di vita e 40 anni di carriera, Giobb",
+     "Actors": " ",
+     "Type": "TEATRO PROSA",
+     "Is3D": false,
+     "Director": "GIOBBE COVATTA",
+     "Duration": "01:30",
+     "Picture": "HandlerLocandinaEx.ashx?idcinema=5851&idevento=3224&i=jpg-m&t=131020261146",
+     "Year": "2026",
+     "Category": "PROSA",
+     "MovieId": " ",
+     "TitleId": "6664",
+     "Properties": [],
+     "EventProperties": [],
+     "Days": [
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 32503,
+         "Time": "21:00",
+         "Screen": "TEATRO JOLLY",
+         "ScreenId": 1054,
+         "StartTime": "2027-02-11T21:00:00",
+         "EndTime": "2027-02-11T22:30:00",
+         "Duration": 90.0
+        }
+       ],
+       "Day": "2027-02-11T00:00:00"
+      }
+     ],
+     "IsStreaming": false
+    },
+    {
+     "EventId": 3158,
+     "Title": "Fammi Il Piacere",
+     "OriginalTitle": "Pour le plaisir",
+     "Description": "Dopo vent'anni di matrimonio, Fanny confessa a Thomas una ve",
+     "Actors": "Alexandra Lamy, François Cluzet, Mitty Hazanavicius, Delphine Baril, François-Xavier Demaison",
+     "Type": "CINEMA",
+     "Is3D": false,
+     "Director": "Reem Kherici",
+     "Duration": "01:35",
+     "Picture": "HandlerLocandinaEx.ashx?idcinema=5851&idevento=3158&i=jpg-m&t=240820262133",
+     "Year": "2026",
+     "Category": "COMMEDIA",
+     "MovieId": "https://www.youtube.com/watch?v=uOIrIvyxwoo",
+     "TitleId": "166124",
+     "Properties": [
+      "2D",
+      "10+"
+     ],
+     "EventProperties": [
+      {
+       "EventProperty": "2D",
+       "EventPropertyCategory": "SCREEN"
+      },
+      {
+       "EventProperty": "10+",
+       "EventPropertyCategory": "RATING"
+      }
+     ],
+     "Days": [
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 32160,
+         "Time": "15:00",
+         "Screen": "CINEMA JOLLY",
+         "ScreenId": 1053,
+         "StartTime": "2026-11-02T15:00:00",
+         "EndTime": "2026-11-02T16:35:00",
+         "Duration": 95.0
+        },
+        {
+         "PerformanceId": 32161,
+         "Time": "20:45",
+         "Screen": "CINEMA JOLLY",
+         "ScreenId": 1053,
+         "StartTime": "2026-11-02T20:45:00",
+         "EndTime": "2026-11-02T22:20:00",
+         "Duration": 95.0
+        }
+       ],
+       "Day": "2026-11-02T00:00:00"
+      },
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 32162,
+         "Time": "20:45",
+         "Screen": "CINEMA JOLLY",
+         "ScreenId": 1053,
+         "StartTime": "2026-11-04T20:45:00",
+         "EndTime": "2026-11-04T22:20:00",
+         "Duration": 95.0
+        }
+       ],
+       "Day": "2026-11-04T00:00:00"
+      }
+     ],
+     "IsStreaming": false
+    },
+    {
+     "EventId": 3232,
+     "Title": "Gospel Night 2026",
+     "OriginalTitle": "GOSPEL NIGHT",
+     "Description": "Era il 31 luglio 2008 quando Arthur J. Gremillion fondò l'Ar",
+     "Actors": " ",
+     "Type": "CONCERTI MUSICA LEGGERA",
+     "Is3D": false,
+     "Director": "-",
+     "Duration": "01:30",
+     "Picture": "HandlerLocandinaEx.ashx?idcinema=5851&idevento=3232&i=jpg-m&t=131020261146",
+     "Year": "2026",
+     "Category": "MUSICA",
+     "MovieId": " ",
+     "TitleId": "6672",
+     "Properties": [],
+     "EventProperties": [],
+     "Days": [
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 32507,
+         "Time": "21:00",
+         "Screen": "EVENTI JOLLY",
+         "ScreenId": 1055,
+         "StartTime": "2026-12-17T21:00:00",
+         "EndTime": "2026-12-17T22:30:00",
+         "Duration": 90.0
+        }
+       ],
+       "Day": "2026-12-17T00:00:00"
+      }
+     ],
+     "IsStreaming": false
+    }
+   ]
+  },
+  "OptinRequired": false,
+  "TicketoFound": false
+ }
+}

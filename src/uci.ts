@@ -155,6 +155,7 @@ export function parseTheatres(json: unknown): Theatre[] {
     isLuxe: t.is_luxe,
     screens: t.screens,
     ...bothOrNeither(coordinate(t.latitude, 90), coordinate(t.longitude, 180)),
+    chain: "uci" as const,
   }));
 }
 

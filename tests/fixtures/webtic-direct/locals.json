@@ -1,0 +1,227 @@
+{
+ "userdata": {
+  "StatusOk": true,
+  "ReasonCode": 0,
+  "Message": "",
+  "StackTrace": "",
+  "Elapsed": 218.6818,
+  "StartTime": "2026-10-17T17:38:22.9642448+02:00",
+  "EndTime": "2026-10-17T17:38:23.1829266+02:00",
+  "TimeTrace": [
+   "Start GetLocalsTitles : 0 - 0",
+   "End GetLocalsTitles : 218,6818 - 218,6818"
+  ],
+  "Errors": []
+ },
+ "DS": {
+  "LocalsTitles": {
+   "Locals": {
+    "5779": {
+     "LocalId": 5779,
+     "Description": "Notorious Cascina Merlata",
+     "District": "Milano",
+     "DistrictAbbreviation": "MI",
+     "Town": "Milano",
+     "Address": "Via Gottlieb Wilhelm Daimler",
+     "Latitude": "45.5111134",
+     "Longitude": "9.0989731"
+    },
+    "5848": {
+     "LocalId": 5848,
+     "Description": "Notorious Cinemas Ferrara",
+     "District": "Ferrara",
+     "DistrictAbbreviation": "FE",
+     "Town": "Ferrara",
+     "Address": "Via Darsena 73",
+     "Latitude": "0",
+     "Longitude": "0"
+    },
+    "5631": {
+     "LocalId": 5631,
+     "Description": "Notorious Cinemas Cagliari",
+     "District": "Cagliari",
+     "DistrictAbbreviation": "CA",
+     "Town": "Cagliari",
+     "Address": "Piazza Unione Sarda, Via Santa Gilla",
+     "Latitude": "0",
+     "Longitude": "0"
+    },
+    "5851": {
+     "LocalId": 5851,
+     "Description": "CINEMA TEATRO JOLLY OLGINATE",
+     "District": "Lecco",
+     "DistrictAbbreviation": "LC",
+     "Town": "Olginate",
+     "Address": "Via Don Carlo Gnocchi 4",
+     "Latitude": "0",
+     "Longitude": "0"
+    },
+    "5116": {
+     "LocalId": 5116,
+     "Description": "UCI Cinemas Verona",
+     "District": "Verona",
+     "DistrictAbbreviation": "VR",
+     "Town": "Verona",
+     "Address": "Via Monte Amiata",
+     "Latitude": "45.39652",
+     "Longitude": "11.01617"
+    },
+    "6029": {
+     "LocalId": 6029,
+     "Description": "TEATRO METROPOL",
+     "District": "Cosenza",
+     "DistrictAbbreviation": "CS",
+     "Town": "Corigliano Calabro",
+     "Address": "Via Provinciale, 68",
+     "Latitude": "0",
+     "Longitude": "0"
+    },
+    "6118": {
+     "LocalId": 6118,
+     "Description": "OPLA ACQUABEACH VILLAGE",
+     "District": "Milano",
+     "DistrictAbbreviation": "MI",
+     "Town": "Pogliano Milanese",
+     "Address": "Via Camillo CHiesa",
+     "Latitude": "0",
+     "Longitude": "0"
+    },
+    "5664": {
+     "LocalId": 5664,
+     "Description": "Uci Megalò",
+     "District": "Chieti",
+     "DistrictAbbreviation": "CH",
+     "Town": "Chieti",
+     "Address": "Via Tirino, SN",
+     "Latitude": "42.3436104",
+     "Longitude": "14.1287767"
+    },
+    "551": {
+     "LocalId": 551,
+     "Description": "Spiagge.it",
+     "District": "",
+     "DistrictAbbreviation": "",
+     "Town": "*",
+     "Address": "*",
+     "Latitude": "41.90323",
+     "Longitude": "12.49566"
+    },
+    "5543": {
+     "LocalId": 5543,
+     "Description": "CABIRIA SCANDICCI",
+     "District": "Firenze",
+     "DistrictAbbreviation": "FI",
+     "Town": "Scandicci",
+     "Address": "Piazza Piave, 2",
+     "Latitude": "0",
+     "Longitude": "0"
+    },
+    "7556": {
+     "LocalId": 7556,
+     "Description": "IL PALCHETTO",
+     "District": "",
+     "DistrictAbbreviation": "",
+     "Town": "*",
+     "Address": "*",
+     "Latitude": "0",
+     "Longitude": "0"
+    }
+   },
+   "Titles": [
+    {
+     "Locals": [
+      {
+       "LocalId": 5631,
+       "EventId": 581
+      },
+      {
+       "LocalId": 5664,
+       "EventId": 622
+      },
+      {
+       "LocalId": 5779,
+       "EventId": 109
+      },
+      {
+       "LocalId": 5116,
+       "EventId": 7509
+      },
+      {
+       "LocalId": 5851,
+       "EventId": 1
+      }
+     ],
+     "EventId": 0,
+     "Title": "KUNG FU PANDA 4",
+     "Actors": "",
+     "Is3D": false,
+     "Director": "Mike Mitchell",
+     "Picture": "http://www.crea.webtic.it/HandlerLocandinaEx.ashx?idcinema=1&idevento=24369&i=jpg-m&t=20240204082719",
+     "Year": "2024",
+     "Category": "AZIONE, AVVENTURA, ANIMAZIONE, COMMEDIA, FAMIGLIA",
+     "MovieId": "",
+     "TitleId": "11774",
+     "Properties": [],
+     "EventProperties": [],
+     "Days": [],
+     "IsStreaming": false
+    },
+    {
+     "Locals": [
+      {
+       "LocalId": 5631,
+       "EventId": 580
+      },
+      {
+       "LocalId": 5664,
+       "EventId": 640
+      },
+      {
+       "LocalId": 5779,
+       "EventId": 106
+      },
+      {
+       "LocalId": 5116,
+       "EventId": 7527
+      },
+      {
+       "LocalId": 5851,
+       "EventId": 1
+      }
+     ],
+     "EventId": 0,
+     "Title": "DUNE - PARTE 2",
+     "Actors": "",
+     "Is3D": false,
+     "Director": "Denis Villeneuve",
+     "Picture": "http://www.crea.webtic.it/HandlerLocandinaEx.ashx?idcinema=1&idevento=24425&i=jpg-m&t=20240206112550",
+     "Year": "2024",
+     "Category": "AVVENTURA, FANTASCIENZA",
+     "MovieId": "",
+     "TitleId": "11779",
+     "Properties": [],
+     "EventProperties": [],
+     "Days": [],
+     "IsStreaming": false
+    },
+    {
+     "EventId": 0,
+     "Title": "COL SENO DI POI",
+     "Category": "TEATRO",
+     "TitleId": "1",
+     "Locals": [
+      {
+       "LocalId": 6118,
+       "EventId": 2
+      }
+     ],
+     "Days": [],
+     "Properties": [],
+     "EventProperties": []
+    }
+   ]
+  },
+  "OptinRequired": false,
+  "TicketoFound": false
+ }
+}

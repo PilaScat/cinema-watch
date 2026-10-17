@@ -1,0 +1,470 @@
+{
+ "userdata": {
+  "StatusOk": true,
+  "ReasonCode": 0,
+  "Message": "",
+  "StackTrace": "",
+  "Elapsed": 30.894000000000002,
+  "StartTime": "2026-10-17T17:38:38.0579462+02:00",
+  "EndTime": "2026-10-17T17:38:38.0888402+02:00",
+  "TimeTrace": [
+   "Start GetFullScheduling : 0 - 0",
+   "end getSchedulingCached : 0 - 0",
+   "End GetFullScheduling : 30,894 - 30,894"
+  ],
+  "Errors": []
+ },
+ "DS": {
+  "Scheduling": {
+   "LocalId": 5779,
+   "LogoPath": "",
+   "Events": [
+    {
+     "EventId": 1337,
+     "Title": "(Film In Inglese) Primetime",
+     "OriginalTitle": "Primetime",
+     "Description": "Nel 2006 il giornalista Chris Hansen si prepara a fare la storia della televisio",
+     "Actors": "A.J. Leitell, Abigail Rowe, Adam Bhala Lough, Alex Winter, Anna Faris",
+     "Type": "CINEMA",
+     "Is3D": false,
+     "Director": "Lance Oppenheim",
+     "Duration": "01:50",
+     "Picture": "HandlerLocandinaEx.ashx?idcinema=5779&idevento=1337&i=jpg-m&t=131020261657",
+     "Year": "2026",
+     "Category": "CRIME",
+     "MovieId": "https://www.youtube.com/watch?v=4Se_PHeL12U",
+     "TitleId": "14259",
+     "Properties": [
+      "2D",
+      "O.V.",
+      "EN",
+      "10+",
+      "SUB-IT"
+     ],
+     "EventProperties": [
+      {
+       "EventProperty": "2D",
+       "EventPropertyCategory": "SCREEN"
+      },
+      {
+       "EventProperty": "O.V.",
+       "EventPropertyCategory": "CATEGORIA NON DEFINITA"
+      },
+      {
+       "EventProperty": "EN",
+       "EventPropertyCategory": "LANGUAGE"
+      },
+      {
+       "EventProperty": "10+",
+       "EventPropertyCategory": "RATING"
+      },
+      {
+       "EventProperty": "SUB-IT",
+       "EventPropertyCategory": "SUBTITLES"
+      }
+     ],
+     "Days": [
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 52744,
+         "Time": "11:50",
+         "Screen": "SALA 6",
+         "ScreenId": 238,
+         "StartTime": "2026-10-18T11:50:00",
+         "EndTime": "2026-10-18T13:40:00",
+         "Duration": 110.0,
+         "ScreenName": "SALA 6"
+        }
+       ],
+       "Day": "2026-10-18T00:00:00"
+      },
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 52742,
+         "Time": "19:50",
+         "Screen": "SALA 5",
+         "ScreenId": 237,
+         "StartTime": "2026-10-19T19:50:00",
+         "EndTime": "2026-10-19T21:40:00",
+         "Duration": 110.0,
+         "ScreenName": "SALA 5"
+        }
+       ],
+       "Day": "2026-10-19T00:00:00"
+      }
+     ],
+     "IsStreaming": false
+    },
+    {
+     "EventId": 1343,
+     "Title": "(Kor) Stray Kids Wt Run It Live View",
+     "OriginalTitle": "Stray Kids WT <run it=\"\"> Live view</run>",
+     "Description": "Stray Kids World Tour “Run It”: Il Live Viewing, il monumentale world tour del f",
+     "Actors": "-",
+     "Type": "CINEMA",
+     "Is3D": false,
+     "Director": "-",
+     "Duration": "03:15",
+     "Picture": "HandlerLocandinaEx.ashx?idcinema=5779&idevento=1343&i=jpg-m&t=151020261538",
+     "Year": "2026",
+     "Category": "CONCERTO",
+     "MovieId": " ",
+     "TitleId": "14330",
+     "Properties": [
+      "2D",
+      "O.V.",
+      "KOR",
+      "CA",
+      "SUB-EN",
+      "LIVE"
+     ],
+     "EventProperties": [
+      {
+       "EventProperty": "2D",
+       "EventPropertyCategory": "SCREEN"
+      },
+      {
+       "EventProperty": "O.V.",
+       "EventPropertyCategory": "CATEGORIA NON DEFINITA"
+      },
+      {
+       "EventProperty": "KOR",
+       "EventPropertyCategory": "LANGUAGE"
+      },
+      {
+       "EventProperty": "CA",
+       "EventPropertyCategory": "CATEGORIA NON DEFINITA"
+      },
+      {
+       "EventProperty": "SUB-EN",
+       "EventPropertyCategory": "SUBTITLES"
+      },
+      {
+       "EventProperty": "LIVE",
+       "EventPropertyCategory": "CATEGORIA NON DEFINITA"
+      }
+     ],
+     "Days": [
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 52891,
+         "Time": "13:00",
+         "Screen": "SALA 8",
+         "ScreenId": 240,
+         "StartTime": "2026-11-07T13:00:00",
+         "EndTime": "2026-11-07T16:15:00",
+         "Duration": 195.0,
+         "ScreenName": "SALA 8"
+        }
+       ],
+       "Day": "2026-11-07T00:00:00"
+      }
+     ],
+     "IsStreaming": false
+    },
+    {
+     "EventId": 1287,
+     "Title": "(Lingua Orig) Avengers: Doomsday",
+     "OriginalTitle": "Avengers: Doomsday",
+     "Description": "Gli universi si scontrano e la Saga del Multiverso inizia il suo capitolo finale",
+     "Actors": "Chris Evans, Chris Hemsworth, Paul Rudd, Pedro Pascal, Robert Downey Jr.",
+     "Type": "CINEMA",
+     "Is3D": false,
+     "Director": "Anthony Russo, Joe Russo",
+     "Duration": "02:45",
+     "Picture": "HandlerLocandinaEx.ashx?idcinema=5779&idevento=1287&i=jpg-m&t=041020261855",
+     "Year": "2026",
+     "Category": "AVVENTURA",
+     "MovieId": "https://youtu.be/gUth3APCeyg",
+     "TitleId": "168406",
+     "Properties": [
+      "2D",
+      "O.V.",
+      "EN",
+      "SUB-IT"
+     ],
+     "EventProperties": [
+      {
+       "EventProperty": "2D",
+       "EventPropertyCategory": "SCREEN"
+      },
+      {
+       "EventProperty": "O.V.",
+       "EventPropertyCategory": "CATEGORIA NON DEFINITA"
+      },
+      {
+       "EventProperty": "EN",
+       "EventPropertyCategory": "LANGUAGE"
+      },
+      {
+       "EventProperty": "SUB-IT",
+       "EventPropertyCategory": "SUBTITLES"
+      }
+     ],
+     "Days": [
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 52174,
+         "Time": "19:00",
+         "Screen": "SALA 4",
+         "ScreenId": 236,
+         "StartTime": "2026-12-16T19:00:00",
+         "EndTime": "2026-12-16T21:45:00",
+         "Duration": 165.0,
+         "ScreenName": "SALA 4"
+        }
+       ],
+       "Day": "2026-12-16T00:00:00"
+      },
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 52175,
+         "Time": "19:00",
+         "Screen": "SALA 4",
+         "ScreenId": 236,
+         "StartTime": "2026-12-17T19:00:00",
+         "EndTime": "2026-12-17T21:45:00",
+         "Duration": 165.0,
+         "ScreenName": "SALA 4"
+        }
+       ],
+       "Day": "2026-12-17T00:00:00"
+      }
+     ],
+     "IsStreaming": false
+    },
+    {
+     "EventId": 1291,
+     "Title": "Avengers: Doomsday",
+     "OriginalTitle": "Avengers: Doomsday",
+     "Description": "Gli universi si scontrano e la Saga del Multiverso inizia il suo capitolo finale",
+     "Actors": "Chris Evans, Chris Hemsworth, Paul Rudd, Pedro Pascal, Robert Downey Jr.",
+     "Type": "CINEMA",
+     "Is3D": false,
+     "Director": "Anthony Russo, Joe Russo",
+     "Duration": "02:50",
+     "Picture": "HandlerLocandinaEx.ashx?idcinema=5779&idevento=1291&i=jpg-m&t=041020261901",
+     "Year": "2026",
+     "Category": "AVVENTURA",
+     "MovieId": "https://youtu.be/gUth3APCeyg",
+     "TitleId": "14275",
+     "Properties": [
+      "2D"
+     ],
+     "EventProperties": [
+      {
+       "EventProperty": "2D",
+       "EventPropertyCategory": "SCREEN"
+      }
+     ],
+     "Days": [
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 52182,
+         "Time": "00:10",
+         "Screen": "SALA 2",
+         "ScreenId": 234,
+         "StartTime": "2026-12-16T00:10:00",
+         "EndTime": "2026-12-16T03:00:00",
+         "Duration": 170.0,
+         "ScreenName": "SALA 2"
+        },
+        {
+         "PerformanceId": 52184,
+         "Time": "00:15",
+         "Screen": "SALA 3",
+         "ScreenId": 235,
+         "StartTime": "2026-12-16T00:15:00",
+         "EndTime": "2026-12-16T03:05:00",
+         "Duration": 170.0,
+         "ScreenName": "SALA 3"
+        }
+       ],
+       "Day": "2026-12-15T00:00:00"
+      },
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 52158,
+         "Time": "17:00",
+         "Screen": "SALA 2",
+         "ScreenId": 234,
+         "StartTime": "2026-12-16T17:00:00",
+         "EndTime": "2026-12-16T19:50:00",
+         "Duration": 170.0,
+         "ScreenName": "SALA 2"
+        },
+        {
+         "PerformanceId": 52159,
+         "Time": "20:30",
+         "Screen": "SALA 2",
+         "ScreenId": 234,
+         "StartTime": "2026-12-16T20:30:00",
+         "EndTime": "2026-12-16T23:20:00",
+         "Duration": 170.0,
+         "ScreenName": "SALA 2"
+        }
+       ],
+       "Day": "2026-12-16T00:00:00"
+      }
+     ],
+     "IsStreaming": false
+    },
+    {
+     "EventId": 1289,
+     "Title": "Avengers: Doomsday Infinity Vision",
+     "OriginalTitle": "Avengers: Doomsday",
+     "Description": "Gli universi si scontrano e la Saga del Multiverso inizia il suo capitolo finale",
+     "Actors": "Chris Evans, Chris Hemsworth, Paul Rudd, Pedro Pascal, Robert Downey Jr.",
+     "Type": "CINEMA",
+     "Is3D": false,
+     "Director": "Anthony Russo, Joe Russo",
+     "Duration": "02:50",
+     "Picture": "HandlerLocandinaEx.ashx?idcinema=5779&idevento=1289&i=jpg-m&t=041020261856",
+     "Year": "2026",
+     "Category": "AVVENTURA",
+     "MovieId": "https://youtu.be/gUth3APCeyg",
+     "TitleId": "14278",
+     "Properties": [
+      "2D"
+     ],
+     "EventProperties": [
+      {
+       "EventProperty": "2D",
+       "EventPropertyCategory": "SCREEN"
+      }
+     ],
+     "Days": [
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 52181,
+         "Time": "00:05",
+         "Screen": "SALA 1",
+         "ScreenId": 233,
+         "StartTime": "2026-12-16T00:05:00",
+         "EndTime": "2026-12-16T02:55:00",
+         "Duration": 170.0,
+         "ScreenName": "SALA 1"
+        }
+       ],
+       "Day": "2026-12-15T00:00:00"
+      },
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 52132,
+         "Time": "10:45",
+         "Screen": "SALA 1",
+         "ScreenId": 233,
+         "StartTime": "2026-12-16T10:45:00",
+         "EndTime": "2026-12-16T13:35:00",
+         "Duration": 170.0,
+         "ScreenName": "SALA 1"
+        },
+        {
+         "PerformanceId": 52133,
+         "Time": "14:15",
+         "Screen": "SALA 1",
+         "ScreenId": 233,
+         "StartTime": "2026-12-16T14:15:00",
+         "EndTime": "2026-12-16T17:05:00",
+         "Duration": 170.0,
+         "ScreenName": "SALA 1"
+        },
+        {
+         "PerformanceId": 52134,
+         "Time": "18:00",
+         "Screen": "SALA 1",
+         "ScreenId": 233,
+         "StartTime": "2026-12-16T18:00:00",
+         "EndTime": "2026-12-16T20:50:00",
+         "Duration": 170.0,
+         "ScreenName": "SALA 1"
+        },
+        {
+         "PerformanceId": 52135,
+         "Time": "21:30",
+         "Screen": "SALA 1",
+         "ScreenId": 233,
+         "StartTime": "2026-12-16T21:30:00",
+         "EndTime": "2026-12-17T00:20:00",
+         "Duration": 170.0,
+         "ScreenName": "SALA 1"
+        }
+       ],
+       "Day": "2026-12-16T00:00:00"
+      }
+     ],
+     "IsStreaming": false
+    },
+    {
+     "EventId": 1223,
+     "Title": "Dune - Parte Tre Anteprima",
+     "OriginalTitle": "Dune: Part Three",
+     "Description": "Paul Atreides è diventato Imperatore dell’universo. Ma il suo dominio è minaccia",
+     "Actors": "Florence Pugh, Jason Momoa, Rebecca Ferguson, Timothée Chalamet, Zendaya",
+     "Type": "CINEMA",
+     "Is3D": false,
+     "Director": "Denis Villeneuve",
+     "Duration": "02:20",
+     "Picture": "HandlerLocandinaEx.ashx?idcinema=5779&idevento=1223&i=jpg-m&t=090920261302",
+     "Year": "2026",
+     "Category": "AVVENTURA",
+     "MovieId": "https://www.youtube.com/watch?v=BlAyKxScwyk",
+     "TitleId": "167638",
+     "Properties": [
+      "2D",
+      "6+"
+     ],
+     "EventProperties": [
+      {
+       "EventProperty": "2D",
+       "EventPropertyCategory": "SCREEN"
+      },
+      {
+       "EventProperty": "6+",
+       "EventPropertyCategory": "RATING"
+      }
+     ],
+     "Days": [
+      {
+       "GroupedByScreen": false,
+       "Performances": [
+        {
+         "PerformanceId": 51133,
+         "Time": "21:00",
+         "Screen": "SALA 1",
+         "ScreenId": 233,
+         "StartTime": "2026-12-15T21:00:00",
+         "EndTime": "2026-12-15T23:20:00",
+         "Duration": 140.0,
+         "ScreenName": "SALA 1"
+        }
+       ],
+       "Day": "2026-12-15T00:00:00"
+      }
+     ],
+     "IsStreaming": false
+    }
+   ]
+  },
+  "OptinRequired": false,
+  "TicketoFound": false
+ }
+}

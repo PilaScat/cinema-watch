@@ -22,7 +22,10 @@ export interface Theatre {
   screens: string[];
   lat: number | null;
   lon: number | null;
+  chain: Chain;
 }
+
+export type Chain = "uci" | "webtic";
 
 export interface MovieRef {
   slug: string;
