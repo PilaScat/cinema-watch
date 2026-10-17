@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { createHttpClient } from "../src/http.js";
+import { createGuardedFetch, createHttpClient } from "../src/http.js";
 import { HttpError } from "../src/errors.js";
 
 const URL_A = "https://a.example.com/x";
@@ -303,5 +303,26 @@ describe("defaults", () => {
     expect(await client.getJson(URL_A)).toEqual({ ok: true });
     expect(spy).toHaveBeenCalledTimes(1);
     spy.mockRestore();
+  });
+});
+
+describe("createGuardedFetch", () => {
+  it("lets an allowed https host through and never follows redirects", async () => {
+    const fetchMock = vi.fn<typeof fetch>(() => Promise.resolve(new Response("ok")));
+    const guarded = createGuardedFetch(["a.example.com"], fetchMock);
+
+    await guarded("https://a.example.com/x", { method: "POST" });
+
+    expect(fetchMock).toHaveBeenCalledWith("https://a.example.com/x", expect.objectContaining({ method: "POST", redirect: "manual" }));
+  });
+
+  it("refuses another host or plain http without calling fetch", async () => {
+    const fetchMock = vi.fn<typeof fetch>(() => Promise.resolve(new Response("ok")));
+    const guarded = createGuardedFetch(["a.example.com"], fetchMock);
+
+    await expect(guarded("https://evil.example.com/x")).rejects.toBeInstanceOf(HttpError);
+    await expect(guarded("http://a.example.com/x")).rejects.toBeInstanceOf(HttpError);
+    await expect(guarded("not a url")).rejects.toBeInstanceOf(HttpError);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

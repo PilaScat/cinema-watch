@@ -25,6 +25,26 @@ function retryAfterMsOf(response: Response): number | null {
   return header !== null && Number.isFinite(seconds) && seconds >= 0 ? seconds * 1000 : null;
 }
 
+function allowedUrl(url: string, allowed: Set<string>): URL {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new HttpError("host", "", `Invalid URL: ${url}`);
+  }
+  if (parsed.protocol !== "https:" || !allowed.has(parsed.hostname)) {
+    throw new HttpError("host", parsed.hostname, `Host not allowed: ${parsed.protocol}//${parsed.hostname}`);
+  }
+  return parsed;
+}
+
+export type GuardedFetch = (url: string, init?: RequestInit) => Promise<Response>;
+
+export function createGuardedFetch(allowedHosts: string[], doFetch: typeof fetch = globalThis.fetch): GuardedFetch {
+  const allowed = new Set(allowedHosts);
+  return async (url, init = {}) => doFetch(allowedUrl(url, allowed).toString(), { ...init, redirect: "manual" });
+}
+
 function countsAsHostFailure(error: HttpError): boolean {
   if (error.kind === "timeout" || error.kind === "network") {
     return true;
@@ -43,19 +63,6 @@ export function createHttpClient(
   const backoffMaxMs = options.backoffMaxMs ?? 1_800_000;
   const states = new Map<string, HostState>();
   const queues = new Map<string, Promise<unknown>>();
-
-  function parseUrl(url: string): URL {
-    let parsed: URL;
-    try {
-      parsed = new URL(url);
-    } catch {
-      throw new HttpError("host", "", `Invalid URL: ${url}`);
-    }
-    if (parsed.protocol !== "https:" || !allowed.has(parsed.hostname)) {
-      throw new HttpError("host", parsed.hostname, `Host not allowed: ${parsed.protocol}//${parsed.hostname}`);
-    }
-    return parsed;
-  }
 
   function registerFailure(host: string, error: HttpError): void {
     const failures = (states.get(host)?.failures ?? 0) + 1;
@@ -110,7 +117,7 @@ export function createHttpClient(
     init: RequestInit,
     extra: HttpRequestOptions | undefined,
   ): Promise<unknown> {
-    const parsed = parseUrl(url);
+    const parsed = allowedUrl(url, allowed);
     const host = parsed.hostname;
     const headers = { "User-Agent": options.userAgent, Accept: "application/json", ...init.headers, ...extra?.headers };
     const run = async (): Promise<unknown> => {

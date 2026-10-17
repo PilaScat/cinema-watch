@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { copy } from "./copy.js";
 import { escapeHtml } from "./format.js";
+import { createGuardedFetch } from "./http.js";
 import type { InlineButton, OutgoingMessage, SentResult } from "./model.js";
 
 export const TELEGRAM_API = "https://api.telegram.org";
@@ -153,7 +154,7 @@ function failed(error: string): SentResult {
 }
 
 export function createTelegram(options: TelegramOptions): Telegram {
-  const doFetch = options.fetch ?? fetch;
+  const doFetch = createGuardedFetch([new URL(TELEGRAM_API).hostname], options.fetch ?? fetch);
   const clock = options.clock ?? defaultClock;
   const maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES;
   const lastPrivateAt = new Map<string, number>();

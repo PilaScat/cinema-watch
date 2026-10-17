@@ -834,3 +834,16 @@ describe("hanging connections", () => {
     }
   });
 });
+
+describe("telegram egress", () => {
+  it("goes through the guarded fetch: https to api.telegram.org only, no redirects followed", async () => {
+    const { telegram, fetchMock } = setup([new Response("", { status: 302, headers: { location: "https://evil.example.com/" } })]);
+
+    const result = await telegram.sendMessage("555", "x");
+
+    expect(fetchMock.mock.calls[0]?.[0]).toMatch(/^https:\/\/api\.telegram\.org\/bot/);
+    expect(fetchMock.mock.calls[0]?.[1]).toEqual(expect.objectContaining({ redirect: "manual" }));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.ok).toBe(false);
+  });
+});
