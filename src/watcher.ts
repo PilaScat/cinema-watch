@@ -348,7 +348,8 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   async function warnOnErrors(hunt: Hunt, previous: HuntState, errors: string[], at: number): Promise<string | null> {
     const today = romeToday(new Date(at));
     const chatId = chatFor();
-    if (errors.length === 0 || previous.errorNotifiedDay === today || chatId === null) return previous.errorNotifiedDay;
+    const muted = previous.mutedUntil !== null && previous.mutedUntil > at;
+    if (errors.length === 0 || muted || previous.errorNotifiedDay === today || chatId === null) return previous.errorNotifiedDay;
     logger.warn("hunt errors", { hunt: hunt.id, errors });
     const detail = errors.length > 1 ? `${errors[0] ?? ""} (+${errors.length - 1})` : (errors[0] ?? "");
     const text = copy.errors.huntFailed(escapeHtml(hunt.name), escapeHtml(redact(detail, secrets())));
@@ -508,8 +509,9 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   async function sendDigestIfDue(): Promise<void> {
     const digest = config.settings.digest;
     const rome = romeNow(new Date(now()));
-    const chatId = telegramSettings().chatId;
-    if (!digest.enabled || chatId === null || rome.time < digest.time || state.lastDigestDate === rome.day) return;
+    const { chatId, token } = telegramSettings();
+    if (!digest.enabled || chatId === null || (token === null && !options.outbox)) return;
+    if (rome.time < digest.time || state.lastDigestDate === rome.day) return;
     const messages: OutgoingMessage[] = composeDigest(digestEntries()).map((text) => ({ kind: "text", chatId, text, keyboard: null }));
     const delivery = await send(messages, new Map());
     if (!delivery.delivered) {

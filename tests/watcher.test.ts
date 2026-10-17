@@ -281,6 +281,35 @@ describe("watcher", () => {
     expect(subject.state().hunts[huntId]?.lastRun?.ok).toBe(false);
   });
 
+  it("keeps the error warning quiet while the hunt is muted", async () => {
+    const config = await seed();
+    const huntId = config.hunts[0]?.id ?? "";
+    world.failHost("myuci---uci-backend-production-nfluwp7wga-oc.a.run.app", 500);
+    const subject = await watcher();
+    await subject.mute(huntId, 24 * 60 * MINUTE);
+
+    await subject.tick();
+
+    expect(world.telegram).toEqual([]);
+    expect(subject.state().hunts[huntId]?.lastRun?.ok).toBe(false);
+  });
+
+  it("does not try the daily summary again and again while Telegram is not configured", async () => {
+    const logged: string[] = [];
+    await seed((config) => {
+      config.settings.telegram = { token: null, chatId: PRIMARY_CHAT };
+    });
+    clock = Date.parse("2026-12-01T19:30:00Z");
+    const subject = await watcher({ logSink: (line) => logged.push(line) });
+
+    for (let tick = 0; tick < 4; tick += 1) {
+      await subject.tick();
+      clock += 30_000;
+    }
+
+    expect(logged.filter((line) => line.includes("\"digest\""))).toEqual([]);
+  });
+
   it("sends the daily summary once after 20:00 Rome time", async () => {
     await seed();
     clock = Date.parse("2026-12-01T18:50:00Z");
