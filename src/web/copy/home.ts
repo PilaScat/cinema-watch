@@ -11,6 +11,7 @@ export const home = {
   lastRun: (time: string): string => `Ultimo giro alle ${time}`,
   pendingMovies: (count: number): string => (count === 1 ? "1 film da confermare" : `${count} film da confermare`),
   archived: "Archiviate",
+  restore: "Ripristina",
   telegramMissing: "Telegram non configurato: gli avvisi restano in attesa.",
   telegramMissingLink: "Impostazioni",
   windowFixed: (from: string, to: string): string => `dal ${from} al ${to}`,

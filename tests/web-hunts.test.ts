@@ -208,6 +208,32 @@ describe("hunt form", () => {
     expect(watcher.config().hunts[0]?.archivedAt).not.toBeNull();
   });
 
+  it("restores an archived hunt from the home and from its page, then opens it to check the dates", async () => {
+    const { instance, watcher, huntId } = await app((config) => {
+      const hunt = config.hunts[0];
+      if (hunt) hunt.archivedAt = "2026-11-30T10:00:00.000Z";
+    });
+
+    const home = await (await instance.request("/")).text();
+    const page = await (await instance.request(`/hunts/${huntId}`)).text();
+    const response = await instance.request(`/hunts/${huntId}/restore`, post());
+
+    expect(home).toMatch(new RegExp(`<form[^>]*action="/hunts/${huntId}/restore"[\\s\\S]*?Ripristina`));
+    expect(page).toMatch(new RegExp(`<form[^>]*action="/hunts/${huntId}/restore"[\\s\\S]*?Ripristina`));
+    expect(page).not.toContain(`action="/hunts/${huntId}/bought"`);
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe(`/hunts/${huntId}`);
+    expect(watcher.config().hunts[0]?.archivedAt).toBeNull();
+  });
+
+  it("does not offer Ripristina for a hunt that is not archived", async () => {
+    const { instance, huntId } = await app();
+
+    const home = await (await instance.request("/")).text();
+
+    expect(home).not.toContain(`action="/hunts/${huntId}/restore"`);
+  });
+
   it("lists the followed showings with their link to the hall", async () => {
     const { instance, watcher, huntId } = await app();
     await watcher.tick();

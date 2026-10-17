@@ -94,6 +94,7 @@ export interface Watcher {
   mute(huntId: string, durationMs: number): Promise<void>;
   resume(huntId: string): Promise<void>;
   markBought(huntId: string): Promise<void>;
+  restore(huntId: string): Promise<void>;
   confirmMovie(huntId: string, slug: string): Promise<void>;
   confirmHallZone(huntId: string, hallKey: string): Promise<void>;
   close(): Promise<void>;
@@ -463,6 +464,10 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     });
   }
 
+  async function restoreLocked(huntId: string): Promise<void> {
+    await writeConfig({ ...config, hunts: config.hunts.map((hunt) => (hunt.id === huntId ? { ...hunt, archivedAt: null } : hunt)) });
+  }
+
   async function archiveFinished(): Promise<void> {
     const today = romeToday(new Date(now()));
     await archive(config.hunts.filter((hunt) => active(hunt) && hunt.window.kind === "fixed" && hunt.window.to < today).map((hunt) => hunt.id));
@@ -615,6 +620,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     mute: (huntId: string, durationMs: number) => exclusive(() => setMute(huntId, now() + durationMs)),
     resume: (huntId: string) => exclusive(() => setMute(huntId, null)),
     markBought: (huntId: string) => exclusive(() => archive([huntId])),
+    restore: (huntId: string) => exclusive(() => restoreLocked(huntId)),
     confirmMovie: (huntId: string, slug: string) => exclusive(() => confirmMovieLocked(huntId, slug)),
     confirmHallZone: (huntId: string, hallKey: string) => exclusive(() => confirmHallZoneLocked(huntId, hallKey)),
     close: () => exclusive(() => Promise.resolve()),

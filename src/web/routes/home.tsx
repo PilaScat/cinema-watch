@@ -56,6 +56,11 @@ function HuntCard(props: { hunt: Hunt; state: HuntState | undefined; theatres: R
               <Button label={muted ? actions.resume : actions.mute} icon={muted ? "bell" : "bellOff"} size="icon" variant="outline" />
             </ActionForm>
           ) : null}
+          {hunt.archivedAt !== null ? (
+            <ActionForm action={`/hunts/${hunt.id}/restore`}>
+              <Button label={ui.restore} icon="refreshCw" size="sm" variant="outline" />
+            </ActionForm>
+          ) : null}
           <LinkButton href={`/hunts/${hunt.id}`} label={actions.edit} icon="pencil" size="icon" variant="outline" />
         </div>
       </div>
@@ -144,6 +149,13 @@ export function registerHomeRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
   app.post("/hunts/refresh", async (c) => {
     await deps.watcher.runNow();
     return backTo(c);
+  });
+
+  app.post("/hunts/:id/restore", async (c) => {
+    const id = c.req.param("id");
+    if (deps.watcher.huntById(id) === null) return c.notFound();
+    await deps.watcher.restore(id);
+    return c.redirect(`/hunts/${id}`, 303);
   });
 
   app.post("/hunts/:id/:action{(refresh|mute|resume|bought)}", async (c) => {
