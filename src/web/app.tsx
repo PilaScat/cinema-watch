@@ -15,6 +15,7 @@ import { Button, Card, Field, inputClass, Notice } from "./components.js";
 import { Layout, type PageContext, type Section } from "./layout.js";
 import { registerBrowseRoutes } from "./routes/browse.js";
 import { registerHomeRoutes } from "./routes/home.js";
+import { registerHuntZoneRoutes } from "./routes/hunt-zone.js";
 import { registerHuntsRoutes } from "./routes/hunts.js";
 import { registerLogRoutes } from "./routes/log.js";
 import { registerSettingsRoutes } from "./routes/settings.js";
@@ -219,6 +220,7 @@ export async function createApp(deps: AppDeps): Promise<Hono<AppEnv>> {
 
   registerHomeRoutes(app, deps);
   registerHuntsRoutes(app, deps);
+  registerHuntZoneRoutes(app, deps);
   registerBrowseRoutes(app, deps);
   registerLogRoutes(app, deps);
   registerSettingsRoutes(app, deps);
