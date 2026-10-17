@@ -1,6 +1,7 @@
 export const theatres = {
   title: "Cinema",
   description: "I cinema UCI, raggruppati per regione.",
+  descriptionNear: "I cinema UCI, dal più vicino a casa.",
   filterLabel: "Nome o città",
   filterPlaceholder: "Verona, Milano…",
   filterButton: "Filtra",

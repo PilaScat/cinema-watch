@@ -104,7 +104,7 @@ function TheatresPage(props: { theatres: Theatre[] | null; query: string; settin
   const shown = (props.theatres ?? []).filter((theatre) => needle === "" || normalizeTitle(`${theatre.name} ${theatre.city}`).includes(needle));
   return (
     <>
-      <PageHeader title={ui.title} description={ui.description} />
+      <PageHeader title={ui.title} description={props.settings.home === null ? ui.description : ui.descriptionNear} />
       <form method="get" action="/theatres" class="mb-6 flex flex-wrap items-end gap-3">
         <div class="w-full max-w-sm">
           <Field label={ui.filterLabel} for="q">
