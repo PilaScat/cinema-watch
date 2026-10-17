@@ -130,6 +130,11 @@ if (huntId) {
   check("Riattiva dalla home", !(await evaluate("document.body.innerText")).includes("Silenziata fino alle"));
 }
 
+await open("/settings");
+await evaluate("document.querySelector('form[action=\"/settings\"]').requestSubmit()");
+await settle();
+check("Impostazioni salvate dal form", (await evaluate("location.search")) === "?saved=1", await evaluate("document.body.innerText.slice(0, 80)"));
+
 await open("/");
 await click("button[data-theme-choice=dark]");
 const darkNow = await evaluate("document.documentElement.classList.contains('dark')");
