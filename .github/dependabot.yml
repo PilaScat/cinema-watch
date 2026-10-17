@@ -7,12 +7,16 @@ updates:
       day: tuesday
       time: "09:00"
       timezone: Europe/Rome
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 5
     ignore:
       - dependency-name: vitest
         versions: [">=5"]
       - dependency-name: "@vitest/coverage-v8"
         versions: [">=5"]
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
     groups:
       runtime:
         dependency-type: production
@@ -26,6 +30,8 @@ updates:
       day: tuesday
       time: "09:00"
       timezone: Europe/Rome
+    cooldown:
+      default-days: 7
     groups:
       actions:
         patterns: ["*"]
@@ -37,6 +43,8 @@ updates:
       day: tuesday
       time: "09:00"
       timezone: Europe/Rome
+    cooldown:
+      default-days: 7
     ignore:
       - dependency-name: node
         update-types: ["version-update:semver-major"]
