@@ -21,7 +21,10 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   `A/20` sulla colonna più bassa. La centralità si calcola sulle colonne; il ritocco a mano della
   zona usa i numeri, perché sono quelli che si leggono in sala.
 - **Formati**: i nomi in programmazione (`XL - INFINITY VISION`, `2D - INFINITY VISION`) e quelli
-  dei cinema (`XL`, `2D`) si allineano con `normalizeFormat`.
+  dei cinema (`XL`, `2D`) si allineano con `normalizeFormat`. La parte dopo il trattino è
+  un'**edizione** (`formatEdition`, oggi solo `INFINITY VISION`): un formato della caccia
+  combacia col gruppo (`XL`), col nome intero o con l'edizione. Così "XL" prende anche l'XL
+  Infinity Vision, e "INFINITY VISION" prende tutte le sale Infinity Vision ma non l'XL normale.
 - **Login UCI**: Cloudflare e captcha. L'app non fa login e non compra: legge solo dati pubblici.
 
 ## Avvisi

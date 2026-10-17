@@ -2,6 +2,17 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.10.3
+
+### Novità
+
+- **Cerca senza il titolo esatto**: la pagina Cerca usa il catalogo UCI e trova i film anche da
+  una parte del titolo ("avenger", "dun parte") o con un piccolo errore di battitura
+  ("avangers"). Mostra i risultati con locandina, formati e date; cliccando un film si vedono i
+  cinema che lo proiettano. Se il catalogo non risponde, si cerca il titolo esatto come prima.
+- **Formato Infinity Vision** nelle cacce: segue tutte le sale Infinity Vision (XL, 2D, iSense,
+  ScreenX) e non quelle normali. Il formato XL continua a prendere anche l'XL Infinity Vision.
+
 ## v2026.10.2
 
 ### Correzioni

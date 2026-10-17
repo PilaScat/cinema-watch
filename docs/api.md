@@ -15,6 +15,7 @@ Base: `https://myuci---uci-backend-production-nfluwp7wga-oc.a.run.app/api`. Le r
 | `GET /theatres` | Elenco dei cinema | `slug`, `name`, `city`, `province`, `region`, `is_luxe`, `screens` (formati di sala del cinema) |
 | `GET /theatres/{slug}/programming/{AAAA-MM-GG}` | Programmazione di un giorno | vedi sotto |
 | `GET /theatres/{slug}/programming` | Programmazione di tutti i giorni, circa 2 MB: `data` è un elenco di oggetti `{ giorno: [film] }`. Serve solo alla UI | come sopra |
+| `GET /movies` | Catalogo di tutti i film, circa 450 KB. Serve alla pagina Cerca, con una cache di un'ora | `slug`, `title`, `poster`, `first_performance`, `last_performance`, `screens[].name` |
 | `GET /movies/{slug}` | Dettaglio di un film | `slug`, `title`, `poster` |
 | `GET /movies/{slug}/theatres` | Cinema in cui il film è in programma | `slug`, `name`, `movie_variants` |
 
