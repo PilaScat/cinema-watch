@@ -75,6 +75,8 @@ describe("parseTheatres", () => {
       region: "Toscana",
       isLuxe: false,
       screens: ["XL", "2D"],
+      lat: 43.479041403496964,
+      lon: 11.869633503004069,
     });
   });
 
@@ -83,7 +85,7 @@ describe("parseTheatres", () => {
       data: [{ name: "no slug" }, null, "x", { slug: "a", province: null, screens: "bad", is_luxe: "yes" }],
     });
     expect(theatres).toEqual([
-      { slug: "a", name: "", city: "", province: null, region: null, isLuxe: false, screens: [] },
+      { slug: "a", name: "", city: "", province: null, region: null, isLuxe: false, screens: [], lat: null, lon: null },
     ]);
   });
 });

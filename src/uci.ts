@@ -33,7 +33,14 @@ const theatreSchema = z.object({
   region: optionalString,
   is_luxe: z.boolean().catch(false),
   screens: z.array(z.string()).catch([]),
+  latitude: z.union([z.string(), z.number()]).nullable().catch(null),
+  longitude: z.union([z.string(), z.number()]).nullable().catch(null),
 });
+
+function coordinate(value: string | number | null, limit: number): number | null {
+  const number = value === null ? Number.NaN : Number(value);
+  return Number.isFinite(number) && number !== 0 && Math.abs(number) <= limit ? number : null;
+}
 
 const movieTheatreSchema = z.object({
   slug: z.string().min(1),
@@ -147,7 +154,12 @@ export function parseTheatres(json: unknown): Theatre[] {
     region: t.region,
     isLuxe: t.is_luxe,
     screens: t.screens,
+    ...bothOrNeither(coordinate(t.latitude, 90), coordinate(t.longitude, 180)),
   }));
+}
+
+function bothOrNeither(lat: number | null, lon: number | null): { lat: number | null; lon: number | null } {
+  return lat === null || lon === null ? { lat: null, lon: null } : { lat, lon };
 }
 
 function durationToMinutes(duration: string | null): number | null {

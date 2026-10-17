@@ -20,6 +20,8 @@ export interface Theatre {
   region: string | null;
   isLuxe: boolean;
   screens: string[];
+  lat: number | null;
+  lon: number | null;
 }
 
 export interface MovieRef {
