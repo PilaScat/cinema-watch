@@ -76,7 +76,7 @@ Il workflow `release.yml` esegue in ordine:
 2. **Trivy** sull'immagine amd64: si ferma su vulnerabilità CRITICAL o HIGH che hanno una correzione.
 3. **Immagini** amd64 e arm64, ciascuna su un runner nativo, con SBOM e provenance.
 4. **Manifest** che unisce le due immagini sotto `:vAAAA.MM.N` e `:latest`, e **attestazione** di provenienza registrata insieme all'immagine.
-5. **Release** su GitHub con il testo della sezione del CHANGELOG, l'elenco dei commit compresi fra il tag precedente e questo, e l'indicazione dell'immagine.
+5. **Release** su GitHub con il testo della sezione del CHANGELOG, l'elenco dei commit compresi fra il tag precedente e questo, l'indicazione dell'immagine e, allegata, la provenienza firmata `cinema-watch-<tag>.intoto.jsonl` (il bundle Sigstore dell'attestazione). Serve anche al controllo Signed-Releases di OpenSSF Scorecard.
 
 Per verificare l'attestazione di un'immagine:
 
