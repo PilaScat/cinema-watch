@@ -25,6 +25,10 @@ export const copy = {
     noNews: "Nessuna novità",
     muted: "Silenziata per 24 h",
     bought: "Caccia archiviata",
+    restored: "Caccia ripristinata",
+    resumed: "Avvisi riattivati",
+    alreadyActive: "Caccia già attiva",
+    datesEnded: "Date finite: si cambiano dalla pagina della caccia",
     primaryOnly: "Solo dalla chat principale",
     notFound: "Caccia non trovata",
     conflict: "Un altro programma legge gli aggiornamenti di questo bot",
@@ -50,6 +54,8 @@ export const copy = {
   },
   telegram: {
     huntHeader: (name: string): string => `🎬 <b>${name}</b>`,
+    archived: (name: string): string => `📦 <b>${name}</b>: caccia archiviata`,
+    mutedNotice: (name: string, time: string): string => `🔕 <b>${name}</b>: silenziata fino alle ${time}`,
     sections: {
       freed: "Posti liberati",
       created: "Nuovi spettacoli",
@@ -81,6 +87,8 @@ export const copy = {
       refresh: "Aggiorna ora",
       mute: "Silenzia 24 h",
       bought: "Acquistato",
+      restore: "Ripristina",
+      resume: "Riattiva",
     },
     caption: (title: string, day: string, time: string, room: string, format: string, seats: string): string =>
       `<b>${title}</b>\n${day} ${time}${SEPARATOR}${room}${SEPARATOR}${format}\n${seats}`,

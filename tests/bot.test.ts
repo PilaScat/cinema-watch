@@ -27,8 +27,99 @@ async function primed(mutate?: (config: Config) => void) {
   await watcher.tick();
   harness.world.telegram.length = 0;
   harness.advance(60_000);
-  return { config, watcher, bot: createBot({ watcher, sleep: harness.sleep }) };
+  return { config, watcher, bot: createBot({ watcher, sleep: harness.sleep, now: () => harness.now() }) };
 }
+
+function sentWithButton(data: string) {
+  return harness.world.telegram.find((call) => call.method === "sendMessage" && JSON.stringify(call.replyMarkup).includes(`"${data}"`));
+}
+
+describe("undo buttons", () => {
+  it("offers Ripristina after Acquistato and restores the hunt with it", async () => {
+    const { bot, config, watcher } = await primed();
+    const huntId = config.hunts[0]?.id ?? "";
+
+    await bot.handleUpdate(callback(1, PRIMARY_CHAT, `b:${huntId}`));
+    const offer = sentWithButton(`r:${huntId}`);
+    await bot.handleUpdate(callback(2, PRIMARY_CHAT, `r:${huntId}`));
+
+    expect(offer).toMatchObject({ chatId: PRIMARY_CHAT, text: "📦 <b>Dune IMAX Verona</b>: caccia archiviata" });
+    expect(JSON.stringify(offer?.replyMarkup)).toContain("Ripristina");
+    expect(watcher.config().hunts[0]?.archivedAt).toBeNull();
+    expect(answers()).toEqual(["Caccia archiviata", "Caccia ripristinata"]);
+  });
+
+  it("does not restore a hunt whose dates are over and says where to change them", async () => {
+    const { bot, config, watcher } = await primed();
+    const huntId = config.hunts[0]?.id ?? "";
+    await bot.handleUpdate(callback(1, PRIMARY_CHAT, `b:${huntId}`));
+    harness.set(Date.parse("2026-12-17T10:00:00Z"));
+
+    await bot.handleUpdate(callback(2, PRIMARY_CHAT, `r:${huntId}`));
+
+    expect(watcher.config().hunts[0]?.archivedAt).not.toBeNull();
+    expect(answers()).toEqual(["Caccia archiviata", "Date finite: si cambiano dalla pagina della caccia"]);
+  });
+
+  it("answers Ripristina on a hunt that is still active", async () => {
+    const { bot, config } = await primed();
+
+    await bot.handleUpdate(callback(1, PRIMARY_CHAT, `r:${config.hunts[0]?.id ?? ""}`));
+
+    expect(answers()).toEqual(["Caccia già attiva"]);
+  });
+
+  it("offers Riattiva after Silenzia with the time and lifts the mute with it", async () => {
+    const { bot, config, watcher } = await primed();
+    const huntId = config.hunts[0]?.id ?? "";
+
+    await bot.handleUpdate(callback(1, PRIMARY_CHAT, `m:${huntId}`));
+    const offer = sentWithButton(`u:${huntId}`);
+    await bot.handleUpdate(callback(2, PRIMARY_CHAT, `u:${huntId}`));
+
+    expect(offer?.text).toBe("🔕 <b>Dune IMAX Verona</b>: silenziata fino alle 11:01");
+    expect(JSON.stringify(offer?.replyMarkup)).toContain("Riattiva");
+    expect(watcher.state().hunts[huntId]?.mutedUntil).toBeNull();
+    expect(answers()).toEqual(["Silenziata per 24 h", "Avvisi riattivati"]);
+  });
+
+  it("accepts Ripristina and Riattiva only from the primary chat", async () => {
+    const { bot, config, watcher } = await primed((draft) => {
+      const hunt = draft.hunts[0];
+      if (hunt) hunt.extraChatIds = ["-555"];
+    });
+    const huntId = config.hunts[0]?.id ?? "";
+    await bot.handleUpdate(callback(1, PRIMARY_CHAT, `b:${huntId}`));
+    await bot.handleUpdate(callback(2, PRIMARY_CHAT, `m:${huntId}`));
+
+    await bot.handleUpdate(callback(3, "-555", `r:${huntId}`));
+    await bot.handleUpdate(callback(4, "-555", `u:${huntId}`));
+
+    expect(watcher.config().hunts[0]?.archivedAt).not.toBeNull();
+    expect(watcher.state().hunts[huntId]?.mutedUntil).not.toBeNull();
+    expect(answers().slice(2)).toEqual(["Solo dalla chat principale", "Solo dalla chat principale"]);
+  });
+
+  it("escapes the hunt name in the undo message", async () => {
+    const { bot, config } = await primed((draft) => {
+      const hunt = draft.hunts[0];
+      if (hunt) hunt.name = "Dune <IMAX> & co";
+    });
+
+    await bot.handleUpdate(callback(1, PRIMARY_CHAT, `b:${config.hunts[0]?.id ?? ""}`));
+
+    expect(sentWithButton(`r:${config.hunts[0]?.id ?? ""}`)?.text).toBe("📦 <b>Dune &lt;IMAX&gt; &amp; co</b>: caccia archiviata");
+  });
+
+  it("answers the undo buttons of hunts that no longer exist", async () => {
+    const { bot } = await primed();
+
+    await bot.handleUpdate(callback(1, PRIMARY_CHAT, "r:zzzzzzzz"));
+    await bot.handleUpdate(callback(2, PRIMARY_CHAT, "u:zzzzzzzz"));
+
+    expect(answers()).toEqual(["Caccia non trovata", "Caccia non trovata"]);
+  });
+});
 
 describe("bot", () => {
   it("answers /aggiorna with no news in the chat that asked", async () => {

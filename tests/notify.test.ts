@@ -25,11 +25,15 @@ describe("callbackData", () => {
     expect(callbackData("refresh", "abcd1234")).toBe("a:abcd1234");
     expect(callbackData("mute", "abcd1234")).toBe("m:abcd1234");
     expect(callbackData("bought", "abcd1234")).toBe("b:abcd1234");
+    expect(callbackData("restore", "abcd1234")).toBe("r:abcd1234");
+    expect(callbackData("resume", "abcd1234")).toBe("u:abcd1234");
   });
   it("round-trips", () => {
     expect(parseCallbackData("a:abcd1234")).toEqual({ action: "refresh", huntId: "abcd1234" });
     expect(parseCallbackData("m:0z9y8x7w")).toEqual({ action: "mute", huntId: "0z9y8x7w" });
     expect(parseCallbackData("b:abcd1234")).toEqual({ action: "bought", huntId: "abcd1234" });
+    expect(parseCallbackData("r:abcd1234")).toEqual({ action: "restore", huntId: "abcd1234" });
+    expect(parseCallbackData("u:abcd1234")).toEqual({ action: "resume", huntId: "abcd1234" });
   });
   it("rejects invalid input", () => {
     expect(parseCallbackData("x:abcd1234")).toBeNull();

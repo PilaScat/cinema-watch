@@ -1,5 +1,8 @@
 import { copy } from "./copy.js";
-import { composeNoNews, parseCallbackData } from "./notify.js";
+import { escapeHtml, formatTime } from "./format.js";
+import type { Hunt } from "./model.js";
+import { callbackData, composeNoNews, parseCallbackData, type CallbackAction } from "./notify.js";
+import { windowEnded } from "./watcher-rules.js";
 import { TelegramError, type TelegramUpdate } from "./telegram.js";
 import type { RunReport, Watcher } from "./watcher.js";
 
@@ -12,6 +15,7 @@ const ERROR_RETRY_MS = 5_000;
 export interface BotOptions {
   watcher: Watcher;
   sleep?: (ms: number) => Promise<void>;
+  now?: () => number;
 }
 
 type Callback = NonNullable<TelegramUpdate["callback"]>;
@@ -32,6 +36,7 @@ function allSkipped(reports: RunReport[]): boolean {
 export function createBot(options: BotOptions) {
   const { watcher } = options;
   const sleep = options.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
+  const now = options.now ?? Date.now;
   let offset = 0;
   let lastToken: string | null = null;
   let running = false;
@@ -65,25 +70,48 @@ export function createBot(options: BotOptions) {
     if (!hadNews(reports)) await say(chatId, composeNoNews(watcher.summaries(huntIds)));
   }
 
+  async function offerUndo(chatId: string, text: string, action: CallbackAction, label: string, huntId: string): Promise<void> {
+    await watcher.telegram.sendMessage(chatId, text, [[{ text: label, callbackData: callbackData(action, huntId) }]]);
+  }
+
+  async function primaryAction(action: Exclude<CallbackAction, "refresh">, hunt: Hunt, chatId: string, answer: (text: string) => Promise<void>): Promise<void> {
+    const name = escapeHtml(hunt.name);
+    const buttons = copy.telegram.buttons;
+    if (action === "mute") {
+      await watcher.mute(hunt.id, MUTE_MS);
+      await answer(copy.callbacks.muted);
+      return offerUndo(chatId, copy.telegram.mutedNotice(name, formatTime(now() + MUTE_MS)), "resume", buttons.resume, hunt.id);
+    }
+    if (action === "bought") {
+      await watcher.markBought(hunt.id);
+      await answer(copy.callbacks.bought);
+      return offerUndo(chatId, copy.telegram.archived(name), "restore", buttons.restore, hunt.id);
+    }
+    if (action === "resume") {
+      await watcher.resume(hunt.id);
+      return answer(copy.callbacks.resumed);
+    }
+    if (hunt.archivedAt === null) return answer(copy.callbacks.alreadyActive);
+    if (windowEnded(hunt, now())) return answer(copy.callbacks.datesEnded);
+    await watcher.restore(hunt.id);
+    return answer(copy.callbacks.restored);
+  }
+
   async function answerButton(callback: Callback): Promise<void> {
     const answer = (text: string) => watcher.telegram.answerCallbackQuery(callback.id, text);
     const parsed = parseCallbackData(callback.data);
     const chatId = callback.chatId;
     const allowed = chatId === null ? null : huntsForChat(chatId);
     if (parsed === null || chatId === null || allowed === null) return answer("");
-    if (watcher.huntById(parsed.huntId) === null) return answer(copy.callbacks.notFound);
+    const hunt = watcher.huntById(parsed.huntId);
+    if (hunt === null) return answer(copy.callbacks.notFound);
     if (!allowed.includes(parsed.huntId)) return answer("");
     if (parsed.action === "refresh") {
       await answer(copy.callbacks.refreshing);
       return refresh(chatId, [parsed.huntId]);
     }
     if (chatId !== watcher.primaryChat()) return answer(copy.callbacks.primaryOnly);
-    if (parsed.action === "mute") {
-      await watcher.mute(parsed.huntId, MUTE_MS);
-      return answer(copy.callbacks.muted);
-    }
-    await watcher.markBought(parsed.huntId);
-    return answer(copy.callbacks.bought);
+    return primaryAction(parsed.action, hunt, chatId, answer);
   }
 
   async function handleUpdate(update: TelegramUpdate): Promise<void> {

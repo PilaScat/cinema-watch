@@ -6,7 +6,7 @@ import type { SeatGroup } from "./types.js";
 export const TELEGRAM_TEXT_LIMIT = 4096;
 export const TELEGRAM_CAPTION_LIMIT = 1024;
 
-export type CallbackAction = "refresh" | "mute" | "bought";
+export type CallbackAction = "refresh" | "mute" | "bought" | "restore" | "resume";
 
 export interface ComposeContext {
   hunt: Hunt;
@@ -23,16 +23,16 @@ export interface DigestEntry {
   mutedUntil: number | null;
 }
 
-const ACTION_PREFIX: Record<CallbackAction, string> = { refresh: "a", mute: "m", bought: "b" };
+const ACTION_PREFIX: Record<CallbackAction, string> = { refresh: "a", mute: "m", bought: "b", restore: "r", resume: "u" };
 
 export function callbackData(action: CallbackAction, huntId: string): string {
   return `${ACTION_PREFIX[action]}:${huntId}`;
 }
 
-const ACTION_BY_PREFIX: Record<string, CallbackAction> = { a: "refresh", m: "mute", b: "bought" };
+const ACTION_BY_PREFIX: Record<string, CallbackAction> = { a: "refresh", m: "mute", b: "bought", r: "restore", u: "resume" };
 
 export function parseCallbackData(data: string): { action: CallbackAction; huntId: string } | null {
-  const match = /^([amb]):([a-z0-9]{8})$/.exec(data);
+  const match = /^([ambru]):([a-z0-9]{8})$/.exec(data);
   const action = ACTION_BY_PREFIX[match?.[1] ?? ""];
   const huntId = match?.[2];
   return action && huntId ? { action, huntId } : null;

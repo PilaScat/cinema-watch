@@ -3,7 +3,7 @@ import { copy } from "../src/copy.js";
 
 const EMOJI = /\p{Extended_Pictographic}/u;
 const EMOJI_ALL = /\p{Extended_Pictographic}/gu;
-const EMOJI_KEYS = new Set(["telegram.huntHeader", "telegram.digest.header", "telegram.noNews.header", "telegram.test.header", "errors.huntFailed"]);
+const EMOJI_KEYS = new Set(["telegram.huntHeader", "telegram.digest.header", "telegram.noNews.header", "telegram.test.header", "telegram.archived", "telegram.mutedNotice", "errors.huntFailed"]);
 
 function collect(node: unknown, path: string, out: Array<[string, string]>): Array<[string, string]> {
   if (typeof node === "string") {
