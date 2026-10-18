@@ -2,6 +2,14 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.10.7
+
+### Progetto
+
+- Ogni Release allega la provenienza firmata dell'immagine, `cinema-watch-<tag>.intoto.jsonl`.
+- `LICENSE` contiene il solo testo MIT; le note delle parti di terzi passano in `NOTICE`, copiato anche nell'immagine.
+- README con la sezione "Cosa fa", un riassunto in inglese, screenshot nuovi e la sezione Contribuire; nuovo `CONTRIBUTING.md`.
+
 ## v2026.10.6
 
 ### Novità

@@ -7,9 +7,8 @@ Cosa resta da decidere o da fare nei prossimi rilasci. Una voce fatta si toglie 
 
 | Voce | Cosa serve |
 |---|---|
-| README da migliorare | Richiesta di Filippo del 17/10: cosa cambiare si decide insieme prima di scriverlo. |
-| Punteggio OpenSSF Scorecard da alzare (oggi 7/10) | Richiesta di Filippo del 17/10: si parte dai controlli sotto 10 nel report di Scorecard e si propone cosa si può alzare dal repo. |
-| Scorecard: badge OpenSSF Best Practices | Iscrivere il progetto su bestpractices.dev con l'account GitHub dell'autore e compilare il questionario (CII-Best-Practices vale 0). Non si fa dal repo. |
+| Punteggio OpenSSF Scorecard (7,0 al 16/10) | Dal repo è fatto quello che si poteva: LICENSE col solo testo MIT (License), provenienza firmata allegata alle Release (Signed-Releases, conta dalla prossima Release), link diretto in SECURITY.md (Security-Policy, conta dal giro del 19/10). Maintained sale da sola da metà gennaio 2027, quando il repo ha 90 giorni. Restano bassi per scelta Code-Review, Branch-Protection e CI-Tests (push diretti su main) e Contributors. |
+| Badge OpenSSF Best Practices | Le risposte sono pronte in [best-practices.md](best-practices.md). Filippo si iscrive su bestpractices.dev con il suo account GitHub, incolla le risposte e valuta i due criteri sullo sviluppatore; con l'id del progetto il badge va nel README. |
 
 ## Scelte confermate dopo le revisioni
 
