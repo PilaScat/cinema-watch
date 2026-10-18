@@ -53,11 +53,18 @@ La tastiera del riepilogo:
 
 | Pulsante | Cosa fa |
 |---|---|
-| Acquista | Apre la pagina di acquisto su ucicinemas.it. Uno per pianta, fino a 3, con l'orario se sono più d'uno |
+| Acquista | Apre la pagina di acquisto su ucicinemas.it o, per i cinema Webtic, su Webtic. Uno per pianta, fino a 3, con l'orario se sono più d'uno |
 | Apri sala | Apre la pagina dello spettacolo nella web UI, per la prima pianta. Solo con l'URL pubblico accettato come pulsante; altrimenti il link è nel testo |
 | Aggiorna ora | Rilegge subito la caccia |
 | Silenzia 24 h | Sospende gli avvisi di quella caccia per 24 ore |
 | Acquistato | Archivia la caccia |
+
+Dopo Silenzia 24 h e Acquistato il bot manda un messaggio con il pulsante per annullare:
+
+| Messaggio | Pulsante | Cosa fa |
+|---|---|---|
+| 🔕 *caccia*: silenziata fino alle HH:MM | Riattiva | Toglie il silenzio |
+| 📦 *caccia*: caccia archiviata | Ripristina | Toglie l'archiviazione. Se le date fisse sono finite non ripristina e risponde "Date finite: si cambiano dalla pagina della caccia" |
 
 Se l'avviso contiene solo film comparsi, non ci sono piante e la tastiera ha il solo Aggiorna ora. Silenzia ferma gli avvisi, non i giri: gli eventi di quelle ore non si recuperano. Cosa fanno questi comandi sulla caccia è in [operations.md](operations.md#spegnere-o-archiviare-una-caccia).
 
@@ -67,7 +74,7 @@ Se la lettura di una caccia non riesce, arriva un messaggio di avviso, al massim
 
 ## Chat aggiuntive per caccia
 
-Ogni caccia può avere altre chat oltre alla principale. Ricevono gli stessi avvisi, con la sola tastiera Aggiorna ora. Possono usare Aggiorna ora e `/aggiorna` per le cacce che le includono. Silenzia 24 h e Acquistato funzionano solo dalla chat principale: dalle altre il bot risponde "Solo dalla chat principale". Il riepilogo giornaliero va solo alla chat principale.
+Ogni caccia può avere altre chat oltre alla principale. Ricevono gli stessi avvisi, con la sola tastiera Aggiorna ora. Possono usare Aggiorna ora e `/aggiorna` per le cacce che le includono. Silenzia 24 h, Acquistato, Riattiva e Ripristina funzionano solo dalla chat principale: dalle altre il bot risponde "Solo dalla chat principale". Il riepilogo giornaliero va solo alla chat principale.
 
 Il bot ignora le chat che non sono la principale né un'aggiuntiva.
 

@@ -2,6 +2,12 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.10.6
+
+### Novità
+
+- **Annullo da Telegram**: dopo Silenzia 24 h il bot manda "silenziata fino alle HH:MM" con il pulsante Riattiva, e dopo Acquistato "caccia archiviata" con il pulsante Ripristina. Valgono solo dalla chat principale. Se le date fisse della caccia sono finite, Ripristina non la riattiva e rimanda alla pagina della caccia.
+
 ## v2026.10.5
 
 ### Novità
