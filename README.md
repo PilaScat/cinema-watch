@@ -4,13 +4,26 @@ Sorveglia la programmazione dei cinema UCI e di quelli che vendono con Webtic (N
 
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/PilaScat/cinema-watch/badge)](https://scorecard.dev/viewer/?uri=github.com/PilaScat/cinema-watch)
 
+**In English.** cinema-watch watches the programming of Italian cinemas (UCI Cinemas and the venues that sell tickets through Webtic, such as Notorious) with "hunts" for a film, a set of cinemas, screen formats and dates. When showings come out, good seats free up or run out, or a showing is cancelled or moved, it sends a Telegram alert with the seat map. It runs as a small Docker container (`ghcr.io/pilascat/cinema-watch`, amd64 and arm64) with a web UI to manage the hunts: the `docker run` command is under [Avvio rapido](#avvio-rapido). The interface and the docs are in Italian; issues and pull requests in English are welcome.
+
+## Cosa fa
+
+- **Cacce**: un film (anche non ancora in programmazione, cercato per titolo), uno o più cinema, i formati di sala (IMAX, XL, Infinity Vision…) e le date, con filtri facoltativi per orario, giorni della settimana e lingua.
+- **Avvisi su Telegram**: nuovi spettacoli, posti liberati, ultimi posti, spettacoli annullati o spostati, con la pianta della sala e i migliori posti liberi.
+- **Zona buona**: le file e i posti che vanno bene, relativi alla sala o fissati cliccando sulla pianta, con il numero di posti vicini richiesto.
+- **Pulsanti nel messaggio**: Acquista, Apri sala, Aggiorna ora, Silenzia 24 h e Acquistato, con Riattiva e Ripristina per tornare indietro; `/aggiorna` rilegge tutte le cacce.
+- **Cinema**: UCI Cinemas e circa 300 cinema che vendono con Webtic (Notorious, Cinelandia, Movie Planet e molti indipendenti), ordinabili per distanza da casa.
+- **Web UI**: cacce, programmazione, pagina dello spettacolo con la pianta dal vivo e l'andamento dei posti, ricerca di un film anche con un errore di battitura; si installa come app dietro HTTPS.
+
 ![La pianta della sala come arriva su Telegram](docs/img/pianta.png)
 
-![La home, tema scuro](docs/img/home.png)
+![Le cacce, tema scuro](docs/img/home.png)
+
+![I cinema UCI e Webtic dal più vicino a casa, tema chiaro](docs/img/cinema.png)
 
 ![La pagina di uno spettacolo, tema chiaro](docs/img/spettacolo.png)
 
-Dall'alto: la pianta di una sala come arriva su Telegram, la home della web UI nel tema scuro e la pagina di uno spettacolo nel tema chiaro.
+Dall'alto: la pianta di una sala come arriva su Telegram, le cacce nel tema scuro, i cinema ordinati per distanza da una casa d'esempio a Milano e la pagina di uno spettacolo con la zona buona tratteggiata.
 
 ## Stack
 
@@ -20,7 +33,7 @@ Dall'alto: la pianta di una sala come arriva su Telegram, la home della web UI n
 - resvg per i PNG delle piante
 - zod per validare configurazione e risposte delle API
 - dati in file JSON e JSONL, nessun database
-- immagine `ghcr.io/pilascat/cinema-watch` per amd64 e arm64, circa 156 MB, utente 99:100, compatibile con `--read-only`; a riposo usa circa 44 MiB di RAM (misurati)
+- immagine `ghcr.io/pilascat/cinema-watch` per amd64 e arm64, circa 157 MB, utente 99:100, compatibile con `--read-only`; a riposo il processo usa circa 50 MiB di memoria propria (misurati su Unraid il 18/10/2026; `docker stats` mostra di più perché conta anche la cache dei file)
 
 ## Avvio rapido
 
@@ -112,15 +125,21 @@ Le Impostazioni mostrano quando token o chat arrivano dall'ambiente.
 | [docs/operations.md](docs/operations.md) | Deploy, aggiornamenti, backup, rilascio e smoke test. |
 | [docs/UI-COPY.md](docs/UI-COPY.md) | Regole per i testi visibili. |
 | [docs/backlog.md](docs/backlog.md) | Cosa resta da decidere o da fare nei prossimi rilasci. |
+| [docs/best-practices.md](docs/best-practices.md) | Risposte al questionario OpenSSF Best Practices. |
 | [CHANGELOG.md](CHANGELOG.md) | Note di ogni versione. |
 | [SECURITY.md](SECURITY.md) | Come segnalare una vulnerabilità. |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Come segnalare un problema e proporre una modifica. |
+
+## Contribuire
+
+Bug e proposte si aprono come issue; le vulnerabilità si segnalano in privato come spiega [SECURITY.md](SECURITY.md). Come preparare una pull request e quali controlli deve passare è in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licenza e crediti
 
-Licenza MIT, vedi [LICENSE](LICENSE). Autore: Filippo Scatigna (PilaScat).
+Licenza MIT, vedi [LICENSE](LICENSE); le note delle parti di terzi sono in [NOTICE](NOTICE). Autore: Filippo Scatigna (PilaScat).
 
 - [KiraPC/italian-cinema-mcp](https://github.com/KiraPC/italian-cinema-mcp) (MIT): da qui viene l'API della programmazione UCI.
 - Font Bebas Neue e Barlow (OFL).
 - Icone Lucide (ISC).
 
-Non affiliato a UCI Cinemas.
+Non affiliato a UCI Cinemas, a Webtic né ai cinema elencati.
