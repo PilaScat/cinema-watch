@@ -19,17 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Third-party notices
-
-The UCI Cinemas programming client is based on the connector of
-italian-cinema-mcp (https://github.com/KiraPC/italian-cinema-mcp),
-Copyright (c) KiraPC, released under the MIT License.
-
-The fonts in assets/fonts (Barlow, Bebas Neue) are released under the
-SIL Open Font License 1.1; their licenses are in assets/fonts/OFL-*.txt.
-
-The icons in src/web/icon-set.ts come from Lucide (https://lucide.dev),
-Copyright (c) Lucide Contributors, released under the ISC License.

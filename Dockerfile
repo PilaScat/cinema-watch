@@ -30,7 +30,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY assets ./assets
-COPY package.json LICENSE ./
+COPY package.json LICENSE NOTICE ./
 USER 99:100
 EXPOSE 8790
 VOLUME ["/data"]
