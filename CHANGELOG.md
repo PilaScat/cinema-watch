@@ -2,6 +2,16 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.10.9
+
+### Novità
+
+- **The Space Cinema**: i 35 cinema del circuito entrano nella pagina Cinema, con regione e distanza, nella ricerca e nelle cacce. Programmazione, pianta e posti presi vengono dalle API del sito di The Space, e il pulsante Acquista apre lo spettacolo su thespacecinema.it. L'elenco dei cinema si aggiorna una volta a settimana.
+
+### Interno
+
+- Ogni circuito ha un adapter in `src/circuits/`; chiavi di spettacolo e di sala portano il circuito (`space-…`), e la pagina di uno spettacolo è `/showings/<chiave>`. I link già inviati su Telegram (`/performances/…`) portano alla pagina nuova; stato e storico passano da soli alla versione 2.
+
 ## v2026.10.8
 
 ### Progetto
