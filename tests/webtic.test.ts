@@ -57,9 +57,8 @@ const malformed: [string, unknown][] = [
 describe("parsePerformance", () => {
   it.each(PERFORMANCES)("parses $localId-$performanceId", ({ localId, performanceId, screenId }) => {
     const info = parsePerformance(fixture(`performance-${localId}-${performanceId}`));
-    expect(info.localId).toBe(localId);
-    expect(info.performanceId).toBe(performanceId);
-    expect(info.screenId).toBe(screenId);
+    expect(info.key).toBe(`${localId}-${performanceId}`);
+    expect(info.hallKey).toBe(`${localId}-${screenId}`);
     expect(info.startTime).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/);
     expect(info.title.length).toBeGreaterThan(0);
     expect(info.priceFrom).not.toBeNull();
@@ -67,10 +66,9 @@ describe("parsePerformance", () => {
 
   it("parses the Dune IMAX performance", () => {
     expect(parsePerformance(fixture("performance-5116-575978"))).toEqual({
-      localId: 5116,
-      eventId: 9803,
-      performanceId: 575978,
-      screenId: 2,
+      key: "5116-575978",
+      hallKey: "5116-2",
+      eventRef: "9803",
       screenName: "SALA 1 IMAX",
       startTime: "2026-12-15T20:30:00",
       title: "Dune - Parte Tre Sala Imax",
@@ -155,8 +153,7 @@ describe("parseHall", () => {
 
   it("maps the seat fields", () => {
     const hall = parseHall(fixture("screen-5116-2"), 0);
-    expect(hall.localId).toBe(5116);
-    expect(hall.screenId).toBe(2);
+    expect(hall.key).toBe("5116-2");
     expect(hall.seats[0]).toEqual({
       id: "A/1",
       rowLabel: "A",
@@ -193,8 +190,7 @@ describe("parseOccupancy", () => {
   it("counts sold and blocked seats for Dune IMAX", () => {
     const occupancy = parseOccupancy(fixture("occupancy-5116-575978"));
     const statuses = Object.values(occupancy.taken);
-    expect(occupancy.localId).toBe(5116);
-    expect(occupancy.performanceId).toBe(575978);
+    expect(occupancy.key).toBe("5116-575978");
     expect(statuses).toHaveLength(192);
     expect(statuses.filter((status) => status === "blocked")).toHaveLength(8);
     expect(statuses.filter((status) => status === "sold")).toHaveLength(184);
@@ -362,7 +358,7 @@ describe("createWebticClient", () => {
       expect(result.changed).toBe(false);
       expect(result.hall.seats).toHaveLength(236);
       expect(result.hall.fetchedAt).toBe(1000);
-      expect(await store.get(5116, 2)).toEqual(result.hall);
+      expect(await store.get("5116-2")).toEqual(result.hall);
       expect(http.postJson).toHaveBeenCalledWith(
         `${WEBTIC_API_BASE}/Screen`,
         { LocalId: 5116, ScreenId: 2 },
@@ -410,12 +406,12 @@ describe("createWebticClient", () => {
       const reduced: Hall = { ...stale, seats: stale.seats.slice(1) };
       await store.set(reduced);
       const client = createWebticClient(http, { hallStore: store, now: () => 10 });
-      const occupancy = { localId: 5116, performanceId: 575978, taken: { "A/1": "sold" as const } };
+      const occupancy = { key: "5116-575978", taken: { "A/1": "sold" as const } };
       const result = await client.hall(5116, 2, occupancy);
       expect(result.refreshed).toBe(true);
       expect(result.changed).toBe(true);
       expect(result.hall.seats).toHaveLength(236);
-      expect((await store.get(5116, 2))?.seats).toHaveLength(236);
+      expect((await store.get("5116-2"))?.seats).toHaveLength(236);
     });
 
     it("reports no change when the refreshed hall has the same seats", async () => {

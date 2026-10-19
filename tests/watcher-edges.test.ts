@@ -39,7 +39,7 @@ describe("public address in alerts", () => {
     const buttons = JSON.stringify(summary?.replyMarkup);
 
     expect(buttons).toContain('"text":"Apri sala"');
-    expect(buttons).toContain("https://cinema.example.com/performances/5116/575978");
+    expect(buttons).toContain("https://cinema.example.com/showings/5116-575978");
     expect(summary?.text).not.toContain("Apri sala:");
   });
 
@@ -50,7 +50,7 @@ describe("public address in alerts", () => {
     await watcher.tick();
     const summary = harness.world.telegram.find((call) => call.method === "sendMessage");
 
-    expect(summary?.text).toContain("Apri sala: http://cinema.local:8080/performances/5116/575978");
+    expect(summary?.text).toContain("Apri sala: http://cinema.local:8080/showings/5116-575978");
     expect(JSON.stringify(summary?.replyMarkup)).not.toContain("Apri sala");
   });
 });

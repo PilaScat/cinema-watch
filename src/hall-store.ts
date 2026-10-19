@@ -1,29 +1,28 @@
 import type { createStore } from "./store.js";
 import type { Hall } from "./types.js";
 import type { HallStore } from "./webtic.js";
-import { hallKey } from "./keys.js";
 
 type Store = ReturnType<typeof createStore>;
 
-function isHall(value: unknown): value is Hall {
+function isStoredHall(value: unknown): value is Pick<Hall, "seats" | "fetchedAt"> {
   if (typeof value !== "object" || value === null) return false;
   const hall = value as Partial<Hall>;
-  return typeof hall.localId === "number" && typeof hall.screenId === "number" && Array.isArray(hall.seats) && typeof hall.fetchedAt === "number";
+  return Array.isArray(hall.seats) && typeof hall.fetchedAt === "number";
 }
 
 export function createFileHallStore(store: Store): HallStore {
-  const name = (localId: number, screenId: number) => `screens/${hallKey(localId, screenId)}.json`;
+  const name = (key: string) => `screens/${key}.json`;
   return {
-    async get(localId, screenId) {
+    async get(key) {
       try {
-        const value = await store.readJson(name(localId, screenId));
-        return isHall(value) ? value : null;
+        const value = await store.readJson(name(key));
+        return isStoredHall(value) ? { key, seats: value.seats, fetchedAt: value.fetchedAt } : null;
       } catch {
         return null;
       }
     },
     async set(hall) {
-      await store.writeJson(name(hall.localId, hall.screenId), hall);
+      await store.writeJson(name(hall.key), hall);
     },
   };
 }

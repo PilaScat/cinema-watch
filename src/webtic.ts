@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ApiShapeError, WebticError } from "./errors.js";
+import { hallKey, showingKey } from "./keys.js";
 import type { HttpClient, Hall, Occupancy, PerformanceInfo, Seat, TakenStatus } from "./types.js";
 
 export const WEBTIC_API_BASE = "https://uci-website-webtic-proxy-production-1042268733238.europe-west8.run.app/Api2";
@@ -7,7 +8,7 @@ export const WEBTIC_HEADERS = { Origin: "https://ucicinemas.it", Referer: "https
 export const HALL_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 export interface HallStore {
-  get(localId: number, screenId: number): Promise<Hall | null>;
+  get(key: string): Promise<Hall | null>;
   set(hall: Hall): Promise<void>;
 }
 
@@ -124,10 +125,9 @@ export function parsePerformance(json: unknown): PerformanceInfo {
   const data = unwrapData(json, performanceDataSchema, "performance");
   const performance = data.Performance;
   return {
-    localId: performance.LocalId,
-    eventId: performance.EventId,
-    performanceId: performance.PerformanceId,
-    screenId: performance.ScreenId,
+    key: showingKey(performance.LocalId, performance.PerformanceId),
+    hallKey: hallKey(performance.LocalId, performance.ScreenId),
+    eventRef: String(performance.EventId),
     screenName: performance.ScreenName,
     startTime: performance.StartTime,
     title: data.Event.Title,
@@ -161,8 +161,7 @@ function toSeat(raw: z.infer<typeof seatSchema>): Seat {
 export function parseHall(json: unknown, fetchedAt: number): Hall {
   const screen = unwrapData(json, screenDataSchema, "screen").Screen;
   return {
-    localId: screen.LocalId,
-    screenId: screen.ScreenId,
+    key: hallKey(screen.LocalId, screen.ScreenId),
     seats: screen.Seats.map(toSeat),
     fetchedAt,
   };
@@ -174,16 +173,15 @@ export function parseOccupancy(json: unknown): Occupancy {
   for (const seat of occupancy.Seats) {
     taken[seat.SeatId] = takenStatuses[seat.SeatStatus] ?? "other";
   }
-  return { localId: occupancy.LocalId, performanceId: occupancy.PerformanceId, taken };
+  return { key: showingKey(occupancy.LocalId, occupancy.PerformanceId), taken };
 }
 
 export function createMemoryHallStore(): HallStore {
   const halls = new Map<string, Hall>();
-  const keyOf = (localId: number, screenId: number): string => `${localId}:${screenId}`;
   return {
-    get: (localId, screenId) => Promise.resolve(halls.get(keyOf(localId, screenId)) ?? null),
+    get: (key) => Promise.resolve(halls.get(key) ?? null),
     set: (hall) => {
-      halls.set(keyOf(hall.localId, hall.screenId), hall);
+      halls.set(hall.key, hall);
       return Promise.resolve();
     },
   };
@@ -254,7 +252,7 @@ export function createSeatClient(transport: SeatTransport, options: WebticClient
 
   async function hall(localId: number, screenId: number, current?: Occupancy): Promise<HallResult> {
     assertPositiveIntegers({ LocalId: localId, ScreenId: screenId });
-    const cached = await options.hallStore.get(localId, screenId);
+    const cached = await options.hallStore.get(hallKey(localId, screenId));
     const usable =
       cached !== null &&
       now() - cached.fetchedAt < HALL_TTL_MS &&

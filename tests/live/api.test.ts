@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { parseLegacyKey } from "../../src/circuits/legacy.js";
 import { addDays, romeToday } from "../../src/dates.js";
 import { createHttpClient } from "../../src/http.js";
 import { analyzeSeats, DEFAULT_SELLABLE_TYPES } from "../../src/seats.js";
@@ -35,16 +36,17 @@ describe.skipIf(!live)("live UCI and Webtic", () => {
 
   it("reads a showing, its hall and its occupancy end to end", async () => {
     const showing = await someShowing();
-    const performance = await webtic.performance(showing.localId, showing.performanceId);
-    const occupancy = await webtic.occupancy(showing.localId, showing.performanceId);
-    const { hall } = await webtic.hall(showing.localId, performance.screenId, occupancy);
+    const [localId, performanceId] = parseLegacyKey(showing.key);
+    const performance = await webtic.performance(localId, performanceId);
+    const occupancy = await webtic.occupancy(localId, performanceId);
+    const { hall } = await webtic.hall(localId, parseLegacyKey(performance.hallKey)[1], occupancy);
     const analysis = analyzeSeats(hall, occupancy, {
       zone: { kind: "relative", rowsFromPercent: 40, rowsToPercent: 85, centerPercent: 60 },
       together: 2,
       sellableTypes: DEFAULT_SELLABLE_TYPES,
     });
 
-    expect(performance.screenId).toBeGreaterThan(0);
+    expect(performance.hallKey).toMatch(/^\d+-\d+$/);
     expect(hall.seats.length).toBeGreaterThan(20);
     expect(analysis.sellable).toBeGreaterThan(0);
     expect(analysis.free).toBeLessThanOrEqual(analysis.sellable);

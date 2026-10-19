@@ -39,7 +39,7 @@ function loadHall(file: string): Hall {
       type: seat.SeatType,
     };
   });
-  return { localId: raw.Data.Screen.LocalId, screenId: raw.Data.Screen.ScreenId, seats, fetchedAt: 0 };
+  return { key: `${raw.Data.Screen.LocalId}-${raw.Data.Screen.ScreenId}`, seats, fetchedAt: 0 };
 }
 
 function loadOccupancy(file: string): Occupancy {
@@ -50,7 +50,7 @@ function loadOccupancy(file: string): Occupancy {
   for (const seat of raw.Data.Occupancy.Seats) {
     taken[seat.SeatId] = seat.SeatStatus === "BLOCCATO" ? "blocked" : "sold";
   }
-  return { localId: raw.Data.Occupancy.LocalId, performanceId: raw.Data.Occupancy.PerformanceId, taken };
+  return { key: `${raw.Data.Occupancy.LocalId}-${raw.Data.Occupancy.PerformanceId}`, taken };
 }
 
 const LABELS: HallLabels = {
@@ -160,7 +160,7 @@ describe("renderHallSvg", () => {
       seats: [{ id: "A/1", rowLabel: "A", number: null, row: 2, column: 1, sector: "PT", type: "STANDARD" }],
     };
     const tinyRule: SeatRule = { ...RULE, zone: { kind: "absolute", rows: ["A"], seatFrom: null, seatTo: null } };
-    const empty: Occupancy = { localId: 1, performanceId: 1, taken: {} };
+    const empty: Occupancy = { key: "1-1", taken: {} };
     const svg = renderHallSvg(tiny, empty, analyzeSeats(tiny, empty, tinyRule), tinyRule, options("light"));
     expect(svg).toContain('width="560"');
     expect(svg.match(/<rect data-seat=/g)).toHaveLength(1);

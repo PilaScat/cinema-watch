@@ -35,9 +35,6 @@ export interface MovieRef {
 
 export interface Showing {
   key: string;
-  localId: number;
-  eventId: number;
-  performanceId: number;
   theatreSlug: string;
   movie: MovieRef;
   format: string;
@@ -82,10 +79,9 @@ export interface ShowingFilter {
 }
 
 export interface PerformanceInfo {
-  localId: number;
-  eventId: number;
-  performanceId: number;
-  screenId: number;
+  key: string;
+  hallKey: string;
+  eventRef: string;
   screenName: string;
   startTime: string;
   title: string;
@@ -103,8 +99,7 @@ export interface Seat {
 }
 
 export interface Hall {
-  localId: number;
-  screenId: number;
+  key: string;
   seats: Seat[];
   fetchedAt: number;
 }
@@ -112,8 +107,7 @@ export interface Hall {
 export type TakenStatus = "sold" | "blocked" | "other";
 
 export interface Occupancy {
-  localId: number;
-  performanceId: number;
+  key: string;
   taken: Record<string, TakenStatus>;
 }
 

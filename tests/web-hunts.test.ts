@@ -68,7 +68,7 @@ async function changeSeatMap() {
     sector: seat.SectorId,
     type: seat.SeatType,
   }));
-  await createStore(harness.dataDir).writeJson("screens/5116-2.json", { localId: 5116, screenId: 2, seats, fetchedAt: harness.now() });
+  await createStore(harness.dataDir).writeJson("screens/5116-2.json", { key: "5116-2", seats, fetchedAt: harness.now() });
   harness.world.setOccupancy(5116, 575978, occupancyWithTaken(fixture("webtic/occupancy-5116-575978.json"), "A/1"));
 }
 
@@ -297,7 +297,7 @@ describe("hunt form", () => {
 
     const html = await (await instance.request(`/hunts/${huntId}`)).text();
 
-    expect(html).toContain(`/performances/5116/575978?hunt=${huntId}&amp;movie=dune-parte-tre&amp;theatre=uci-cinemas-verona`);
+    expect(html).toContain(`/showings/5116-575978?hunt=${huntId}&amp;movie=dune-parte-tre&amp;theatre=uci-cinemas-verona`);
     expect(html).toContain("Fissa la zona su questa sala");
   });
 

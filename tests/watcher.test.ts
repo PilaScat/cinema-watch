@@ -568,7 +568,7 @@ describe("watcher", () => {
       sector: seat.SectorId,
       type: seat.SeatType,
     }));
-    await store.writeJson("screens/5116-2.json", { localId: 5116, screenId: 2, seats, fetchedAt: clock });
+    await store.writeJson("screens/5116-2.json", { key: "5116-2", seats, fetchedAt: clock });
     world.setOccupancy(5116, 575978, withExtraTaken(fixture("webtic/occupancy-5116-575978.json"), "A/1"));
     const subject = await watcher();
 
@@ -594,7 +594,7 @@ describe("watcher", () => {
       sector: seat.SectorId,
       type: seat.SeatType,
     }));
-    await store.writeJson("screens/5116-2.json", { localId: 5116, screenId: 2, seats, fetchedAt: clock });
+    await store.writeJson("screens/5116-2.json", { key: "5116-2", seats, fetchedAt: clock });
     world.setOccupancy(5116, 575978, withExtraTaken(fixture("webtic/occupancy-5116-575978.json"), "A/1"));
     const subject = await watcher();
 
@@ -619,7 +619,7 @@ describe("watcher", () => {
       sector: seat.SectorId,
       type: seat.SeatType,
     }));
-    await store.writeJson("screens/5116-2.json", { localId: 5116, screenId: 2, seats, fetchedAt: clock });
+    await store.writeJson("screens/5116-2.json", { key: "5116-2", seats, fetchedAt: clock });
     world.setOccupancy(5116, 575978, withExtraTaken(fixture("webtic/occupancy-5116-575978.json"), "A/1"));
     const subject = await watcher();
 
@@ -861,7 +861,7 @@ describe("watcher", () => {
       sector: seat.SectorId,
       type: seat.SeatId === "A/1" ? "POLTRONA" : seat.SeatType,
     }));
-    await store.writeJson("screens/5116-2.json", { localId: 5116, screenId: 2, seats, fetchedAt: clock });
+    await store.writeJson("screens/5116-2.json", { key: "5116-2", seats, fetchedAt: clock });
     const subject = await watcher();
 
     await subject.tick();

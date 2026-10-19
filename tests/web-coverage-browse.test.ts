@@ -16,7 +16,7 @@ afterEach(async () => {
 const isTheatreList = (url: URL) => url.pathname.endsWith("/theatres");
 const isProgramming = (url: URL) => url.pathname.includes("/programming");
 const MOVIE_PAGE = "/theatres/uci-cinemas-verona/movies/dune-parte-tre";
-const PERFORMANCE_PAGE = "/performances/5116/575978?movie=dune-parte-tre&theatre=uci-cinemas-verona";
+const PERFORMANCE_PAGE = "/showings/5116-575978?movie=dune-parte-tre&theatre=uci-cinemas-verona";
 
 describe("theatre list", () => {
   it("shows a notice and the empty state when the list cannot be read", async () => {
@@ -180,7 +180,7 @@ describe("performance page", () => {
   it("drops the format when the showing is not in the programme of that theatre", async () => {
     const { instance } = await createWebApp(harness);
 
-    const html = await (await instance.request("/performances/5116/575978?movie=dune-parte-tre&theatre=uci-cinemas-milano")).text();
+    const html = await (await instance.request("/showings/5116-575978?movie=dune-parte-tre&theatre=uci-cinemas-milano")).text();
 
     expect(html).toContain("Aggiungi caccia");
     expect(html).not.toContain("format=");
@@ -189,7 +189,7 @@ describe("performance page", () => {
   it("answers 404 for a malformed theatre slug", async () => {
     const { instance } = await createWebApp(harness);
 
-    expect((await instance.request("/performances/5116/575978?theatre=Bad_Slug")).status).toBe(404);
+    expect((await instance.request("/showings/5116-575978?theatre=Bad_Slug")).status).toBe(404);
   });
 
   it("shows the lowest price in the heading", async () => {

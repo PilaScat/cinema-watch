@@ -204,7 +204,7 @@ function fitText(sections: Section[], header: string, footer: string[]): string 
 }
 
 function hallUrl(showing: ShowingSnapshot, publicUrl: string): string {
-  return `${publicUrl.replace(/\/+$/, "")}/performances/${showing.localId}/${showing.performanceId}`;
+  return `${publicUrl.replace(/\/+$/, "")}/showings/${showing.key}`;
 }
 
 function captionFor(showing: ShowingSnapshot): string {

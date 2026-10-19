@@ -49,9 +49,6 @@ function stateWith(id: string, overrides: Partial<HuntState> = {}, extra: Partia
 function showing(key: string): ShowingSnapshot {
   return {
     key,
-    localId: 1,
-    eventId: 1,
-    performanceId: 1,
     theatreSlug: "t",
     movieSlug: "m",
     movieTitle: "M",
@@ -63,7 +60,7 @@ function showing(key: string): ShowingSnapshot {
     time: "20:30",
     room: "Sala",
     cartUrl: "https://ucicinemas.it/x",
-    screenId: 2,
+    hallKey: "1-2",
     screenName: "Sala",
     priceFrom: null,
     seats: null,

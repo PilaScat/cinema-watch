@@ -102,19 +102,16 @@ describe("parseTitle", () => {
 describe("parseScheduling", () => {
   it("files the showings by cinema day, so the 00:10 of the 16th counts for the 15th", () => {
     const programming = merlata();
-    const late = programming.get("2026-12-15")?.find((showing) => showing.performanceId === 52182);
+    const late = programming.get("2026-12-15")?.find((showing) => showing.key === "5779-52182");
 
     expect(late).toMatchObject({ day: "2026-12-15", startsAt: "2026-12-16T00:10:00", time: "00:10" });
   });
 
   it("reads a showing with the purchase link, the poster and the duration", () => {
-    const dune = all().find((showing) => showing.performanceId === 51133);
+    const dune = all().find((showing) => showing.key === "5779-51133");
 
     expect(dune).toEqual({
       key: "5779-51133",
-      localId: 5779,
-      eventId: 1223,
-      performanceId: 51133,
       theatreSlug: MERLATA,
       movie: { slug: "dune-parte-tre", title: "Dune - Parte Tre", poster: "https://secure.webtic.it/api/HandlerLocandinaEx.ashx?idcinema=5779&idevento=1223&i=jpg-m&t=090920261302" },
       format: "2D",
@@ -130,17 +127,17 @@ describe("parseScheduling", () => {
   });
 
   it("reads the language from the event properties", () => {
-    const languages = new Map(all().map((showing) => [showing.eventId, showing.language]));
+    const languages = new Map(all().map((showing) => [showing.cartUrl.split("/").at(-2), showing.language]));
 
-    expect(languages.get(1337)).toBe("ENG");
-    expect(languages.get(1343)).toBe("KOR");
-    expect(languages.get(1291)).toBe("ITA");
+    expect(languages.get("1337")).toBe("ENG");
+    expect(languages.get("1343")).toBe("KOR");
+    expect(languages.get("1291")).toBe("ITA");
   });
 
   it("gives the Infinity Vision titles an edition, so the hunt format picks only them", () => {
     const vision = filterShowings(all(), { movieSlugs: ["avengers-doomsday"], formats: ["INFINITY VISION"] }, NOW);
 
-    expect(new Set(vision.map((showing) => showing.eventId))).toEqual(new Set([1289]));
+    expect(new Set(vision.map((showing) => showing.cartUrl.split("/").at(-2)))).toEqual(new Set(["1289"]));
     expect(vision[0]).toMatchObject({ format: "2D - INFINITY VISION", formatGroup: "2D" });
     expect(filterShowings(all(), { movieSlugs: ["avengers-doomsday"], formats: ["2D"] }, NOW)).toHaveLength(11);
   });
@@ -200,10 +197,9 @@ describe("moviesOf", () => {
 describe("seats", () => {
   it("reads the performance without a price", () => {
     expect(parsePerformanceInfo(fixture("webtic-direct/performance-5779-51133.json"))).toEqual({
-      localId: 5779,
-      eventId: 1223,
-      performanceId: 51133,
-      screenId: 233,
+      key: "5779-51133",
+      hallKey: "5779-233",
+      eventRef: "1223",
       screenName: "SALA 1",
       startTime: "2026-12-15T21:00:00",
       title: "Dune - Parte Tre",
@@ -216,7 +212,7 @@ describe("seats", () => {
 
     expect(hall.seats).toHaveLength(188);
     expect(hall.seats[0]).toEqual({ id: "A/24", rowLabel: "A", number: 24, row: 2, column: 2, sector: "PT", type: "STANDARD" });
-    expect(hall).toMatchObject({ localId: 5779, screenId: 233, fetchedAt: 1 });
+    expect(hall).toMatchObject({ key: "5779-233", fetchedAt: 1 });
   });
 
   it("refuses a map without seats", () => {
@@ -262,7 +258,7 @@ describe("createWebticDirectClient", () => {
 
     expect(await direct.venueCandidates()).toHaveLength(4);
     expect((await direct.scheduling(5779)).get("2026-12-15")).toHaveLength(4);
-    expect((await direct.seats.performance(5779, 51133)).screenId).toBe(233);
+    expect((await direct.seats.performance(5779, 51133)).hallKey).toBe("5779-233");
     expect((await direct.seats.screen(5779, 233, 5)).seats).toHaveLength(188);
     expect(Object.keys((await direct.seats.occupancy(5779, 51133)).taken)).toHaveLength(50);
     expect(world.requests).toEqual([
