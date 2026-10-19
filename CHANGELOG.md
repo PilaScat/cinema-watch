@@ -7,6 +7,7 @@ Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del ta
 ### Progetto
 
 - La descrizione del progetto parla dei cinema italiani, con la copertura di oggi: UCI Cinemas e i cinema che vendono con Webtic.
+- I testi della web UI non nominano più un circuito solo: la pagina Cinema dice "I cinema" e l'etichetta di ogni scheda ne indica il circuito; l'avviso della ricerca parla di "catalogo dei film".
 - Badge OpenSSF Best Practices, livello passing (progetto 15670). Le risposte stanno in `docs/best-practices.md` e `scripts/best-practices-fill.mjs` compila il modulo.
 
 ## v2026.10.7

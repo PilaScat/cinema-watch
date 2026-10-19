@@ -34,7 +34,7 @@ describe("theatres by distance", () => {
     const html = await page("/theatres", home(60));
 
     expect(html).toContain("Entro 60 km");
-    expect(html).toContain("I cinema UCI e Webtic, dal più vicino a casa.");
+    expect(html).toContain("I cinema, dal più vicino a casa.");
     expect(html).not.toContain("raggruppati per regione");
     expect(position(html, "UCI Cinemas Verona")).toBeLessThan(position(html, "UCI Luxe Palladio"));
     expect(html).toContain("5 km");

@@ -24,7 +24,7 @@ describe("Webtic cinemas in the web UI", () => {
   it("lists a Webtic cinema in its region with the circuit label", async () => {
     const html = await page("/theatres");
 
-    expect(html).toContain("I cinema UCI e Webtic, raggruppati per regione.");
+    expect(html).toContain("I cinema, raggruppati per regione.");
     expect(html).toContain('href="/theatres/webtic-5779"');
     expect(html).toContain("Notorious Cascina Merlata");
     expect(html).toContain(">Webtic</span>");
