@@ -87,3 +87,6 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   verificato il 16/10/2026). Dependabot ignora Vitest 5 finché Stryker non lo supporta.
 - **Stryker fuori da Nextcloud**: dentro `D:\Nextcloud` la cartella `.stryker-tmp` dà `EPERM` sui
   file bloccati, quindi si lancia su un clone fuori dalla cartella sincronizzata.
+- **Nome del file di `gh attestation download`**: su Linux è `sha256:<hex>.jsonl`, su Windows
+  `sha256-<hex>.jsonl`. `release.yml` lo prende con `sha256?<hex>.jsonl`. Provarlo solo su Windows
+  ha fatto fallire il job Release della v2026.10.7 (19/10/2026), completata poi a mano.

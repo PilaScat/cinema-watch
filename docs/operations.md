@@ -84,6 +84,24 @@ Per verificare l'attestazione di un'immagine:
 gh attestation verify oci://ghcr.io/pilascat/cinema-watch:<tag> -R PilaScat/cinema-watch
 ```
 
+### Se fallisce solo il job Release
+
+Immagini, manifest e attestazione sono già pubblicati. Il tag non si sposta e non si cancella, e rilanciare il workflow ricostruirebbe le immagini con digest nuovi: `:latest` e il tag non coinciderebbero più. La Release si completa a mano con gli stessi passi del job, da Git Bash nella cartella del repo:
+
+```sh
+TAG=vAAAA.MM.N
+IMAGE=ghcr.io/pilascat/cinema-watch
+DIGEST=$(docker buildx imagetools inspect "$IMAGE:$TAG" --format '{{json .Manifest}}' | jq -r .digest)
+git show "$TAG:CHANGELOG.md" | awk -v tag="$TAG" '$1 == "##" { inside = ($2 == tag); next } inside' > notes.md
+previous=$(git describe --tags --abbrev=0 "$TAG^")
+{ echo; echo "## Commit"; echo; git log --no-merges --format='- %s (%h)' "$previous..$TAG"; echo; echo "Immagine: \`$IMAGE:$TAG\` (amd64, arm64)"; } >> notes.md
+gh attestation download "oci://$IMAGE@$DIGEST" -R PilaScat/cinema-watch
+mv ./sha256?"${DIGEST#sha256:}.jsonl" "cinema-watch-$TAG.intoto.jsonl"
+gh release create "$TAG" --verify-tag --title "$TAG" --notes-file notes.md "cinema-watch-$TAG.intoto.jsonl"
+```
+
+Poi si corregge il workflow su `main`, che vale dal rilascio successivo.
+
 ## Workflow automatici
 
 Tutti i workflow si possono lanciare anche a mano (`workflow_dispatch`).
