@@ -35,7 +35,7 @@ sezione `telegram` per i messaggi. La guardia è `tests/copy-style.test.ts`.
 | posti adiacenti nella stessa fila | **posti vicini** | consecutivi, attaccati |
 | posti non presi | **liberi** | disponibili |
 | posti nel carrello di altri | **nel carrello** | bloccati |
-| comprare sul sito UCI | **Acquista** | Compra, Prenota |
+| comprare sul sito del cinema | **Acquista** | Compra, Prenota |
 | controllo fatto a mano | **Aggiorna ora** | Controlla, Ricarica |
 | fermare gli avvisi per un po' | **Silenzia** | Muta, Pausa |
 | chiudere una caccia riuscita | **Acquistato** | Fatto, Comprato |

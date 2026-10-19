@@ -12,7 +12,7 @@ Nel file `services.yaml` di Homepage, sostituendo `IP` con l'indirizzo di cinema
 - Cinema:
     - cinema-watch:
         href: http://IP:8790
-        description: Cacce ai biglietti UCI
+        description: Cacce ai biglietti dei cinema
         widget:
           type: customapi
           url: http://IP:8790/api/status
