@@ -12,9 +12,6 @@ const ROME_NOON_DEC_31 = Date.parse("2026-12-31T11:00:00Z");
 function snapshot(key: string, startsAt: string): ShowingSnapshot {
   return {
     key,
-    localId: 1,
-    eventId: 1,
-    performanceId: 1,
     theatreSlug: "t",
     movieSlug: "m",
     movieTitle: "M",
@@ -26,7 +23,7 @@ function snapshot(key: string, startsAt: string): ShowingSnapshot {
     time: startsAt.slice(11, 16),
     room: "Sala",
     cartUrl: "https://ucicinemas.it/x",
-    screenId: 2,
+    hallKey: "1-2",
     screenName: "Sala",
     priceFrom: null,
     seats: null,

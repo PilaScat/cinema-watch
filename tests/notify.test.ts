@@ -58,9 +58,6 @@ function seats(overrides: Partial<SeatSummary> = {}): SeatSummary {
 function showing(overrides: Partial<ShowingSnapshot> = {}): ShowingSnapshot {
   return {
     key: "k1",
-    localId: 11,
-    eventId: 5,
-    performanceId: 900,
     theatreSlug: "torino",
     movieSlug: "dune",
     movieTitle: "Dune",
@@ -72,7 +69,7 @@ function showing(overrides: Partial<ShowingSnapshot> = {}): ShowingSnapshot {
     time: "20:30",
     room: "Sala 3",
     cartUrl: "https://cart.example/1",
-    screenId: 1,
+    hallKey: "11-1",
     screenName: "Sala 3",
     priceFrom: null,
     seats: seats(),
@@ -302,7 +299,6 @@ describe("composeRound photos and keyboards", () => {
     const times = ["20:00", "20:30", "21:00", "21:30", "22:00"];
     const events = times.map((time, index) =>
       created(`k${index}`, {
-        localId: 20 + index,
         cartUrl: `https://cart.example/${index}`,
         time,
         startsAt: `2026-12-15T${time}:00`,
@@ -402,7 +398,7 @@ describe("composeRound hall link", () => {
     const text = texts(composeRound([created("k1")], context({ publicUrl: "https://cw.example/" })))[0];
     expect(text?.keyboard).toEqual([
       [{ text: "Acquista", url: "https://cart.example/1" }],
-      [{ text: "Apri sala", url: "https://cw.example/performances/11/900" }],
+      [{ text: "Apri sala", url: "https://cw.example/showings/k1" }],
       REFRESH_ROW,
     ]);
     expect(text?.text).not.toContain("Apri sala");
@@ -410,7 +406,7 @@ describe("composeRound hall link", () => {
 
   it("adds Apri sala to the text when not a button", () => {
     const text = texts(composeRound([created("k1")], context({ publicUrl: "https://cw.example", openAsButton: false })))[0];
-    expect(text?.text.endsWith("40 liberi, 8 nella zona buona\nMigliori: H 9-11\n\nApri sala: https://cw.example/performances/11/900")).toBe(true);
+    expect(text?.text.endsWith("40 liberi, 8 nella zona buona\nMigliori: H 9-11\n\nApri sala: https://cw.example/showings/k1")).toBe(true);
     expect(text?.keyboard).toEqual([[{ text: "Acquista", url: "https://cart.example/1" }], REFRESH_ROW]);
   });
 
@@ -424,8 +420,6 @@ describe("composeRound size limit", () => {
     const minutes = 10 * 60 + index * 10;
     const time = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
     return created(`k${index}`, {
-      localId: 1000 + index,
-      performanceId: 5000 + index,
       time,
       startsAt: `2026-12-15T${time}:00`,
       seats: seats({ freeInZone: 100 - index }),
@@ -443,9 +437,9 @@ describe("composeRound size limit", () => {
     expect(omitted).toBeGreaterThan(0);
     expect(shown + omitted).toBe(64);
     expect(lines.slice(-3)).toEqual([
-      "Apri sala: https://cw.example/performances/1000/5000",
-      "Apri sala: https://cw.example/performances/1001/5001",
-      "Apri sala: https://cw.example/performances/1002/5002",
+      "Apri sala: https://cw.example/showings/k0",
+      "Apri sala: https://cw.example/showings/k1",
+      "Apri sala: https://cw.example/showings/k2",
     ]);
     expect(lines[lines.length - 4]).toBe("");
     expect(lines[lines.length - 5]).toBe(`e altri ${omitted}`);

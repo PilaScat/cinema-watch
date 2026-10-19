@@ -36,9 +36,6 @@ const hunt: Hunt = {
 function showing(performanceId: number, overrides: Partial<Showing> = {}): Showing {
   return {
     key: `5116-${performanceId}`,
-    localId: 5116,
-    eventId: 9803,
-    performanceId,
     theatreSlug: "uci-cinemas-verona",
     movie: { slug: "dune-parte-tre", title: "Dune: Parte Tre", poster: null },
     format: "IMAX",
@@ -80,7 +77,7 @@ function observed(show: Showing, seats: SeatAnalysis | null, zoneSignature = "zo
   return {
     showing: show,
     performance: seats
-      ? { localId: show.localId, eventId: show.eventId, performanceId: show.performanceId, screenId: 2, screenName: show.room, startTime: show.startsAt, title: show.movie.title, priceFrom: 14.9 }
+      ? { key: show.key, hallKey: "5116-2", eventRef: "9803", screenName: show.room, startTime: show.startsAt, title: show.movie.title, priceFrom: 14.9 }
       : null,
     analysis: seats,
     zoneSignature: seats ? zoneSignature : null,
@@ -249,7 +246,7 @@ describe("diffRound", () => {
 
   it("keeps showings with the same performance id in two cinemas apart", () => {
     const verona = showing(600001);
-    const orio = showing(600001, { key: "5100-600001", localId: 5100, theatreSlug: "uci-cinemas-orio-bergamo" });
+    const orio = showing(600001, { key: "5100-600001", theatreSlug: "uci-cinemas-orio-bergamo" });
     const result = run(emptyHuntState(), round(at(0), [observed(verona, analysis(0)), observed(orio, analysis(0))]));
 
     expect(Object.keys(result.state.showings).sort()).toEqual(["5100-600001", "5116-600001"]);

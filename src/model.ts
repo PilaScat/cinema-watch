@@ -11,7 +11,7 @@ import type {
 } from "./types.js";
 
 export const CONFIG_SCHEMA_VERSION = 2;
-export const STATE_SCHEMA_VERSION = 1;
+export const STATE_SCHEMA_VERSION = 2;
 
 export type AbsoluteZone = Extract<Zone, { kind: "absolute" }>;
 
@@ -82,9 +82,6 @@ export interface SeatSummary {
 
 export interface ShowingSnapshot {
   key: string;
-  localId: number;
-  eventId: number;
-  performanceId: number;
   theatreSlug: string;
   movieSlug: string;
   movieTitle: string;
@@ -96,7 +93,7 @@ export interface ShowingSnapshot {
   time: HhMm;
   room: string;
   cartUrl: string;
-  screenId: number | null;
+  hallKey: string | null;
   screenName: string | null;
   priceFrom: number | null;
   seats: SeatSummary | null;

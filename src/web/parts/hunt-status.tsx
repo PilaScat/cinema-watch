@@ -1,15 +1,11 @@
 import { copy } from "../../copy.js";
 import { formatDay } from "../../format.js";
-import { hallKey } from "../../keys.js";
 import type { Hunt, HuntState } from "../../model.js";
 import { ActionForm, Badge, Button, Card, LinkButton } from "../components.js";
 
 const ui = copy.ui.hunts;
 const common = copy.ui.common;
 
-function hallKeyOf(showing: { localId: number; screenId: number | null }): string | null {
-  return showing.screenId === null ? null : hallKey(showing.localId, showing.screenId);
-}
 
 export function StatusCards(props: { hunt: Hunt; state: HuntState | undefined; theatreNames: Record<string, string> }) {
   const { hunt } = props;
@@ -58,7 +54,7 @@ export function StatusCards(props: { hunt: Hunt; state: HuntState | undefined; t
                     ) : (
                       <Badge tone={showing.seats?.ok ? "gold" : "neutral"}>{ui.showing.free(free)}</Badge>
                     )}
-                    <a href={`/performances/${showing.localId}/${showing.performanceId}?${query.toString()}`} class="font-semibold text-primary hover:underline">
+                    <a href={`/showings/${showing.key}?${query.toString()}`} class="font-semibold text-primary hover:underline">
                       {ui.showing.open}
                     </a>
                   </div>
@@ -90,10 +86,10 @@ export function StatusCards(props: { hunt: Hunt; state: HuntState | undefined; t
 
 function HallZonesCard(props: { hunt: Hunt; state: HuntState | undefined }) {
   const { hunt } = props;
-  const rooms = new Map<string, { room: string; performanceId: number }>();
+  const rooms = new Map<string, { room: string; showingKey: string }>();
   for (const showing of Object.values(props.state?.showings ?? {})) {
-    const key = hallKeyOf(showing);
-    if (key !== null && !rooms.has(key)) rooms.set(key, { room: showing.screenName ?? showing.room, performanceId: showing.performanceId });
+    const key = showing.hallKey;
+    if (key !== null && !rooms.has(key)) rooms.set(key, { room: showing.screenName ?? showing.room, showingKey: showing.key });
   }
   const zones = Object.entries(hunt.hallZones);
   const toReconfirm = props.state?.hallsToReconfirm ?? [];
@@ -116,11 +112,11 @@ function HallZonesCard(props: { hunt: Hunt; state: HuntState | undefined }) {
       </ul>
       {rooms.size > 0 ? (
         <ul class="mt-3 flex flex-col gap-2">
-          {[...rooms.entries()].map(([key, room]) => (
+          {[...rooms.values()].map((room) => (
             <li class="flex flex-wrap items-center justify-between gap-2 text-sm">
               <span class="min-w-0">{room.room}</span>
               <LinkButton
-                href={`/hunts/${hunt.id}/zone?performance=${key.split("-")[0] ?? ""}-${room.performanceId}`}
+                href={`/hunts/${hunt.id}/zone?performance=${room.showingKey}`}
                 label={ui.actions.setZone}
                 icon="armchair"
                 size="sm"

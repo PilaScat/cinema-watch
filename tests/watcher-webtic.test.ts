@@ -147,19 +147,19 @@ describe("hunts on a Webtic cinema", () => {
     await watcher.tick();
     await watcher.saveConfig({ ...watcher.config(), hunts: [] });
 
-    expect((await watcher.services.hall(5779, 51133)).chain).toBe("webtic");
-    expect((await watcher.services.hall(5779, 51133, undefined, MERLATA)).chain).toBe("webtic");
-    expect((await watcher.services.hall(5116, 575978, undefined, "uci-cinemas-verona")).chain).toBe("uci");
+    expect((await watcher.services.hall("5779-51133")).chain).toBe("webtic");
+    expect((await watcher.services.hall("5779-51133", undefined, MERLATA)).chain).toBe("webtic");
+    expect((await watcher.services.hall("5116-575978", undefined, "uci-cinemas-verona")).chain).toBe("uci");
   });
 
   it("shows a Webtic hall through the direct API and a UCI hall through the UCI proxy", async () => {
     await harness.seed(undefined, { venues: merlataVenues(harness.now()) });
     const watcher = await harness.watcher();
 
-    const webtic = await watcher.services.hall(5779, 51133);
-    const uci = await watcher.services.hall(5116, 575978);
+    const webtic = await watcher.services.hall("5779-51133");
+    const uci = await watcher.services.hall("5116-575978");
 
-    expect(webtic).toMatchObject({ chain: "webtic", performance: { screenId: 233 } });
+    expect(webtic).toMatchObject({ chain: "webtic", performance: { hallKey: "5779-233" } });
     expect(webtic.analysis.sellable).toBeGreaterThan(0);
     expect(uci.chain).toBe("uci");
     expect(requestsTo(PROXY)).toHaveLength(3);

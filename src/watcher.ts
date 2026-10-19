@@ -12,14 +12,13 @@ import {
   type TelegramSource,
 } from "./config.js";
 import { copy } from "./copy.js";
-import { ApiShapeError } from "./errors.js";
 import { romeNow, romeToday } from "./dates.js";
 import { escapeHtml } from "./format.js";
 import { createEventLog, type EventEntry } from "./events.js";
 import { createFileHallStore } from "./hall-store.js";
 import { createHistory, type HistoryPoint } from "./history.js";
 import { createHttpClient } from "./http.js";
-import { HUNT_ID, showingKey } from "./keys.js";
+import { HUNT_ID } from "./keys.js";
 import { createLogger, redact, type Logger } from "./log.js";
 import { expiredHistoryKeys, prunedState, releaseTag, versionCheckDue } from "./maintenance.js";
 import type { Config, Hunt, HuntEvent, HuntState, OutgoingMessage, SentResult, State } from "./model.js";
@@ -27,7 +26,9 @@ import { composeDigest, composeRound, type DigestEntry } from "./notify.js";
 import { photoKeys, renderPhotos } from "./photos.js";
 import { diffRound, snapshotOf } from "./round.js";
 import { roundEntries } from "./round-log.js";
-import { observeHunt, zoneFor, type HuntObservation, type RunnerCaches, type SeatDetail } from "./runner.js";
+import { observeHunt, zoneFor, type HuntObservation, type SeatDetail } from "./runner.js";
+import { createCircuits } from "./circuits/index.js";
+import { createUciCircuit, createWebticCircuit, parseLegacyKey, type LegacyCaches } from "./circuits/legacy.js";
 import { analyzeSeats } from "./seats.js";
 import { huntStateOf, loadState, saveState } from "./state.js";
 import { createStore } from "./store.js";
@@ -88,6 +89,7 @@ export interface RunReport {
 export interface HallView extends SeatDetail {
   performance: PerformanceInfo;
   chain: Chain;
+  cartUrl(movieSlug: string | undefined): string | null;
 }
 
 export interface VenueStatus {
@@ -101,7 +103,7 @@ export interface WatcherServices {
   programming(theatreSlug: string): Promise<Map<IsoDay, Showing[]>>;
   movieTheatres(movieSlug: string): Promise<MovieTheatre[]>;
   movies(): Promise<CatalogMovie[]>;
-  hall(localId: number, performanceId: number, huntId?: string, theatreSlug?: string): Promise<HallView>;
+  hall(showingKey: string, huntId?: string, theatreSlug?: string): Promise<HallView>;
   venueStatus(): VenueStatus;
 }
 
@@ -184,7 +186,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     clock: { now, sleep: options.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms))) },
   });
   const clock = { now };
-  const caches: RunnerCaches = {
+  const caches: LegacyCaches = {
     programming: createTtlCache<Showing[]>({ ttlMs: CACHE_TTL_MS, maxEntries: 500, clock }),
     schedule: createTtlCache<Map<IsoDay, Showing[]>>({ ttlMs: CACHE_TTL_MS, maxEntries: 100, clock }),
     occupancy: createTtlCache<Occupancy>({ ttlMs: CACHE_TTL_MS, maxEntries: 500, clock }),
@@ -195,7 +197,17 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   const webtic = createWebticClient(http, { hallStore, now });
   const direct = createWebticDirectClient(http);
   const directSeats = createSeatClient(direct.seats, { hallStore, now });
-  const runnerDeps = { uci, webtic, direct: { scheduling: (localId: number) => roundSchedule(localId), seats: directSeats }, caches };
+  const circuits = createCircuits([
+    createUciCircuit({ uci, seats: webtic, caches }),
+    createWebticCircuit({
+      roundScheduling: (localId) => roundSchedule(localId),
+      scheduling: (localId) => direct.scheduling(localId),
+      knows: (localId) => isDirectLocal(localId),
+      seats: directSeats,
+      caches,
+    }),
+  ]);
+  const runnerDeps = { circuits };
   let venueList: VenueList | null = await loadVenueList(store);
   let foundVenues: WebticVenue[] = [];
   const probeDirect = createWebticDirectClient(probeHttp);
@@ -268,17 +280,15 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     return slugs.some((slug) => localIdOfSlug(slug) === localId);
   }
 
-  function chainOf(localId: number, theatreSlug?: string): Chain {
-    const known = theatreSlug ?? Object.values(state.hunts).flatMap((hunt) => Object.values(hunt.showings)).find((showing) => showing.localId === localId)?.theatreSlug;
+  function chainOf(key: string, theatreSlug?: string): Chain {
+    const known = theatreSlug ?? Object.values(state.hunts).flatMap((hunt) => Object.values(hunt.showings)).find((showing) => showing.key === key)?.theatreSlug;
+    const [localId] = parseLegacyKey(key);
     if (known !== undefined) return localIdOfSlug(known) === localId ? "webtic" : "uci";
     return isDirectLocal(localId) ? "webtic" : "uci";
   }
 
   function programmingOf(theatreSlug: string): Promise<Map<IsoDay, Showing[]>> {
-    const localId = localIdOfSlug(theatreSlug);
-    if (localId === null) return fullProgramming.getOrLoad(theatreSlug, () => uci.programmingAll(theatreSlug));
-    if (!isDirectLocal(localId)) return Promise.reject(new ApiShapeError("webtic", `unknown cinema: ${theatreSlug}`));
-    return fullProgramming.getOrLoad(theatreSlug, () => direct.scheduling(localId));
+    return fullProgramming.getOrLoad(theatreSlug, () => circuits.forSlug(theatreSlug).programming(theatreSlug));
   }
 
   async function movieTheatres(movieSlug: string): Promise<MovieTheatre[]> {
@@ -322,17 +332,14 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     return Object.fromEntries([...fromUci, ...currentVenues().map((venue) => venue.theatre)].map((theatre) => [theatre.slug, theatre.name]));
   }
 
-  async function hallView(localId: number, performanceId: number, huntId?: string, theatreSlug?: string): Promise<HallView> {
-    const key = showingKey(localId, performanceId);
-    const chain = chainOf(localId, theatreSlug);
-    const seats = chain === "webtic" ? directSeats : webtic;
-    const performance = await caches.performance.getOrLoad(key, () => seats.performance(localId, performanceId));
-    const occupancy = await caches.occupancy.getOrLoad(key, () => seats.occupancy(localId, performanceId));
-    const { hall } = await seats.hall(localId, performance.screenId, occupancy);
+  async function hallView(key: string, huntId?: string, theatreSlug?: string): Promise<HallView> {
+    const chain = chainOf(key, theatreSlug);
+    const circuit = circuits.forChain(chain);
+    const { performance, hall, occupancy } = await circuit.seats(key, false);
     const hunt = huntId === undefined ? null : huntById(huntId);
-    const zone = hunt ? zoneFor(hunt, localId, performance.screenId) : config.settings.defaultZone;
+    const zone = hunt ? zoneFor(hunt, performance.hallKey) : config.settings.defaultZone;
     const rule = { zone, together: hunt?.together ?? DEFAULT_TOGETHER, sellableTypes: config.settings.sellableTypes };
-    return { performance, chain, hall, occupancy, rule, analysis: analyzeSeats(hall, occupancy, rule) };
+    return { performance, chain, hall, occupancy, rule, analysis: analyzeSeats(hall, occupancy, rule), cartUrl: (movieSlug) => circuit.cartUrl(key, performance, movieSlug) };
   }
 
   function chatFor(): string | null {

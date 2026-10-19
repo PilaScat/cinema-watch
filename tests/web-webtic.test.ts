@@ -38,12 +38,12 @@ describe("Webtic cinemas in the web UI", () => {
 
     expect(theatre).toContain('href="/theatres/webtic-5779/movies/dune-parte-tre"');
     expect(theatre).toContain("https://secure.webtic.it/api/HandlerLocandinaEx.ashx");
-    expect(movie).toContain('href="/performances/5779/51133?theatre=webtic-5779&amp;movie=dune-parte-tre"');
+    expect(movie).toContain('href="/showings/5779-51133?theatre=webtic-5779&amp;movie=dune-parte-tre"');
     expect(movie).toContain("SALA 1");
   });
 
   it("buys a Webtic showing on Webtic", async () => {
-    const html = await page("/performances/5779/51133?theatre=webtic-5779&movie=dune-parte-tre");
+    const html = await page("/showings/5779-51133?theatre=webtic-5779&movie=dune-parte-tre");
 
     expect(html).toContain("https://secure.webtic.it/angwt/webtic.aspx?lid=5779&amp;lng=it#/shoppingmode/it/0/5779/1223/51133");
     expect(html).not.toContain("ucicinemas.it/movies");

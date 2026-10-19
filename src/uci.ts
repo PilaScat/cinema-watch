@@ -198,9 +198,6 @@ function showingsOfMovie(movieJson: unknown, theatreSlug: string): Showing[] {
           }
           showings.push({
             key: showingKey(cart.localId, cart.performanceId),
-            localId: cart.localId,
-            eventId: cart.eventId,
-            performanceId: cart.performanceId,
             theatreSlug,
             movie: ref,
             format,

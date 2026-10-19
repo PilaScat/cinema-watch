@@ -1,4 +1,5 @@
 import type { Hono } from "hono";
+import { SHOWING_KEY } from "../../keys.js";
 import { romeToday } from "../../dates.js";
 import { copy } from "../../copy.js";
 import type { EventEntry } from "../../events.js";
@@ -8,7 +9,6 @@ import { Badge, Button, Card, Empty, inputClass, PageHeader, type Tone } from ".
 
 const ui = copy.ui.log;
 const EVENTS_SHOWN = 500;
-const PERFORMANCE_KEY = /^(\d+)-(\d+)$/;
 const KIND_TONES: Record<string, Tone> = {
   newShowing: "success",
   seatsFreed: "gold",
@@ -28,10 +28,9 @@ function timeOf(entry: EventEntry): string {
 }
 
 function showingLink(entry: EventEntry): string | null {
-  const match = entry.key === null ? null : PERFORMANCE_KEY.exec(entry.key);
-  if (!match) return null;
+  if (entry.key === null || !SHOWING_KEY.test(entry.key)) return null;
   const query = entry.huntId === null ? "" : `?${new URLSearchParams({ hunt: entry.huntId }).toString()}`;
-  return `/performances/${match[1] ?? ""}/${match[2] ?? ""}${query}`;
+  return `/showings/${entry.key}${query}`;
 }
 
 function Select(props: { name: string; label: string; value: string; options: Array<[string, string]> }) {

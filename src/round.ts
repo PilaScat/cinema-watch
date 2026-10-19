@@ -47,9 +47,6 @@ export function snapshotOf(observed: ObservedShowing): ShowingSnapshot {
   const { showing, performance, analysis } = observed;
   return {
     key: showing.key,
-    localId: showing.localId,
-    eventId: showing.eventId,
-    performanceId: showing.performanceId,
     theatreSlug: showing.theatreSlug,
     movieSlug: showing.movie.slug,
     movieTitle: showing.movie.title,
@@ -61,7 +58,7 @@ export function snapshotOf(observed: ObservedShowing): ShowingSnapshot {
     time: showing.time,
     room: showing.room,
     cartUrl: showing.cartUrl,
-    screenId: performance?.screenId ?? null,
+    hallKey: performance?.hallKey ?? null,
     screenName: performance?.screenName ?? null,
     priceFrom: performance?.priceFrom ?? null,
     seats: analysis ? seatSummary(analysis) : null,
@@ -92,7 +89,7 @@ function refreshed(known: ShowingState, observed: ObservedShowing, now: number):
   return {
     ...known,
     ...snapshot,
-    screenId: snapshot.screenId ?? known.screenId,
+    hallKey: snapshot.hallKey ?? known.hallKey,
     screenName: snapshot.screenName ?? known.screenName,
     priceFrom: snapshot.priceFrom ?? known.priceFrom,
     seats: snapshot.seats ?? known.seats,

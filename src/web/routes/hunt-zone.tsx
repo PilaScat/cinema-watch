@@ -2,7 +2,7 @@ import type { Hono } from "hono";
 import { raw } from "hono/html";
 import { copy } from "../../copy.js";
 import { renderHallSvg } from "../../hall-svg.js";
-import { HALL_KEY, hallKey, SHOWING_KEY, showingKey } from "../../keys.js";
+import { HALL_KEY, SHOWING_KEY } from "../../keys.js";
 import type { Config, Hunt } from "../../model.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { Button, Card, LinkButton, Notice, PageHeader } from "../components.js";
@@ -60,9 +60,7 @@ export function registerHuntZoneRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     c: PageContext,
     page: { hunt: Hunt; performance: string; values: ZoneFormValues | null; errors: FieldErrors; status: 200 | 400 | 500 },
   ) {
-    const match = SHOWING_KEY.exec(page.performance);
-    if (!match) return c.notFound();
-    const [localId, performanceId] = [Number(match[1]), Number(match[2])];
+    if (!SHOWING_KEY.test(page.performance)) return c.notFound();
     const { hunt } = page;
     const header = (
       <PageHeader
@@ -73,7 +71,7 @@ export function registerHuntZoneRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     );
     let view;
     try {
-      view = await watcher.services.hall(localId, performanceId, hunt.id);
+      view = await watcher.services.hall(page.performance, hunt.id);
     } catch {
       return renderPage(c, deps, {
         title: ui.titleZone,
@@ -87,9 +85,9 @@ export function registerHuntZoneRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
         ),
       });
     }
-    const viewHallKey = hallKey(view.performance.localId, view.performance.screenId);
+    const viewHallKey = view.performance.hallKey;
     const options = {
-      title: await movieTitleFor(deps, showingKey(view.performance.localId, view.performance.performanceId), view.performance.title, hunt.theatres),
+      title: await movieTitleFor(deps, view.performance.key, view.performance.title, hunt.theatres),
       subtitle: ui.zonePage.hallSubtitle(hunt.name, view.performance.screenName),
       labels: copy.hall.labels,
     };
@@ -110,7 +108,7 @@ export function registerHuntZoneRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
             </Card>
             <Card title={ui.titleZone}>
               <form method="post" action={`/hunts/${hunt.id}/zone`} class="flex flex-col gap-4" data-hall-picker>
-                <input type="hidden" name="performance" value={showingKey(localId, performanceId)} />
+                <input type="hidden" name="performance" value={page.performance} />
                 <p class="text-sm text-muted">{ui.zonePage.pick}</p>
                 <FormGrid>
                   <Wide>
@@ -142,16 +140,14 @@ export function registerHuntZoneRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     if (!hunt) return c.notFound();
     const body = await c.req.parseBody({ all: true });
     const performance = bodyText(body, "performance");
-    const match = SHOWING_KEY.exec(performance);
-    if (!match) return c.notFound();
+    if (!SHOWING_KEY.test(performance)) return c.notFound();
     const values: ZoneFormValues = { rows: bodyText(body, "rows"), seatFrom: bodyText(body, "seatFrom"), seatTo: bodyText(body, "seatTo") };
-    let screenId: number;
+    let savedHallKey: string;
     try {
-      screenId = (await watcher.services.hall(Number(match[1]), Number(match[2]), hunt.id)).performance.screenId;
+      savedHallKey = (await watcher.services.hall(performance, hunt.id)).performance.hallKey;
     } catch {
       return zonePage(c, { hunt, performance, values, errors: noErrors(), status: 500 });
     }
-    const savedHallKey = hallKey(Number(match[1]), screenId);
     const config = watcher.config();
     const index = config.hunts.findIndex((item) => item.id === hunt.id);
     const zone = { kind: "absolute" as const, rows: splitList(values.rows), seatFrom: nullableNumber(values.seatFrom), seatTo: nullableNumber(values.seatTo) };

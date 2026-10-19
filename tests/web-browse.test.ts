@@ -81,7 +81,7 @@ describe("theatres", () => {
     expect(html).toContain("SALA 1 IMAX");
     expect(html).toContain("44 liberi");
     expect(html).toContain("0 nella zona buona");
-    expect(html).toContain('href="/performances/5116/575978?theatre=uci-cinemas-verona&amp;movie=dune-parte-tre"');
+    expect(html).toContain('href="/showings/5116-575978?theatre=uci-cinemas-verona&amp;movie=dune-parte-tre"');
     expect(html).toContain('href="/hunts/new?theatre=uci-cinemas-verona&amp;movie=dune-parte-tre"');
     expect(html).toContain("Aggiungi caccia");
   });
@@ -94,7 +94,7 @@ describe("theatres", () => {
     expect(second).toContain("09:40");
     expect(second).toContain("SALA 07 XL");
     expect(second).toContain("Mostrati i primi 12 spettacoli.");
-    expect(second).toContain('href="/performances/5116/576749?');
+    expect(second).toContain('href="/showings/5116-576749?');
     expect(first).not.toBe(second);
     expect(first).toContain('aria-current="page"');
     await page(instance, "/theatres/uci-cinemas-verona/movies/avengers-doomsday?day=nope", 404);
@@ -108,7 +108,7 @@ describe("theatres", () => {
 });
 
 describe("performance", () => {
-  const path = "/performances/5116/575978?movie=dune-parte-tre&theatre=uci-cinemas-verona";
+  const path = "/showings/5116-575978?movie=dune-parte-tre&theatre=uci-cinemas-verona";
 
   it("draws the live hall in a light and a dark version with buy and hunt links", async () => {
     const { instance } = await app();
@@ -134,13 +134,23 @@ describe("performance", () => {
   it("has no buy or hunt links without the movie and rejects non numeric ids", async () => {
     const { instance } = await app();
 
-    const html = await page(instance, "/performances/5116/575978");
+    const html = await page(instance, "/showings/5116-575978");
 
     expect(html).not.toContain("Acquista");
     expect(html).not.toContain("Aggiungi caccia");
     await page(instance, "/performances/abc/575978", 404);
-    await page(instance, "/performances/5116/1x", 404);
-    await page(instance, "/performances/5116/575978?movie=Bad_Slug", 404);
+    await page(instance, "/showings/abc", 404);
+    await page(instance, "/showings/5116-1x", 404);
+    await page(instance, "/showings/5116-575978?movie=Bad_Slug", 404);
+  });
+
+  it("sends the address of the previous version, as in alerts already sent, to the new page", async () => {
+    const { instance } = await app();
+
+    const response = await instance.request("/performances/5116/575978?hunt=abcd1234&theatre=uci-cinemas-verona");
+
+    expect(response.status).toBe(301);
+    expect(response.headers.get("location")).toBe("/showings/5116-575978?hunt=abcd1234&theatre=uci-cinemas-verona");
   });
 
   it("uses the zone of the hunt when one is given", async () => {
@@ -157,7 +167,7 @@ describe("performance", () => {
   it("shows a notice when the hall cannot be read", async () => {
     const { instance } = await app();
 
-    expect(await page(instance, "/performances/5116/1")).toContain("Pianta non disponibile.");
+    expect(await page(instance, "/showings/5116-1")).toContain("Pianta non disponibile.");
   });
 
   it("charts the trend once two different readings exist, with the script and a table", async () => {

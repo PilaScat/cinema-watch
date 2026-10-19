@@ -37,7 +37,7 @@ describe("log page", () => {
     expect(html).toContain("Nuovo spettacolo");
     expect(html).toContain("Giro");
     expect(html).toContain("Dune IMAX Verona");
-    expect(html).toContain(`/performances/5116/575978?hunt=${huntId}`);
+    expect(html).toContain(`/showings/5116-575978?hunt=${huntId}`);
     expect(html).not.toContain("Nessun evento.");
   });
 

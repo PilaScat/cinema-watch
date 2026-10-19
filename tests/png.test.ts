@@ -32,7 +32,7 @@ function loadHall(file: string): Hall {
       type: seat.SeatType,
     };
   });
-  return { localId: raw.Data.Screen.LocalId, screenId: raw.Data.Screen.ScreenId, seats, fetchedAt: 0 };
+  return { key: `${raw.Data.Screen.LocalId}-${raw.Data.Screen.ScreenId}`, seats, fetchedAt: 0 };
 }
 
 function loadOccupancy(file: string): Occupancy {
@@ -43,7 +43,7 @@ function loadOccupancy(file: string): Occupancy {
   for (const seat of raw.Data.Occupancy.Seats) {
     taken[seat.SeatId] = seat.SeatStatus === "BLOCCATO" ? "blocked" : "sold";
   }
-  return { localId: raw.Data.Occupancy.LocalId, performanceId: raw.Data.Occupancy.PerformanceId, taken };
+  return { key: `${raw.Data.Occupancy.LocalId}-${raw.Data.Occupancy.PerformanceId}`, taken };
 }
 
 const LABELS: HallLabels = {

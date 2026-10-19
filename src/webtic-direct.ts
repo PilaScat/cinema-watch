@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { isIsoDay } from "./dates.js";
 import { ApiShapeError, WebticError } from "./errors.js";
-import { showingKey } from "./keys.js";
+import { hallKey, showingKey } from "./keys.js";
 import { regionOfProvince } from "./regions.js";
 import { normalizeTitle } from "./uci.js";
 import { parseSeatId, type SeatTransport } from "./webtic.js";
@@ -271,9 +271,6 @@ function showingsOfEvent(localId: number, theatreSlug: string, event: z.infer<ty
       const startsAt = DATE_TIME.exec(performance.StartTime) as RegExpExecArray;
       return {
         key: showingKey(localId, performance.PerformanceId),
-        localId,
-        eventId: event.EventId,
-        performanceId: performance.PerformanceId,
         theatreSlug,
         movie,
         format,
@@ -322,10 +319,9 @@ export function moviesOf(programming: Map<IsoDay, Showing[]>): CatalogMovie[] {
 export function parsePerformanceInfo(json: unknown): PerformanceInfo {
   const performance = unwrap(json, performanceInfoSchema, "performance").Performance;
   return {
-    localId: performance.LocalId,
-    eventId: performance.EventId,
-    performanceId: performance.PerformanceId,
-    screenId: performance.ScreenId,
+    key: showingKey(performance.LocalId, performance.PerformanceId),
+    hallKey: hallKey(performance.LocalId, performance.ScreenId),
+    eventRef: String(performance.EventId),
     screenName: cleanName(performance.Screen),
     startTime: performance.StartTime,
     title: parseTitle(performance.Title).title,
@@ -341,13 +337,13 @@ function seatOf(raw: z.infer<typeof mapSeatSchema>): Seat {
 export function parseMap(json: unknown, localId: number, screenId: number, fetchedAt: number): Hall {
   const seats = parseEach(mapSeatSchema, unwrap(json, mapSchema, "map").MapSeats.posti).map(seatOf);
   if (seats.length === 0) throw new ApiShapeError("webtic", "map: no seats");
-  return { localId, screenId, seats, fetchedAt };
+  return { key: hallKey(localId, screenId), seats, fetchedAt };
 }
 
 export function parseDirectOccupancy(json: unknown, localId: number, performanceId: number): Occupancy {
   const taken: Record<string, TakenStatus> = {};
   for (const seat of unwrap(json, occupancySchema, "occupancy").Occupancy.posti) taken[seat.idposto] = takenStatuses[seat.status] ?? "other";
-  return { localId, performanceId, taken };
+  return { key: showingKey(localId, performanceId), taken };
 }
 
 function assertId(name: string, value: number): void {

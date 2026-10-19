@@ -120,14 +120,14 @@ describe("sendMessage", () => {
     const { telegram, fetchMock } = setup([failure(400, "Bad Request: wrong URL"), okMessage(7)]);
     const result = await telegram.sendMessage("555", "x", [
       [{ text: "Acquista", url: "https://ucicinemas.it/a?b=1&c=2" }],
-      [{ text: "Apri sala", url: "http://192.168.1.20:8790/performances/1/2" }],
+      [{ text: "Apri sala", url: "http://192.168.1.20:8790/showings/1-2" }],
       [{ text: "Aggiorna ora", callbackData: "a:abcd1234" }],
     ]);
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(jsonBody(fetchMock, 0)).toHaveProperty("reply_markup");
     expect(jsonBody(fetchMock, 1)).toEqual({
       chat_id: "555",
-      text: "x\n\nAcquista: https://ucicinemas.it/a?b=1&amp;c=2\nApri sala: http://192.168.1.20:8790/performances/1/2",
+      text: "x\n\nAcquista: https://ucicinemas.it/a?b=1&amp;c=2\nApri sala: http://192.168.1.20:8790/showings/1-2",
       parse_mode: "HTML",
       link_preview_options: { is_disabled: true },
       reply_markup: { inline_keyboard: [[{ text: "Aggiorna ora", callback_data: "a:abcd1234" }]] },

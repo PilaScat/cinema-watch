@@ -97,9 +97,6 @@ describe("parseProgrammingDay", () => {
     expect(dune).toHaveLength(1);
     expect(dune[0]).toMatchObject({
       key: "5116-575978",
-      localId: 5116,
-      eventId: 9803,
-      performanceId: 575978,
       theatreSlug: "uci-cinemas-verona",
       format: "IMAX",
       formatGroup: "IMAX",
@@ -278,9 +275,6 @@ describe("filterShowings", () => {
   const now = new Date("2026-10-16T10:00:00Z");
   const base: Showing = {
     key: "1-1",
-    localId: 1,
-    eventId: 1,
-    performanceId: 1,
     theatreSlug: "t",
     movie: { slug: "dune-parte-tre", title: "Dune: Parte Tre", poster: null },
     format: "XL - INFINITY VISION",

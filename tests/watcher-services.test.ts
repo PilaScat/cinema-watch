@@ -96,7 +96,7 @@ describe("watcher services for the web UI", () => {
     expect(result.ok).toBe(true);
     expect(harness.world.telegram[0]?.text).toContain("https://cw.example");
     expect(watcher.state().publicUrlCheck).toEqual({ url: "https://cw.example", accepted: false });
-    expect(summary?.text).toContain("Apri sala: https://cw.example/performances/5116/575978");
+    expect(summary?.text).toContain("Apri sala: https://cw.example/showings/5116-575978");
     expect(JSON.stringify(summary?.replyMarkup)).not.toContain("cw.example");
   });
 
@@ -117,8 +117,8 @@ describe("watcher services for the web UI", () => {
     const config = await harness.seed();
     const watcher = await harness.watcher();
 
-    const withHunt = await watcher.services.hall(5116, 575978, config.hunts[0]?.id);
-    const withDefault = await watcher.services.hall(5116, 575978);
+    const withHunt = await watcher.services.hall("5116-575978", config.hunts[0]?.id);
+    const withDefault = await watcher.services.hall("5116-575978");
 
     expect(withHunt.performance.screenName).toBe("SALA 1 IMAX");
     expect(withHunt.analysis.free).toBe(44);

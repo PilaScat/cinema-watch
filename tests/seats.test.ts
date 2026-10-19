@@ -38,7 +38,7 @@ function loadHall(file: string): Hall {
       type: seat.SeatType,
     };
   });
-  return { localId: screen.LocalId, screenId: screen.ScreenId, seats, fetchedAt: 0 };
+  return { key: `${screen.LocalId}-${screen.ScreenId}`, seats, fetchedAt: 0 };
 }
 
 function loadOccupancy(file: string): Occupancy {
@@ -49,7 +49,7 @@ function loadOccupancy(file: string): Occupancy {
   for (const seat of raw.Data.Occupancy.Seats) {
     taken[seat.SeatId] = seat.SeatStatus === "BLOCCATO" ? "blocked" : "sold";
   }
-  return { localId: raw.Data.Occupancy.LocalId, performanceId: raw.Data.Occupancy.PerformanceId, taken };
+  return { key: `${raw.Data.Occupancy.LocalId}-${raw.Data.Occupancy.PerformanceId}`, taken };
 }
 
 const HALLS = [
@@ -92,11 +92,11 @@ function makeHall(rows: { label: string; columns: number[] }[], overrides: Parti
   const seats = rows.flatMap((row, index) =>
     row.columns.map((column) => makeSeat(row.label, index + 2, column, overrides)),
   );
-  return { localId: 1, screenId: 1, seats, fetchedAt: 0 };
+  return { key: "1-1", seats, fetchedAt: 0 };
 }
 
 function emptyOccupancy(taken: Record<string, TakenStatus> = {}): Occupancy {
-  return { localId: 1, performanceId: 1, taken };
+  return { key: "1-1", taken };
 }
 
 function range(from: number, to: number): number[] {
@@ -423,7 +423,7 @@ describe("properties on synthetic halls", () => {
       });
     });
     return {
-      hall: { localId: 1, screenId: 1, seats, fetchedAt: 0 },
+      hall: { key: "1-1", seats, fetchedAt: 0 },
       taken,
       together: value.together,
       zone: {

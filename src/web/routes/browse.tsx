@@ -7,14 +7,14 @@ import type { HallView, VenueStatus } from "../../watcher.js";
 import type { CatalogMovie, IsoDay, Showing, Theatre } from "../../types.js";
 import type { Settings } from "../../model.js";
 import { byDistance, formatKm } from "../../distance.js";
-import { localIdOfSlug, webticCartUrl } from "../../webtic-direct.js";
+import { localIdOfSlug } from "../../webtic-direct.js";
 import { normalizeTitle } from "../../uci.js";
 import { searchMovies } from "../../movie-search.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { Badge, buttonClass, Card, Empty, Field, inputClass, LinkButton, Notice, PageHeader } from "../components.js";
 import { DayTabs, HallPair, MovieCard, ShowingRow, Stat, TheatreGroup, TrendSection } from "../parts/browse.js";
 import { movieTitleFor } from "../parts/titles.js";
-import { ISO_DAY, showingKey, SLUG } from "../../keys.js";
+import { ISO_DAY, SHOWING_KEY, SLUG } from "../../keys.js";
 
 const NUMERIC = /^\d+$/;
 const MAX_SHOWINGS = 12;
@@ -40,9 +40,9 @@ async function loadProgramming(deps: AppDeps, slug: string): Promise<Map<IsoDay,
   }
 }
 
-async function hallOf(deps: AppDeps, localId: number, performanceId: number, huntId?: string, theatreSlug?: string): Promise<HallView | null> {
+async function hallOf(deps: AppDeps, key: string, huntId?: string, theatreSlug?: string): Promise<HallView | null> {
   try {
-    return await deps.watcher.services.hall(localId, performanceId, huntId, theatreSlug);
+    return await deps.watcher.services.hall(key, huntId, theatreSlug);
   } catch {
     return null;
   }
@@ -223,7 +223,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const selected = days.find(([day]) => day === dayParam) ?? days[0];
     const ordered = [...(selected?.[1] ?? [])].sort((a, b) => a.time.localeCompare(b.time) || a.room.localeCompare(b.room));
     const shown = ordered.slice(0, MAX_SHOWINGS);
-    const analyses = await Promise.all(shown.map(async (showing) => (await hallOf(deps, showing.localId, showing.performanceId, undefined, showing.theatreSlug))?.analysis ?? null));
+    const analyses = await Promise.all(shown.map(async (showing) => (await hallOf(deps, showing.key, undefined, showing.theatreSlug))?.analysis ?? null));
     const title = days[0]?.[1][0]?.movie.title ?? movie;
     const huntQuery = queryString({ theatre: slug, movie });
     return renderPage(c, deps, {
@@ -247,7 +247,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
               <DayTabs days={days.map(([day]) => ({ day, label: formatDay(day) }))} selected={selected[0]} />
               <div class="grid gap-3">
                 {shown.map((showing, index) => (
-                  <ShowingRow href={`/performances/${showing.localId}/${showing.performanceId}?${huntQuery}`} showing={showing} analysis={analyses[index] ?? null} />
+                  <ShowingRow href={`/showings/${showing.key}?${huntQuery}`} showing={showing} analysis={analyses[index] ?? null} />
                 ))}
               </div>
               {ordered.length > shown.length ? <p class="mt-3 text-sm text-muted">{theatresUi.cap(MAX_SHOWINGS)}</p> : null}
@@ -339,22 +339,26 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     });
   });
 
-  app.get("/performances/:localId/:performanceId", (c) => performancePage(c, deps));
+  app.get("/performances/:localId/:performanceId", (c) => {
+    const localId = c.req.param("localId");
+    const performanceId = c.req.param("performanceId");
+    if (!NUMERIC.test(localId) || !NUMERIC.test(performanceId)) return c.notFound();
+    return c.redirect(`/showings/${localId}-${performanceId}${new URL(c.req.url).search}`, 301);
+  });
+
+  app.get("/showings/:key", (c) => performancePage(c, deps));
 }
 
 async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
   const ui = copy.ui.performance;
-  const localParam = c.req.param("localId") ?? "";
-  const performanceParam = c.req.param("performanceId") ?? "";
+  const key = c.req.param("key") ?? "";
   const movie = c.req.query("movie");
   const theatre = c.req.query("theatre");
-  if (!NUMERIC.test(localParam) || !NUMERIC.test(performanceParam)) return c.notFound();
+  if (!SHOWING_KEY.test(key)) return c.notFound();
   if ((movie !== undefined && !SLUG.test(movie)) || (theatre !== undefined && !SLUG.test(theatre))) return c.notFound();
-  const localId = Number(localParam);
-  const performanceId = Number(performanceParam);
   const huntParam = c.req.query("hunt");
   const huntId = huntParam !== undefined && deps.watcher.huntById(huntParam) !== null ? huntParam : undefined;
-  const view = await hallOf(deps, localId, performanceId, huntId, theatre);
+  const view = await hallOf(deps, key, huntId, theatre);
   if (!view) {
     return renderPage(c, deps, {
       title: ui.hallTitle,
@@ -371,18 +375,17 @@ async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
   const day = performance.startTime.slice(0, 10);
   const time = performance.startTime.slice(11, 16);
   const subtitle = ui.subtitle(performance.screenName, formatDay(day), time);
-  const movieTitle = await movieTitleFor(deps, showingKey(localId, performanceId), performance.title, theatre ? [theatre] : []);
+  const movieTitle = await movieTitleFor(deps, key, performance.title, theatre ? [theatre] : []);
   const svgOptions = { title: movieTitle, subtitle, labels: copy.hall.labels };
   const light = renderHallSvg(hall, occupancy, analysis, rule, { ...svgOptions, theme: "light" });
   const dark = renderHallSvg(hall, occupancy, analysis, rule, { ...svgOptions, theme: "dark" });
-  const history = await loadHistory(deps, showingKey(localId, performanceId));
+  const history = await loadHistory(deps, key);
   let format: string | undefined;
   if (theatre && movie) {
     const programming = await loadProgramming(deps, theatre);
-    const key = showingKey(localId, performanceId);
     format = [...(programming?.values() ?? [])].flat().find((showing) => showing.key === key)?.formatGroup;
   }
-  const buyUrl = view.chain === "webtic" ? webticCartUrl(localId, performance.eventId, performanceId) : movie ? `https://ucicinemas.it/movies/${movie}/acquista/${localId}/${performance.eventId}/${performanceId}` : null;
+  const buyUrl = view.cartUrl(movie);
   const huntHref = theatre && movie ? `/hunts/new?${queryString({ theatre, movie, format, from: day, to: day })}` : null;
   const backHref = theatre && movie ? `/theatres/${theatre}/movies/${movie}?day=${day}` : null;
   return renderPage(c, deps, {

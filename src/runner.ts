@@ -1,31 +1,16 @@
-import type { TtlCache } from "./cache.js";
+import type { Circuits } from "./circuits/index.js";
+import type { Circuit } from "./circuits/types.js";
 import { copy } from "./copy.js";
 import { formatDay } from "./format.js";
 import { resolveWindow } from "./dates.js";
 import { ApiShapeError, HttpError, WebticError } from "./errors.js";
 import type { Hunt, ObservedShowing, RoundObservation, Settings } from "./model.js";
 import { analyzeSeats } from "./seats.js";
-import type { Hall, IsoDay, MovieRef, Occupancy, PerformanceInfo, SeatAnalysis, SeatRule, Showing, ShowingFilter, Zone } from "./types.js";
-import { filterShowings, matchesTitle, type createUciClient } from "./uci.js";
-import type { createSeatClient } from "./webtic.js";
-import { localIdOfSlug } from "./webtic-direct.js";
-import { hallKey } from "./keys.js";
-
-type UciClient = ReturnType<typeof createUciClient>;
-type SeatClient = ReturnType<typeof createSeatClient>;
-
-export interface RunnerCaches {
-  programming: TtlCache<Showing[]>;
-  schedule: TtlCache<Map<IsoDay, Showing[]>>;
-  occupancy: TtlCache<Occupancy>;
-  performance: TtlCache<PerformanceInfo>;
-}
+import type { Hall, MovieRef, Occupancy, SeatAnalysis, SeatRule, Showing, ShowingFilter, Zone } from "./types.js";
+import { filterShowings, matchesTitle } from "./uci.js";
 
 export interface RunnerDeps {
-  uci: UciClient;
-  webtic: SeatClient;
-  direct: { scheduling(localId: number): Promise<Map<IsoDay, Showing[]>>; seats: SeatClient };
-  caches: RunnerCaches;
+  circuits: Circuits;
 }
 
 export interface SeatDetail {
@@ -43,15 +28,12 @@ export interface HuntObservation {
   unknownSeatTypes: string[];
 }
 
-const UCI_SOURCE = "UCI";
-const WEBTIC_SOURCE = "Webtic";
-
 export function zoneSignature(zone: Zone, together: number): string {
   return JSON.stringify({ zone, together });
 }
 
-export function zoneFor(hunt: Hunt, localId: number, screenId: number): Zone {
-  return hunt.hallZones[hallKey(localId, screenId)] ?? hunt.zone;
+export function zoneFor(hunt: Hunt, hallKey: string): Zone {
+  return hunt.hallZones[hallKey] ?? hunt.zone;
 }
 
 function targetSlugs(hunt: Hunt): string[] {
@@ -95,47 +77,22 @@ function moviesMatching(hunt: Hunt, showings: Showing[], theatreSlug: string): A
   return [...found.values()].map((movie) => ({ movie, theatreSlug }));
 }
 
-function sourceOf(theatreSlug: string): string {
-  return localIdOfSlug(theatreSlug) === null ? UCI_SOURCE : WEBTIC_SOURCE;
-}
-
-function seatClientOf(deps: RunnerDeps, theatreSlug: string): SeatClient {
-  return localIdOfSlug(theatreSlug) === null ? deps.webtic : deps.direct.seats;
-}
-
-type Schedules = Map<string, Promise<Map<IsoDay, Showing[]>>>;
-
-async function readDay(deps: RunnerDeps, theatreSlug: string, day: IsoDay, fresh: boolean, schedules: Schedules): Promise<Showing[]> {
-  const localId = localIdOfSlug(theatreSlug);
-  if (localId !== null) {
-    const schedule = schedules.get(theatreSlug) ?? deps.caches.schedule.getOrLoad(theatreSlug, () => deps.direct.scheduling(localId), { bypass: fresh });
-    schedules.set(theatreSlug, schedule);
-    return (await schedule).get(day) ?? [];
-  }
-  return deps.caches.programming.getOrLoad(`${theatreSlug}|${day}`, () => deps.uci.programmingDay(theatreSlug, day), {
-    bypass: fresh,
-  });
-}
-
 async function observeSeats(
-  deps: RunnerDeps,
+  circuit: Circuit,
   hunt: Hunt,
   settings: Settings,
   showing: Showing,
   fresh: boolean,
 ): Promise<{ observed: ObservedShowing; detail: SeatDetail; hallChanged: boolean; hallKey: string }> {
-  const seats = seatClientOf(deps, showing.theatreSlug);
-  const performance = await deps.caches.performance.getOrLoad(showing.key, () => seats.performance(showing.localId, showing.performanceId));
-  const occupancy = await deps.caches.occupancy.getOrLoad(showing.key, () => seats.occupancy(showing.localId, showing.performanceId), { bypass: fresh });
-  const { hall, changed } = await seats.hall(showing.localId, performance.screenId, occupancy);
-  const zone = zoneFor(hunt, showing.localId, performance.screenId);
+  const { performance, hall, occupancy, hallChanged } = await circuit.seats(showing.key, fresh);
+  const zone = zoneFor(hunt, performance.hallKey);
   const rule: SeatRule = { zone, together: hunt.together, sellableTypes: settings.sellableTypes };
   const analysis = analyzeSeats(hall, occupancy, rule);
   return {
     observed: { showing, performance, analysis, zoneSignature: zoneSignature(zone, hunt.together) },
     detail: { hall, occupancy, analysis, rule },
-    hallChanged: changed,
-    hallKey: hallKey(showing.localId, performance.screenId),
+    hallChanged,
+    hallKey: performance.hallKey,
   };
 }
 
@@ -153,29 +110,28 @@ export async function observeHunt(
   const errors: string[] = [];
   const hallChanged: HuntObservation["hallChanged"] = [];
   const unknownSeatTypes = new Set<string>();
-  const schedules: Schedules = new Map();
   for (const theatreSlug of hunt.theatres) {
-    for (const day of days) {
-      let all: Showing[];
-      try {
-        all = await readDay(deps, theatreSlug, day, options.fresh, schedules);
-      } catch (error) {
-        errors.push(`${theatreSlug} ${formatDay(day)} · ${describe(sourceOf(theatreSlug), error)}`);
+    const circuit = deps.circuits.forSlug(theatreSlug);
+    for (const result of await circuit.programmingDays(theatreSlug, days, options.fresh)) {
+      const day = result.day;
+      if ("error" in result) {
+        errors.push(`${theatreSlug} ${formatDay(day)} · ${describe(circuit.programmingSource, result.error)}`);
         continue;
       }
+      const all = result.showings;
       round.daysChecked.push({ theatreSlug, day });
       if (all.length > 0) round.daysWithShowings.push({ theatreSlug, day });
       round.allKeys.push(...all.map((showing) => showing.key));
       round.moviesSeen.push(...moviesMatching(hunt, all, theatreSlug));
       for (const showing of filterShowings(all, filter, now)) {
         try {
-          const seats = await observeSeats(deps, hunt, settings, showing, options.fresh);
+          const seats = await observeSeats(circuit, hunt, settings, showing, options.fresh);
           round.showings.push(seats.observed);
           details.set(showing.key, seats.detail);
           if (seats.hallChanged) hallChanged.push({ showingKey: showing.key, hallKey: seats.hallKey });
           for (const type of seats.detail.analysis.unknownTypes) unknownSeatTypes.add(type);
         } catch (error) {
-          errors.push(`${formatDay(showing.day)} ${showing.time} ${showing.room} · ${describe(WEBTIC_SOURCE, error)}`);
+          errors.push(`${formatDay(showing.day)} ${showing.time} ${showing.room} · ${describe(circuit.seatsSource, error)}`);
           round.showings.push({ showing, performance: null, analysis: null, zoneSignature: null });
         }
       }

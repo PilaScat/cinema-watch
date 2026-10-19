@@ -1,0 +1,183 @@
+{
+ "schemaVersion": 1,
+ "hunts": {
+  "6s0lrqco": {
+   "initialized": true,
+   "showings": {
+    "5116-576754": {
+     "key": "5116-576754",
+     "localId": 5116,
+     "eventId": 9890,
+     "performanceId": 576754,
+     "theatreSlug": "uci-cinemas-verona",
+     "movieSlug": "avengers-doomsday",
+     "movieTitle": "Avengers: Doomsday",
+     "format": "XL - INFINITY VISION",
+     "formatGroup": "XL",
+     "language": "ITA",
+     "day": "2026-12-16",
+     "startsAt": "2026-12-16T21:20:00",
+     "time": "21:20",
+     "room": "SALA 07 XL",
+     "cartUrl": "https://ucicinemas.it/movies/avengers-doomsday/acquista/5116/9890/576754",
+     "screenId": 14,
+     "screenName": "SALA 07 XL",
+     "priceFrom": 12.9,
+     "seats": {
+      "free": 41,
+      "sellable": 277,
+      "freeInZone": 0,
+      "sellableInZone": 88,
+      "ok": false,
+      "best": [
+       {
+        "rowLabel": "B",
+        "seatIds": [
+         "B/15",
+         "B/16",
+         "B/17"
+        ],
+        "score": 0.3974
+       },
+       {
+        "rowLabel": "A",
+        "seatIds": [
+         "A/14",
+         "A/15",
+         "A/16"
+        ],
+        "score": 0.3333
+       },
+       {
+        "rowLabel": "C",
+        "seatIds": [
+         "C/2",
+         "C/3",
+         "C/4"
+        ],
+        "score": 0.2082
+       }
+      ]
+     },
+     "firstSeenAt": 1792235738189,
+     "lastSeenAt": 1792438100140,
+     "missingRounds": 0,
+     "zoneSignature": "{\"zone\":{\"kind\":\"relative\",\"rowsFromPercent\":40,\"rowsToPercent\":85,\"centerPercent\":60},\"together\":3}",
+     "okNotifiedAt": null,
+     "okBaseline": false,
+     "belowThreshold": true
+    },
+    "5116-576766": {
+     "key": "5116-576766",
+     "localId": 5116,
+     "eventId": 9890,
+     "performanceId": 576766,
+     "theatreSlug": "uci-cinemas-verona",
+     "movieSlug": "avengers-doomsday",
+     "movieTitle": "Avengers: Doomsday",
+     "format": "XL - INFINITY VISION",
+     "formatGroup": "XL",
+     "language": "ITA",
+     "day": "2026-12-17",
+     "startsAt": "2026-12-17T21:20:00",
+     "time": "21:20",
+     "room": "SALA 07 XL",
+     "cartUrl": "https://ucicinemas.it/movies/avengers-doomsday/acquista/5116/9890/576766",
+     "screenId": 14,
+     "screenName": "SALA 07 XL",
+     "priceFrom": 12.9,
+     "seats": {
+      "free": 95,
+      "sellable": 277,
+      "freeInZone": 1,
+      "sellableInZone": 88,
+      "ok": false,
+      "best": [
+       {
+        "rowLabel": "C",
+        "seatIds": [
+         "C/13",
+         "C/14",
+         "C/15"
+        ],
+        "score": 0.5682
+       },
+       {
+        "rowLabel": "B",
+        "seatIds": [
+         "B/11",
+         "B/12",
+         "B/13"
+        ],
+        "score": 0.5641
+       },
+       {
+        "rowLabel": "D",
+        "seatIds": [
+         "D/17",
+         "D/18",
+         "D/19"
+        ],
+        "score": 0.4723
+       }
+      ]
+     },
+     "firstSeenAt": 1792235738189,
+     "lastSeenAt": 1792438100140,
+     "missingRounds": 0,
+     "zoneSignature": "{\"zone\":{\"kind\":\"relative\",\"rowsFromPercent\":40,\"rowsToPercent\":85,\"centerPercent\":60},\"together\":3}",
+     "okNotifiedAt": null,
+     "okBaseline": false,
+     "belowThreshold": true
+    }
+   },
+   "seenMovieSlugs": [],
+   "pendingMovieSlugs": [],
+   "mutedUntil": null,
+   "nextRunAt": 1792438405273,
+   "lastRun": {
+    "at": 1792438100140,
+    "ok": true,
+    "error": null,
+    "showings": 15
+   },
+   "daysSeen": [
+    "uci-cinemas-verona|2026-12-15",
+    "uci-cinemas-verona|2026-12-16",
+    "uci-cinemas-verona|2026-12-17"
+   ],
+   "manualRunAt": 1792318405212,
+   "errorNotifiedDay": null,
+   "hallsToReconfirm": []
+  },
+  "wor7667k": {
+   "initialized": true,
+   "showings": {},
+   "seenMovieSlugs": [],
+   "pendingMovieSlugs": [],
+   "mutedUntil": null,
+   "nextRunAt": 1792438448487,
+   "lastRun": {
+    "at": 1792438130140,
+    "ok": true,
+    "error": null,
+    "showings": 0
+   },
+   "daysSeen": [
+    "uci-cinemas-verona|2026-12-15",
+    "uci-cinemas-verona|2026-12-16"
+   ],
+   "manualRunAt": 1792436490565,
+   "errorNotifiedDay": null,
+   "hallsToReconfirm": []
+  }
+ },
+ "lastDigestDate": "2026-10-19",
+ "lastVersionCheckAt": 1792353580239,
+ "latestVersion": "v2026.10.5",
+ "historyDays": {
+  "5116-576754": "2026-12-16",
+  "5116-576766": "2026-12-17"
+ },
+ "publicUrlCheck": null
+}
