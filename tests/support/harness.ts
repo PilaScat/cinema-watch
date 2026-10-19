@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { createHunt, defaultConfig, saveConfig } from "../../src/config.js";
 import type { Config, Hunt } from "../../src/model.js";
 import { createStore } from "../../src/store.js";
+import { saveSpaceVenues, type SpaceVenueList } from "../../src/circuits/the-space.js";
 import { saveVenueList, type VenueList } from "../../src/venues.js";
 import { createWatcher } from "../../src/watcher.js";
 import { moviesOf, parseScheduling, parseVenueCandidates } from "../../src/webtic-direct.js";
@@ -18,7 +19,7 @@ export interface Harness {
   now(): number;
   advance(ms: number): void;
   set(at: number): void;
-  seed(mutate?: (config: Config) => void, options?: { venues?: VenueList | null }): Promise<Config>;
+  seed(mutate?: (config: Config) => void, options?: { venues?: VenueList | null; spaceVenues?: SpaceVenueList | null }): Promise<Config>;
   watcher(options?: { env?: NodeJS.ProcessEnv }): ReturnType<typeof createWatcher>;
   sleep: (ms: number) => Promise<void>;
   dispose(): Promise<void>;
@@ -39,6 +40,13 @@ export function duneHunt(config: Config, overrides: Partial<Hunt> = {}): Hunt {
     config.settings,
     () => 0.5,
   );
+}
+
+export function beinascoVenues(checkedAt: number): SpaceVenueList {
+  return {
+    checkedAt,
+    theatres: [{ slug: "space-1028", name: "The Space Beinasco", city: "Beinasco", province: "TO", region: "Piemonte", isLuxe: false, screens: [], lat: 45.021899, lon: 7.594591, chain: "space" }],
+  };
 }
 
 export function merlataVenues(checkedAt: number): VenueList {
@@ -74,6 +82,8 @@ export async function createHarness(start = Date.parse("2026-12-01T10:00:00Z")):
       await saveConfig(store, config);
       const venues = options.venues === undefined ? { checkedAt: clock, venues: [] } : options.venues;
       if (venues !== null) await saveVenueList(store, venues);
+      const spaceVenues = options.spaceVenues === undefined ? { checkedAt: clock, theatres: [] } : options.spaceVenues;
+      if (spaceVenues !== null) await saveSpaceVenues(store, spaceVenues);
       return config;
     },
     watcher: (options = {}) =>

@@ -133,7 +133,7 @@ describe("mergeCatalogs", () => {
       venue(2, [movie("primetime", { firstDay: null, lastDay: null })]),
     ];
 
-    const merged = mergeCatalogs(uci, venues);
+    const merged = mergeCatalogs(uci, venues.flatMap((item) => item.movies));
 
     expect(merged).toEqual([
       movie("dune-parte-tre", { poster: "p.jpg", formats: ["IMAX", "2D"], firstDay: "2026-12-15", lastDay: "2026-12-31" }),
@@ -143,7 +143,7 @@ describe("mergeCatalogs", () => {
   });
 
   it("keeps the UCI dates when the Webtic ones are missing or narrower", () => {
-    const merged = mergeCatalogs([movie("a", { poster: "uci.jpg" })], [venue(1, [movie("a", { poster: "w.jpg", firstDay: null, lastDay: "2026-12-18" })])]);
+    const merged = mergeCatalogs([movie("a", { poster: "uci.jpg" })], [movie("a", { poster: "w.jpg", firstDay: null, lastDay: "2026-12-18" })]);
 
     expect(merged).toEqual([movie("a", { poster: "uci.jpg" })]);
   });

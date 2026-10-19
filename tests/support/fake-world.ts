@@ -1,4 +1,6 @@
 import { readFileSync } from "node:fs";
+
+export const SPACE_TOKEN = "microservicesToken=guest-token";
 import { fakeBotToken } from "./tokens.js";
 
 export const FAKE_TOKEN = fakeBotToken(123456789, "f");
@@ -17,6 +19,9 @@ export interface FakeWorld {
   telegram: TelegramCall[];
   requests: string[];
   webticCalls: string[];
+  spaceCalls: string[];
+  setSpaceProgramming(cinemaId: string, json: unknown): void;
+  expireSpaceToken(): void;
   setProgramming(theatreSlug: string, day: string, json: unknown): void;
   setOccupancy(localId: number, performanceId: number, json: unknown): void;
   setScheduling(localId: number, json: unknown): void;
@@ -29,6 +34,10 @@ export interface FakeWorld {
 
 export function fixture(path: string): unknown {
   return JSON.parse(readFileSync(new URL(`../fixtures/${path}`, import.meta.url), "utf8"));
+}
+
+export function textFixture(path: string): string {
+  return readFileSync(new URL(`../fixtures/${path}`, import.meta.url), "utf8");
 }
 
 function json(body: unknown, status = 200): Response {
@@ -74,12 +83,20 @@ export function createFakeWorld(): FakeWorld {
   let pollConflict = false;
   const requests: string[] = [];
   const webticCalls: string[] = [];
+  const spaceCalls: string[] = [];
+  const spaceProgramming = new Map<string, unknown>([["1028", fixture("space/programming-1028.json")]]);
+  let spaceToken = SPACE_TOKEN;
   let messageId = 1000;
 
   const world: FakeWorld = {
     telegram,
     requests,
     webticCalls,
+    spaceCalls,
+    setSpaceProgramming: (cinemaId, body) => spaceProgramming.set(cinemaId, body),
+    expireSpaceToken: () => {
+      spaceToken = "microservicesToken=renewed-token";
+    },
     latestRelease: "v2026.10.1",
     setProgramming: (theatreSlug, day, body) => programming.set(`${theatreSlug}|${day}`, body),
     setOccupancy: (localId, performanceId, body) => occupancies.set(`${localId}-${performanceId}`, body),
@@ -145,6 +162,29 @@ export function createFakeWorld(): FakeWorld {
           const key = `${String(data.LocalId)}-${String(data.PerformanceId)}`;
           return json(occupancies.get(key) ?? (key === "5779-51133" ? fixture("webtic-direct/occupancy-5779-51133.json") : dead));
         }
+      }
+
+      if (url.hostname === "www.thespacecinema.it") {
+        const path = url.pathname.replace(/^\/api\/microservice/, "");
+        spaceCalls.push(path);
+        if (path === "/auth/token") {
+          const headers = new Headers({ "content-type": "application/json" });
+          headers.append("set-cookie", `${spaceToken}; Path=/; HttpOnly`);
+          headers.append("set-cookie", "microservicesRefreshToken=refresh; Path=/; HttpOnly");
+          headers.append("set-cookie", "accessTokenExpirationTime=later; Path=/");
+          headers.append("set-cookie", "__cflb=node-a; Path=/; HttpOnly");
+          return new Response(JSON.stringify({ accessToken: null }), { status: 200, headers });
+        }
+        if (path === "/cinema/beinasco/al-cinema") return new Response(textFixture("space/cinema-beinasco.html"), { status: 200 });
+        if (path.startsWith("/cinema/")) return new Response("<html></html>", { status: 200 });
+        const cookie = new Headers(init?.headers).get("cookie") ?? "";
+        if (!cookie.includes(spaceToken) || !cookie.includes("__cflb=node-a")) return new Response("", { status: 401 });
+        if (path === "/showings/cinemas") return json(fixture("space/cinemas.json"));
+        if (path === "/showings/films") return json(fixture("space/films.json"));
+        const programming = /^\/showings\/cinemas\/(\d+)\/films$/.exec(path);
+        if (programming) return json(spaceProgramming.get(programming[1] ?? "") ?? { result: [], responseCode: 0, errorMessage: null });
+        if (path === "/booking/Session/1028/58489/seats") return json(fixture("space/seats-1028-58489.json"));
+        return new Response("", { status: 404 });
       }
 
       if (url.hostname === "api.telegram.org") {

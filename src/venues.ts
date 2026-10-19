@@ -88,9 +88,9 @@ export async function saveVenueList(store: Store, list: VenueList): Promise<void
   await store.writeJson(VENUE_FILE, list);
 }
 
-export function mergeCatalogs(uci: CatalogMovie[], venues: WebticVenue[]): CatalogMovie[] {
+export function mergeCatalogs(uci: CatalogMovie[], others: CatalogMovie[]): CatalogMovie[] {
   const merged = new Map(uci.map((movie) => [movie.slug, { ...movie, formats: [...movie.formats] }]));
-  for (const movie of venues.flatMap((venue) => venue.movies)) {
+  for (const movie of others) {
     const known = merged.get(movie.slug);
     if (!known) {
       merged.set(movie.slug, { ...movie, formats: [...movie.formats] });
