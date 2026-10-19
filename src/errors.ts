@@ -14,7 +14,7 @@ export class HttpError extends Error {
   }
 }
 
-export type ApiSource = "uci" | "webtic";
+export type ApiSource = "uci" | "webtic" | "space";
 
 export class ApiShapeError extends Error {
   override readonly name = "ApiShapeError";

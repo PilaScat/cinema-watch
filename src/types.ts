@@ -25,7 +25,7 @@ export interface Theatre {
   chain: Chain;
 }
 
-export type Chain = "uci" | "webtic";
+export type Chain = "uci" | "webtic" | "space";
 
 export interface MovieRef {
   slug: string;
