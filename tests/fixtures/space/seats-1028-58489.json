@@ -1,0 +1,3035 @@
+{
+ "result": {
+  "seatingData": {
+   "screenLabel": "Sala 7"
+  },
+  "seatRows": [
+   {
+    "rowLabel": "A",
+    "rowIndex": 12,
+    "columns": [
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 22,
+      "rowIndex": 12,
+      "name": "A22",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 21,
+      "rowIndex": 12,
+      "name": "A21",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 20,
+      "rowIndex": 12,
+      "name": "A20",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 19,
+      "rowIndex": 12,
+      "name": "A19",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 18,
+      "rowIndex": 12,
+      "name": "A18",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 17,
+      "rowIndex": 12,
+      "name": "A17",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 16,
+      "rowIndex": 12,
+      "name": "A16",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 15,
+      "rowIndex": 12,
+      "name": "A15",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 14,
+      "rowIndex": 12,
+      "name": "A14",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 13,
+      "rowIndex": 12,
+      "name": "A13",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 12,
+      "rowIndex": 12,
+      "name": "A12",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 11,
+      "rowIndex": 12,
+      "name": "A11",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 10,
+      "rowIndex": 12,
+      "name": "A10",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 9,
+      "rowIndex": 12,
+      "name": "A9",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 8,
+      "rowIndex": 12,
+      "name": "A8",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 7,
+      "rowIndex": 12,
+      "name": "A7",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 6,
+      "rowIndex": 12,
+      "name": "A6",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 5,
+      "rowIndex": 12,
+      "name": "A5",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 4,
+      "rowIndex": 12,
+      "name": "A4",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 3,
+      "rowIndex": 12,
+      "name": "A3",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     null,
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 1,
+      "rowIndex": 12,
+      "name": "A2",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 0,
+      "rowIndex": 12,
+      "name": "A1",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     }
+    ]
+   },
+   {
+    "rowLabel": "B",
+    "rowIndex": 11,
+    "columns": [
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 22,
+      "rowIndex": 11,
+      "name": "B22",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 21,
+      "rowIndex": 11,
+      "name": "B21",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 20,
+      "rowIndex": 11,
+      "name": "B20",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 19,
+      "rowIndex": 11,
+      "name": "B19",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 18,
+      "rowIndex": 11,
+      "name": "B18",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 17,
+      "rowIndex": 11,
+      "name": "B17",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 16,
+      "rowIndex": 11,
+      "name": "B16",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 15,
+      "rowIndex": 11,
+      "name": "B15",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 14,
+      "rowIndex": 11,
+      "name": "B14",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 13,
+      "rowIndex": 11,
+      "name": "B13",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 12,
+      "rowIndex": 11,
+      "name": "B12",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 11,
+      "rowIndex": 11,
+      "name": "B11",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 10,
+      "rowIndex": 11,
+      "name": "B10",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 9,
+      "rowIndex": 11,
+      "name": "B9",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 8,
+      "rowIndex": 11,
+      "name": "B8",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 7,
+      "rowIndex": 11,
+      "name": "B7",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 6,
+      "rowIndex": 11,
+      "name": "B6",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 5,
+      "rowIndex": 11,
+      "name": "B5",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 4,
+      "rowIndex": 11,
+      "name": "B4",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 3,
+      "rowIndex": 11,
+      "name": "B3",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     null,
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 1,
+      "rowIndex": 11,
+      "name": "B2",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 0,
+      "rowIndex": 11,
+      "name": "B1",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     }
+    ]
+   },
+   {
+    "rowLabel": "C",
+    "rowIndex": 10,
+    "columns": [
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 22,
+      "rowIndex": 10,
+      "name": "C22",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 21,
+      "rowIndex": 10,
+      "name": "C21",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 20,
+      "rowIndex": 10,
+      "name": "C20",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 19,
+      "rowIndex": 10,
+      "name": "C19",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 18,
+      "rowIndex": 10,
+      "name": "C18",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 17,
+      "rowIndex": 10,
+      "name": "C17",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 16,
+      "rowIndex": 10,
+      "name": "C16",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 15,
+      "rowIndex": 10,
+      "name": "C15",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 14,
+      "rowIndex": 10,
+      "name": "C14",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 13,
+      "rowIndex": 10,
+      "name": "C13",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 12,
+      "rowIndex": 10,
+      "name": "C12",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 11,
+      "rowIndex": 10,
+      "name": "C11",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 10,
+      "rowIndex": 10,
+      "name": "C10",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 9,
+      "rowIndex": 10,
+      "name": "C9",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 8,
+      "rowIndex": 10,
+      "name": "C8",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 7,
+      "rowIndex": 10,
+      "name": "C7",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 6,
+      "rowIndex": 10,
+      "name": "C6",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 5,
+      "rowIndex": 10,
+      "name": "C5",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 4,
+      "rowIndex": 10,
+      "name": "C4",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 3,
+      "rowIndex": 10,
+      "name": "C3",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     null,
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 1,
+      "rowIndex": 10,
+      "name": "C2",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000005",
+      "areaNumber": 4,
+      "columnIndex": 0,
+      "rowIndex": 10,
+      "name": "C1",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     }
+    ]
+   },
+   {
+    "rowLabel": "D",
+    "rowIndex": 9,
+    "columns": [
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 22,
+      "rowIndex": 9,
+      "name": "D22",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 21,
+      "rowIndex": 9,
+      "name": "D21",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 20,
+      "rowIndex": 9,
+      "name": "D20",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 19,
+      "rowIndex": 9,
+      "name": "D19",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 18,
+      "rowIndex": 9,
+      "name": "D18",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 17,
+      "rowIndex": 9,
+      "name": "D17",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 16,
+      "rowIndex": 9,
+      "name": "D16",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 15,
+      "rowIndex": 9,
+      "name": "D15",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 14,
+      "rowIndex": 9,
+      "name": "D14",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 13,
+      "rowIndex": 9,
+      "name": "D13",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 12,
+      "rowIndex": 9,
+      "name": "D12",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 11,
+      "rowIndex": 9,
+      "name": "D11",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 10,
+      "rowIndex": 9,
+      "name": "D10",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 9,
+      "rowIndex": 9,
+      "name": "D9",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 8,
+      "rowIndex": 9,
+      "name": "D8",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 7,
+      "rowIndex": 9,
+      "name": "D7",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 6,
+      "rowIndex": 9,
+      "name": "D6",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 5,
+      "rowIndex": 9,
+      "name": "D5",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 4,
+      "rowIndex": 9,
+      "name": "D4",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 3,
+      "rowIndex": 9,
+      "name": "D3",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     null,
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 1,
+      "rowIndex": 9,
+      "name": "D2",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 0,
+      "rowIndex": 9,
+      "name": "D1",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     }
+    ]
+   },
+   {
+    "rowLabel": "",
+    "rowIndex": 8,
+    "columns": [
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null,
+     null
+    ]
+   },
+   {
+    "rowLabel": "E",
+    "rowIndex": 7,
+    "columns": [
+     null,
+     null,
+     null,
+     null,
+     null,
+     {
+      "areaCategoryCode": "0000000007",
+      "areaNumber": 5,
+      "columnIndex": 17,
+      "rowIndex": 7,
+      "name": "E-W2",
+      "seatStatus": 3,
+      "seatsInGroup": [
+       "0000000007_005_007_015",
+       "0000000007_005_007_017"
+      ],
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000007",
+      "areaNumber": 5,
+      "columnIndex": 16,
+      "rowIndex": 7,
+      "name": "E-W1",
+      "seatStatus": 3,
+      "seatsInGroup": [
+       "0000000007_005_007_014",
+       "0000000007_005_007_016"
+      ],
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000007",
+      "areaNumber": 5,
+      "columnIndex": 15,
+      "rowIndex": 7,
+      "name": "E16",
+      "seatStatus": 7,
+      "seatsInGroup": [
+       "0000000007_005_007_015",
+       "0000000007_005_007_017"
+      ],
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000007",
+      "areaNumber": 5,
+      "columnIndex": 14,
+      "rowIndex": 7,
+      "name": "E15",
+      "seatStatus": 7,
+      "seatsInGroup": [
+       "0000000007_005_007_014",
+       "0000000007_005_007_016"
+      ],
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 13,
+      "rowIndex": 7,
+      "name": "E14",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 12,
+      "rowIndex": 7,
+      "name": "E13",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 11,
+      "rowIndex": 7,
+      "name": "E12",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 10,
+      "rowIndex": 7,
+      "name": "E11",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 9,
+      "rowIndex": 7,
+      "name": "E10",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 8,
+      "rowIndex": 7,
+      "name": "E9",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 7,
+      "rowIndex": 7,
+      "name": "E8",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 6,
+      "rowIndex": 7,
+      "name": "E7",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 5,
+      "rowIndex": 7,
+      "name": "E6",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 4,
+      "rowIndex": 7,
+      "name": "E5",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 3,
+      "rowIndex": 7,
+      "name": "E4",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 2,
+      "rowIndex": 7,
+      "name": "E3",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 1,
+      "rowIndex": 7,
+      "name": "E2",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 0,
+      "rowIndex": 7,
+      "name": "E1",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     }
+    ]
+   },
+   {
+    "rowLabel": "F",
+    "rowIndex": 6,
+    "columns": [
+     null,
+     null,
+     null,
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 19,
+      "rowIndex": 6,
+      "name": "F20",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 18,
+      "rowIndex": 6,
+      "name": "F19",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 17,
+      "rowIndex": 6,
+      "name": "F18",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 16,
+      "rowIndex": 6,
+      "name": "F17",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 15,
+      "rowIndex": 6,
+      "name": "F16",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 14,
+      "rowIndex": 6,
+      "name": "F15",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 13,
+      "rowIndex": 6,
+      "name": "F14",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 12,
+      "rowIndex": 6,
+      "name": "F13",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 11,
+      "rowIndex": 6,
+      "name": "F12",
+      "seatStatus": 1,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 10,
+      "rowIndex": 6,
+      "name": "F11",
+      "seatStatus": 1,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 9,
+      "rowIndex": 6,
+      "name": "F10",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 8,
+      "rowIndex": 6,
+      "name": "F9",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 7,
+      "rowIndex": 6,
+      "name": "F8",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 6,
+      "rowIndex": 6,
+      "name": "F7",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 5,
+      "rowIndex": 6,
+      "name": "F6",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 4,
+      "rowIndex": 6,
+      "name": "F5",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 3,
+      "rowIndex": 6,
+      "name": "F4",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 2,
+      "rowIndex": 6,
+      "name": "F3",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 1,
+      "rowIndex": 6,
+      "name": "F2",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000004",
+      "areaNumber": 3,
+      "columnIndex": 0,
+      "rowIndex": 6,
+      "name": "F1",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     }
+    ]
+   },
+   {
+    "rowLabel": "G",
+    "rowIndex": 5,
+    "columns": [
+     null,
+     null,
+     null,
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 19,
+      "rowIndex": 5,
+      "name": "G20",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 18,
+      "rowIndex": 5,
+      "name": "G19",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 17,
+      "rowIndex": 5,
+      "name": "G18",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 16,
+      "rowIndex": 5,
+      "name": "G17",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 15,
+      "rowIndex": 5,
+      "name": "G16",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 14,
+      "rowIndex": 5,
+      "name": "G15",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 13,
+      "rowIndex": 5,
+      "name": "G14",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 12,
+      "rowIndex": 5,
+      "name": "G13",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 11,
+      "rowIndex": 5,
+      "name": "G12",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 10,
+      "rowIndex": 5,
+      "name": "G11",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 9,
+      "rowIndex": 5,
+      "name": "G10",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 8,
+      "rowIndex": 5,
+      "name": "G9",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 7,
+      "rowIndex": 5,
+      "name": "G8",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 6,
+      "rowIndex": 5,
+      "name": "G7",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 5,
+      "rowIndex": 5,
+      "name": "G6",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 4,
+      "rowIndex": 5,
+      "name": "G5",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 3,
+      "rowIndex": 5,
+      "name": "G4",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 2,
+      "rowIndex": 5,
+      "name": "G3",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 1,
+      "rowIndex": 5,
+      "name": "G2",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 0,
+      "rowIndex": 5,
+      "name": "G1",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     }
+    ]
+   },
+   {
+    "rowLabel": "H",
+    "rowIndex": 4,
+    "columns": [
+     null,
+     null,
+     null,
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 19,
+      "rowIndex": 4,
+      "name": "H20",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 18,
+      "rowIndex": 4,
+      "name": "H19",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 17,
+      "rowIndex": 4,
+      "name": "H18",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 16,
+      "rowIndex": 4,
+      "name": "H17",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 15,
+      "rowIndex": 4,
+      "name": "H16",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 14,
+      "rowIndex": 4,
+      "name": "H15",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 13,
+      "rowIndex": 4,
+      "name": "H14",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 12,
+      "rowIndex": 4,
+      "name": "H13",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 11,
+      "rowIndex": 4,
+      "name": "H12",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 10,
+      "rowIndex": 4,
+      "name": "H11",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 9,
+      "rowIndex": 4,
+      "name": "H10",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 8,
+      "rowIndex": 4,
+      "name": "H9",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 7,
+      "rowIndex": 4,
+      "name": "H8",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 6,
+      "rowIndex": 4,
+      "name": "H7",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 5,
+      "rowIndex": 4,
+      "name": "H6",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 4,
+      "rowIndex": 4,
+      "name": "H5",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 3,
+      "rowIndex": 4,
+      "name": "H4",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 2,
+      "rowIndex": 4,
+      "name": "H3",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 1,
+      "rowIndex": 4,
+      "name": "H2",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 0,
+      "rowIndex": 4,
+      "name": "H1",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     }
+    ]
+   },
+   {
+    "rowLabel": "J",
+    "rowIndex": 3,
+    "columns": [
+     null,
+     null,
+     null,
+     null,
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 18,
+      "rowIndex": 3,
+      "name": "J17",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 17,
+      "rowIndex": 3,
+      "name": "J16",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 16,
+      "rowIndex": 3,
+      "name": "J15",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 15,
+      "rowIndex": 3,
+      "name": "J14",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 14,
+      "rowIndex": 3,
+      "name": "J13",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 13,
+      "rowIndex": 3,
+      "name": "J12",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 12,
+      "rowIndex": 3,
+      "name": "J11",
+      "seatStatus": 1,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 11,
+      "rowIndex": 3,
+      "name": "J10",
+      "seatStatus": 1,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 10,
+      "rowIndex": 3,
+      "name": "J9",
+      "seatStatus": 1,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 9,
+      "rowIndex": 3,
+      "name": "J8",
+      "seatStatus": 1,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 8,
+      "rowIndex": 3,
+      "name": "J7",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 7,
+      "rowIndex": 3,
+      "name": "J6",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 6,
+      "rowIndex": 3,
+      "name": "J5",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 5,
+      "rowIndex": 3,
+      "name": "J4",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 4,
+      "rowIndex": 3,
+      "name": "J3",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 3,
+      "rowIndex": 3,
+      "name": "J2",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000002",
+      "areaNumber": 2,
+      "columnIndex": 2,
+      "rowIndex": 3,
+      "name": "J1",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     null,
+     null
+    ]
+   },
+   {
+    "rowLabel": "K",
+    "rowIndex": 2,
+    "columns": [
+     null,
+     null,
+     null,
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 19,
+      "rowIndex": 2,
+      "name": "K20",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 18,
+      "rowIndex": 2,
+      "name": "K19",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 17,
+      "rowIndex": 2,
+      "name": "K18",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 16,
+      "rowIndex": 2,
+      "name": "K17",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 15,
+      "rowIndex": 2,
+      "name": "K16",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 14,
+      "rowIndex": 2,
+      "name": "K15",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 13,
+      "rowIndex": 2,
+      "name": "K14",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 12,
+      "rowIndex": 2,
+      "name": "K13",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 11,
+      "rowIndex": 2,
+      "name": "K12",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 10,
+      "rowIndex": 2,
+      "name": "K11",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 9,
+      "rowIndex": 2,
+      "name": "K10",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 8,
+      "rowIndex": 2,
+      "name": "K9",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 7,
+      "rowIndex": 2,
+      "name": "K8",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 6,
+      "rowIndex": 2,
+      "name": "K7",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 5,
+      "rowIndex": 2,
+      "name": "K6",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 4,
+      "rowIndex": 2,
+      "name": "K5",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 3,
+      "rowIndex": 2,
+      "name": "K4",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 2,
+      "rowIndex": 2,
+      "name": "K3",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 1,
+      "rowIndex": 2,
+      "name": "K2",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 0,
+      "rowIndex": 2,
+      "name": "K1",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     }
+    ]
+   },
+   {
+    "rowLabel": "L",
+    "rowIndex": 1,
+    "columns": [
+     null,
+     null,
+     null,
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 19,
+      "rowIndex": 1,
+      "name": "L20",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 18,
+      "rowIndex": 1,
+      "name": "L19",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 17,
+      "rowIndex": 1,
+      "name": "L18",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 16,
+      "rowIndex": 1,
+      "name": "L17",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 15,
+      "rowIndex": 1,
+      "name": "L16",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 14,
+      "rowIndex": 1,
+      "name": "L15",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 13,
+      "rowIndex": 1,
+      "name": "L14",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 12,
+      "rowIndex": 1,
+      "name": "L13",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 11,
+      "rowIndex": 1,
+      "name": "L12",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 10,
+      "rowIndex": 1,
+      "name": "L11",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 9,
+      "rowIndex": 1,
+      "name": "L10",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 8,
+      "rowIndex": 1,
+      "name": "L9",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 7,
+      "rowIndex": 1,
+      "name": "L8",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 6,
+      "rowIndex": 1,
+      "name": "L7",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 5,
+      "rowIndex": 1,
+      "name": "L6",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 4,
+      "rowIndex": 1,
+      "name": "L5",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 3,
+      "rowIndex": 1,
+      "name": "L4",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 2,
+      "rowIndex": 1,
+      "name": "L3",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 1,
+      "rowIndex": 1,
+      "name": "L2",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 0,
+      "rowIndex": 1,
+      "name": "L1",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     }
+    ]
+   },
+   {
+    "rowLabel": "M",
+    "rowIndex": 0,
+    "columns": [
+     null,
+     null,
+     null,
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 19,
+      "rowIndex": 0,
+      "name": "M20",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 18,
+      "rowIndex": 0,
+      "name": "M19",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 17,
+      "rowIndex": 0,
+      "name": "M18",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 16,
+      "rowIndex": 0,
+      "name": "M17",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 15,
+      "rowIndex": 0,
+      "name": "M16",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 14,
+      "rowIndex": 0,
+      "name": "M15",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 13,
+      "rowIndex": 0,
+      "name": "M14",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 12,
+      "rowIndex": 0,
+      "name": "M13",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 11,
+      "rowIndex": 0,
+      "name": "M12",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 10,
+      "rowIndex": 0,
+      "name": "M11",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 9,
+      "rowIndex": 0,
+      "name": "M10",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 8,
+      "rowIndex": 0,
+      "name": "M9",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 7,
+      "rowIndex": 0,
+      "name": "M8",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 6,
+      "rowIndex": 0,
+      "name": "M7",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 5,
+      "rowIndex": 0,
+      "name": "M6",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 4,
+      "rowIndex": 0,
+      "name": "M5",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 3,
+      "rowIndex": 0,
+      "name": "M4",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 2,
+      "rowIndex": 0,
+      "name": "M3",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 1,
+      "rowIndex": 0,
+      "name": "M2",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     },
+     {
+      "areaCategoryCode": "0000000003",
+      "areaNumber": 1,
+      "columnIndex": 0,
+      "rowIndex": 0,
+      "name": "M1",
+      "seatStatus": 0,
+      "seatsInGroup": null,
+      "sofaSeatCount": 0
+     }
+    ]
+   }
+  ],
+  "areaCategories": [
+   {
+    "areaCategoryCode": "0000000002",
+    "areaColor": "#D67400",
+    "areaDescription": "",
+    "areaHopk": "0000000001",
+    "areaMainPriceInCents": 1420,
+    "areaName": "Vip",
+    "areaOfferBackgroundImage": null,
+    "areaPrices": [],
+    "isSofaSeatDisabled": false,
+    "isSoldOut": false,
+    "largeSeats": false,
+    "priority": 5,
+    "seatIcons": [
+     {
+      "seatStatus": 0,
+      "iconName": "vip_seat_icon_v2",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/global/img/seats/vip_seat_icon_v2.svg?rev=b72f257cb04847fd8eeb1923227fad6e",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_available.svg?rev=8505fdf44e3a4586823ff7d3f1a0d488",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_available.svg?rev=8f5dec53f9be4bbf82717543f0ca51eb",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 1,
+      "iconName": "vip_soldout",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/vip_soldout.svg?rev=9a31d5bd224d448ebc9f971f12302517",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd"
+     },
+     {
+      "seatStatus": 4,
+      "iconName": "selected_vip_seat_icon_v2",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/global/img/seats/selected_vip_seat_icon_v2.svg?rev=8dd3f0c5e80b43f4ab11f1beef361c96",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_reserved.svg?rev=8c7edeb56a4942fd9b3fba87ccef4863",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_reserved.svg?rev=37854a700c694dc8a4ab5e89e4a8fd53",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 7,
+      "iconName": "accomp_prenotabile",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_prenotabile.svg?rev=ecc72c5bd4c04ed88a10f396d57ec074",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_available.svg?rev=8505fdf44e3a4586823ff7d3f1a0d488",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_available.svg?rev=8f5dec53f9be4bbf82717543f0ca51eb",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 8,
+      "iconName": "accomp_riservato",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_riservato.svg?rev=f5db7df98ea048f995fc2cc6d368fb4a",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_reserved.svg?rev=8c7edeb56a4942fd9b3fba87ccef4863",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_reserved.svg?rev=37854a700c694dc8a4ab5e89e4a8fd53",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 9,
+      "iconName": "accomp_soldout",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_soldout.svg?rev=f1e85d8569104c2bbcc44426aac4add0",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd"
+     }
+    ]
+   },
+   {
+    "areaCategoryCode": "0000000003",
+    "areaColor": "#b34c37",
+    "areaDescription": "Poltrone confortevoli nell’area più richiesta",
+    "areaHopk": "0000000002",
+    "areaMainPriceInCents": 1220,
+    "areaName": "Rosso",
+    "areaOfferBackgroundImage": null,
+    "areaPrices": [],
+    "isSofaSeatDisabled": false,
+    "isSoldOut": false,
+    "largeSeats": false,
+    "priority": 4,
+    "seatIcons": [
+     {
+      "seatStatus": 0,
+      "iconName": "rosso_prenotabile",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/rosso_prenotabile.svg?rev=f5dc9221c14b4b97b3d0bf0fc933c1a3",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_available.svg?rev=8505fdf44e3a4586823ff7d3f1a0d488",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_available.svg?rev=8f5dec53f9be4bbf82717543f0ca51eb",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 1,
+      "iconName": "rosso_soldout",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/rosso_soldout.svg?rev=d8ce0aea084546548dbad05fa07dce50",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd"
+     },
+     {
+      "seatStatus": 4,
+      "iconName": "rosso_riservato",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/rosso_riservato.svg?rev=84be77a395c349f3832c3203fe14fa2c",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_reserved.svg?rev=8c7edeb56a4942fd9b3fba87ccef4863",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_reserved.svg?rev=37854a700c694dc8a4ab5e89e4a8fd53",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 7,
+      "iconName": "accomp_prenotabile",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_prenotabile.svg?rev=ecc72c5bd4c04ed88a10f396d57ec074",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_available.svg?rev=8505fdf44e3a4586823ff7d3f1a0d488",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_available.svg?rev=8f5dec53f9be4bbf82717543f0ca51eb",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 8,
+      "iconName": "accomp_riservato",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_riservato.svg?rev=f5db7df98ea048f995fc2cc6d368fb4a",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_reserved.svg?rev=8c7edeb56a4942fd9b3fba87ccef4863",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_reserved.svg?rev=37854a700c694dc8a4ab5e89e4a8fd53",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 9,
+      "iconName": "accomp_soldout",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_soldout.svg?rev=f1e85d8569104c2bbcc44426aac4add0",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd"
+     }
+    ]
+   },
+   {
+    "areaCategoryCode": "0000000004",
+    "areaColor": "#273681",
+    "areaDescription": "Poltrone confortevoli a metà sala",
+    "areaHopk": "0000000003",
+    "areaMainPriceInCents": 920,
+    "areaName": "Blu",
+    "areaOfferBackgroundImage": null,
+    "areaPrices": [],
+    "isSofaSeatDisabled": false,
+    "isSoldOut": false,
+    "largeSeats": false,
+    "priority": 3,
+    "seatIcons": [
+     {
+      "seatStatus": 0,
+      "iconName": "blu_prenotabile",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/blu_prenotabile.svg?rev=4f4beddfd9f0476d983accffaee0a97d",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_available.svg?rev=8505fdf44e3a4586823ff7d3f1a0d488",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_available.svg?rev=8f5dec53f9be4bbf82717543f0ca51eb",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 1,
+      "iconName": "blu_soldout",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/blu_soldout.svg?rev=7e244dc01385434bb26b1bf1d9ca8c66",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd"
+     },
+     {
+      "seatStatus": 4,
+      "iconName": "blu_riservato",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/blu_riservato.svg?rev=4f56aaa3ff404bdb91d934498b174c1f",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_reserved.svg?rev=8c7edeb56a4942fd9b3fba87ccef4863",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_reserved.svg?rev=37854a700c694dc8a4ab5e89e4a8fd53",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 7,
+      "iconName": "accomp_prenotabile",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_prenotabile.svg?rev=ecc72c5bd4c04ed88a10f396d57ec074",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_available.svg?rev=8505fdf44e3a4586823ff7d3f1a0d488",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_available.svg?rev=8f5dec53f9be4bbf82717543f0ca51eb",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 8,
+      "iconName": "accomp_riservato",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_riservato.svg?rev=f5db7df98ea048f995fc2cc6d368fb4a",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_reserved.svg?rev=8c7edeb56a4942fd9b3fba87ccef4863",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_reserved.svg?rev=37854a700c694dc8a4ab5e89e4a8fd53",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 9,
+      "iconName": "accomp_soldout",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_soldout.svg?rev=f1e85d8569104c2bbcc44426aac4add0",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd"
+     }
+    ]
+   },
+   {
+    "areaCategoryCode": "0000000005",
+    "areaColor": "#6fce89",
+    "areaDescription": "Poltrone confortevoli nell’area più conveniente",
+    "areaHopk": "0000000004",
+    "areaMainPriceInCents": 470,
+    "areaName": "Verde",
+    "areaOfferBackgroundImage": null,
+    "areaPrices": [],
+    "isSofaSeatDisabled": false,
+    "isSoldOut": false,
+    "largeSeats": false,
+    "priority": 2,
+    "seatIcons": [
+     {
+      "seatStatus": 0,
+      "iconName": "verde_prenotabile",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/verde_prenotabile.svg?rev=1ecb27891a0948a98f16be7b0d679168",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_available.svg?rev=8505fdf44e3a4586823ff7d3f1a0d488",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_available.svg?rev=8f5dec53f9be4bbf82717543f0ca51eb",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 1,
+      "iconName": "verde_soldout",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/verde_soldout.svg?rev=a433d9579dc0443ba035b5b89260b9b7",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd"
+     },
+     {
+      "seatStatus": 4,
+      "iconName": "verde_riservato",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/verde_riservato.svg?rev=4d9b0d8607d4463792951a3568311923",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_reserved.svg?rev=8c7edeb56a4942fd9b3fba87ccef4863",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_reserved.svg?rev=37854a700c694dc8a4ab5e89e4a8fd53",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 7,
+      "iconName": "accomp_prenotabile",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_prenotabile.svg?rev=ecc72c5bd4c04ed88a10f396d57ec074",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_available.svg?rev=8505fdf44e3a4586823ff7d3f1a0d488",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_available.svg?rev=8f5dec53f9be4bbf82717543f0ca51eb",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 8,
+      "iconName": "accomp_riservato",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_riservato.svg?rev=f5db7df98ea048f995fc2cc6d368fb4a",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_reserved.svg?rev=8c7edeb56a4942fd9b3fba87ccef4863",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_reserved.svg?rev=37854a700c694dc8a4ab5e89e4a8fd53",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 9,
+      "iconName": "accomp_soldout",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_soldout.svg?rev=f1e85d8569104c2bbcc44426aac4add0",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd"
+     }
+    ]
+   },
+   {
+    "areaCategoryCode": "0000000007",
+    "areaColor": "#3a96d1",
+    "areaDescription": "Riservato alle persone disabili in carrozzina ed accompagnatori",
+    "areaHopk": "0000000006",
+    "areaMainPriceInCents": 400,
+    "areaName": "Riservati Persone Disabili",
+    "areaOfferBackgroundImage": null,
+    "areaPrices": [],
+    "isSofaSeatDisabled": false,
+    "isSoldOut": false,
+    "largeSeats": false,
+    "priority": 0,
+    "seatIcons": [
+     {
+      "seatStatus": 0,
+      "iconName": "accomp_prenotabile",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_prenotabile.svg?rev=ecc72c5bd4c04ed88a10f396d57ec074",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_available.svg?rev=8505fdf44e3a4586823ff7d3f1a0d488",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_available.svg?rev=8f5dec53f9be4bbf82717543f0ca51eb",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 1,
+      "iconName": "accomp_soldout",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_soldout.svg?rev=f1e85d8569104c2bbcc44426aac4add0",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd"
+     },
+     {
+      "seatStatus": 3,
+      "iconName": "special_seat_icon",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/global/img/seats/special_seat_icon.svg?rev=-1",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_available.svg?rev=8505fdf44e3a4586823ff7d3f1a0d488",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_available.svg?rev=8f5dec53f9be4bbf82717543f0ca51eb",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 3,
+      "iconName": "special_seat_icon",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/global/img/seats/special_seat_icon.svg?rev=-1",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_available.svg?rev=8505fdf44e3a4586823ff7d3f1a0d488",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_available.svg?rev=8f5dec53f9be4bbf82717543f0ca51eb",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 4,
+      "iconName": "accomp_riservato",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_riservato.svg?rev=f5db7df98ea048f995fc2cc6d368fb4a",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_reserved.svg?rev=8c7edeb56a4942fd9b3fba87ccef4863",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_reserved.svg?rev=37854a700c694dc8a4ab5e89e4a8fd53",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 7,
+      "iconName": "accomp_prenotabile",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_prenotabile.svg?rev=ecc72c5bd4c04ed88a10f396d57ec074",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_available.svg?rev=8505fdf44e3a4586823ff7d3f1a0d488",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_available.svg?rev=8f5dec53f9be4bbf82717543f0ca51eb",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 8,
+      "iconName": "accomp_riservato",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_riservato.svg?rev=f5db7df98ea048f995fc2cc6d368fb4a",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_reserved.svg?rev=8c7edeb56a4942fd9b3fba87ccef4863",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_reserved.svg?rev=37854a700c694dc8a4ab5e89e4a8fd53",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 9,
+      "iconName": "accomp_soldout",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/the-space-cinema/materiali/icone/seats/accomp_soldout.svg?rev=f1e85d8569104c2bbcc44426aac4add0",
+      "seatSecondaryIconSrc": null,
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd"
+     },
+     {
+      "seatStatus": 10,
+      "iconName": "selected_special_seat_icon",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/global/img/seats/selected_special_seat_icon.svg?rev=-1",
+      "seatSecondaryIconSrc": "https://www.thespacecinema.it/-/media/global/img/seats/selected_special_seat_icon.svg?rev=-1",
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_reserved.svg?rev=8c7edeb56a4942fd9b3fba87ccef4863",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_reserved.svg?rev=37854a700c694dc8a4ab5e89e4a8fd53",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 10,
+      "iconName": "selected_special_seat_icon",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/global/img/seats/selected_special_seat_icon.svg?rev=-1",
+      "seatSecondaryIconSrc": "https://www.thespacecinema.it/-/media/global/img/seats/selected_special_seat_icon.svg?rev=-1",
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_reserved.svg?rev=8c7edeb56a4942fd9b3fba87ccef4863",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_double_love_seat_icon.svg?rev=2c517c39dd354eff89f5c9480283ed3e",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_reserved.svg?rev=37854a700c694dc8a4ab5e89e4a8fd53",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/selected_triple_love_seat_icon.svg?rev=932dc4d13a7948e6afa2c3af74e3222c"
+     },
+     {
+      "seatStatus": 11,
+      "iconName": "selected_special_seat_icon",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/global/img/seats/selected_special_seat_icon.svg?rev=-1",
+      "seatSecondaryIconSrc": "https://www.thespacecinema.it/-/media/global/img/seats/selected_special_seat_icon.svg?rev=-1",
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd"
+     },
+     {
+      "seatStatus": 11,
+      "iconName": "selected_special_seat_icon",
+      "seatIconSrc": "https://www.thespacecinema.it/-/media/global/img/seats/selected_special_seat_icon.svg?rev=-1",
+      "seatSecondaryIconSrc": "https://www.thespacecinema.it/-/media/global/img/seats/selected_special_seat_icon.svg?rev=-1",
+      "doubleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "doubleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/double_love_seat_occupied.svg?rev=e41260f2909f40a9ba03455f61186f00",
+      "tripleSeatIconImage": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd",
+      "tripleSeatIconImageOnSeatMap": "https://www.thespacecinema.it/-/media/global/img/seats/triple_love_seat_occupied.svg?rev=32f8297a960a4cb9af45e2c3cc9c3fdd"
+     }
+    ]
+   }
+  ],
+  "sessionOccupancy": 0.024691358024691357,
+  "singleSeatRule": {
+   "useSingleSeatRule": true,
+   "singleSeatIcon": "https://www.thespacecinema.it/-/media/global/img/seats/single_seat.png?rev=98ba51076e1f4950a01d0b6bba5428b3"
+  },
+  "ticketTiers": []
+ },
+ "responseCode": 0,
+ "errorMessage": null
+}
