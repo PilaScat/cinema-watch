@@ -108,13 +108,15 @@ Tutti i workflow si possono lanciare anche a mano (`workflow_dispatch`).
 
 | Workflow | Quando parte |
 |---|---|
-| `ci.yml` | Su ogni pull request. Esegue test, tipi, lint, build, audit, licenze, `actionlint` e `zizmor`. Non parte sul push al ramo principale |
+| `ci.yml` | Su ogni pull request. Esegue test, tipi, lint, build, audit, licenze, `actionlint` e `zizmor`. Il suo job "Test, tipi, lint, build e sicurezza" è obbligatorio per entrare in `main` |
 | `codeql.yml` | Push su `main`, pull request e ogni settimana |
 | `scorecard.yml` | Ogni settimana |
 | Dependabot | Ogni settimana, per le dipendenze npm, le GitHub Actions e l'immagine base |
 | `release.yml` | Solo da un tag `v*` o a mano |
 
 CodeQL, Scorecard, Dependabot e `ci.yml` sulle pull request partono da soli per scelta dell'autore del 15/10/2026. `release.yml` no: parte solo dal tag o dal lancio manuale.
+
+Dal 19/10/2026 su `main` si entra solo con una pull request (regola "main protetto"): il job di `ci.yml` deve essere verde e il merge si fa con rebase, così i commit restano divisi per feature. Non serve l'approvazione di un revisore, perché il maintainer è uno solo, e la regola vale anche per gli admin. I passi sono in [CLAUDE.md](../CLAUDE.md).
 
 ## Smoke test
 

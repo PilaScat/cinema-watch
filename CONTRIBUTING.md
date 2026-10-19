@@ -10,7 +10,7 @@ Come segnalare un problema e proporre una modifica a cinema-watch. Issues and pu
 ## Proporre una modifica
 
 1. Una pull request verso `main`, piccola e su un argomento solo. Per una modifica grande conviene aprire prima una issue.
-2. Devono passare i quattro controlli di [Sviluppo in locale](README.md#sviluppo-in-locale): test, tipi, lint e build. La CI li rilancia sulla pull request.
+2. Devono passare i quattro controlli di [Sviluppo in locale](README.md#sviluppo-in-locale): test, tipi, lint e build. La CI li rilancia sulla pull request, e il merge, con rebase, si fa solo quando è verde.
 3. Una funzione nuova o una correzione arriva con i suoi test (Vitest, in `tests/`). Le risposte delle API si provano con risposte vere ridotte, in `tests/fixtures/`. La copertura minima è il 90% su `src/` e l'80% su `src/web/`.
 4. Le scelte che non si capiscono dal codice vanno in [docs/MEMORY.md](docs/MEMORY.md); una novità visibile va nel [CHANGELOG](CHANGELOG.md) sotto la prossima versione.
 
