@@ -48,6 +48,17 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
 - **Titoli Webtic**: un film ha un titolo per versione ("(Lingua Orig) Avengers: Doomsday", "Avengers: Doomsday Infinity Vision", "Dune - Parte Tre Anteprima"). Lo slug si ricava dal titolo senza i tag fra parentesi, senza "Anteprima" e senza l'edizione, così coincide con quello UCI e una caccia per slug vale per tutti e due i circuiti. "Infinity Vision" diventa il formato `2D - INFINITY VISION`. La lingua viene dalla proprietà `LANGUAGE` (`EN` diventa `ENG` come in UCI; senza la proprietà è `ITA`).
 - **Coordinate**: 179 sedi candidate su 409 hanno le coordinate a 0, compresi 5 Notorious, e stanno in fondo all'ordine per distanza (scelta di Filippo del 17/10/2026). La regione si ricava dalla sigla della provincia (`src/regions.ts`).
 
+## Cinema The Space
+
+- **Chiavi**: cinema `space-<cinemaId>`, spettacolo `space-<cinemaId>-<sessionId>`, sala `space-<cinemaId>-<slug del nome della sala>` (per esempio `space-1028-sala-7`). Il prefisso evita lo scontro coi `LocalId` di Webtic, che hanno numeri simili.
+- **Token ospite**: va chiesto a `/auth/token` e rimandato con **tutti** i cookie della risposta. Il token vale solo sul server che l'ha emesso, e `__cflb` è il cookie di Cloudflare che tiene le richieste su quel server: senza, la programmazione risponde a volte 401 e i posti sempre (verificato il 20/10/2026). Si rinnova dopo 11 ore o al primo 401; due richieste insieme aspettano lo stesso rinnovo.
+- **Asse delle file**: `seatRows` arriva nell'ordine della sala, fila A per prima e schermo in alto, come sul sito (verificato a vista il 19/10/2026). `rowIndex` non serve: la fila A ha 15 in una sala e 10 in un'altra. La fila è la posizione nell'elenco più uno, la colonna la posizione nella fila più uno.
+- **Stati dei posti**: 0 libero; 1, 9 e 11 venduto; 4, 8 e 10 nel carrello di qualcuno, che conta come preso come `BLOCCATO` di Webtic; 3 carrozzina e 7 accompagnatore vanno nel settore `UN` e non sono vendibili; 12 non è un posto e si salta; gli altri sono `RISERVATO`. Il prezzo "da" è il minimo delle aree che hanno posti `STANDARD`.
+- **Giorno del cinema**: gli spettacoli dopo mezzanotte (`isMidnightSession`) stanno già nel gruppo del giorno prima, come in UCI.
+- **Orario dello spettacolo**: la pianta non lo porta. Il circuito lo prende dalla programmazione letta dal giro o, se lo spettacolo non è noto, rilegge la programmazione del cinema; uno spettacolo che non c'è più dà "Pianta non disponibile".
+- **Elenco dei cinema**: un controllo settimanale legge i 35 cinema e le loro pagine e salva `/data/space-venues.json`; se fallisce resta l'elenco di prima e si riprova dopo un'ora. Una richiesta di programmazione per cinema a giro dà tutti i giorni.
+- **Cloudflare**: dal server di casa le richieste passano (prova dal container del 19/10/2026).
+
 ## Avvisi
 
 - **Un avviso non si perde**: se Telegram fallisce o non è configurato, lo stato della caccia non

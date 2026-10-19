@@ -54,9 +54,23 @@ Base: `https://secure.webtic.it/api/wtjsonservices.ashx`, con il metodo nel para
 
 Le locandine sono `https://secure.webtic.it/api/` seguito dal `Picture` relativo. Il link "Acquista" è `https://secure.webtic.it/angwt/webtic.aspx?lid={LocalId}&lng=it#/shoppingmode/it/0/{LocalId}/{EventId}/{PerformanceId}`: apre il login di Webtic e poi lo spettacolo.
 
+### The Space
+
+Base: `https://www.thespacecinema.it/api/microservice`. Senza token quasi tutte le chiamate rispondono 401. Le risposte hanno la forma `{ "result": ..., "responseCode", "errorMessage" }`.
+
+| Chiamata | A cosa serve | Campi usati |
+|---|---|---|
+| `POST /auth/token` | Token ospite, senza login | i cookie della risposta: `microservicesToken` (12 ore), `microservicesRefreshToken` e `__cflb` di Cloudflare |
+| `GET /showings/cinemas` | Elenco dei 35 cinema | `cinemaId`, `cinemaName`, `whatsOnUrl` (la pagina del cinema) |
+| `GET /showings/cinemas/{id}/films?minEmbargoLevel=1&includesSession=true` | Programmazione di tutti i giorni di un cinema, 450-600 KB | `filmId`, `filmTitle`, `posterImageSrc`, `showingGroups[]` con `date` (giorno del cinema) e `sessions[]` (`sessionId`, `startTime`, `screenName`, `duration`, `bookingUrl`, `attributes[]`) |
+| `GET /showings/films` | Catalogo dei film, per la pagina Cerca, con una cache di un'ora | `filmId`, `filmTitle`, `posterImageSrc`, `releaseDate`, `showingInCinemas` |
+| `GET /booking/Session/{cinemaId}/{sessionId}/seats` | Pianta e posti presi in una chiamata | `seatingData.screenLabel`, `seatRows[]` (`rowLabel`, `columns[]` con `name`, `seatStatus`, `areaCategoryCode`), `areaCategories[]` (`areaCategoryCode`, `areaMainPriceInCents`) |
+
+Gli `attributes` danno il formato (`Session` "2D"; `Session_Special` "3D", "INFINITY VISION", "ANTEPRIMA") e la lingua (`Language` "ITALIANO" o "LINGUA ORIGINALE"). Coordinate e provincia di un cinema vengono dalla sua pagina HTML: `q=lat, lon` nel link della mappa e la sigla in fondo a `<address>`. Le locandine sono su `www.thespacecinema.it`. Il link "Acquista" è `https://www.thespacecinema.it/prenotare-il-biglietto/summary/{cinemaId}/{filmId}/{sessionId}`.
+
 ### Come l'app le chiama
 
-Tutte le chiamate a UCI, Webtic e GitHub passano da `src/http.ts`:
+Tutte le chiamate a UCI, Webtic, The Space e GitHub passano da `src/http.ts`:
 
 - solo `https` e solo gli host consentiti elencati sotto; i reindirizzamenti non si seguono;
 - timeout di 15 secondi per chiamata, una richiesta alla volta per host;
@@ -70,10 +84,11 @@ Tutte le chiamate a UCI, Webtic e GitHub passano da `src/http.ts`:
 | `myuci---uci-backend-production-nfluwp7wga-oc.a.run.app` | Backend UCI | `src/http.ts` |
 | `uci-website-webtic-proxy-production-1042268733238.europe-west8.run.app` | Proxy Webtic | `src/http.ts` |
 | `secure.webtic.it` | Webtic diretto, per i cinema che non sono UCI | `src/http.ts` |
+| `www.thespacecinema.it` | The Space: token ospite, programmazione, posti e pagine dei cinema | `src/http.ts`, e `src/circuits/the-space.ts` per il token |
 | `api.github.com` | Ultima Release (`/repos/PilaScat/cinema-watch/releases/latest`), una volta al giorno, per avvisare di una versione nuova | `src/http.ts` |
 | `api.telegram.org` | Invio dei messaggi e lettura dei comandi, vedi [telegram.md](telegram.md) | `src/telegram.ts` |
 
-Il browser di chi usa la UI carica le locandine da `storage.googleapis.com` e `secure.webtic.it`, ammessi dalla CSP; è il browser a farlo, non l'app. I link "Acquista" portano a `ucicinemas.it` o a `secure.webtic.it` e l'app non li apre.
+Il browser di chi usa la UI carica le locandine da `storage.googleapis.com`, `secure.webtic.it` e `www.thespacecinema.it`, ammessi dalla CSP; è il browser a farlo, non l'app. I link "Acquista" portano a `ucicinemas.it`, a `secure.webtic.it` o a `www.thespacecinema.it` e l'app non li apre.
 
 ## API dell'app
 
