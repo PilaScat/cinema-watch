@@ -10,5 +10,5 @@ export const search = {
   noTheatres: "Nessun cinema lo proietta per ora.",
   empty: "Nessun film trovato.",
   emptyHint: "Basta una parte del titolo, e un piccolo errore di battitura va bene.",
-  catalogUnavailable: "Catalogo UCI non disponibile: la ricerca vale solo per il titolo esatto.",
+  catalogUnavailable: "Catalogo dei film non disponibile: la ricerca vale solo per il titolo esatto.",
 } as const;
