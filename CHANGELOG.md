@@ -2,6 +2,13 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.10.8
+
+### Progetto
+
+- La descrizione del progetto parla dei cinema italiani, con la copertura di oggi: UCI Cinemas e i cinema che vendono con Webtic.
+- Badge OpenSSF Best Practices, livello passing (progetto 15670). Le risposte stanno in `docs/best-practices.md` e `scripts/best-practices-fill.mjs` compila il modulo.
+
 ## v2026.10.7
 
 ### Progetto

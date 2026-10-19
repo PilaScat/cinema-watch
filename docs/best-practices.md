@@ -4,7 +4,7 @@ Le risposte da incollare su [bestpractices.dev](https://www.bestpractices.dev) p
 
 ## Come si usa
 
-Il progetto è il numero [15670](https://www.bestpractices.dev/projects/15670), aggiunto da Filippo il 19/10/2026 nella serie Metal.
+Il progetto è il numero [15670](https://www.bestpractices.dev/projects/15670), aggiunto da Filippo il 19/10/2026 nella serie Metal: livello passing raggiunto lo stesso giorno, con il badge nel README.
 
 1. `node scripts/best-practices-fill.mjs > fill.js` scrive il codice che compila il modulo da questo documento: i dati del progetto e tutti i criteri con risposta Met, Unmet o N/A. Il conteggio va su stderr.
 2. Accedere a bestpractices.dev, aprire `https://www.bestpractices.dev/en/projects/15670/passing/edit`, aprire la console del browser (F12), scrivere `allow pasting` se il browser lo chiede, incollare il contenuto di `fill.js` e premere Invio. La console dice quanti campi ha compilato e quali non ha trovato.

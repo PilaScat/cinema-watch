@@ -2,7 +2,7 @@
 
 Sorveglia la programmazione dei cinema italiani con "cacce" a film, cinema, formati di sala e date. Manda su Telegram, con la pianta della sala, un avviso quando escono gli spettacoli, quando si liberano o finiscono i posti buoni e quando uno spettacolo è annullato o spostato. Una web UI leggera gestisce le cacce. Oggi copre UCI Cinemas e circa 300 cinema che vendono con Webtic (Notorious, Cinelandia, Movie Planet e molti indipendenti); gli altri circuiti, a partire da The Space, sono nel [backlog](docs/backlog.md).
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/PilaScat/cinema-watch/badge)](https://scorecard.dev/viewer/?uri=github.com/PilaScat/cinema-watch)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/PilaScat/cinema-watch/badge)](https://scorecard.dev/viewer/?uri=github.com/PilaScat/cinema-watch) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15670/badge)](https://www.bestpractices.dev/projects/15670)
 
 **In English.** cinema-watch watches the programming of Italian cinemas with "hunts" for a film, a set of cinemas, screen formats and dates. It currently covers UCI Cinemas and about 300 cinemas that sell tickets through Webtic, such as Notorious; other chains, starting with The Space, are planned. When showings come out, good seats free up or run out, or a showing is cancelled or moved, it sends a Telegram alert with the seat map. It runs as a small Docker container (`ghcr.io/pilascat/cinema-watch`, amd64 and arm64) with a web UI to manage the hunts: the `docker run` command is under [Avvio rapido](#avvio-rapido). The interface and the docs are in Italian; issues and pull requests in English are welcome.
 
