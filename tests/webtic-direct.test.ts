@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ApiShapeError, WebticError } from "../src/errors.js";
 import { createHttpClient } from "../src/http.js";
-import { regionOfProvince } from "../src/regions.js";
+import { regionOfPostalCode, regionOfProvince } from "../src/regions.js";
 import { filterShowings } from "../src/uci.js";
 import {
   createWebticDirectClient,
@@ -242,6 +242,11 @@ describe("slugs and links", () => {
   it("knows the region of every province abbreviation it meets", () => {
     expect(regionOfProvince("mi ")).toBe("Lombardia");
     expect(regionOfProvince("SU")).toBe("Sardegna");
+    expect(regionOfPostalCode("65015")).toBe("Abruzzo");
+    expect(regionOfPostalCode("16128")).toBe("Liguria");
+    expect(regionOfPostalCode("00100")).toBe("Lazio");
+    expect(regionOfPostalCode("49000")).toBeNull();
+    expect(regionOfPostalCode("1234")).toBeNull();
     expect(regionOfProvince("00")).toBeNull();
   });
 });
