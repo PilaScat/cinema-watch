@@ -27,7 +27,7 @@ prima risposta arriva entro 7 giorni.
 - la gestione del token Telegram e della password della web UI;
 - le chiamate verso UCI, Webtic, Telegram e GitHub.
 
-Le API di UCI e Webtic non sono di questo progetto: i loro problemi vanno segnalati a UCI Cinemas.
+Le API dei circuiti, come UCI e Webtic, non sono di questo progetto: i loro problemi vanno segnalati ai rispettivi gestori.
 
 ## Verificare un'immagine
 

@@ -4,7 +4,7 @@ Questo documento descrive le API esterne che cinema-watch legge e le API che l'a
 
 ## API esterne
 
-Sono pubbliche, senza login, e non sono ufficiali: UCI può cambiarle senza preavviso. Le risposte si validano con zod; un campo che manca o ha il tipo sbagliato scarta quell'elemento o dà un errore tipizzato, mai un arresto dell'app.
+Sono pubbliche, senza login, e non sono ufficiali: i circuiti possono cambiarle senza preavviso. Le risposte si validano con zod; un campo che manca o ha il tipo sbagliato scarta quell'elemento o dà un errore tipizzato, mai un arresto dell'app.
 
 ### Backend UCI
 
