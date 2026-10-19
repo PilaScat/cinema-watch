@@ -7,6 +7,7 @@ Cosa resta da decidere o da fare nei prossimi rilasci. Una voce fatta si toglie 
 
 | Voce | Cosa serve |
 |---|---|
+| Tutti i cinema italiani | Richiesta di Filippo del 19/10: descrizione e scopo dello strumento orientati a tutti i cinema italiani, non a UCI con l'aggiunta di Webtic (README, testi della UI, docs), poi i circuiti che mancano, a partire da The Space Cinemas, che non vende con Webtic. Per ogni circuito serve prima una ricognizione delle API pubbliche (elenco dei cinema, programmazione, pianta, posti presi) e poi la scelta con Filippo. |
 | Punteggio OpenSSF Scorecard (7,0 al 16/10) | Dal repo è fatto quello che si poteva: LICENSE col solo testo MIT (License), provenienza firmata allegata alle Release (Signed-Releases, conta dalla prossima Release), link diretto in SECURITY.md (Security-Policy, conta dal giro del 19/10). Maintained sale da sola da metà gennaio 2027, quando il repo ha 90 giorni. Restano bassi per scelta Code-Review, Branch-Protection e CI-Tests (push diretti su main) e Contributors. |
 | Badge OpenSSF Best Practices | Le risposte sono pronte in [best-practices.md](best-practices.md). Filippo si iscrive su bestpractices.dev con il suo account GitHub, incolla le risposte e valuta i due criteri sullo sviluppatore; con l'id del progetto il badge va nel README. |
 
