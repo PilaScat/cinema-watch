@@ -7,7 +7,7 @@ Cosa resta da decidere o da fare nei prossimi rilasci. Una voce fatta si toglie 
 
 | Voce | Cosa serve |
 |---|---|
-| Tutti i cinema italiani | Richiesta di Filippo del 19/10: descrizione e scopo dello strumento orientati a tutti i cinema italiani, non a UCI con l'aggiunta di Webtic (README, testi della UI, docs), poi i circuiti che mancano, a partire da The Space Cinemas, che non vende con Webtic. Per ogni circuito serve prima una ricognizione delle API pubbliche (elenco dei cinema, programmazione, pianta, posti presi) e poi la scelta con Filippo. |
+| Tutti i cinema italiani | Richiesta di Filippo del 19/10: descrizione e scopo dello strumento orientati a tutti i cinema italiani, non a UCI con l'aggiunta di Webtic. La descrizione del progetto (README, GitHub, `package.json`) è fatta il 19/10; restano i testi della UI e i docs, poi i circuiti che mancano, a partire da The Space Cinemas, che non vende con Webtic. Per ogni circuito serve prima una ricognizione delle API pubbliche (elenco dei cinema, programmazione, pianta, posti presi) e poi la scelta con Filippo. |
 | Punteggio OpenSSF Scorecard (7,5 al 19/10) | Dal repo è fatto quello che si poteva: License, Signed-Releases e Security-Policy sono a 10. CII-Best-Practices sale a 5 al prossimo giro, perché il badge passing è arrivato il 19/10 dopo l'analisi. Maintained sale da sola da metà gennaio 2027, quando il repo ha 90 giorni. Restano bassi per scelta Code-Review, Branch-Protection e CI-Tests (push diretti su main) e Contributors. |
 
 ## Scelte confermate dopo le revisioni
