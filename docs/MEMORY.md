@@ -5,7 +5,14 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
 ## Dati UCI e Webtic
 
 - **Chiave di uno spettacolo**: `{LocalId}-{PerformanceId}`. Il PerformanceId di Webtic è unico
-  solo dentro un cinema (LocalId), quindi da solo non basta come chiave.
+  solo dentro un cinema (LocalId), quindi da solo non basta come chiave. La chiave di una sala è
+  `{LocalId}-{ScreenId}`. Fuori dai client di UCI e Webtic l'app usa solo queste chiavi, come
+  stringhe: i circuiti che verranno avranno chiavi con un prefisso (per esempio `space-…`), così
+  non si scontrano con i LocalId. Le chiavi di UCI e Webtic sono rimaste uguali nel cambio del
+  19/10/2026: stato, storico, zone delle cacce e piante salvate non sono cambiati.
+- **Circuiti**: runner e watcher passano da `src/circuits/` (un adapter per circuito, scelto dallo
+  slug del cinema). Per una chiave vecchia senza cinema, come quella di un link Telegram, il
+  circuito si ricava dallo stato delle cacce o dall'elenco dei cinema Webtic.
 - **Giorno del cinema**: `performances[].day` è il giorno di programmazione. Lo spettacolo delle
   00:01 del 16 ha `day` 15. Date e giorni della settimana usano `day`; i filtri "dalle/alle"
   usano l'ora reale.

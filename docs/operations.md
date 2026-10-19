@@ -30,7 +30,7 @@ La web UI mostra "Disponibile la vAAAA.MM.N" quando su GitHub c'è una Release p
 docker compose pull && docker compose up -d
 ```
 
-Su Unraid si aggiorna il container dalla scheda Docker. Dati e configurazione stanno nella cartella dei dati e non si perdono. Le versioni nuove migrano da sole `config.json`; se `state.json` ha una versione diversa l'app riparte da uno stato vuoto. Il contrario no: un `config.json` scritto da una versione più recente viene rifiutato ("versione più recente dell'app"), quindi tornare a una versione vecchia richiede il backup della cartella dati.
+Su Unraid si aggiorna il container dalla scheda Docker. Dati e configurazione stanno nella cartella dei dati e non si perdono. Le versioni nuove migrano da sole `config.json` e `state.json` (la versione 1 dello stato passa alla 2 conservando cacce, spettacoli e storico); se `state.json` ha una versione che l'app non conosce, riparte da uno stato vuoto. Il contrario no: un `config.json` scritto da una versione più recente viene rifiutato ("versione più recente dell'app"), quindi tornare a una versione vecchia richiede il backup della cartella dati.
 
 ## Backup
 
