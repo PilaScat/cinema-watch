@@ -3,7 +3,7 @@ import type { TtlCache } from "../cache.js";
 import { isIsoDay } from "../dates.js";
 import { ApiShapeError, HttpError } from "../errors.js";
 import type { GuardedFetch } from "../http.js";
-import { regionOfProvince } from "../regions.js";
+import { regionOfPostalCode, regionOfProvince } from "../regions.js";
 import type { createStore } from "../store.js";
 import { normalizeTitle } from "../uci.js";
 import { parseTitle } from "../webtic-direct.js";
@@ -25,6 +25,7 @@ const VENUE_CHECK_MS = 7 * 24 * 60 * 60 * 1000;
 const COORDINATES = /q=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/;
 const ADDRESS = /<address[^>]*>([^<]*)<\/address>/;
 const PROVINCE = /\b([A-Z]{2})\s*$/;
+const POSTAL_CODE = /\b(\d{5})\b/;
 const CLOCK = /T(\d{2}):(\d{2})/;
 const SCREEN_FORMATS = ["IMAX", "4DX", "SCREENX", "3D"];
 const EDITIONS = ["INFINITY VISION"];
@@ -161,13 +162,18 @@ export function parseCinemas(json: unknown): SpaceCinema[] {
   }));
 }
 
-export function parseCinemaPage(html: string): { lat: number | null; lon: number | null; province: string | null } {
+export function parseCinemaPage(html: string): { lat: number | null; lon: number | null; province: string | null; postalCode: string | null } {
   const coordinates = COORDINATES.exec(html);
   const lat = coordinates ? Number(coordinates[1]) : null;
   const lon = coordinates ? Number(coordinates[2]) : null;
   const located = lat !== null && lon !== null && lat !== 0 && lon !== 0 && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
   const address = ADDRESS.exec(html)?.[1]?.trim() ?? "";
-  return { lat: located ? lat : null, lon: located ? lon : null, province: PROVINCE.exec(address)?.[1] ?? null };
+  return { lat: located ? lat : null, lon: located ? lon : null, province: PROVINCE.exec(address)?.[1] ?? null, postalCode: POSTAL_CODE.exec(address)?.[1] ?? null };
+}
+
+function regionOf(page: ReturnType<typeof parseCinemaPage> | null): string | null {
+  const byProvince = page?.province ? regionOfProvince(page.province) : null;
+  return byProvince ?? (page?.postalCode ? regionOfPostalCode(page.postalCode) : null);
 }
 
 export function theatreOf(cinema: SpaceCinema, page: ReturnType<typeof parseCinemaPage> | null): Theatre {
@@ -176,7 +182,7 @@ export function theatreOf(cinema: SpaceCinema, page: ReturnType<typeof parseCine
     name: `The Space ${cinema.name}`,
     city: cinema.name,
     province: page?.province ?? null,
-    region: page?.province ? regionOfProvince(page.province) : null,
+    region: regionOf(page),
     isLuxe: false,
     screens: [],
     lat: page?.lat ?? null,

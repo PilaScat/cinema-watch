@@ -38,7 +38,7 @@ describe("cinemas", () => {
   it("reads coordinates and province from the page of a cinema", () => {
     const page = parseCinemaPage(textFixture("space/cinema-beinasco.html"));
 
-    expect(page).toEqual({ lat: 45.021899, lon: 7.594591, province: "TO" });
+    expect(page).toEqual({ lat: 45.021899, lon: 7.594591, province: "TO", postalCode: "10149" });
     expect(theatreOf({ cinemaId: "1028", name: "Beinasco", pageUrl: null }, page)).toEqual({
       slug: "space-1028",
       name: "The Space Beinasco",
@@ -54,9 +54,19 @@ describe("cinemas", () => {
   });
 
   it("leaves place fields empty when the page has none", () => {
-    expect(parseCinemaPage("<html></html>")).toEqual({ lat: null, lon: null, province: null });
-    expect(parseCinemaPage("q=0, 0")).toEqual({ lat: null, lon: null, province: null });
+    expect(parseCinemaPage("<html></html>")).toEqual({ lat: null, lon: null, province: null, postalCode: null });
+    expect(parseCinemaPage("q=0, 0")).toEqual({ lat: null, lon: null, province: null, postalCode: null });
     expect(theatreOf({ cinemaId: "9", name: "X", pageUrl: null }, null)).toMatchObject({ region: null, lat: null, province: null });
+  });
+
+  it("takes the region from the postal code when the address has no province", () => {
+    const region = (address: string) => theatreOf({ cinemaId: "1", name: "X", pageUrl: null }, parseCinemaPage(`<address class="a">${address}</address>`)).region;
+
+    expect(region("Viale Europa, 5 Bologna 40128")).toBe("Emilia Romagna");
+    expect(region("Via Noicattaro, 2 Casamassima (Bari) 70010 - presso Parco Commerciale Casamassima")).toBe("Puglia");
+    expect(region("Via Pierluigi Nervi Corciano 06073")).toBe("Umbria");
+    expect(region("Via Boscofangone, 80035 Località Gallo NA presso Centro Commerciale Vulcano Buono")).toBe("Campania");
+    expect(region("Via Senza Numero")).toBeNull();
   });
 
   it("rejects an answer without a result", () => {

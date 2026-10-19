@@ -22,6 +22,7 @@ describe.skipIf(!live)("live The Space", () => {
     expect(list.theatres.length).toBeGreaterThan(25);
     expect(list.theatres.find((theatre) => theatre.slug === `space-${BEINASCO}`)).toMatchObject({ region: "Piemonte", province: "TO" });
     expect(list.theatres.filter((theatre) => theatre.lat !== null).length).toBeGreaterThan(list.theatres.length / 2);
+    expect(list.theatres.filter((theatre) => theatre.region === null).map((theatre) => theatre.name)).toEqual([]);
   });
 
   it("reads a Beinasco session, its hall and its occupancy end to end", async () => {

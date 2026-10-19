@@ -56,6 +56,7 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
 - **Stati dei posti**: 0 libero; 1, 9 e 11 venduto; 4, 8 e 10 nel carrello di qualcuno, che conta come preso come `BLOCCATO` di Webtic; 3 carrozzina e 7 accompagnatore vanno nel settore `UN` e non sono vendibili; 12 non è un posto e si salta; gli altri sono `RISERVATO`. Il prezzo "da" è il minimo delle aree che hanno posti `STANDARD`.
 - **Giorno del cinema**: gli spettacoli dopo mezzanotte (`isMidnightSession`) stanno già nel gruppo del giorno prima, come in UCI.
 - **Orario dello spettacolo**: la pianta non lo porta. Il circuito lo prende dalla programmazione letta dal giro o, se lo spettacolo non è noto, rilegge la programmazione del cinema; uno spettacolo che non c'è più dà "Pianta non disponibile".
+- **Regione**: dalla sigla della provincia in fondo a `<address>`; 6 cinema su 35 hanno solo il CAP, e allora la regione viene dalle prime due cifre del CAP, che indicano la provincia del capoluogo (`regionOfPostalCode`).
 - **Elenco dei cinema**: un controllo settimanale legge i 35 cinema e le loro pagine e salva `/data/space-venues.json`; se fallisce resta l'elenco di prima e si riprova dopo un'ora. Una richiesta di programmazione per cinema a giro dà tutti i giorni.
 - **Cloudflare**: dal server di casa le richieste passano (prova dal container del 19/10/2026).
 
