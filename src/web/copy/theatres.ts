@@ -2,7 +2,7 @@ export const theatres = {
   title: "Cinema",
   description: "I cinema, raggruppati per regione.",
   descriptionNear: "I cinema, dal più vicino a casa.",
-  chains: { uci: "UCI", webtic: "Webtic" },
+  chains: { uci: "UCI", webtic: "Webtic", space: "The Space" },
   venuesLoading: (count: number): string => `Primo controllo dei cinema Webtic in corso: ${count} trovati finora. L'elenco si completa in circa mezz'ora.`,
   filterLabel: "Nome o città",
   filterPlaceholder: "Verona, Milano…",

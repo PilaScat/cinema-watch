@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import type { Config } from "../../src/model.js";
+import type { SpaceVenueList } from "../../src/circuits/the-space.js";
 import type { VenueList } from "../../src/venues.js";
 import { createApp } from "../../src/web/app.js";
 import type { Harness } from "./harness.js";
@@ -12,8 +13,8 @@ export const PERFORMANCE = "5116-575978";
 const publicDir = fileURLToPath(new URL("../../src/web/public/", import.meta.url));
 const assetsDir = fileURLToPath(new URL("../../assets/", import.meta.url));
 
-export async function createWebApp(harness: Harness, options: { env?: NodeJS.ProcessEnv; mutate?: (config: Config) => void; publicDir?: string; venues?: VenueList | null } = {}) {
-  const config = await harness.seed(options.mutate, options.venues === undefined ? {} : { venues: options.venues });
+export async function createWebApp(harness: Harness, options: { env?: NodeJS.ProcessEnv; mutate?: (config: Config) => void; publicDir?: string; venues?: VenueList | null; spaceVenues?: SpaceVenueList } = {}) {
+  const config = await harness.seed(options.mutate, { ...(options.venues === undefined ? {} : { venues: options.venues }), ...(options.spaceVenues === undefined ? {} : { spaceVenues: options.spaceVenues }) });
   const watcher = await harness.watcher({ env: options.env ?? {} });
   const instance = await createApp({
     watcher,
