@@ -58,6 +58,17 @@ async function evaluate(expression) {
   return result.result.value;
 }
 
+async function call(fn, ...args) {
+  const { result: global } = await send("Runtime.evaluate", { expression: "globalThis" }, session);
+  const { result } = await send(
+    "Runtime.callFunctionOn",
+    { functionDeclaration: fn.toString(), objectId: global.result.objectId, arguments: args.map((value) => ({ value })), awaitPromise: true, returnByValue: true },
+    session,
+  );
+  if (result.exceptionDetails) throw new Error(`${fn.toString().slice(0, 80)}: ${result.exceptionDetails.text}`);
+  return result.result.value;
+}
+
 async function settle() {
   await new Promise((resolve) => setTimeout(resolve, 600));
   for (let attempt = 0; attempt < 40; attempt += 1) {
@@ -72,7 +83,7 @@ async function open(path) {
 }
 
 async function click(selector) {
-  await evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);
+  await call((target) => document.querySelector(target).click(), selector);
   await settle();
 }
 
@@ -82,38 +93,53 @@ function check(name, ok, detail = "") {
 
 async function addAndDeleteHunt(label, theatre, movie, format) {
   await open("/hunts/new");
-  const offered = await evaluate(`Boolean(document.querySelector('input[name=theatre][value=${theatre}]'))`);
+  const offered = await call((value) => [...document.querySelectorAll("input[name=theatre]")].some((box) => box.value === value), theatre);
   check(`${label}: cinema nel form`, offered, offered ? "" : "elenco dei cinema non pronto");
   if (!offered) return;
-  await evaluate(`(() => {
-    document.querySelector('input[name=name]').value = ${JSON.stringify(label)};
-    document.querySelectorAll('details').forEach((d) => { d.open = true; });
-    const box = document.querySelector('input[name=theatre][value=${theatre}]');
-    box.checked = true;
-    box.dispatchEvent(new Event('change', { bubbles: true }));
-  })()`);
-  for (let attempt = 0; attempt < 40 && !(await evaluate(`[...document.querySelectorAll('select[name=movieListed] option')].some((o) => o.value === ${JSON.stringify(movie)})`)); attempt += 1) {
+  await call(
+    (name, value) => {
+      document.querySelector("input[name=name]").value = name;
+      document.querySelectorAll("details").forEach((details) => {
+        details.open = true;
+      });
+      const box = [...document.querySelectorAll("input[name=theatre]")].find((input) => input.value === value);
+      box.checked = true;
+      box.dispatchEvent(new Event("change", { bubbles: true }));
+    },
+    label,
+    theatre,
+  );
+  const movieListed = () => call((value) => [...document.querySelectorAll("select[name=movieListed] option")].some((option) => option.value === value), movie);
+  for (let attempt = 0; attempt < 40 && !(await movieListed()); attempt += 1) {
     await new Promise((resolve) => setTimeout(resolve, 150));
   }
   const listed = await evaluate("[...document.querySelectorAll('select[name=movieListed] option')].map((o) => o.value).filter(Boolean)");
   check(`${label}: menu dei film ricaricato dal cinema scelto`, listed.includes(movie), listed.join(", "));
-  await evaluate(`(() => {
-    document.querySelector('select[name=movieListed]').value = ${JSON.stringify(movie)};
-    document.querySelectorAll('input[name=format]').forEach((box) => { box.checked = box.value === ${JSON.stringify(format)}; });
-    document.querySelector('input[name=windowKind][value=fixed]').checked = true;
-    document.querySelector('input[name=windowFrom]').value = '2026-12-16';
-    document.querySelector('input[name=windowTo]').value = '2026-12-16';
-  })()`);
+  await call(
+    (value, chosen) => {
+      document.querySelector("select[name=movieListed]").value = value;
+      document.querySelectorAll("input[name=format]").forEach((box) => {
+        box.checked = box.value === chosen;
+      });
+      document.querySelector("input[name=windowKind][value=fixed]").checked = true;
+      document.querySelector("input[name=windowFrom]").value = "2026-12-16";
+      document.querySelector("input[name=windowTo]").value = "2026-12-16";
+    },
+    movie,
+    format,
+  );
   await evaluate("document.querySelector('form[action=\"/hunts\"]').requestSubmit()");
   await settle();
-  check(`${label}: caccia aggiunta dal form`, (await evaluate("location.pathname")) === "/" && (await evaluate(`document.body.innerText.toUpperCase().includes(${JSON.stringify(label.toUpperCase())})`)));
-  const href = await evaluate(`[...document.querySelectorAll('a')].find((a) => a.textContent.trim() === ${JSON.stringify(label)})?.getAttribute('href') ?? ''`);
+  const href = await call((name) => [...document.querySelectorAll("a")].find((link) => link.textContent.trim() === name)?.getAttribute("href") ?? "", label);
+  const added = (await evaluate("location.pathname")) === "/" && href !== "";
+  check(`${label}: caccia aggiunta dal form`, added, added ? "" : await evaluate("location.pathname + ' ' + document.body.innerText.slice(0, 120)"));
+  if (!added) return;
   await open(href);
   await click("form[action$='/delete'] button[data-confirm]");
   const armed = await evaluate("document.querySelector(\"form[action$='/delete'] button\").dataset.armed");
   await click("form[action$='/delete'] button[data-confirm]");
   check(`${label}: Elimina si arma al primo clic`, armed === "true");
-  check(`${label}: Elimina conferma al secondo clic`, (await evaluate("location.pathname")) === "/" && !(await evaluate(`document.body.innerText.includes(${JSON.stringify(label)})`)));
+  check(`${label}: Elimina conferma al secondo clic`, (await evaluate("location.pathname")) === "/" && !(await call((name) => document.body.innerText.includes(name), label)));
 }
 
 await addAndDeleteHunt("E2E Avengers XL", "uci-cinemas-verona", "avengers-doomsday", "XL");
@@ -149,11 +175,15 @@ check("Impostazioni salvate dal form", (await evaluate("location.search")) === "
 
 async function saveHome(home, radius) {
   await open("/settings");
-  await evaluate(`(() => {
-    document.querySelector('input[name=home]').value = ${JSON.stringify(home)};
-    document.querySelector('input[name=radiusKm]').value = ${JSON.stringify(radius)};
-    document.querySelector('form[action="/settings"]').requestSubmit();
-  })()`);
+  await call(
+    (position, kilometres) => {
+      document.querySelector("input[name=home]").value = position;
+      document.querySelector("input[name=radiusKm]").value = kilometres;
+      document.querySelector('form[action="/settings"]').requestSubmit();
+    },
+    home,
+    radius,
+  );
   await settle();
 }
 
