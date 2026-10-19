@@ -4,18 +4,29 @@ Le risposte da incollare su [bestpractices.dev](https://www.bestpractices.dev) p
 
 ## Come si usa
 
-1. Accedere a bestpractices.dev con l'account GitHub dell'autore e aggiungere il progetto `https://github.com/PilaScat/cinema-watch`. Il sito riempie da solo alcune risposte dal repository.
-2. Per ogni criterio scegliere la risposta della tabella e incollare la giustificazione. Dove c'è un URL, il modulo lo chiede.
-3. I due criteri sullo sviluppatore (`know_secure_design`, `know_common_errors`) li valuta l'autore: la tabella dà solo le prove nel codice.
-4. Con tutti i MUST soddisfatti, e i SHOULD soddisfatti o giustificati, il sito assegna il badge e un id numerico. Il badge va nel README e la voce esce da [backlog.md](backlog.md).
+Il progetto è il numero [15670](https://www.bestpractices.dev/projects/15670), aggiunto da Filippo il 19/10/2026 nella serie Metal.
 
-`R` sta per `https://github.com/PilaScat/cinema-watch`.
+1. `node scripts/best-practices-fill.mjs > fill.js` scrive il codice che compila il modulo da questo documento: i dati del progetto e tutti i criteri con risposta Met, Unmet o N/A. Il conteggio va su stderr.
+2. Accedere a bestpractices.dev, aprire `https://www.bestpractices.dev/en/projects/15670/passing/edit`, aprire la console del browser (F12), scrivere `allow pasting` se il browser lo chiede, incollare il contenuto di `fill.js` e premere Invio. La console dice quanti campi ha compilato e quali non ha trovato.
+3. I due criteri sullo sviluppatore (`know_secure_design`, `know_common_errors`) li valuta l'autore a mano: la tabella dà solo le prove nel codice.
+4. Controllare e salvare. Con tutti i MUST soddisfatti, e i SHOULD soddisfatti o giustificati, il sito assegna il badge, che va nel README; la voce esce da [backlog.md](backlog.md).
+
+Senza lo script si compila a mano, riga per riga. `R` sta per `https://github.com/PilaScat/cinema-watch`; lo script lo espande.
+
+## Dati del progetto
+
+| Campo | Valore |
+|---|---|
+| name | cinema-watch |
+| description | Watches the programming of Italian cinemas with "hunts" for a film, a set of cinemas, screen formats and dates, and sends a Telegram alert with the seat map when showings come out, good seats free up or run out, or a showing is cancelled or moved. It covers UCI Cinemas and about 300 cinemas that sell tickets through Webtic; other chains are planned. |
+| license | MIT |
+| implementation_languages | TypeScript, JavaScript |
 
 ## Basics
 
 | Criterio | Tipo | Risposta | Giustificazione |
 |---|---|---|---|
-| description_good | MUST | Met | The README opens with what cinema-watch does: it watches Italian cinema programming and sends Telegram alerts with the seat map. R#readme |
+| description_good | MUST | Met | The README opens with what cinema-watch does: it watches the programming of Italian cinemas and sends Telegram alerts with the seat map. R#readme |
 | interact | MUST | Met | README: how to obtain it (Docker image, "Avvio rapido"), give feedback (issues) and contribute (CONTRIBUTING.md). R#readme |
 | contribution | MUST | Met | Pull requests against main, described in R/blob/main/CONTRIBUTING.md |
 | contribution_requirements | SHOULD | Met | CONTRIBUTING.md lists the required checks (tests, types, lint, build), tests for new code and the coding rules. R/blob/main/CONTRIBUTING.md |
