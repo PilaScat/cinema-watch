@@ -10,7 +10,7 @@ import type {
   Zone,
 } from "./types.js";
 
-export const CONFIG_SCHEMA_VERSION = 3;
+export const CONFIG_SCHEMA_VERSION = 4;
 export const STATE_SCHEMA_VERSION = 2;
 
 export type AbsoluteZone = Extract<Zone, { kind: "absolute" }>;
@@ -29,6 +29,8 @@ export interface NotifyFlags {
   digest: boolean;
 }
 
+export type DayTimes = Partial<Record<string, { from: HhMm | null; to: HhMm | null }>>;
+
 export interface Hunt {
   id: string;
   name: string;
@@ -41,6 +43,7 @@ export interface Hunt {
   timeFrom: HhMm | null;
   timeTo: HhMm | null;
   weekdays: number[] | null;
+  dayTimes: DayTimes;
   languages: string[] | null;
   zone: Zone;
   hallZones: Record<string, AbsoluteZone>;

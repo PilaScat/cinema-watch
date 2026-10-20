@@ -23,6 +23,7 @@ const hunt: Hunt = {
   timeFrom: null,
   timeTo: null,
   weekdays: null,
+  dayTimes: {},
   languages: null,
   zone: { kind: "absolute", rows: ["F", "G", "H", "J", "K", "L"], seatFrom: 5, seatTo: 16 },
   hallZones: {},

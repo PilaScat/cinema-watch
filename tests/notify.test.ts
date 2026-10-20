@@ -90,6 +90,7 @@ function hunt(overrides: Partial<Hunt> = {}): Hunt {
     timeFrom: null,
     timeTo: null,
     weekdays: null,
+    dayTimes: {},
     languages: null,
     zone: { kind: "absolute", rows: ["H"], seatFrom: null, seatTo: null },
     hallZones: {},
