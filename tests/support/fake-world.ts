@@ -20,6 +20,8 @@ export interface FakeWorld {
   requests: string[];
   webticCalls: string[];
   spaceCalls: string[];
+  t18Calls: string[];
+  setT18Page(host: string, path: string, body: string | number): void;
   setSpaceProgramming(cinemaId: string, json: unknown): void;
   expireSpaceToken(): void;
   setProgramming(theatreSlug: string, day: string, json: unknown): void;
@@ -31,6 +33,9 @@ export interface FakeWorld {
   restoreHost(host: string): void;
   latestRelease: string;
 }
+
+export const T18_PROJECTION = "097c8f93-6c1c-459d-bb22-1d5457272000";
+export const T18_THEATER = "a4999780-a922-4814-a65b-c3b5b6f78fc8";
 
 export function fixture(path: string): unknown {
   return JSON.parse(readFileSync(new URL(`../fixtures/${path}`, import.meta.url), "utf8"));
@@ -84,6 +89,16 @@ export function createFakeWorld(): FakeWorld {
   const requests: string[] = [];
   const webticCalls: string[] = [];
   const spaceCalls: string[] = [];
+  const t18Calls: string[] = [];
+  const t18Pages = new Map<string, string | number>([
+    ["roma.andromeda.18tickets.it/", textFixture("t18/home-roma-andromeda.html")],
+    ["roma.andromeda.18tickets.it/film/81500", textFixture("t18/film-roma-andromeda-81500.html")],
+    [`roma.andromeda.18tickets.it/theater/${T18_THEATER}.svg`, textFixture(`t18/theater-${T18_THEATER}.svg`)],
+    [`roma.andromeda.18tickets.it/seats/${T18_PROJECTION}`, textFixture(`t18/seats-${T18_PROJECTION}.json`)],
+    ["ccroma.18tickets.it/", textFixture("t18/home-ccroma.html")],
+    ["cdr.18tickets.it/", 302],
+    ["cdr.18tickets.it/select_cinema?mandatory=true", textFixture("t18/select-cdr.html")],
+  ]);
   const spaceProgramming = new Map<string, unknown>([["1028", fixture("space/programming-1028.json")]]);
   let spaceToken = SPACE_TOKEN;
   let messageId = 1000;
@@ -93,6 +108,8 @@ export function createFakeWorld(): FakeWorld {
     requests,
     webticCalls,
     spaceCalls,
+    t18Calls,
+    setT18Page: (host, path, body) => t18Pages.set(`${host}${path}`, body),
     setSpaceProgramming: (cinemaId, body) => spaceProgramming.set(cinemaId, body),
     expireSpaceToken: () => {
       spaceToken = "microservicesToken=renewed-token";
@@ -162,6 +179,16 @@ export function createFakeWorld(): FakeWorld {
           const key = `${String(data.LocalId)}-${String(data.PerformanceId)}`;
           return json(occupancies.get(key) ?? (key === "5779-51133" ? fixture("webtic-direct/occupancy-5779-51133.json") : dead));
         }
+      }
+
+      if (url.hostname.endsWith(".18tickets.it")) {
+        const page = `${url.hostname}${url.pathname}${url.search}`;
+        t18Calls.push(page);
+        const body = t18Pages.get(page);
+        if (body === 302) return new Response("", { status: 302, headers: { location: `https://${url.hostname}/select_cinema?mandatory=true` } });
+        if (typeof body === "number") return new Response("", { status: body });
+        if (body === undefined) return new Response("", { status: 404 });
+        return new Response(body, { status: 200, headers: { "content-type": url.pathname.startsWith("/seats/") ? "application/json" : "text/html; charset=utf-8" } });
       }
 
       if (url.hostname === "www.thespacecinema.it") {

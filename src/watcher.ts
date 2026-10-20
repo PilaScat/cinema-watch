@@ -29,6 +29,21 @@ import { roundEntries } from "./round-log.js";
 import { observeHunt, zoneFor, type HuntObservation, type SeatDetail } from "./runner.js";
 import { createCircuits } from "./circuits/index.js";
 import { createUciCircuit, createWebticCircuit, parseLegacyKey, type LegacyCaches } from "./circuits/legacy.js";
+import { T18_SEED_HOSTS } from "./circuits/t18-hosts.js";
+import {
+  buildT18Venues,
+  createPacer,
+  createT18Circuit,
+  createT18Client,
+  isT18Key,
+  loadT18Venues,
+  moviesOfHome,
+  saveT18Venues,
+  t18Slug,
+  t18VenuesDue,
+  type T18Home,
+  type T18VenueList,
+} from "./circuits/t18.js";
 import {
   buildSpaceVenues,
   createSpaceCircuit,
@@ -78,6 +93,9 @@ const PROGRAMMING_TTL_MS = 10 * MINUTE;
 const CATALOG_TTL_MS = 60 * MINUTE;
 const DEFAULT_TOGETHER = 2;
 const VENUE_RETRY_MS = 60 * MINUTE;
+const T18_PAGE_INTERVAL_MS = 10_000;
+const T18_COOLDOWN_MS = MINUTE;
+const T18_THEATERS_TTL_MS = 24 * 60 * MINUTE;
 const VENUE_TIMEOUT_MS = 30_000;
 const RELEASES_URL = "https://api.github.com/repos/PilaScat/cinema-watch/releases/latest";
 
@@ -159,6 +177,20 @@ function errorText(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+function sleepUnlessClosed(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, ms);
+    signal.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timer);
+        resolve();
+      },
+      { once: true },
+    );
+  });
+}
+
 export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   const now = options.now ?? Date.now;
   const random = options.random ?? Math.random;
@@ -218,6 +250,11 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     now,
   });
   const spaceFilms = createTtlCache<SpaceFilm[]>({ ttlMs: CATALOG_TTL_MS, clock });
+  const t18Client = createT18Client({
+    fetch: (url, init) => baseFetch(url, { ...init, signal: init?.signal ? AbortSignal.any([init.signal, probeAbort.signal]) : probeAbort.signal }),
+    pacer: createPacer({ intervalMs: T18_PAGE_INTERVAL_MS, cooldownMs: T18_COOLDOWN_MS, now, sleep: options.sleep ?? ((ms) => sleepUnlessClosed(ms, probeAbort.signal)) }),
+    userAgent,
+  });
   const circuits = createCircuits([
     createUciCircuit({ uci, seats: webtic, caches }),
     createWebticCircuit({
@@ -234,6 +271,16 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       describe: (key) => describeShowing(key),
       now,
     }),
+    createT18Circuit({
+      client: t18Client,
+      hostOf: (theatreSlug) => t18HostOf(theatreSlug),
+      homes: createTtlCache<T18Home>({ ttlMs: CACHE_TTL_MS, maxEntries: 100, clock }),
+      theaters: createTtlCache<Map<string, string>>({ ttlMs: T18_THEATERS_TTL_MS, maxEntries: 200, clock }),
+      hallStore,
+      describe: (key) => describeT18(key),
+      onHome: (theatreSlug, home) => refreshT18Movies(theatreSlug, home),
+      now,
+    }),
   ]);
   const runnerDeps = { circuits };
   let venueList: VenueList | null = await loadVenueList(store);
@@ -247,6 +294,10 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   let spaceRefreshing = false;
   let spaceRun: Promise<void> = Promise.resolve();
   let spaceRetryAt = 0;
+  let t18Venues: T18VenueList | null = await loadT18Venues(store);
+  let t18Refreshing = false;
+  let t18Run: Promise<void> = Promise.resolve();
+  let t18RetryAt = 0;
   const theatreList = createTtlCache<Theatre[]>({ ttlMs: PERFORMANCE_TTL_MS, clock });
   const fullProgramming = createTtlCache<Map<IsoDay, Showing[]>>({ ttlMs: PROGRAMMING_TTL_MS, maxEntries: 3, clock });
   const catalog = createTtlCache<CatalogMovie[]>({ ttlMs: CATALOG_TTL_MS, clock });
@@ -306,9 +357,28 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     return spaceVenues?.theatres ?? [];
   }
 
+  function t18Theatres(): Theatre[] {
+    return (t18Venues?.venues ?? []).map((venue) => venue.theatre);
+  }
+
+  function t18HostOf(theatreSlug: string): string | null {
+    const known = t18Venues?.venues.find((venue) => venue.theatre.slug === theatreSlug)?.host;
+    return known ?? config.settings.t18Hosts.find((host) => t18Slug(host) === theatreSlug) ?? null;
+  }
+
+  function describeT18(key: string): { theatreSlug: string; startsAt: string; title: string; room: string; cartUrl: string } | null {
+    const known = Object.values(state.hunts).flatMap((hunt) => Object.values(hunt.showings)).find((showing) => showing.key === key);
+    return known ? { theatreSlug: known.theatreSlug, startsAt: known.startsAt, title: known.movieTitle, room: known.room, cartUrl: known.cartUrl } : null;
+  }
+
+  function refreshT18Movies(theatreSlug: string, home: T18Home): void {
+    if (t18Venues === null) return;
+    t18Venues = { ...t18Venues, venues: t18Venues.venues.map((venue) => (venue.theatre.slug === theatreSlug ? { ...venue, movies: moviesOfHome(home) } : venue)) };
+  }
+
   async function theatres(): Promise<Theatre[]> {
     const list = await theatreList.getOrLoad("all", () => uci.theatres());
-    return [...list, ...(venueList === null ? foundVenues.map((venue) => venue.theatre) : venueTheatres(venueList)), ...spaceTheatres()];
+    return [...list, ...(venueList === null ? foundVenues.map((venue) => venue.theatre) : venueTheatres(venueList)), ...spaceTheatres(), ...t18Theatres()];
   }
 
   function describeShowing(key: string): { startsAt: string; title: string; cartUrl: string } | null {
@@ -327,6 +397,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
 
   function chainOf(key: string, theatreSlug?: string): Chain {
     if (isSpaceKey(key)) return "space";
+    if (isT18Key(key)) return "t18";
     const known = theatreSlug ?? Object.values(state.hunts).flatMap((hunt) => Object.values(hunt.showings)).find((showing) => showing.key === key)?.theatreSlug;
     const [localId] = parseLegacyKey(key);
     if (known !== undefined) return localIdOfSlug(known) === localId ? "webtic" : "uci";
@@ -345,7 +416,10 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       .flatMap((movie) => movie.cinemaIds.map((cinemaId) => spaceSlug(cinemaId)))
       .filter((slug) => names.has(slug))
       .map((slug): MovieTheatre => ({ slug, name: names.get(slug) ?? slug, variants: [] }));
-    return [...fromUci, ...venuesWithMovie(currentVenues(), movieSlug), ...fromSpace];
+    const fromT18 = (t18Venues?.venues ?? [])
+      .filter((venue) => venue.movies.some((movie) => movie.slug === movieSlug))
+      .map((venue): MovieTheatre => ({ slug: venue.theatre.slug, name: venue.theatre.name, variants: [] }));
+    return [...fromUci, ...venuesWithMovie(currentVenues(), movieSlug), ...fromSpace, ...fromT18];
   }
 
   async function finishProbe(list: VenueList): Promise<void> {
@@ -391,17 +465,44 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       });
   }
 
+  function t18Due(): boolean {
+    const checked = new Set(t18Venues?.checkedHosts ?? []);
+    return t18VenuesDue(t18Venues, now()) || config.settings.t18Hosts.some((host) => !checked.has(host));
+  }
+
+  function startT18Refresh(): void {
+    if (closed || t18Refreshing || dryRun || now() < t18RetryAt || !t18Due()) return;
+    t18Refreshing = true;
+    const previous = t18Venues;
+    const hosts = [...T18_SEED_HOSTS, ...config.settings.t18Hosts, ...(previous?.venues.map((venue) => venue.host) ?? [])];
+    t18Run = buildT18Venues(t18Client, { hosts, previous, now, stopped: () => closed })
+      .then(async (list) => {
+        if (closed) return;
+        t18Venues = list;
+        await saveT18Venues(store, list);
+        logger.info("t18 venues", { venues: list.venues.length });
+      })
+      .catch((error: unknown) => {
+        t18RetryAt = now() + VENUE_RETRY_MS;
+        if (!closed) logger.warn("t18 venues", { error: errorText(error) });
+      })
+      .finally(() => {
+        t18Refreshing = false;
+      });
+  }
+
   async function close(): Promise<void> {
     closed = true;
     probeAbort.abort();
     await probeRun;
     await spaceRun;
+    await t18Run;
     await exclusive(() => Promise.resolve());
   }
 
   async function theatreNames(): Promise<Record<string, string>> {
     const fromUci = await theatreList.getOrLoad("all", () => uci.theatres()).catch((): Theatre[] => []);
-    return Object.fromEntries([...fromUci, ...currentVenues().map((venue) => venue.theatre), ...spaceTheatres()].map((theatre) => [theatre.slug, theatre.name]));
+    return Object.fromEntries([...fromUci, ...currentVenues().map((venue) => venue.theatre), ...spaceTheatres(), ...t18Theatres()].map((theatre) => [theatre.slug, theatre.name]));
   }
 
   async function hallView(key: string, huntId?: string, theatreSlug?: string): Promise<HallView> {
@@ -575,6 +676,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     if (isQuiet(config.settings, now())) return;
     startVenueProbe();
     startSpaceRefresh();
+    startT18Refresh();
     await checkVersion();
     for (const hunt of config.hunts) {
       if (isDue(hunt, state, now())) await runHunt(hunt, false);
@@ -682,7 +784,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       theatres,
       programming: programmingOf,
       movieTheatres,
-      movies: async () => mergeCatalogs(await catalog.getOrLoad("all", () => uci.catalog()), [...currentVenues().flatMap((venue) => venue.movies), ...(await spaceCatalog())]),
+      movies: async () => mergeCatalogs(await catalog.getOrLoad("all", () => uci.catalog()), [...currentVenues().flatMap((venue) => venue.movies), ...(await spaceCatalog()), ...(t18Venues?.venues ?? []).flatMap((venue) => venue.movies)]),
       hall: hallView,
       venueStatus: () => ({ checkedAt: venueList?.checkedAt ?? null, probing, venues: currentVenues().length }),
     },
