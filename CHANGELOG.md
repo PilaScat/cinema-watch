@@ -2,6 +2,16 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.10.11
+
+### Novità
+
+- **Orario diverso per giorno**: nel form della caccia, sotto i giorni della settimana, ogni giorno può avere un suo Dalle e Alle che in quel giorno vale al posto di quelli generali. Per esempio feriali dalle 19 e sabato e domenica dalle 15. Le cacce esistenti non cambiano.
+
+### Interno
+
+- `config.json` passa alla versione 4 (`dayTimes` nelle cacce), con la migrazione automatica.
+
 ## v2026.10.10
 
 ### Novità

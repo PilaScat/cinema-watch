@@ -8,7 +8,7 @@ Sorveglia la programmazione dei cinema italiani con "cacce" a film, cinema, form
 
 ## Cosa fa
 
-- **Cacce**: un film (anche non ancora in programmazione, cercato per titolo), uno o più cinema, i formati di sala (IMAX, XL, Infinity Vision…) e le date, con filtri facoltativi per orario, giorni della settimana e lingua.
+- **Cacce**: un film (anche non ancora in programmazione, cercato per titolo), uno o più cinema, i formati di sala (IMAX, XL, Infinity Vision…) e le date, con filtri facoltativi per orario (anche diverso per ogni giorno della settimana), giorni della settimana e lingua.
 - **Avvisi su Telegram**: nuovi spettacoli, posti liberati, ultimi posti, spettacoli annullati o spostati, con la pianta della sala e i migliori posti liberi.
 - **Zona buona**: le file e i posti che vanno bene, relativi alla sala o fissati cliccando sulla pianta, con il numero di posti vicini richiesto.
 - **Pulsanti nel messaggio**: Acquista, Apri sala, Aggiorna ora, Silenzia 24 h e Acquistato, con Riattiva e Ripristina per tornare indietro; `/aggiorna` rilegge tutte le cacce.
