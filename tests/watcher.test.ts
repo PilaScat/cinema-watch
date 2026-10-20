@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createHunt, defaultConfig, saveConfig } from "../src/config.js";
 import type { Config, Hunt } from "../src/model.js";
 import { createStore } from "../src/store.js";
+import { saveT18Venues } from "../src/circuits/t18.js";
 import { saveSpaceVenues } from "../src/circuits/the-space.js";
 import { saveVenueList } from "../src/venues.js";
 import { createWatcher } from "../src/watcher.js";
@@ -53,6 +54,7 @@ async function seed(mutate: (config: Config) => void = () => undefined): Promise
   await saveConfig(store, config);
   await saveVenueList(store, { checkedAt: clock, venues: [] });
   await saveSpaceVenues(store, { checkedAt: clock, theatres: [] });
+  await saveT18Venues(store, { checkedAt: clock, checkedHosts: [], venues: [] });
   return config;
 }
 

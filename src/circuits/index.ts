@@ -1,10 +1,12 @@
 import type { Chain } from "../types.js";
 import { localIdOfSlug } from "../webtic-direct.js";
+import { isT18Slug } from "./t18.js";
 import { cinemaIdOfSlug } from "./the-space.js";
 import type { Circuit } from "./types.js";
 
 export function chainOfSlug(theatreSlug: string): Chain {
   if (cinemaIdOfSlug(theatreSlug) !== null) return "space";
+  if (isT18Slug(theatreSlug)) return "t18";
   return localIdOfSlug(theatreSlug) === null ? "uci" : "webtic";
 }
 

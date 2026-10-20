@@ -4,11 +4,12 @@ import { join } from "node:path";
 import { createHunt, defaultConfig, saveConfig } from "../../src/config.js";
 import type { Config, Hunt } from "../../src/model.js";
 import { createStore } from "../../src/store.js";
+import { parseHome, saveT18Venues, venueOf, type T18VenueList } from "../../src/circuits/t18.js";
 import { saveSpaceVenues, type SpaceVenueList } from "../../src/circuits/the-space.js";
 import { saveVenueList, type VenueList } from "../../src/venues.js";
 import { createWatcher } from "../../src/watcher.js";
 import { moviesOf, parseScheduling, parseVenueCandidates } from "../../src/webtic-direct.js";
-import { createFakeWorld, FAKE_TOKEN, fixture, type FakeWorld } from "./fake-world.js";
+import { createFakeWorld, textFixture, FAKE_TOKEN, fixture, type FakeWorld } from "./fake-world.js";
 
 export const MINUTE = 60_000;
 export const PRIMARY_CHAT = "4242";
@@ -19,7 +20,7 @@ export interface Harness {
   now(): number;
   advance(ms: number): void;
   set(at: number): void;
-  seed(mutate?: (config: Config) => void, options?: { venues?: VenueList | null; spaceVenues?: SpaceVenueList | null }): Promise<Config>;
+  seed(mutate?: (config: Config) => void, options?: { venues?: VenueList | null; spaceVenues?: SpaceVenueList | null; t18Venues?: T18VenueList | null }): Promise<Config>;
   watcher(options?: { env?: NodeJS.ProcessEnv }): ReturnType<typeof createWatcher>;
   sleep: (ms: number) => Promise<void>;
   dispose(): Promise<void>;
@@ -40,6 +41,11 @@ export function duneHunt(config: Config, overrides: Partial<Hunt> = {}): Hunt {
     config.settings,
     () => 0.5,
   );
+}
+
+export function andromedaVenues(checkedAt: number): T18VenueList {
+  const host = "roma.andromeda.18tickets.it";
+  return { checkedAt, checkedHosts: [host], venues: [venueOf(host, parseHome(textFixture("t18/home-roma-andromeda.html"), host))] };
 }
 
 export function beinascoVenues(checkedAt: number): SpaceVenueList {
@@ -84,6 +90,8 @@ export async function createHarness(start = Date.parse("2026-12-01T10:00:00Z")):
       if (venues !== null) await saveVenueList(store, venues);
       const spaceVenues = options.spaceVenues === undefined ? { checkedAt: clock, theatres: [] } : options.spaceVenues;
       if (spaceVenues !== null) await saveSpaceVenues(store, spaceVenues);
+      const t18Venues = options.t18Venues === undefined ? { checkedAt: clock, checkedHosts: [], venues: [] } : options.t18Venues;
+      if (t18Venues !== null) await saveT18Venues(store, t18Venues);
       return config;
     },
     watcher: (options = {}) =>
