@@ -138,6 +138,8 @@ export const copy = {
     tokenFormat: "formato del token non valido",
     publicUrlFormat: "URL http o https senza credenziali",
     t18HostFormat: "indirizzi del tipo nomecinema.18tickets.it",
+    emptyDayTime: "indicare almeno Dalle o Alle",
+    dayTimeOutsideDays: "orario per un giorno non scelto",
     emptyType: "tipo vuoto",
     atLeastOneType: "almeno un tipo",
     repeatedId: "id ripetuto",

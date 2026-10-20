@@ -45,6 +45,7 @@ export function createHunt(input: HuntInput, settings: Settings, random: () => n
     timeFrom: null,
     timeTo: null,
     weekdays: null,
+    dayTimes: {},
     languages: null,
     zone: structuredClone(settings.defaultZone),
     hallZones: {},
@@ -177,6 +178,10 @@ const window = z.discriminatedUnion("kind", [
   z.strictObject({ kind: z.literal("next"), days: intIn(1, 60) }),
 ]);
 
+const dayTime = z
+  .strictObject({ from: time.nullable(), to: time.nullable() })
+  .refine((range) => range.from !== null || range.to !== null, copy.validation.emptyDayTime);
+
 const huntSchema = z.strictObject({
   id: z.string().regex(HUNT_ID, copy.validation.idFormat),
   name: z.string().min(1, copy.validation.nameLength).max(80, copy.validation.nameLength),
@@ -193,6 +198,7 @@ const huntSchema = z.strictObject({
     .min(1, copy.validation.atLeastOneDay)
     .refine((days) => new Set(days).size === days.length, copy.validation.repeatedDays)
     .nullable(),
+  dayTimes: z.partialRecord(z.enum(["1", "2", "3", "4", "5", "6", "7"]), dayTime),
   languages: z.array(z.string()).nullable(),
   zone,
   hallZones: z
@@ -211,6 +217,12 @@ const huntSchema = z.strictObject({
     digest: z.boolean(),
   }),
   extraChatIds: z.array(chatId),
+}).superRefine((hunt, ctx) => {
+  for (const day of Object.keys(hunt.dayTimes)) {
+    if (hunt.weekdays !== null && !hunt.weekdays.includes(Number(day))) {
+      ctx.addIssue({ code: "custom", path: ["dayTimes", day], message: copy.validation.dayTimeOutsideDays });
+    }
+  }
 });
 
 const settingsSchema = z.strictObject({
@@ -283,6 +295,11 @@ function toVersion2(json: Record<string, unknown>): Record<string, unknown> {
   return { ...json, schemaVersion: 2, settings: isRecord(settings) ? { home: null, radiusKm: null, ...settings } : settings };
 }
 
+function toVersion4(json: Record<string, unknown>): Record<string, unknown> {
+  const hunts = json["hunts"];
+  return { ...json, schemaVersion: 4, hunts: Array.isArray(hunts) ? hunts.map((hunt: unknown) => (isRecord(hunt) ? { dayTimes: {}, ...hunt } : hunt)) : hunts };
+}
+
 function toVersion3(json: Record<string, unknown>): Record<string, unknown> {
   const settings = json["settings"];
   return { ...json, schemaVersion: 3, settings: isRecord(settings) ? { t18Hosts: [], ...settings } : settings };
@@ -292,7 +309,8 @@ export function migrateConfig(json: unknown): unknown {
   if (!isRecord(json)) return json;
   const versioned = json["schemaVersion"] === undefined ? { ...json, schemaVersion: 1 } : json;
   const second = versioned["schemaVersion"] === 1 ? toVersion2(versioned) : versioned;
-  return second["schemaVersion"] === 2 ? toVersion3(second) : second;
+  const third = second["schemaVersion"] === 2 ? toVersion3(second) : second;
+  return third["schemaVersion"] === 3 ? toVersion4(third) : third;
 }
 
 export function parseConfig(json: unknown): ParseResult {

@@ -58,7 +58,7 @@ describe("defaults", () => {
 
   it("builds an empty default config with a fresh copy of the settings", () => {
     const config = defaultConfig();
-    expect(config).toEqual({ schemaVersion: 3, settings: DEFAULT_SETTINGS, hunts: [] });
+    expect(config).toEqual({ schemaVersion: 4, settings: DEFAULT_SETTINGS, hunts: [] });
     config.settings.sellableTypes.push("X");
     expect(DEFAULT_SETTINGS.sellableTypes).toEqual(["STANDARD"]);
     expect(defaultConfig().settings.sellableTypes).toEqual(["STANDARD"]);
@@ -96,6 +96,7 @@ describe("createHunt", () => {
       timeFrom: null,
       timeTo: null,
       weekdays: null,
+      dayTimes: {},
       languages: null,
       zone: { kind: "relative", rowsFromPercent: 10, rowsToPercent: 90, centerPercent: 50 },
       hallZones: {},
@@ -357,7 +358,7 @@ describe("migration and versions", () => {
   it("treats a missing schemaVersion as version 1 and brings it to the current one", () => {
     const { home, radiusKm, t18Hosts, ...settings } = DEFAULT_SETTINGS;
     const input = { settings, hunts: [] };
-    expect(migrateConfig(input)).toEqual({ schemaVersion: 3, settings: { ...settings, home: null, radiusKm: null, t18Hosts: [] }, hunts: [] });
+    expect(migrateConfig(input)).toEqual({ schemaVersion: 4, settings: { ...settings, home: null, radiusKm: null, t18Hosts: [] }, hunts: [] });
     expect(t18Hosts).toEqual([]);
     expect(input).not.toHaveProperty("schemaVersion");
     expect([home, radiusKm]).toEqual([null, null]);
@@ -369,7 +370,7 @@ describe("migration and versions", () => {
     const result = parseConfig(v1);
     expect(result.ok).toBe(true);
     expect(result.ok ? result.config.settings : null).toEqual({ ...settings, publicUrl: "https://cw.example", home: null, radiusKm: null, t18Hosts });
-    expect(result.ok ? result.config.schemaVersion : null).toBe(3);
+    expect(result.ok ? result.config.schemaVersion : null).toBe(4);
     expect(v1.settings).not.toHaveProperty("home");
     expect([home, radiusKm]).toEqual([null, null]);
   });
@@ -391,12 +392,32 @@ describe("migration and versions", () => {
     const result = parseConfig({ schemaVersion: 2, settings, hunts: [] });
     const outside = parseConfig({ ...defaultConfig(), settings: { ...DEFAULT_SETTINGS, t18Hosts: ["evil.example.com"] } });
 
-    expect(result.ok ? result.config : null).toEqual({ schemaVersion: 3, settings: { ...settings, t18Hosts }, hunts: [] });
+    expect(result.ok ? result.config : null).toEqual({ schemaVersion: 4, settings: { ...settings, t18Hosts }, hunts: [] });
     expect(outside).toEqual({ ok: false, errors: ["settings.t18Hosts[0]: indirizzi del tipo nomecinema.18tickets.it"] });
   });
 
+  it("gives every hunt of a version 3 config no times of its own, leaving the rest as it was", () => {
+    const { dayTimes, ...withoutDayTimes } = sampleHunt();
+    const result = parseConfig({ ...defaultConfig(), schemaVersion: 3, hunts: [{ ...withoutDayTimes, timeFrom: "19:00" }] });
+
+    expect(dayTimes).toEqual({});
+    expect(result.ok ? result.config.hunts[0] : null).toEqual({ ...withoutDayTimes, timeFrom: "19:00", dayTimes: {} });
+    expect(result.ok ? result.config.schemaVersion : null).toBe(4);
+  });
+
+  it("accepts times of their own on chosen days and refuses empty, malformed or unchosen ones", () => {
+    const withTimes = (hunt: Partial<Hunt>) => parseConfig({ ...defaultConfig(), hunts: [{ ...sampleHunt(), ...hunt }] });
+
+    expect(withTimes({ timeFrom: "19:00", dayTimes: { "6": { from: "15:00", to: null }, "7": { from: "15:00", to: "23:00" } } }).ok).toBe(true);
+    expect(withTimes({ weekdays: [6, 7], dayTimes: { "6": { from: "15:00", to: null } } }).ok).toBe(true);
+    expect(withTimes({ dayTimes: { "6": { from: null, to: null } } })).toEqual({ ok: false, errors: ["hunts[0].dayTimes.6: indicare almeno Dalle o Alle"] });
+    expect(withTimes({ dayTimes: { "6": { from: "25:00", to: null } } })).toEqual({ ok: false, errors: ["hunts[0].dayTimes.6.from: formato HH:MM"] });
+    expect(withTimes({ dayTimes: { "8": { from: "15:00", to: null } } }).ok).toBe(false);
+    expect(withTimes({ weekdays: [1, 2], dayTimes: { "6": { from: "15:00", to: null } } })).toEqual({ ok: false, errors: ["hunts[0].dayTimes.6: orario per un giorno non scelto"] });
+  });
+
   it("rejects a version newer than the app", () => {
-    expect(parseConfig({ ...defaultConfig(), schemaVersion: 4 })).toEqual({
+    expect(parseConfig({ ...defaultConfig(), schemaVersion: 5 })).toEqual({
       ok: false,
       errors: ["schemaVersion: versione più recente dell'app"],
     });
@@ -442,7 +463,7 @@ describe("exportConfig and importConfig", () => {
   it("exports indented json without the token by default choice", () => {
     const config = withToken(TOKEN);
     const text = exportConfig(config, { includeToken: false });
-    expect(text.split(LF)[1]).toBe('  "schemaVersion": 3,');
+    expect(text.split(LF)[1]).toBe('  "schemaVersion": 4,');
     expect(text).not.toContain(TOKEN);
     const parsed = JSON.parse(text) as Config;
     expect(parsed.settings.telegram).toEqual({ token: null, chatId: "-100123" });
