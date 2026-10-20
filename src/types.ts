@@ -75,6 +75,7 @@ export interface ShowingFilter {
   timeFrom?: HhMm;
   timeTo?: HhMm;
   weekdays?: number[];
+  dayTimes?: Record<string, { from?: HhMm; to?: HhMm }>;
   languages?: string[];
 }
 

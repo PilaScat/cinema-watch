@@ -40,6 +40,12 @@ function targetSlugs(hunt: Hunt): string[] {
   return hunt.movie.kind === "slug" ? hunt.movie.slugs : hunt.movie.confirmedSlugs;
 }
 
+function filterDayTimes(hunt: Hunt): Record<string, { from?: string; to?: string }> {
+  return Object.fromEntries(
+    Object.entries(hunt.dayTimes).flatMap(([day, range]) => (range ? [[day, { ...(range.from ? { from: range.from } : {}), ...(range.to ? { to: range.to } : {}) }]] : [])),
+  );
+}
+
 function showingFilter(hunt: Hunt): ShowingFilter {
   return {
     movieSlugs: targetSlugs(hunt),
@@ -48,6 +54,7 @@ function showingFilter(hunt: Hunt): ShowingFilter {
     ...(hunt.timeFrom ? { timeFrom: hunt.timeFrom } : {}),
     ...(hunt.timeTo ? { timeTo: hunt.timeTo } : {}),
     ...(hunt.weekdays ? { weekdays: hunt.weekdays } : {}),
+    ...(Object.keys(hunt.dayTimes).length > 0 ? { dayTimes: filterDayTimes(hunt) } : {}),
     ...(hunt.languages ? { languages: hunt.languages } : {}),
   };
 }
