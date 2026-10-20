@@ -47,6 +47,7 @@ export interface HuntValues {
   timeFrom: string;
   timeTo: string;
   weekdays: string[];
+  dayTimes: Record<string, { from: string; to: string }>;
   languages: string;
   together: string;
   zone: ZoneValues;
@@ -56,6 +57,8 @@ export interface HuntValues {
   extraChats: string;
   enabled: boolean;
 }
+
+const WEEKDAY_KEYS = ["1", "2", "3", "4", "5", "6", "7"];
 
 function splitWords(text: string): string[] {
   return text.split(/[\s,]+/).filter((word) => word !== "");
@@ -78,6 +81,7 @@ export function valuesOfHunt(hunt: Hunt): HuntValues {
     timeFrom: hunt.timeFrom ?? "",
     timeTo: hunt.timeTo ?? "",
     weekdays: (hunt.weekdays ?? []).map(String),
+    dayTimes: Object.fromEntries(WEEKDAY_KEYS.map((day) => [day, { from: hunt.dayTimes[day]?.from ?? "", to: hunt.dayTimes[day]?.to ?? "" }])),
     languages: (hunt.languages ?? []).join(", "),
     together: String(hunt.together),
     zone: zoneValuesOf(hunt.zone),
@@ -120,6 +124,7 @@ export function valuesOfBody(body: FormBody): HuntValues {
     timeFrom: bodyText(body, "timeFrom"),
     timeTo: bodyText(body, "timeTo"),
     weekdays: bodyValues(body, "weekday"),
+    dayTimes: Object.fromEntries(WEEKDAY_KEYS.map((day) => [day, { from: bodyText(body, `dayFrom${day}`), to: bodyText(body, `dayTo${day}`) }])),
     languages: bodyText(body, "languages"),
     together: bodyText(body, "together"),
     zone: zoneValuesFromBody(body, "zone"),
@@ -166,6 +171,11 @@ export function huntOfValues(values: HuntValues, base: Hunt): Hunt {
     timeFrom: optionalText(values.timeFrom),
     timeTo: optionalText(values.timeTo),
     weekdays: values.weekdays.length > 0 ? values.weekdays.map(Number) : null,
+    dayTimes: Object.fromEntries(
+      Object.entries(values.dayTimes)
+        .filter(([, range]) => range.from !== "" || range.to !== "")
+        .map(([day, range]) => [day, { from: optionalText(range.from), to: optionalText(range.to) }]),
+    ),
     languages: languages.length > 0 ? languages : null,
     zone: zoneFromValues(values.zone, base.zone),
     together: numberOf(values.together),
@@ -184,6 +194,7 @@ const HUNT_FIELDS: Record<string, string> = {
   timeFrom: "timeFrom",
   timeTo: "timeTo",
   weekdays: "weekdays",
+  dayTimes: "dayTimes",
   languages: "languages",
   zone: "zone",
   together: "together",
@@ -389,6 +400,23 @@ export function HuntFormBody(props: {
                 {ui.weekdays.map((label, index) => (
                   <CheckBox name="weekday" value={String(index + 1)} label={label} checked={values.weekdays.includes(String(index + 1))} />
                 ))}
+              </div>
+            </Group>
+          </Wide>
+          <Wide>
+            <Group legend={ui.fields.dayTimes} hint={ui.fields.dayTimesHint} error={fieldError["dayTimes"]}>
+              <div class="flex max-w-md flex-col gap-2">
+                {ui.weekdays.map((label, index) => {
+                  const day = String(index + 1);
+                  const range = values.dayTimes[day] ?? { from: "", to: "" };
+                  return (
+                    <div class="grid grid-cols-[3rem_1fr_1fr] items-end gap-3">
+                      <span class="pb-2 text-sm font-semibold">{label}</span>
+                      <TextField name={`dayFrom${day}`} label={ui.fields.timeFrom} value={range.from} type="time" />
+                      <TextField name={`dayTo${day}`} label={ui.fields.timeTo} value={range.to} type="time" />
+                    </div>
+                  );
+                })}
               </div>
             </Group>
           </Wide>

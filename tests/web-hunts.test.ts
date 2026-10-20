@@ -144,6 +144,34 @@ describe("hunt form", () => {
     expect(added?.extraChatIds).toEqual(["-1001234", "@canale_test"]);
   });
 
+  it("saves times of their own for some days, ignores empty rows and shows them back", async () => {
+    const { instance, watcher } = await app();
+
+    const response = await instance.request("/hunts", post(huntForm({ name: "Weekend", timeFrom: "19:00", dayFrom6: "15:00", dayFrom7: "15:00", dayTo7: "23:30", dayFrom1: "", dayTo1: "" })));
+    const added = watcher.config().hunts.find((hunt) => hunt.name === "Weekend");
+    const page = await (await instance.request(`/hunts/${added?.id ?? ""}`)).text();
+
+    expect(response.status).toBe(303);
+    expect(added?.timeFrom).toBe("19:00");
+    expect(added?.dayTimes).toEqual({ "6": { from: "15:00", to: null }, "7": { from: "15:00", to: "23:30" } });
+    expect(page).toContain("Orario diverso per giorno");
+    expect(page).toMatch(/name="dayFrom6"[^>]*value="15:00"/);
+    expect(page).toMatch(/name="dayTo7"[^>]*value="23:30"/);
+    expect(page).toMatch(/name="dayFrom1"[^>]*value=""/);
+  });
+
+  it("refuses times for a day that is not chosen, next to the group", async () => {
+    const { instance, watcher } = await app();
+
+    const response = await instance.request("/hunts", post(huntForm({ name: "Sbagliata", weekday: ["1", "2"], dayFrom6: "15:00" })));
+    const html = await response.text();
+
+    expect(response.status).toBe(400);
+    expect(html).toContain("orario per un giorno non scelto");
+    expect(html).toMatch(/name="dayFrom6"[^>]*value="15:00"/);
+    expect(watcher.config().hunts.some((hunt) => hunt.name === "Sbagliata")).toBe(false);
+  });
+
   it("adds a hunt by title and a relative zone", async () => {
     const { instance, watcher } = await app();
 
