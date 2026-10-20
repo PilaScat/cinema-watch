@@ -1,0 +1,1335 @@
+<svg class='theater-svg' id='svg-map' preserveAspectRatio='xMidYMin meet' style='transform: matrix(1, 0, 0, 1, 0, 0);' version='1.1' viewBox='0 0 795 405' xmlns='http://www.w3.org/2000/svg'>
+<defs>
+<filter filterunits='userSpaceOnUse' height='500%' id='groupborder' width='500%' x='-50%' y='-50%'>
+<feMorphology in='SourceAlpha' operator='dilate' radius='3' result='e1'></feMorphology>
+<feMorphology in='SourceAlpha' operator='dilate' radius='4' result='e2'></feMorphology>
+<feComposite in='e1' in2='e2' operator='xor' result='outline'></feComposite>
+<feColormatrix in='outline' result='outline2' type='matrix' values='1 1 1 0 0
+0 0 0 0 0
+0 0 0 0 0
+0 0 0 1 0'></feColormatrix>
+<feComposite in='outline2' in2='SourceGraphic' operator='over' result='output'></feComposite>
+</filter>
+</defs>
+<style>
+.theater-box { position: relative; width: 100%; padding-bottom: 20px; text-align: center; }
+.theater-svg { display: inline-block; }
+</style>
+<rect class='base' fill='white' fill-opacity='0' height='100%' rx='20' stroke='none' width='100%' x='0' y='0'></rect>
+<g id='main_container'>
+<g id='g_theater_screen'>
+<rect class='m18-th-screen' fill='#505050' height='20' rx='10' stroke='none' width='775' x='10.0' y='10'></rect>
+<text fill='white' font-family='Open Sans Light' font-size='10' text-anchor='middle' x='397.5' y='25'>SCHERMO | SALA 1</text>
+</g>
+<g class='nope' cursor='cross' filter='' id='c_0'>
+<g class='posto special userhide' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='5' id='g_14_22'>
+<rect fill='#505050' height='20' id='14_22' rx='5' ry='5' stroke='none' width='20' x='537.5' y='362.5'></rect>
+<text class='seat-label' fill='#c4c4c4' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='547.5' y='374'>O5</text>
+</g>
+<g class='posto special userhide' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='27' id='g_3_2'>
+<rect fill='#505050' height='20' id='3_2' rx='5' ry='5' stroke='none' width='20' x='37.5' y='87.5'></rect>
+<text class='seat-label' fill='#c4c4c4' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='47.5' y='99'>B27</text>
+</g>
+<g class='posto special userhide' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='26' id='g_3_3'>
+<rect fill='#505050' height='20' id='3_3' rx='5' ry='5' stroke='none' width='20' x='62.5' y='87.5'></rect>
+<text class='seat-label' fill='#c4c4c4' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='72.5' y='99'>B26</text>
+</g>
+<g class='posto special userhide' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='4' id='g_14_23'>
+<rect fill='#505050' height='20' id='14_23' rx='5' ry='5' stroke='none' width='20' x='562.5' y='362.5'></rect>
+<text class='seat-label' fill='#c4c4c4' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='572.5' y='374'>O4</text>
+</g>
+<g class='posto special userhide' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='D' id='g_14_24'>
+<rect fill='#505050' height='20' id='14_24' rx='5' ry='5' stroke='none' width='20' x='587.5' y='362.5'></rect>
+<text class='seat-label' fill='#c4c4c4' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='597.5' y='374'>DD</text>
+</g>
+<g class='posto special userhide' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='D' id='g_14_25'>
+<rect fill='#505050' height='20' id='14_25' rx='5' ry='5' stroke='none' width='20' x='612.5' y='362.5'></rect>
+<text class='seat-label' fill='#c4c4c4' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='622.5' y='374'>DD</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='12' id='g_12_17'>
+<rect fill='#c4c4c4' height='20' id='12_17' rx='5' ry='5' stroke='none' width='20' x='412.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='422.5' y='324'>M12</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='16' id='g_8_13'>
+<rect fill='#c4c4c4' height='20' id='8_13' rx='5' ry='5' stroke='none' width='20' x='312.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='322.5' y='224'>G16</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='27' id='g_4_2'>
+<rect fill='#c4c4c4' height='20' id='4_2' rx='5' ry='5' stroke='none' width='20' x='37.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='47.5' y='124'>C27</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='27' id='g_5_2'>
+<rect fill='#c4c4c4' height='20' id='5_2' rx='5' ry='5' stroke='none' width='20' x='37.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='47.5' y='149'>D27</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='27' id='g_6_2'>
+<rect fill='#c4c4c4' height='20' id='6_2' rx='5' ry='5' stroke='none' width='20' x='37.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='47.5' y='174'>E27</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='26' id='g_4_3'>
+<rect fill='#c4c4c4' height='20' id='4_3' rx='5' ry='5' stroke='none' width='20' x='62.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='72.5' y='124'>C26</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='26' id='g_5_3'>
+<rect fill='#c4c4c4' height='20' id='5_3' rx='5' ry='5' stroke='none' width='20' x='62.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='72.5' y='149'>D26</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='26' id='g_6_3'>
+<rect fill='#c4c4c4' height='20' id='6_3' rx='5' ry='5' stroke='none' width='20' x='62.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='72.5' y='174'>E26</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='25' id='g_7_3'>
+<rect fill='#c4c4c4' height='20' id='7_3' rx='5' ry='5' stroke='none' width='20' x='62.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='72.5' y='199'>F25</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='25' id='g_8_3'>
+<rect fill='#c4c4c4' height='20' id='8_3' rx='5' ry='5' stroke='none' width='20' x='62.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='72.5' y='224'>G25</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='25' id='g_9_3'>
+<rect fill='#c4c4c4' height='20' id='9_3' rx='5' ry='5' stroke='none' width='20' x='62.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='72.5' y='249'>H25</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='25' id='g_10_3'>
+<rect fill='#c4c4c4' height='20' id='10_3' rx='5' ry='5' stroke='none' width='20' x='62.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='72.5' y='274'>I25</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='25' id='g_11_3'>
+<rect fill='#c4c4c4' height='20' id='11_3' rx='5' ry='5' stroke='none' width='20' x='62.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='72.5' y='299'>L25</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='25' id='g_12_3'>
+<rect fill='#c4c4c4' height='20' id='12_3' rx='5' ry='5' stroke='none' width='20' x='62.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='72.5' y='324'>M25</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='25' id='g_13_3'>
+<rect fill='#c4c4c4' height='20' id='13_3' rx='5' ry='5' stroke='none' width='20' x='62.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='72.5' y='349'>N25</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='23' id='g_14_3'>
+<rect fill='#c4c4c4' height='20' id='14_3' rx='5' ry='5' stroke='none' width='20' x='62.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='72.5' y='374'>O23</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='25' id='g_3_4'>
+<rect fill='#c4c4c4' height='20' id='3_4' rx='5' ry='5' stroke='none' width='20' x='87.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='97.5' y='99'>B25</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='25' id='g_4_4'>
+<rect fill='#c4c4c4' height='20' id='4_4' rx='5' ry='5' stroke='none' width='20' x='87.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='97.5' y='124'>C25</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='25' id='g_5_4'>
+<rect fill='#c4c4c4' height='20' id='5_4' rx='5' ry='5' stroke='none' width='20' x='87.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='97.5' y='149'>D25</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='25' id='g_6_4'>
+<rect fill='#c4c4c4' height='20' id='6_4' rx='5' ry='5' stroke='none' width='20' x='87.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='97.5' y='174'>E25</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='24' id='g_7_4'>
+<rect fill='#c4c4c4' height='20' id='7_4' rx='5' ry='5' stroke='none' width='20' x='87.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='97.5' y='199'>F24</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='24' id='g_8_4'>
+<rect fill='#c4c4c4' height='20' id='8_4' rx='5' ry='5' stroke='none' width='20' x='87.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='97.5' y='224'>G24</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='24' id='g_9_4'>
+<rect fill='#c4c4c4' height='20' id='9_4' rx='5' ry='5' stroke='none' width='20' x='87.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='97.5' y='249'>H24</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='24' id='g_10_4'>
+<rect fill='#c4c4c4' height='20' id='10_4' rx='5' ry='5' stroke='none' width='20' x='87.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='97.5' y='274'>I24</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='24' id='g_11_4'>
+<rect fill='#c4c4c4' height='20' id='11_4' rx='5' ry='5' stroke='none' width='20' x='87.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='97.5' y='299'>L24</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='24' id='g_12_4'>
+<rect fill='#c4c4c4' height='20' id='12_4' rx='5' ry='5' stroke='none' width='20' x='87.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='97.5' y='324'>M24</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='24' id='g_13_4'>
+<rect fill='#c4c4c4' height='20' id='13_4' rx='5' ry='5' stroke='none' width='20' x='87.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='97.5' y='349'>N24</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='22' id='g_14_4'>
+<rect fill='#c4c4c4' height='20' id='14_4' rx='5' ry='5' stroke='none' width='20' x='87.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='97.5' y='374'>O22</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='24' id='g_3_5'>
+<rect fill='#c4c4c4' height='20' id='3_5' rx='5' ry='5' stroke='none' width='20' x='112.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='122.5' y='99'>B24</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='24' id='g_4_5'>
+<rect fill='#c4c4c4' height='20' id='4_5' rx='5' ry='5' stroke='none' width='20' x='112.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='122.5' y='124'>C24</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='24' id='g_5_5'>
+<rect fill='#c4c4c4' height='20' id='5_5' rx='5' ry='5' stroke='none' width='20' x='112.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='122.5' y='149'>D24</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='24' id='g_6_5'>
+<rect fill='#c4c4c4' height='20' id='6_5' rx='5' ry='5' stroke='none' width='20' x='112.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='122.5' y='174'>E24</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='23' id='g_7_5'>
+<rect fill='#c4c4c4' height='20' id='7_5' rx='5' ry='5' stroke='none' width='20' x='112.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='122.5' y='199'>F23</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='23' id='g_8_5'>
+<rect fill='#c4c4c4' height='20' id='8_5' rx='5' ry='5' stroke='none' width='20' x='112.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='122.5' y='224'>G23</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='23' id='g_9_5'>
+<rect fill='#c4c4c4' height='20' id='9_5' rx='5' ry='5' stroke='none' width='20' x='112.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='122.5' y='249'>H23</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='23' id='g_10_5'>
+<rect fill='#c4c4c4' height='20' id='10_5' rx='5' ry='5' stroke='none' width='20' x='112.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='122.5' y='274'>I23</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='23' id='g_11_5'>
+<rect fill='#c4c4c4' height='20' id='11_5' rx='5' ry='5' stroke='none' width='20' x='112.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='122.5' y='299'>L23</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='23' id='g_12_5'>
+<rect fill='#c4c4c4' height='20' id='12_5' rx='5' ry='5' stroke='none' width='20' x='112.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='122.5' y='324'>M23</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='23' id='g_13_5'>
+<rect fill='#c4c4c4' height='20' id='13_5' rx='5' ry='5' stroke='none' width='20' x='112.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='122.5' y='349'>N23</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='21' id='g_14_5'>
+<rect fill='#c4c4c4' height='20' id='14_5' rx='5' ry='5' stroke='none' width='20' x='112.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='122.5' y='374'>O21</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='19' id='g_2_7'>
+<rect fill='#c4c4c4' height='20' id='2_7' rx='5' ry='5' stroke='none' width='20' x='162.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='172.5' y='74'>A19</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='23' id='g_3_7'>
+<rect fill='#c4c4c4' height='20' id='3_7' rx='5' ry='5' stroke='none' width='20' x='162.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='172.5' y='99'>B23</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='23' id='g_4_7'>
+<rect fill='#c4c4c4' height='20' id='4_7' rx='5' ry='5' stroke='none' width='20' x='162.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='172.5' y='124'>C23</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='23' id='g_5_7'>
+<rect fill='#c4c4c4' height='20' id='5_7' rx='5' ry='5' stroke='none' width='20' x='162.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='172.5' y='149'>D23</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='23' id='g_6_7'>
+<rect fill='#c4c4c4' height='20' id='6_7' rx='5' ry='5' stroke='none' width='20' x='162.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='172.5' y='174'>E23</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='22' id='g_7_7'>
+<rect fill='#c4c4c4' height='20' id='7_7' rx='5' ry='5' stroke='none' width='20' x='162.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='172.5' y='199'>F22</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='22' id='g_8_7'>
+<rect fill='#c4c4c4' height='20' id='8_7' rx='5' ry='5' stroke='none' width='20' x='162.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='172.5' y='224'>G22</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='22' id='g_9_7'>
+<rect fill='#c4c4c4' height='20' id='9_7' rx='5' ry='5' stroke='none' width='20' x='162.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='172.5' y='249'>H22</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='22' id='g_10_7'>
+<rect fill='#c4c4c4' height='20' id='10_7' rx='5' ry='5' stroke='none' width='20' x='162.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='172.5' y='274'>I22</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='22' id='g_11_7'>
+<rect fill='#c4c4c4' height='20' id='11_7' rx='5' ry='5' stroke='none' width='20' x='162.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='172.5' y='299'>L22</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='22' id='g_12_7'>
+<rect fill='#c4c4c4' height='20' id='12_7' rx='5' ry='5' stroke='none' width='20' x='162.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='172.5' y='324'>M22</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='22' id='g_13_7'>
+<rect fill='#c4c4c4' height='20' id='13_7' rx='5' ry='5' stroke='none' width='20' x='162.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='172.5' y='349'>N22</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='20' id='g_14_7'>
+<rect fill='#c4c4c4' height='20' id='14_7' rx='5' ry='5' stroke='none' width='20' x='162.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='172.5' y='374'>O20</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='18' id='g_2_8'>
+<rect fill='#c4c4c4' height='20' id='2_8' rx='5' ry='5' stroke='none' width='20' x='187.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='197.5' y='74'>A18</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='22' id='g_3_8'>
+<rect fill='#c4c4c4' height='20' id='3_8' rx='5' ry='5' stroke='none' width='20' x='187.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='197.5' y='99'>B22</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='22' id='g_4_8'>
+<rect fill='#c4c4c4' height='20' id='4_8' rx='5' ry='5' stroke='none' width='20' x='187.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='197.5' y='124'>C22</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='22' id='g_5_8'>
+<rect fill='#c4c4c4' height='20' id='5_8' rx='5' ry='5' stroke='none' width='20' x='187.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='197.5' y='149'>D22</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='22' id='g_6_8'>
+<rect fill='#c4c4c4' height='20' id='6_8' rx='5' ry='5' stroke='none' width='20' x='187.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='197.5' y='174'>E22</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='21' id='g_7_8'>
+<rect fill='#c4c4c4' height='20' id='7_8' rx='5' ry='5' stroke='none' width='20' x='187.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='197.5' y='199'>F21</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='21' id='g_8_8'>
+<rect fill='#c4c4c4' height='20' id='8_8' rx='5' ry='5' stroke='none' width='20' x='187.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='197.5' y='224'>G21</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='21' id='g_9_8'>
+<rect fill='#c4c4c4' height='20' id='9_8' rx='5' ry='5' stroke='none' width='20' x='187.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='197.5' y='249'>H21</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='21' id='g_10_8'>
+<rect fill='#c4c4c4' height='20' id='10_8' rx='5' ry='5' stroke='none' width='20' x='187.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='197.5' y='274'>I21</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='21' id='g_11_8'>
+<rect fill='#c4c4c4' height='20' id='11_8' rx='5' ry='5' stroke='none' width='20' x='187.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='197.5' y='299'>L21</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='21' id='g_12_8'>
+<rect fill='#c4c4c4' height='20' id='12_8' rx='5' ry='5' stroke='none' width='20' x='187.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='197.5' y='324'>M21</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='21' id='g_13_8'>
+<rect fill='#c4c4c4' height='20' id='13_8' rx='5' ry='5' stroke='none' width='20' x='187.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='197.5' y='349'>N21</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='19' id='g_14_8'>
+<rect fill='#c4c4c4' height='20' id='14_8' rx='5' ry='5' stroke='none' width='20' x='187.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='197.5' y='374'>O19</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='17' id='g_2_9'>
+<rect fill='#c4c4c4' height='20' id='2_9' rx='5' ry='5' stroke='none' width='20' x='212.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='222.5' y='74'>A17</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='21' id='g_3_9'>
+<rect fill='#c4c4c4' height='20' id='3_9' rx='5' ry='5' stroke='none' width='20' x='212.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='222.5' y='99'>B21</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='21' id='g_4_9'>
+<rect fill='#c4c4c4' height='20' id='4_9' rx='5' ry='5' stroke='none' width='20' x='212.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='222.5' y='124'>C21</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='21' id='g_5_9'>
+<rect fill='#c4c4c4' height='20' id='5_9' rx='5' ry='5' stroke='none' width='20' x='212.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='222.5' y='149'>D21</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='21' id='g_6_9'>
+<rect fill='#c4c4c4' height='20' id='6_9' rx='5' ry='5' stroke='none' width='20' x='212.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='222.5' y='174'>E21</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='20' id='g_7_9'>
+<rect fill='#c4c4c4' height='20' id='7_9' rx='5' ry='5' stroke='none' width='20' x='212.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='222.5' y='199'>F20</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='20' id='g_8_9'>
+<rect fill='#c4c4c4' height='20' id='8_9' rx='5' ry='5' stroke='none' width='20' x='212.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='222.5' y='224'>G20</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='20' id='g_9_9'>
+<rect fill='#c4c4c4' height='20' id='9_9' rx='5' ry='5' stroke='none' width='20' x='212.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='222.5' y='249'>H20</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='20' id='g_10_9'>
+<rect fill='#c4c4c4' height='20' id='10_9' rx='5' ry='5' stroke='none' width='20' x='212.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='222.5' y='274'>I20</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='20' id='g_11_9'>
+<rect fill='#c4c4c4' height='20' id='11_9' rx='5' ry='5' stroke='none' width='20' x='212.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='222.5' y='299'>L20</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='20' id='g_12_9'>
+<rect fill='#c4c4c4' height='20' id='12_9' rx='5' ry='5' stroke='none' width='20' x='212.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='222.5' y='324'>M20</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='20' id='g_13_9'>
+<rect fill='#c4c4c4' height='20' id='13_9' rx='5' ry='5' stroke='none' width='20' x='212.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='222.5' y='349'>N20</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='18' id='g_14_9'>
+<rect fill='#c4c4c4' height='20' id='14_9' rx='5' ry='5' stroke='none' width='20' x='212.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='222.5' y='374'>O18</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='16' id='g_2_10'>
+<rect fill='#c4c4c4' height='20' id='2_10' rx='5' ry='5' stroke='none' width='20' x='237.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='247.5' y='74'>A16</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='20' id='g_3_10'>
+<rect fill='#c4c4c4' height='20' id='3_10' rx='5' ry='5' stroke='none' width='20' x='237.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='247.5' y='99'>B20</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='20' id='g_4_10'>
+<rect fill='#c4c4c4' height='20' id='4_10' rx='5' ry='5' stroke='none' width='20' x='237.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='247.5' y='124'>C20</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='20' id='g_5_10'>
+<rect fill='#c4c4c4' height='20' id='5_10' rx='5' ry='5' stroke='none' width='20' x='237.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='247.5' y='149'>D20</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='20' id='g_6_10'>
+<rect fill='#c4c4c4' height='20' id='6_10' rx='5' ry='5' stroke='none' width='20' x='237.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='247.5' y='174'>E20</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='19' id='g_7_10'>
+<rect fill='#c4c4c4' height='20' id='7_10' rx='5' ry='5' stroke='none' width='20' x='237.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='247.5' y='199'>F19</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='19' id='g_8_10'>
+<rect fill='#c4c4c4' height='20' id='8_10' rx='5' ry='5' stroke='none' width='20' x='237.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='247.5' y='224'>G19</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='19' id='g_9_10'>
+<rect fill='#c4c4c4' height='20' id='9_10' rx='5' ry='5' stroke='none' width='20' x='237.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='247.5' y='249'>H19</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='19' id='g_10_10'>
+<rect fill='#c4c4c4' height='20' id='10_10' rx='5' ry='5' stroke='none' width='20' x='237.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='247.5' y='274'>I19</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='19' id='g_11_10'>
+<rect fill='#c4c4c4' height='20' id='11_10' rx='5' ry='5' stroke='none' width='20' x='237.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='247.5' y='299'>L19</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='19' id='g_12_10'>
+<rect fill='#c4c4c4' height='20' id='12_10' rx='5' ry='5' stroke='none' width='20' x='237.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='247.5' y='324'>M19</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='19' id='g_13_10'>
+<rect fill='#c4c4c4' height='20' id='13_10' rx='5' ry='5' stroke='none' width='20' x='237.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='247.5' y='349'>N19</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='17' id='g_14_10'>
+<rect fill='#c4c4c4' height='20' id='14_10' rx='5' ry='5' stroke='none' width='20' x='237.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='247.5' y='374'>O17</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='15' id='g_2_11'>
+<rect fill='#c4c4c4' height='20' id='2_11' rx='5' ry='5' stroke='none' width='20' x='262.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='272.5' y='74'>A15</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='19' id='g_3_11'>
+<rect fill='#c4c4c4' height='20' id='3_11' rx='5' ry='5' stroke='none' width='20' x='262.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='272.5' y='99'>B19</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='19' id='g_4_11'>
+<rect fill='#c4c4c4' height='20' id='4_11' rx='5' ry='5' stroke='none' width='20' x='262.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='272.5' y='124'>C19</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='19' id='g_5_11'>
+<rect fill='#c4c4c4' height='20' id='5_11' rx='5' ry='5' stroke='none' width='20' x='262.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='272.5' y='149'>D19</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='19' id='g_6_11'>
+<rect fill='#c4c4c4' height='20' id='6_11' rx='5' ry='5' stroke='none' width='20' x='262.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='272.5' y='174'>E19</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='18' id='g_7_11'>
+<rect fill='#c4c4c4' height='20' id='7_11' rx='5' ry='5' stroke='none' width='20' x='262.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='272.5' y='199'>F18</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='18' id='g_8_11'>
+<rect fill='#c4c4c4' height='20' id='8_11' rx='5' ry='5' stroke='none' width='20' x='262.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='272.5' y='224'>G18</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='18' id='g_9_11'>
+<rect fill='#c4c4c4' height='20' id='9_11' rx='5' ry='5' stroke='none' width='20' x='262.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='272.5' y='249'>H18</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='18' id='g_10_11'>
+<rect fill='#c4c4c4' height='20' id='10_11' rx='5' ry='5' stroke='none' width='20' x='262.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='272.5' y='274'>I18</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='18' id='g_11_11'>
+<rect fill='#c4c4c4' height='20' id='11_11' rx='5' ry='5' stroke='none' width='20' x='262.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='272.5' y='299'>L18</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='18' id='g_12_11'>
+<rect fill='#c4c4c4' height='20' id='12_11' rx='5' ry='5' stroke='none' width='20' x='262.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='272.5' y='324'>M18</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='18' id='g_13_11'>
+<rect fill='#c4c4c4' height='20' id='13_11' rx='5' ry='5' stroke='none' width='20' x='262.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='272.5' y='349'>N18</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='16' id='g_14_11'>
+<rect fill='#c4c4c4' height='20' id='14_11' rx='5' ry='5' stroke='none' width='20' x='262.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='272.5' y='374'>O16</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='14' id='g_2_12'>
+<rect fill='#c4c4c4' height='20' id='2_12' rx='5' ry='5' stroke='none' width='20' x='287.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='297.5' y='74'>A14</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='18' id='g_3_12'>
+<rect fill='#c4c4c4' height='20' id='3_12' rx='5' ry='5' stroke='none' width='20' x='287.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='297.5' y='99'>B18</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='18' id='g_4_12'>
+<rect fill='#c4c4c4' height='20' id='4_12' rx='5' ry='5' stroke='none' width='20' x='287.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='297.5' y='124'>C18</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='18' id='g_5_12'>
+<rect fill='#c4c4c4' height='20' id='5_12' rx='5' ry='5' stroke='none' width='20' x='287.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='297.5' y='149'>D18</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='18' id='g_6_12'>
+<rect fill='#c4c4c4' height='20' id='6_12' rx='5' ry='5' stroke='none' width='20' x='287.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='297.5' y='174'>E18</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='17' id='g_7_12'>
+<rect fill='#c4c4c4' height='20' id='7_12' rx='5' ry='5' stroke='none' width='20' x='287.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='297.5' y='199'>F17</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='17' id='g_8_12'>
+<rect fill='#c4c4c4' height='20' id='8_12' rx='5' ry='5' stroke='none' width='20' x='287.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='297.5' y='224'>G17</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='17' id='g_9_12'>
+<rect fill='#c4c4c4' height='20' id='9_12' rx='5' ry='5' stroke='none' width='20' x='287.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='297.5' y='249'>H17</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='17' id='g_10_12'>
+<rect fill='#c4c4c4' height='20' id='10_12' rx='5' ry='5' stroke='none' width='20' x='287.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='297.5' y='274'>I17</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='17' id='g_11_12'>
+<rect fill='#c4c4c4' height='20' id='11_12' rx='5' ry='5' stroke='none' width='20' x='287.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='297.5' y='299'>L17</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='17' id='g_12_12'>
+<rect fill='#c4c4c4' height='20' id='12_12' rx='5' ry='5' stroke='none' width='20' x='287.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='297.5' y='324'>M17</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='17' id='g_13_12'>
+<rect fill='#c4c4c4' height='20' id='13_12' rx='5' ry='5' stroke='none' width='20' x='287.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='297.5' y='349'>N17</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='15' id='g_14_12'>
+<rect fill='#c4c4c4' height='20' id='14_12' rx='5' ry='5' stroke='none' width='20' x='287.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='297.5' y='374'>O15</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='13' id='g_2_13'>
+<rect fill='#c4c4c4' height='20' id='2_13' rx='5' ry='5' stroke='none' width='20' x='312.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='322.5' y='74'>A13</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='17' id='g_3_13'>
+<rect fill='#c4c4c4' height='20' id='3_13' rx='5' ry='5' stroke='none' width='20' x='312.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='322.5' y='99'>B17</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='17' id='g_4_13'>
+<rect fill='#c4c4c4' height='20' id='4_13' rx='5' ry='5' stroke='none' width='20' x='312.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='322.5' y='124'>C17</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='17' id='g_5_13'>
+<rect fill='#c4c4c4' height='20' id='5_13' rx='5' ry='5' stroke='none' width='20' x='312.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='322.5' y='149'>D17</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='17' id='g_6_13'>
+<rect fill='#c4c4c4' height='20' id='6_13' rx='5' ry='5' stroke='none' width='20' x='312.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='322.5' y='174'>E17</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='16' id='g_7_13'>
+<rect fill='#c4c4c4' height='20' id='7_13' rx='5' ry='5' stroke='none' width='20' x='312.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='322.5' y='199'>F16</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='16' id='g_9_13'>
+<rect fill='#c4c4c4' height='20' id='9_13' rx='5' ry='5' stroke='none' width='20' x='312.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='322.5' y='249'>H16</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='16' id='g_10_13'>
+<rect fill='#c4c4c4' height='20' id='10_13' rx='5' ry='5' stroke='none' width='20' x='312.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='322.5' y='274'>I16</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='16' id='g_11_13'>
+<rect fill='#c4c4c4' height='20' id='11_13' rx='5' ry='5' stroke='none' width='20' x='312.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='322.5' y='299'>L16</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='16' id='g_12_13'>
+<rect fill='#c4c4c4' height='20' id='12_13' rx='5' ry='5' stroke='none' width='20' x='312.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='322.5' y='324'>M16</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='16' id='g_13_13'>
+<rect fill='#c4c4c4' height='20' id='13_13' rx='5' ry='5' stroke='none' width='20' x='312.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='322.5' y='349'>N16</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='14' id='g_14_13'>
+<rect fill='#c4c4c4' height='20' id='14_13' rx='5' ry='5' stroke='none' width='20' x='312.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='322.5' y='374'>O14</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='12' id='g_2_14'>
+<rect fill='#c4c4c4' height='20' id='2_14' rx='5' ry='5' stroke='none' width='20' x='337.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='347.5' y='74'>A12</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='16' id='g_3_14'>
+<rect fill='#c4c4c4' height='20' id='3_14' rx='5' ry='5' stroke='none' width='20' x='337.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='347.5' y='99'>B16</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='16' id='g_4_14'>
+<rect fill='#c4c4c4' height='20' id='4_14' rx='5' ry='5' stroke='none' width='20' x='337.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='347.5' y='124'>C16</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='16' id='g_5_14'>
+<rect fill='#c4c4c4' height='20' id='5_14' rx='5' ry='5' stroke='none' width='20' x='337.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='347.5' y='149'>D16</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='16' id='g_6_14'>
+<rect fill='#c4c4c4' height='20' id='6_14' rx='5' ry='5' stroke='none' width='20' x='337.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='347.5' y='174'>E16</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='15' id='g_7_14'>
+<rect fill='#c4c4c4' height='20' id='7_14' rx='5' ry='5' stroke='none' width='20' x='337.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='347.5' y='199'>F15</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='15' id='g_8_14'>
+<rect fill='#c4c4c4' height='20' id='8_14' rx='5' ry='5' stroke='none' width='20' x='337.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='347.5' y='224'>G15</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='15' id='g_9_14'>
+<rect fill='#c4c4c4' height='20' id='9_14' rx='5' ry='5' stroke='none' width='20' x='337.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='347.5' y='249'>H15</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='15' id='g_10_14'>
+<rect fill='#c4c4c4' height='20' id='10_14' rx='5' ry='5' stroke='none' width='20' x='337.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='347.5' y='274'>I15</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='15' id='g_11_14'>
+<rect fill='#c4c4c4' height='20' id='11_14' rx='5' ry='5' stroke='none' width='20' x='337.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='347.5' y='299'>L15</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='15' id='g_12_14'>
+<rect fill='#c4c4c4' height='20' id='12_14' rx='5' ry='5' stroke='none' width='20' x='337.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='347.5' y='324'>M15</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='15' id='g_13_14'>
+<rect fill='#c4c4c4' height='20' id='13_14' rx='5' ry='5' stroke='none' width='20' x='337.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='347.5' y='349'>N15</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='13' id='g_14_14'>
+<rect fill='#c4c4c4' height='20' id='14_14' rx='5' ry='5' stroke='none' width='20' x='337.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='347.5' y='374'>O13</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='11' id='g_2_15'>
+<rect fill='#c4c4c4' height='20' id='2_15' rx='5' ry='5' stroke='none' width='20' x='362.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='372.5' y='74'>A11</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='15' id='g_3_15'>
+<rect fill='#c4c4c4' height='20' id='3_15' rx='5' ry='5' stroke='none' width='20' x='362.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='372.5' y='99'>B15</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='15' id='g_4_15'>
+<rect fill='#c4c4c4' height='20' id='4_15' rx='5' ry='5' stroke='none' width='20' x='362.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='372.5' y='124'>C15</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='15' id='g_5_15'>
+<rect fill='#c4c4c4' height='20' id='5_15' rx='5' ry='5' stroke='none' width='20' x='362.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='372.5' y='149'>D15</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='15' id='g_6_15'>
+<rect fill='#c4c4c4' height='20' id='6_15' rx='5' ry='5' stroke='none' width='20' x='362.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='372.5' y='174'>E15</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='14' id='g_7_15'>
+<rect fill='#c4c4c4' height='20' id='7_15' rx='5' ry='5' stroke='none' width='20' x='362.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='372.5' y='199'>F14</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='14' id='g_8_15'>
+<rect fill='#c4c4c4' height='20' id='8_15' rx='5' ry='5' stroke='none' width='20' x='362.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='372.5' y='224'>G14</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='14' id='g_9_15'>
+<rect fill='#c4c4c4' height='20' id='9_15' rx='5' ry='5' stroke='none' width='20' x='362.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='372.5' y='249'>H14</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='14' id='g_10_15'>
+<rect fill='#c4c4c4' height='20' id='10_15' rx='5' ry='5' stroke='none' width='20' x='362.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='372.5' y='274'>I14</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='14' id='g_11_15'>
+<rect fill='#c4c4c4' height='20' id='11_15' rx='5' ry='5' stroke='none' width='20' x='362.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='372.5' y='299'>L14</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='14' id='g_12_15'>
+<rect fill='#c4c4c4' height='20' id='12_15' rx='5' ry='5' stroke='none' width='20' x='362.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='372.5' y='324'>M14</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='14' id='g_13_15'>
+<rect fill='#c4c4c4' height='20' id='13_15' rx='5' ry='5' stroke='none' width='20' x='362.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='372.5' y='349'>N14</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='12' id='g_14_15'>
+<rect fill='#c4c4c4' height='20' id='14_15' rx='5' ry='5' stroke='none' width='20' x='362.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='372.5' y='374'>O12</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='10' id='g_2_16'>
+<rect fill='#c4c4c4' height='20' id='2_16' rx='5' ry='5' stroke='none' width='20' x='387.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='397.5' y='74'>A10</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='14' id='g_3_16'>
+<rect fill='#c4c4c4' height='20' id='3_16' rx='5' ry='5' stroke='none' width='20' x='387.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='397.5' y='99'>B14</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='14' id='g_4_16'>
+<rect fill='#c4c4c4' height='20' id='4_16' rx='5' ry='5' stroke='none' width='20' x='387.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='397.5' y='124'>C14</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='14' id='g_5_16'>
+<rect fill='#c4c4c4' height='20' id='5_16' rx='5' ry='5' stroke='none' width='20' x='387.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='397.5' y='149'>D14</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='14' id='g_6_16'>
+<rect fill='#c4c4c4' height='20' id='6_16' rx='5' ry='5' stroke='none' width='20' x='387.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='397.5' y='174'>E14</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='13' id='g_7_16'>
+<rect fill='#c4c4c4' height='20' id='7_16' rx='5' ry='5' stroke='none' width='20' x='387.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='397.5' y='199'>F13</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='13' id='g_8_16'>
+<rect fill='#c4c4c4' height='20' id='8_16' rx='5' ry='5' stroke='none' width='20' x='387.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='397.5' y='224'>G13</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='13' id='g_9_16'>
+<rect fill='#c4c4c4' height='20' id='9_16' rx='5' ry='5' stroke='none' width='20' x='387.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='397.5' y='249'>H13</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='13' id='g_10_16'>
+<rect fill='#c4c4c4' height='20' id='10_16' rx='5' ry='5' stroke='none' width='20' x='387.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='397.5' y='274'>I13</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='13' id='g_11_16'>
+<rect fill='#c4c4c4' height='20' id='11_16' rx='5' ry='5' stroke='none' width='20' x='387.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='397.5' y='299'>L13</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='13' id='g_12_16'>
+<rect fill='#c4c4c4' height='20' id='12_16' rx='5' ry='5' stroke='none' width='20' x='387.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='397.5' y='324'>M13</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='13' id='g_13_16'>
+<rect fill='#c4c4c4' height='20' id='13_16' rx='5' ry='5' stroke='none' width='20' x='387.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='397.5' y='349'>N13</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='11' id='g_14_16'>
+<rect fill='#c4c4c4' height='20' id='14_16' rx='5' ry='5' stroke='none' width='20' x='387.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='397.5' y='374'>O11</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='9' id='g_2_17'>
+<rect fill='#c4c4c4' height='20' id='2_17' rx='5' ry='5' stroke='none' width='20' x='412.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='422.5' y='74'>A9</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='13' id='g_3_17'>
+<rect fill='#c4c4c4' height='20' id='3_17' rx='5' ry='5' stroke='none' width='20' x='412.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='422.5' y='99'>B13</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='13' id='g_4_17'>
+<rect fill='#c4c4c4' height='20' id='4_17' rx='5' ry='5' stroke='none' width='20' x='412.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='422.5' y='124'>C13</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='13' id='g_5_17'>
+<rect fill='#c4c4c4' height='20' id='5_17' rx='5' ry='5' stroke='none' width='20' x='412.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='422.5' y='149'>D13</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='13' id='g_6_17'>
+<rect fill='#c4c4c4' height='20' id='6_17' rx='5' ry='5' stroke='none' width='20' x='412.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='422.5' y='174'>E13</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='12' id='g_7_17'>
+<rect fill='#c4c4c4' height='20' id='7_17' rx='5' ry='5' stroke='none' width='20' x='412.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='422.5' y='199'>F12</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='12' id='g_8_17'>
+<rect fill='#c4c4c4' height='20' id='8_17' rx='5' ry='5' stroke='none' width='20' x='412.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='422.5' y='224'>G12</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='12' id='g_9_17'>
+<rect fill='#c4c4c4' height='20' id='9_17' rx='5' ry='5' stroke='none' width='20' x='412.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='422.5' y='249'>H12</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='12' id='g_10_17'>
+<rect fill='#c4c4c4' height='20' id='10_17' rx='5' ry='5' stroke='none' width='20' x='412.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='422.5' y='274'>I12</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='12' id='g_11_17'>
+<rect fill='#c4c4c4' height='20' id='11_17' rx='5' ry='5' stroke='none' width='20' x='412.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='422.5' y='299'>L12</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='12' id='g_13_17'>
+<rect fill='#c4c4c4' height='20' id='13_17' rx='5' ry='5' stroke='none' width='20' x='412.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='422.5' y='349'>N12</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='10' id='g_14_17'>
+<rect fill='#c4c4c4' height='20' id='14_17' rx='5' ry='5' stroke='none' width='20' x='412.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='422.5' y='374'>O10</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='8' id='g_2_18'>
+<rect fill='#c4c4c4' height='20' id='2_18' rx='5' ry='5' stroke='none' width='20' x='437.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='447.5' y='74'>A8</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='12' id='g_3_18'>
+<rect fill='#c4c4c4' height='20' id='3_18' rx='5' ry='5' stroke='none' width='20' x='437.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='447.5' y='99'>B12</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='12' id='g_4_18'>
+<rect fill='#c4c4c4' height='20' id='4_18' rx='5' ry='5' stroke='none' width='20' x='437.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='447.5' y='124'>C12</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='12' id='g_5_18'>
+<rect fill='#c4c4c4' height='20' id='5_18' rx='5' ry='5' stroke='none' width='20' x='437.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='447.5' y='149'>D12</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='12' id='g_6_18'>
+<rect fill='#c4c4c4' height='20' id='6_18' rx='5' ry='5' stroke='none' width='20' x='437.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='447.5' y='174'>E12</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='11' id='g_7_18'>
+<rect fill='#c4c4c4' height='20' id='7_18' rx='5' ry='5' stroke='none' width='20' x='437.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='447.5' y='199'>F11</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='11' id='g_8_18'>
+<rect fill='#c4c4c4' height='20' id='8_18' rx='5' ry='5' stroke='none' width='20' x='437.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='447.5' y='224'>G11</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='11' id='g_9_18'>
+<rect fill='#c4c4c4' height='20' id='9_18' rx='5' ry='5' stroke='none' width='20' x='437.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='447.5' y='249'>H11</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='11' id='g_10_18'>
+<rect fill='#c4c4c4' height='20' id='10_18' rx='5' ry='5' stroke='none' width='20' x='437.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='447.5' y='274'>I11</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='11' id='g_11_18'>
+<rect fill='#c4c4c4' height='20' id='11_18' rx='5' ry='5' stroke='none' width='20' x='437.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='447.5' y='299'>L11</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='11' id='g_12_18'>
+<rect fill='#c4c4c4' height='20' id='12_18' rx='5' ry='5' stroke='none' width='20' x='437.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='447.5' y='324'>M11</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='11' id='g_13_18'>
+<rect fill='#c4c4c4' height='20' id='13_18' rx='5' ry='5' stroke='none' width='20' x='437.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='447.5' y='349'>N11</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='9' id='g_14_18'>
+<rect fill='#c4c4c4' height='20' id='14_18' rx='5' ry='5' stroke='none' width='20' x='437.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='447.5' y='374'>O9</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='7' id='g_2_19'>
+<rect fill='#c4c4c4' height='20' id='2_19' rx='5' ry='5' stroke='none' width='20' x='462.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='472.5' y='74'>A7</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='11' id='g_3_19'>
+<rect fill='#c4c4c4' height='20' id='3_19' rx='5' ry='5' stroke='none' width='20' x='462.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='472.5' y='99'>B11</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='11' id='g_4_19'>
+<rect fill='#c4c4c4' height='20' id='4_19' rx='5' ry='5' stroke='none' width='20' x='462.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='472.5' y='124'>C11</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='11' id='g_5_19'>
+<rect fill='#c4c4c4' height='20' id='5_19' rx='5' ry='5' stroke='none' width='20' x='462.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='472.5' y='149'>D11</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='11' id='g_6_19'>
+<rect fill='#c4c4c4' height='20' id='6_19' rx='5' ry='5' stroke='none' width='20' x='462.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='472.5' y='174'>E11</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='10' id='g_7_19'>
+<rect fill='#c4c4c4' height='20' id='7_19' rx='5' ry='5' stroke='none' width='20' x='462.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='472.5' y='199'>F10</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='10' id='g_8_19'>
+<rect fill='#c4c4c4' height='20' id='8_19' rx='5' ry='5' stroke='none' width='20' x='462.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='472.5' y='224'>G10</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='10' id='g_9_19'>
+<rect fill='#c4c4c4' height='20' id='9_19' rx='5' ry='5' stroke='none' width='20' x='462.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='472.5' y='249'>H10</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='10' id='g_10_19'>
+<rect fill='#c4c4c4' height='20' id='10_19' rx='5' ry='5' stroke='none' width='20' x='462.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='472.5' y='274'>I10</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='10' id='g_11_19'>
+<rect fill='#c4c4c4' height='20' id='11_19' rx='5' ry='5' stroke='none' width='20' x='462.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='472.5' y='299'>L10</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='10' id='g_12_19'>
+<rect fill='#c4c4c4' height='20' id='12_19' rx='5' ry='5' stroke='none' width='20' x='462.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='472.5' y='324'>M10</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='10' id='g_13_19'>
+<rect fill='#c4c4c4' height='20' id='13_19' rx='5' ry='5' stroke='none' width='20' x='462.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='472.5' y='349'>N10</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='8' id='g_14_19'>
+<rect fill='#c4c4c4' height='20' id='14_19' rx='5' ry='5' stroke='none' width='20' x='462.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='472.5' y='374'>O8</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='6' id='g_2_20'>
+<rect fill='#c4c4c4' height='20' id='2_20' rx='5' ry='5' stroke='none' width='20' x='487.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='497.5' y='74'>A6</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='10' id='g_3_20'>
+<rect fill='#c4c4c4' height='20' id='3_20' rx='5' ry='5' stroke='none' width='20' x='487.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='497.5' y='99'>B10</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='10' id='g_4_20'>
+<rect fill='#c4c4c4' height='20' id='4_20' rx='5' ry='5' stroke='none' width='20' x='487.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='497.5' y='124'>C10</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='10' id='g_5_20'>
+<rect fill='#c4c4c4' height='20' id='5_20' rx='5' ry='5' stroke='none' width='20' x='487.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='497.5' y='149'>D10</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='10' id='g_6_20'>
+<rect fill='#c4c4c4' height='20' id='6_20' rx='5' ry='5' stroke='none' width='20' x='487.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='497.5' y='174'>E10</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='9' id='g_7_20'>
+<rect fill='#c4c4c4' height='20' id='7_20' rx='5' ry='5' stroke='none' width='20' x='487.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='497.5' y='199'>F9</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='9' id='g_8_20'>
+<rect fill='#c4c4c4' height='20' id='8_20' rx='5' ry='5' stroke='none' width='20' x='487.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='497.5' y='224'>G9</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='9' id='g_9_20'>
+<rect fill='#c4c4c4' height='20' id='9_20' rx='5' ry='5' stroke='none' width='20' x='487.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='497.5' y='249'>H9</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='9' id='g_10_20'>
+<rect fill='#c4c4c4' height='20' id='10_20' rx='5' ry='5' stroke='none' width='20' x='487.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='497.5' y='274'>I9</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='9' id='g_11_20'>
+<rect fill='#c4c4c4' height='20' id='11_20' rx='5' ry='5' stroke='none' width='20' x='487.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='497.5' y='299'>L9</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='9' id='g_12_20'>
+<rect fill='#c4c4c4' height='20' id='12_20' rx='5' ry='5' stroke='none' width='20' x='487.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='497.5' y='324'>M9</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='9' id='g_13_20'>
+<rect fill='#c4c4c4' height='20' id='13_20' rx='5' ry='5' stroke='none' width='20' x='487.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='497.5' y='349'>N9</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='7' id='g_14_20'>
+<rect fill='#c4c4c4' height='20' id='14_20' rx='5' ry='5' stroke='none' width='20' x='487.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='497.5' y='374'>O7</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='5' id='g_2_21'>
+<rect fill='#c4c4c4' height='20' id='2_21' rx='5' ry='5' stroke='none' width='20' x='512.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='522.5' y='74'>A5</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='9' id='g_3_21'>
+<rect fill='#c4c4c4' height='20' id='3_21' rx='5' ry='5' stroke='none' width='20' x='512.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='522.5' y='99'>B9</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='9' id='g_4_21'>
+<rect fill='#c4c4c4' height='20' id='4_21' rx='5' ry='5' stroke='none' width='20' x='512.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='522.5' y='124'>C9</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='9' id='g_5_21'>
+<rect fill='#c4c4c4' height='20' id='5_21' rx='5' ry='5' stroke='none' width='20' x='512.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='522.5' y='149'>D9</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='9' id='g_6_21'>
+<rect fill='#c4c4c4' height='20' id='6_21' rx='5' ry='5' stroke='none' width='20' x='512.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='522.5' y='174'>E9</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='8' id='g_7_21'>
+<rect fill='#c4c4c4' height='20' id='7_21' rx='5' ry='5' stroke='none' width='20' x='512.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='522.5' y='199'>F8</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='8' id='g_8_21'>
+<rect fill='#c4c4c4' height='20' id='8_21' rx='5' ry='5' stroke='none' width='20' x='512.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='522.5' y='224'>G8</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='8' id='g_9_21'>
+<rect fill='#c4c4c4' height='20' id='9_21' rx='5' ry='5' stroke='none' width='20' x='512.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='522.5' y='249'>H8</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='8' id='g_10_21'>
+<rect fill='#c4c4c4' height='20' id='10_21' rx='5' ry='5' stroke='none' width='20' x='512.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='522.5' y='274'>I8</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='8' id='g_11_21'>
+<rect fill='#c4c4c4' height='20' id='11_21' rx='5' ry='5' stroke='none' width='20' x='512.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='522.5' y='299'>L8</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='8' id='g_12_21'>
+<rect fill='#c4c4c4' height='20' id='12_21' rx='5' ry='5' stroke='none' width='20' x='512.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='522.5' y='324'>M8</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='8' id='g_13_21'>
+<rect fill='#c4c4c4' height='20' id='13_21' rx='5' ry='5' stroke='none' width='20' x='512.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='522.5' y='349'>N8</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='6' id='g_14_21'>
+<rect fill='#c4c4c4' height='20' id='14_21' rx='5' ry='5' stroke='none' width='20' x='512.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='522.5' y='374'>O6</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='4' id='g_2_22'>
+<rect fill='#c4c4c4' height='20' id='2_22' rx='5' ry='5' stroke='none' width='20' x='537.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='547.5' y='74'>A4</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='8' id='g_3_22'>
+<rect fill='#c4c4c4' height='20' id='3_22' rx='5' ry='5' stroke='none' width='20' x='537.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='547.5' y='99'>B8</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='8' id='g_4_22'>
+<rect fill='#c4c4c4' height='20' id='4_22' rx='5' ry='5' stroke='none' width='20' x='537.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='547.5' y='124'>C8</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='8' id='g_5_22'>
+<rect fill='#c4c4c4' height='20' id='5_22' rx='5' ry='5' stroke='none' width='20' x='537.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='547.5' y='149'>D8</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='8' id='g_6_22'>
+<rect fill='#c4c4c4' height='20' id='6_22' rx='5' ry='5' stroke='none' width='20' x='537.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='547.5' y='174'>E8</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='7' id='g_7_22'>
+<rect fill='#c4c4c4' height='20' id='7_22' rx='5' ry='5' stroke='none' width='20' x='537.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='547.5' y='199'>F7</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='7' id='g_8_22'>
+<rect fill='#c4c4c4' height='20' id='8_22' rx='5' ry='5' stroke='none' width='20' x='537.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='547.5' y='224'>G7</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='7' id='g_9_22'>
+<rect fill='#c4c4c4' height='20' id='9_22' rx='5' ry='5' stroke='none' width='20' x='537.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='547.5' y='249'>H7</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='7' id='g_10_22'>
+<rect fill='#c4c4c4' height='20' id='10_22' rx='5' ry='5' stroke='none' width='20' x='537.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='547.5' y='274'>I7</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='7' id='g_11_22'>
+<rect fill='#c4c4c4' height='20' id='11_22' rx='5' ry='5' stroke='none' width='20' x='537.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='547.5' y='299'>L7</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='7' id='g_12_22'>
+<rect fill='#c4c4c4' height='20' id='12_22' rx='5' ry='5' stroke='none' width='20' x='537.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='547.5' y='324'>M7</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='7' id='g_13_22'>
+<rect fill='#c4c4c4' height='20' id='13_22' rx='5' ry='5' stroke='none' width='20' x='537.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='547.5' y='349'>N7</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='3' id='g_2_23'>
+<rect fill='#c4c4c4' height='20' id='2_23' rx='5' ry='5' stroke='none' width='20' x='562.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='572.5' y='74'>A3</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='7' id='g_3_23'>
+<rect fill='#c4c4c4' height='20' id='3_23' rx='5' ry='5' stroke='none' width='20' x='562.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='572.5' y='99'>B7</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='7' id='g_4_23'>
+<rect fill='#c4c4c4' height='20' id='4_23' rx='5' ry='5' stroke='none' width='20' x='562.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='572.5' y='124'>C7</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='7' id='g_5_23'>
+<rect fill='#c4c4c4' height='20' id='5_23' rx='5' ry='5' stroke='none' width='20' x='562.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='572.5' y='149'>D7</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='7' id='g_6_23'>
+<rect fill='#c4c4c4' height='20' id='6_23' rx='5' ry='5' stroke='none' width='20' x='562.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='572.5' y='174'>E7</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='6' id='g_7_23'>
+<rect fill='#c4c4c4' height='20' id='7_23' rx='5' ry='5' stroke='none' width='20' x='562.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='572.5' y='199'>F6</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='6' id='g_8_23'>
+<rect fill='#c4c4c4' height='20' id='8_23' rx='5' ry='5' stroke='none' width='20' x='562.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='572.5' y='224'>G6</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='6' id='g_9_23'>
+<rect fill='#c4c4c4' height='20' id='9_23' rx='5' ry='5' stroke='none' width='20' x='562.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='572.5' y='249'>H6</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='6' id='g_10_23'>
+<rect fill='#c4c4c4' height='20' id='10_23' rx='5' ry='5' stroke='none' width='20' x='562.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='572.5' y='274'>I6</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='6' id='g_11_23'>
+<rect fill='#c4c4c4' height='20' id='11_23' rx='5' ry='5' stroke='none' width='20' x='562.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='572.5' y='299'>L6</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='6' id='g_12_23'>
+<rect fill='#c4c4c4' height='20' id='12_23' rx='5' ry='5' stroke='none' width='20' x='562.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='572.5' y='324'>M6</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='6' id='g_13_23'>
+<rect fill='#c4c4c4' height='20' id='13_23' rx='5' ry='5' stroke='none' width='20' x='562.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='572.5' y='349'>N6</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='2' id='g_2_24'>
+<rect fill='#c4c4c4' height='20' id='2_24' rx='5' ry='5' stroke='none' width='20' x='587.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='597.5' y='74'>A2</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='6' id='g_3_24'>
+<rect fill='#c4c4c4' height='20' id='3_24' rx='5' ry='5' stroke='none' width='20' x='587.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='597.5' y='99'>B6</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='6' id='g_4_24'>
+<rect fill='#c4c4c4' height='20' id='4_24' rx='5' ry='5' stroke='none' width='20' x='587.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='597.5' y='124'>C6</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='6' id='g_5_24'>
+<rect fill='#c4c4c4' height='20' id='5_24' rx='5' ry='5' stroke='none' width='20' x='587.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='597.5' y='149'>D6</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='6' id='g_6_24'>
+<rect fill='#c4c4c4' height='20' id='6_24' rx='5' ry='5' stroke='none' width='20' x='587.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='597.5' y='174'>E6</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='5' id='g_7_24'>
+<rect fill='#c4c4c4' height='20' id='7_24' rx='5' ry='5' stroke='none' width='20' x='587.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='597.5' y='199'>F5</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='5' id='g_8_24'>
+<rect fill='#c4c4c4' height='20' id='8_24' rx='5' ry='5' stroke='none' width='20' x='587.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='597.5' y='224'>G5</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='5' id='g_9_24'>
+<rect fill='#c4c4c4' height='20' id='9_24' rx='5' ry='5' stroke='none' width='20' x='587.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='597.5' y='249'>H5</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='5' id='g_10_24'>
+<rect fill='#c4c4c4' height='20' id='10_24' rx='5' ry='5' stroke='none' width='20' x='587.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='597.5' y='274'>I5</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='5' id='g_11_24'>
+<rect fill='#c4c4c4' height='20' id='11_24' rx='5' ry='5' stroke='none' width='20' x='587.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='597.5' y='299'>L5</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='5' id='g_12_24'>
+<rect fill='#c4c4c4' height='20' id='12_24' rx='5' ry='5' stroke='none' width='20' x='587.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='597.5' y='324'>M5</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='5' id='g_13_24'>
+<rect fill='#c4c4c4' height='20' id='13_24' rx='5' ry='5' stroke='none' width='20' x='587.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='597.5' y='349'>N5</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='A' data-seat='1' id='g_2_25'>
+<rect fill='#c4c4c4' height='20' id='2_25' rx='5' ry='5' stroke='none' width='20' x='612.5' y='62.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='622.5' y='74'>A1</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='5' id='g_3_25'>
+<rect fill='#c4c4c4' height='20' id='3_25' rx='5' ry='5' stroke='none' width='20' x='612.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='622.5' y='99'>B5</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='5' id='g_4_25'>
+<rect fill='#c4c4c4' height='20' id='4_25' rx='5' ry='5' stroke='none' width='20' x='612.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='622.5' y='124'>C5</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='5' id='g_5_25'>
+<rect fill='#c4c4c4' height='20' id='5_25' rx='5' ry='5' stroke='none' width='20' x='612.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='622.5' y='149'>D5</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='5' id='g_6_25'>
+<rect fill='#c4c4c4' height='20' id='6_25' rx='5' ry='5' stroke='none' width='20' x='612.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='622.5' y='174'>E5</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='4' id='g_7_25'>
+<rect fill='#c4c4c4' height='20' id='7_25' rx='5' ry='5' stroke='none' width='20' x='612.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='622.5' y='199'>F4</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='4' id='g_8_25'>
+<rect fill='#c4c4c4' height='20' id='8_25' rx='5' ry='5' stroke='none' width='20' x='612.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='622.5' y='224'>G4</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='4' id='g_9_25'>
+<rect fill='#c4c4c4' height='20' id='9_25' rx='5' ry='5' stroke='none' width='20' x='612.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='622.5' y='249'>H4</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='4' id='g_10_25'>
+<rect fill='#c4c4c4' height='20' id='10_25' rx='5' ry='5' stroke='none' width='20' x='612.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='622.5' y='274'>I4</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='4' id='g_11_25'>
+<rect fill='#c4c4c4' height='20' id='11_25' rx='5' ry='5' stroke='none' width='20' x='612.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='622.5' y='299'>L4</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='4' id='g_12_25'>
+<rect fill='#c4c4c4' height='20' id='12_25' rx='5' ry='5' stroke='none' width='20' x='612.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='622.5' y='324'>M4</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='4' id='g_13_25'>
+<rect fill='#c4c4c4' height='20' id='13_25' rx='5' ry='5' stroke='none' width='20' x='612.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='622.5' y='349'>N4</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='4' id='g_3_27'>
+<rect fill='#c4c4c4' height='20' id='3_27' rx='5' ry='5' stroke='none' width='20' x='662.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='672.5' y='99'>B4</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='4' id='g_4_27'>
+<rect fill='#c4c4c4' height='20' id='4_27' rx='5' ry='5' stroke='none' width='20' x='662.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='672.5' y='124'>C4</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='4' id='g_5_27'>
+<rect fill='#c4c4c4' height='20' id='5_27' rx='5' ry='5' stroke='none' width='20' x='662.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='672.5' y='149'>D4</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='4' id='g_6_27'>
+<rect fill='#c4c4c4' height='20' id='6_27' rx='5' ry='5' stroke='none' width='20' x='662.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='672.5' y='174'>E4</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='3' id='g_7_27'>
+<rect fill='#c4c4c4' height='20' id='7_27' rx='5' ry='5' stroke='none' width='20' x='662.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='672.5' y='199'>F3</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='3' id='g_8_27'>
+<rect fill='#c4c4c4' height='20' id='8_27' rx='5' ry='5' stroke='none' width='20' x='662.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='672.5' y='224'>G3</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='3' id='g_9_27'>
+<rect fill='#c4c4c4' height='20' id='9_27' rx='5' ry='5' stroke='none' width='20' x='662.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='672.5' y='249'>H3</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='3' id='g_10_27'>
+<rect fill='#c4c4c4' height='20' id='10_27' rx='5' ry='5' stroke='none' width='20' x='662.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='672.5' y='274'>I3</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='3' id='g_11_27'>
+<rect fill='#c4c4c4' height='20' id='11_27' rx='5' ry='5' stroke='none' width='20' x='662.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='672.5' y='299'>L3</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='3' id='g_12_27'>
+<rect fill='#c4c4c4' height='20' id='12_27' rx='5' ry='5' stroke='none' width='20' x='662.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='672.5' y='324'>M3</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='3' id='g_13_27'>
+<rect fill='#c4c4c4' height='20' id='13_27' rx='5' ry='5' stroke='none' width='20' x='662.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='672.5' y='349'>N3</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='3' id='g_14_27'>
+<rect fill='#c4c4c4' height='20' id='14_27' rx='5' ry='5' stroke='none' width='20' x='662.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='672.5' y='374'>O3</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='3' id='g_3_28'>
+<rect fill='#c4c4c4' height='20' id='3_28' rx='5' ry='5' stroke='none' width='20' x='687.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='697.5' y='99'>B3</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='3' id='g_4_28'>
+<rect fill='#c4c4c4' height='20' id='4_28' rx='5' ry='5' stroke='none' width='20' x='687.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='697.5' y='124'>C3</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='3' id='g_5_28'>
+<rect fill='#c4c4c4' height='20' id='5_28' rx='5' ry='5' stroke='none' width='20' x='687.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='697.5' y='149'>D3</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='3' id='g_6_28'>
+<rect fill='#c4c4c4' height='20' id='6_28' rx='5' ry='5' stroke='none' width='20' x='687.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='697.5' y='174'>E3</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='2' id='g_7_28'>
+<rect fill='#c4c4c4' height='20' id='7_28' rx='5' ry='5' stroke='none' width='20' x='687.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='697.5' y='199'>F2</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='2' id='g_8_28'>
+<rect fill='#c4c4c4' height='20' id='8_28' rx='5' ry='5' stroke='none' width='20' x='687.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='697.5' y='224'>G2</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='2' id='g_9_28'>
+<rect fill='#c4c4c4' height='20' id='9_28' rx='5' ry='5' stroke='none' width='20' x='687.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='697.5' y='249'>H2</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='2' id='g_10_28'>
+<rect fill='#c4c4c4' height='20' id='10_28' rx='5' ry='5' stroke='none' width='20' x='687.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='697.5' y='274'>I2</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='2' id='g_11_28'>
+<rect fill='#c4c4c4' height='20' id='11_28' rx='5' ry='5' stroke='none' width='20' x='687.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='697.5' y='299'>L2</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='2' id='g_12_28'>
+<rect fill='#c4c4c4' height='20' id='12_28' rx='5' ry='5' stroke='none' width='20' x='687.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='697.5' y='324'>M2</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='2' id='g_13_28'>
+<rect fill='#c4c4c4' height='20' id='13_28' rx='5' ry='5' stroke='none' width='20' x='687.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='697.5' y='349'>N2</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='2' id='g_14_28'>
+<rect fill='#c4c4c4' height='20' id='14_28' rx='5' ry='5' stroke='none' width='20' x='687.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='697.5' y='374'>O2</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='2' id='g_3_29'>
+<rect fill='#c4c4c4' height='20' id='3_29' rx='5' ry='5' stroke='none' width='20' x='712.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='722.5' y='99'>B2</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='2' id='g_4_29'>
+<rect fill='#c4c4c4' height='20' id='4_29' rx='5' ry='5' stroke='none' width='20' x='712.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='722.5' y='124'>C2</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='2' id='g_5_29'>
+<rect fill='#c4c4c4' height='20' id='5_29' rx='5' ry='5' stroke='none' width='20' x='712.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='722.5' y='149'>D2</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='2' id='g_6_29'>
+<rect fill='#c4c4c4' height='20' id='6_29' rx='5' ry='5' stroke='none' width='20' x='712.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='722.5' y='174'>E2</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='F' data-seat='1' id='g_7_29'>
+<rect fill='#c4c4c4' height='20' id='7_29' rx='5' ry='5' stroke='none' width='20' x='712.5' y='187.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='722.5' y='199'>F1</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='G' data-seat='1' id='g_8_29'>
+<rect fill='#c4c4c4' height='20' id='8_29' rx='5' ry='5' stroke='none' width='20' x='712.5' y='212.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='722.5' y='224'>G1</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='H' data-seat='1' id='g_9_29'>
+<rect fill='#c4c4c4' height='20' id='9_29' rx='5' ry='5' stroke='none' width='20' x='712.5' y='237.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='722.5' y='249'>H1</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='I' data-seat='1' id='g_10_29'>
+<rect fill='#c4c4c4' height='20' id='10_29' rx='5' ry='5' stroke='none' width='20' x='712.5' y='262.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='722.5' y='274'>I1</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='L' data-seat='1' id='g_11_29'>
+<rect fill='#c4c4c4' height='20' id='11_29' rx='5' ry='5' stroke='none' width='20' x='712.5' y='287.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='722.5' y='299'>L1</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='M' data-seat='1' id='g_12_29'>
+<rect fill='#c4c4c4' height='20' id='12_29' rx='5' ry='5' stroke='none' width='20' x='712.5' y='312.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='722.5' y='324'>M1</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='N' data-seat='1' id='g_13_29'>
+<rect fill='#c4c4c4' height='20' id='13_29' rx='5' ry='5' stroke='none' width='20' x='712.5' y='337.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='722.5' y='349'>N1</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='O' data-seat='1' id='g_14_29'>
+<rect fill='#c4c4c4' height='20' id='14_29' rx='5' ry='5' stroke='none' width='20' x='712.5' y='362.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='722.5' y='374'>O1</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='B' data-seat='1' id='g_3_30'>
+<rect fill='#c4c4c4' height='20' id='3_30' rx='5' ry='5' stroke='none' width='20' x='737.5' y='87.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='747.5' y='99'>B1</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='C' data-seat='1' id='g_4_30'>
+<rect fill='#c4c4c4' height='20' id='4_30' rx='5' ry='5' stroke='none' width='20' x='737.5' y='112.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='747.5' y='124'>C1</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='D' data-seat='1' id='g_5_30'>
+<rect fill='#c4c4c4' height='20' id='5_30' rx='5' ry='5' stroke='none' width='20' x='737.5' y='137.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='747.5' y='149'>D1</text>
+</g>
+<g class='posto' cursor='pointer' data-area='PT' data-couch='0' data-note='' data-row='E' data-seat='1' id='g_6_30'>
+<rect fill='#c4c4c4' height='20' id='6_30' rx='5' ry='5' stroke='none' width='20' x='737.5' y='162.5'></rect>
+<text class='seat-label' fill='#505050' font-family='Open Sans Light' font-size='8' text-anchor='middle' x='747.5' y='174'>E1</text>
+</g>
+</g>
+</g>
+</svg>
