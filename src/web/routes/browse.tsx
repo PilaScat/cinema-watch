@@ -13,6 +13,7 @@ import { searchMovies } from "../../movie-search.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { Badge, buttonClass, Card, Empty, Field, inputClass, LinkButton, Notice, PageHeader } from "../components.js";
 import { DayTabs, HallPair, MovieCard, ShowingRow, Stat, TheatreGroup, TrendSection } from "../parts/browse.js";
+import { backHref, fromOf, hereOf, withFrom } from "../parts/navigation.js";
 import { movieTitleFor } from "../parts/titles.js";
 import { ISO_DAY, SHOWING_KEY, SLUG } from "../../keys.js";
 
@@ -236,18 +237,18 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
             description={theatre?.name ?? slug}
             actions={
               <>
-                <LinkButton href={`/theatres/${slug}`} label={copy.ui.common.actions.back} icon="arrowLeft" variant="outline" />
-                <LinkButton href={`/hunts/new?${huntQuery}`} label={theatresUi.addHunt} icon="plus" variant="primary" />
+                <LinkButton href={backHref(c, `/theatres/${slug}`)} label={copy.ui.common.actions.back} icon="arrowLeft" variant="outline" />
+                <LinkButton href={withFrom(`/hunts/new?${huntQuery}`, hereOf(c))} label={theatresUi.addHunt} icon="plus" variant="primary" />
               </>
             }
           />
           {programming === null ? <Notice tone="danger">{theatresUi.programmingError}</Notice> : null}
           {selected ? (
             <>
-              <DayTabs days={days.map(([day]) => ({ day, label: formatDay(day) }))} selected={selected[0]} />
+              <DayTabs days={days.map(([day]) => ({ day, label: formatDay(day) }))} selected={selected[0]} from={fromOf(c)} />
               <div class="grid gap-3">
                 {shown.map((showing, index) => (
-                  <ShowingRow href={`/showings/${showing.key}?${huntQuery}`} showing={showing} analysis={analyses[index] ?? null} />
+                  <ShowingRow href={withFrom(`/showings/${showing.key}?${huntQuery}`, hereOf(c))} showing={showing} analysis={analyses[index] ?? null} />
                 ))}
               </div>
               {ordered.length > shown.length ? <p class="mt-3 text-sm text-muted">{theatresUi.cap(MAX_SHOWINGS)}</p> : null}
@@ -302,7 +303,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
                   <ul class="grid gap-2 sm:grid-cols-2">
                     {visible.map((item) => (
                       <li>
-                        <a href={`/theatres/${item.slug}/movies/${selected}`} class="font-semibold hover:text-primary">
+                        <a href={withFrom(`/theatres/${item.slug}/movies/${selected}`, hereOf(c))} class="font-semibold hover:text-primary">
                           {item.name}
                         </a>
                         {item.km === null ? null : <span class="text-sm text-muted">{` · ${formatKm(item.km)}`}</span>}
@@ -386,8 +387,8 @@ async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
     format = [...(programming?.values() ?? [])].flat().find((showing) => showing.key === key)?.formatGroup;
   }
   const buyUrl = view.cartUrl(movie);
-  const huntHref = theatre && movie ? `/hunts/new?${queryString({ theatre, movie, format, from: day, to: day })}` : null;
-  const backHref = theatre && movie ? `/theatres/${theatre}/movies/${movie}?day=${day}` : null;
+  const huntHref = theatre && movie ? withFrom(`/hunts/new?${queryString({ theatre, movie, format, from: day, to: day })}`, hereOf(c)) : null;
+  const back = fromOf(c) ?? (huntId !== undefined ? `/hunts/${huntId}#showings` : theatre && movie ? `/theatres/${theatre}/movies/${movie}?day=${day}` : null);
   return renderPage(c, deps, {
     title: movieTitle,
     section: "theatres",
@@ -398,7 +399,7 @@ async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
           description={performance.priceFrom === null ? subtitle : `${subtitle} · ${ui.priceFrom(formatEur(performance.priceFrom))}`}
           actions={
             <>
-              {backHref ? <LinkButton href={backHref} label={copy.ui.common.actions.back} icon="arrowLeft" variant="outline" /> : null}
+              {back ? <LinkButton href={back} label={copy.ui.common.actions.back} icon="arrowLeft" variant="outline" /> : null}
               {huntHref ? <LinkButton href={huntHref} label={ui.addHunt} icon="plus" variant="outline" /> : null}
               {buyUrl ? <LinkButton href={buyUrl} label={copy.ui.common.actions.buy} icon="externalLink" variant="primary" external /> : null}
             </>

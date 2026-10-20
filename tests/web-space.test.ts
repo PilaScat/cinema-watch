@@ -36,7 +36,7 @@ describe("The Space cinemas in the web UI", () => {
 
     expect(theatre).toContain('href="/theatres/space-1028/movies/avengers-doomsday"');
     expect(theatre).toContain("https://www.thespacecinema.it/-/media/");
-    expect(movie).toContain('href="/showings/space-1028-58489?theatre=space-1028&amp;movie=avengers-doomsday"');
+    expect(movie).toContain('href="/showings/space-1028-58489?theatre=space-1028&amp;movie=avengers-doomsday&amp;from=');
     expect(movie).toContain("Sala 7");
   });
 
@@ -55,6 +55,6 @@ describe("The Space cinemas in the web UI", () => {
   });
 
   it("finds the The Space cinemas of a film", async () => {
-    expect(await page("/search?movie=avengers-doomsday")).toContain('href="/theatres/space-1028/movies/avengers-doomsday"');
+    expect(await page("/search?movie=avengers-doomsday")).toContain('href="/theatres/space-1028/movies/avengers-doomsday?from=');
   });
 });

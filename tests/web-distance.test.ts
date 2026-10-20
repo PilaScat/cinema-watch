@@ -72,7 +72,7 @@ describe("search by distance", () => {
     const near = await page("/search?q=dune&movie=dune-parte-tre", home(60));
     const all = await page("/search?q=dune&movie=dune-parte-tre&all=1", home(60));
 
-    expect(near).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre"');
+    expect(near).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre?from=');
     expect(near).toContain("5 km");
     expect(near).not.toContain('href="/theatres/uci-cinemas-arezzo/movies/dune-parte-tre"');
     expect(near).toMatch(/href="\/search\?q=dune&amp;movie=dune-parte-tre&amp;all=1"/);

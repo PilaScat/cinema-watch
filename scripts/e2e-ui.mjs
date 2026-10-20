@@ -82,6 +82,11 @@ async function open(path) {
   await settle();
 }
 
+async function clickBack() {
+  await call(() => [...document.querySelectorAll("a")].find((link) => link.textContent.includes("Indietro")).click());
+  await settle();
+}
+
 async function click(selector) {
   await call((target) => document.querySelector(target).click(), selector);
   await settle();
@@ -155,6 +160,14 @@ if (huntId) {
   await settle();
   check("zona salvata", (await evaluate("document.body.innerText")).includes("G, H, J") || (await evaluate("document.body.innerText")).includes("G,H,J"));
 
+  await open(`/hunts/${huntId}`);
+  const showingLink = await evaluate("document.querySelector('#showings a[href^=\"/showings/\"]')?.getAttribute('href') ?? ''");
+  if (showingLink) {
+    await open(showingLink);
+    await clickBack();
+    check("Indietro dallo spettacolo torna alla caccia", (await evaluate("location.pathname + location.hash")) === `/hunts/${huntId}#showings`, await evaluate("location.href"));
+  }
+
   await open("/");
   await click(`form[action='/hunts/${huntId}/mute'] button`);
   check("Silenzia dalla home", (await evaluate("document.body.innerText")).includes("Silenziata fino alle"));
@@ -166,7 +179,11 @@ await open("/search?q=avenger");
 const avengers = await evaluate("[...document.querySelectorAll('a')].find((a) => a.textContent.includes('Avengers: Doomsday'))?.getAttribute('href') ?? ''");
 check("ricerca con parte del titolo", avengers.includes("movie=avengers-doomsday"), avengers);
 await open(avengers);
-check("cinema del film scelto dalla ricerca", (await evaluate("document.body.innerText")).includes("Cinema con Avengers: Doomsday") && (await evaluate("Boolean(document.querySelector('a[href=\"/theatres/uci-cinemas-verona/movies/avengers-doomsday\"]'))")));
+check("cinema del film scelto dalla ricerca", (await evaluate("document.body.innerText")).includes("Cinema con Avengers: Doomsday") && (await evaluate("Boolean(document.querySelector('a[href^=\"/theatres/uci-cinemas-verona/movies/avengers-doomsday?from=\"]'))")));
+const searchPage = await evaluate("location.pathname + location.search");
+await click("a[href^='/theatres/uci-cinemas-verona/movies/avengers-doomsday?from=']");
+await clickBack();
+check("Indietro dal film torna alla ricerca", (await evaluate("location.pathname + location.search")) === searchPage, await evaluate("location.href"));
 
 await open("/settings");
 await evaluate("document.querySelector('form[action=\"/settings\"]').requestSubmit()");
