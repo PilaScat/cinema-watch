@@ -7,6 +7,11 @@ Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del ta
 ### Novità
 
 - **Indietro torna da dove sei venuto**: dallo spettacolo aperto da una caccia si torna alla caccia, sugli spettacoli; dal registro al registro con i suoi filtri; dal film aperto da Cerca alla ricerca; da una caccia nuova aperta da uno spettacolo o da un film a quella pagina. Il pulsante Apri sala di Telegram porta la caccia, quindi anche lì Indietro torna alla caccia e la pianta usa la sua zona buona.
+- **Dalle e Alle uguali vuol dire tutto il giorno**, sia nell'orario generale sia in quello di un giorno: con 00:00 e 00:00 il sabato non segue più solo gli spettacoli di mezzanotte.
+
+### Progetto
+
+- README con una testata nuova: icona, nome, una frase e i badge di stelle, download dell'immagine e sponsor; tolta la descrizione inglese. Il repo ha il pulsante Sponsor (`.github/FUNDING.yml`).
 
 ## v2026.10.11
 

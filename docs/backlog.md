@@ -7,7 +7,10 @@ Cosa resta da decidere o da fare nei prossimi rilasci. Una voce fatta si toglie 
 
 | Voce | Cosa serve |
 |---|---|
-| Tutti i cinema italiani | Richiesta di Filippo del 19/10: descrizione e scopo dello strumento orientati a tutti i cinema italiani, non a UCI con l'aggiunta di Webtic. Descrizione del progetto (README, GitHub, `package.json`), testi della UI e docs sono fatti il 19/10; The Space è coperto dal 20/10 (v2026.10.9), 18Tickets dalla v2026.10.10; restano gli altri circuiti della ricognizione del 19/10 (Liveticket, Eplanet e la coda lunga). Per ogni circuito serve prima una ricognizione delle API pubbliche (elenco dei cinema, programmazione, pianta, posti presi) e poi la scelta con Filippo. |
+| Altri circuiti | Coperti UCI, Webtic, The Space (v2026.10.9) e 18Tickets (v2026.10.10). Restano gli altri della ricognizione del 19/10: Liveticket (programmazione JSON, posto unico), Eplanet (8 cinema in Sicilia) e la coda lunga con captcha. Per ognuno serve la ricognizione delle API pubbliche (cinema, programmazione, pianta, posti presi) e poi la scelta di Filippo. |
+| Cinema 18Tickets senza regione | 20 su 83 al 20/10, quasi tutti arene e sedi di Lab80 senza programmazione: la home non ha l'indirizzo. Serve un'altra fonte dell'indirizzo (per esempio la pagina informazioni del cinema), da verificare su qualche dominio. |
+| Pagina del film limitata a 12 spettacoli | A Verona gli Avengers Infinity Vision cadono dopo il dodicesimo e non si vedono. Serve un "mostra tutti" o un filtro per formato nella pagina. |
+| Mutation dei circuiti | Il 20/10 `legacy`, `the-space` e `t18` sono entrati nell'elenco di Stryker sul ramo `chore/mutation-circuits`: la mutation completa va chiusa con i risultati e la PR. |
 | Punteggio OpenSSF Scorecard (7,7 al 19/10) | Dal repo è fatto quello che si poteva: License, Signed-Releases, Security-Policy e CI-Tests sono a 10, CII-Best-Practices a 5 (badge passing). Maintained sale da sola da metà gennaio 2027, quando il repo ha 90 giorni: è l'unico avviso aperto in Security. Code-Review e Branch-Protection restano bassi (vedi sotto) e Contributors resta a 0. |
 
 ## Scelte confermate dopo le revisioni
