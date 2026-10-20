@@ -68,6 +68,20 @@ Base: `https://www.thespacecinema.it/api/microservice`. Senza token quasi tutte 
 
 Gli `attributes` danno il formato (`Session` "2D"; `Session_Special` "3D", "INFINITY VISION", "ANTEPRIMA") e la lingua (`Language` "ITALIANO" o "LINGUA ORIGINALE"). Coordinate e provincia di un cinema vengono dalla sua pagina HTML: `q=lat, lon` nel link della mappa e la sigla in fondo a `<address>`. Le locandine sono su `www.thespacecinema.it`. Il link "Acquista" è `https://www.thespacecinema.it/prenotare-il-biglietto/summary/{cinemaId}/{filmId}/{sessionId}`.
 
+### 18Tickets
+
+Ogni cinema ha un dominio suo, `<cinema>.<gestore>.18tickets.it` o `<cinema>.18tickets.it`; i gestori con più cinema (Circuito Cinema a Roma, Genova e Torino, Andromeda, Pop Up Cinema…) hanno anche una pagina di gruppo. Le pagine sono HTML con gli attributi fra apici singoli; solo i posti sono JSON.
+
+| Chiamata | A cosa serve | Campi usati |
+|---|---|---|
+| `GET /` sul dominio di un cinema | Programmazione di tutti i giorni pubblicati, 100 KB-1,2 MB | `<title>`; per ogni film (`div.movie--preview`) il link `a.movie__title` (`/film/<id>`), la locandina, `film-label` (INFINITY VISION, INGLESE, LINGUA ORIGINALE…), "Lingua:", e per ogni giorno l'intestazione `fa-calendar` ("Mercoledì 16/12/2026") con le proiezioni `<a data-time='<ms>' href='…/film/<id>/<uuid>#theater-init'>` (ora e sala nel testo); il luogo in `time-select__place` e l'indirizzo nel link `maps.google.com/?q=` |
+| `GET /` sul dominio di un gruppo | Elenco dei cinema del gruppo | i link `<a href="https://<cinema>.<gruppo>.18tickets.it" class="dropdown-item">`; alcuni gruppi rispondono 302 verso `/select_cinema?mandatory=true`, che ha gli stessi link |
+| `GET /film/<id>` | Sala di ogni proiezione del film | `film-projection` con `data-id` (uuid della proiezione) e `data-theater` (uuid della sala) |
+| `GET /theater/<uuid della sala>.svg` | Pianta | `<g class='posto' data-row data-seat data-area id='g_<fila>_<colonna>'>`; `userhide` è un posto nascosto |
+| `GET /seats/<uuid della proiezione>` | Posti presi, JSON | `bought`, `locked`, `reserved`, `quarantined`, `preemption`, `mine`: elenchi di `{x, y}` (`x` colonna, `y` fila); `total` |
+
+I posti rispondono solo dal dominio del cinema o del suo gruppo: dagli altri domini la stessa chiamata dà `{}`. Il link "Acquista" è quello della proiezione, `https://<cinema>/film/<id>/<uuid>#theater-init`.
+
 ### Come l'app le chiama
 
 Tutte le chiamate a UCI, Webtic, The Space e GitHub passano da `src/http.ts`:
@@ -77,6 +91,8 @@ Tutte le chiamate a UCI, Webtic, The Space e GitHub passano da `src/http.ts`:
 - dopo un timeout, un errore di rete, una risposta 5xx o 429 l'host va in attesa: 30 secondi, che raddoppiano a ogni errore fino a 30 minuti, o il `Retry-After` se più lungo;
 - l'`User-Agent` porta il nome dell'app.
 
+Le chiamate a 18Tickets passano dal client di `src/circuits/t18.ts`: solo `https`, solo domini `*.18tickets.it`, nessun reindirizzamento seguito, timeout di 20 secondi, e fra due pagine dello stesso gestore almeno 10 secondi, un minuto dopo un 429 (il perché è in [MEMORY.md](MEMORY.md)).
+
 ### Host verso cui l'app esce
 
 | Host | Per cosa | Da dove |
@@ -85,10 +101,11 @@ Tutte le chiamate a UCI, Webtic, The Space e GitHub passano da `src/http.ts`:
 | `uci-website-webtic-proxy-production-1042268733238.europe-west8.run.app` | Proxy Webtic | `src/http.ts` |
 | `secure.webtic.it` | Webtic diretto, per i cinema che non sono UCI | `src/http.ts` |
 | `www.thespacecinema.it` | The Space: token ospite, programmazione, posti e pagine dei cinema | `src/http.ts`, e `src/circuits/the-space.ts` per il token |
+| `*.18tickets.it` | 18Tickets: pagine dei cinema e dei gruppi, piante e posti | `src/circuits/t18.ts` |
 | `api.github.com` | Ultima Release (`/repos/PilaScat/cinema-watch/releases/latest`), una volta al giorno, per avvisare di una versione nuova | `src/http.ts` |
 | `api.telegram.org` | Invio dei messaggi e lettura dei comandi, vedi [telegram.md](telegram.md) | `src/telegram.ts` |
 
-Il browser di chi usa la UI carica le locandine da `storage.googleapis.com`, `secure.webtic.it` e `www.thespacecinema.it`, ammessi dalla CSP; è il browser a farlo, non l'app. I link "Acquista" portano a `ucicinemas.it`, a `secure.webtic.it` o a `www.thespacecinema.it` e l'app non li apre.
+Il browser di chi usa la UI carica le locandine da `storage.googleapis.com`, `secure.webtic.it`, `www.thespacecinema.it` e `cdn.18tickets.net`, ammessi dalla CSP; è il browser a farlo, non l'app. I link "Acquista" portano a `ucicinemas.it`, a `secure.webtic.it`, a `www.thespacecinema.it` o al dominio 18Tickets del cinema, e l'app non li apre.
 
 ## API dell'app
 

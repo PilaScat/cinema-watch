@@ -43,6 +43,7 @@ Il backup è la copia della cartella dei dati (`/data` nel container). Le scritt
 | `screens/` | Piante delle sale in cache |
 | `history/` | Andamento dei posti liberi di ogni spettacolo |
 | `events.jsonl` | Registro degli ultimi 500 eventi |
+| `webtic-venues.json`, `space-venues.json`, `t18-venues.json` | Elenchi dei cinema Webtic, The Space e 18Tickets dei controlli settimanali; senza, il controllo riparte |
 | `secret` | Chiave che firma i cookie di accesso, presente solo con `UI_PASSWORD` |
 
 Le piante si riscaricano da sole; senza `history/` l'andamento ricomincia da zero. Per ripristinare si rimette la cartella al suo posto con proprietario 99:100 e `config.json` con permessi `600`.
