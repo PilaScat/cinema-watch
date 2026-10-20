@@ -134,6 +134,13 @@ describe("timeInRange", () => {
     expect(timeInRange("22:01", "18:00", "22:00")).toBe(false);
   });
 
+  it("takes the whole day when from and to are the same", () => {
+    expect(timeInRange("00:00", "00:00", "00:00")).toBe(true);
+    expect(timeInRange("09:20", "00:00", "00:00")).toBe(true);
+    expect(timeInRange("23:40", "18:00", "18:00")).toBe(true);
+    expect(timeInRange("03:00", "18:00", "18:00")).toBe(true);
+  });
+
   it("supports a single bound", () => {
     expect(timeInRange("20:00", "18:00")).toBe(true);
     expect(timeInRange("17:00", "18:00")).toBe(false);
@@ -149,11 +156,11 @@ describe("timeInRange", () => {
     expect(timeInRange("01:00", "18:00", "01:00")).toBe(true);
   });
 
-  it("is consistent with plain comparison when from <= to", () => {
+  it("is consistent with plain comparison when from < to, and takes everything when they are equal", () => {
     fc.assert(
       fc.property(timeArbitrary, timeArbitrary, timeArbitrary, (time, a, b) => {
         const [from, to] = a <= b ? [a, b] : [b, a];
-        expect(timeInRange(time, from, to)).toBe(time >= from && time <= to);
+        expect(timeInRange(time, from, to)).toBe(from === to || (time >= from && time <= to));
       }),
     );
   });

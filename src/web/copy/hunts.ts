@@ -41,7 +41,7 @@ export const hunts = {
     weekdays: "Giorni della settimana",
     weekdaysHint: "Nessuno: tutti i giorni",
     dayTimes: "Orario diverso per giorno",
-    dayTimesHint: "Facoltativo. In quel giorno vale al posto di Dalle e Alle",
+    dayTimesHint: "Sostituisce Dalle e Alle, uguali: tutto il giorno",
     languages: "Lingue",
     languagesHint: "Separate da virgola, vuoto per tutte",
     together: "Posti vicini",
