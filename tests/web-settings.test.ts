@@ -367,3 +367,27 @@ describe("home and radius", () => {
     expect(html).toContain('src="/assets/home-picker.js"');
   });
 });
+
+describe("18Tickets cinemas", () => {
+  it("saves the added cinemas from addresses or links, without repeats, and shows them back", async () => {
+    const { instance, watcher } = await app();
+
+    const response = await instance.request("/settings", post(settingsForm({ t18Hosts: "Vittoria.18tickets.it, https://splendorbari.18tickets.it/, vittoria.18tickets.it" })));
+    const page = await (await instance.request("/settings")).text();
+
+    expect(response.status).toBe(303);
+    expect(watcher.config().settings.t18Hosts).toEqual(["vittoria.18tickets.it", "splendorbari.18tickets.it"]);
+    expect(page).toMatch(/name="t18Hosts"[^>]*value="vittoria.18tickets.it, splendorbari.18tickets.it"/);
+    expect(page).toContain("Cinema 18Tickets");
+  });
+
+  it("refuses an address outside 18Tickets next to its field", async () => {
+    const { instance, watcher } = await app();
+
+    const response = await instance.request("/settings", post(settingsForm({ t18Hosts: "cinema.example.com" })));
+
+    expect(response.status).toBe(400);
+    expect(await response.text()).toContain("indirizzi del tipo nomecinema.18tickets.it");
+    expect(watcher.config().settings.t18Hosts).toEqual([]);
+  });
+});
