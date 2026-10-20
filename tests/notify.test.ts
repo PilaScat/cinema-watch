@@ -399,7 +399,7 @@ describe("composeRound hall link", () => {
     const text = texts(composeRound([created("k1")], context({ publicUrl: "https://cw.example/" })))[0];
     expect(text?.keyboard).toEqual([
       [{ text: "Acquista", url: "https://cart.example/1" }],
-      [{ text: "Apri sala", url: "https://cw.example/showings/k1" }],
+      [{ text: "Apri sala", url: "https://cw.example/showings/k1?hunt=abcd1234" }],
       REFRESH_ROW,
     ]);
     expect(text?.text).not.toContain("Apri sala");
@@ -407,7 +407,7 @@ describe("composeRound hall link", () => {
 
   it("adds Apri sala to the text when not a button", () => {
     const text = texts(composeRound([created("k1")], context({ publicUrl: "https://cw.example", openAsButton: false })))[0];
-    expect(text?.text.endsWith("40 liberi, 8 nella zona buona\nMigliori: H 9-11\n\nApri sala: https://cw.example/showings/k1")).toBe(true);
+    expect(text?.text.endsWith("40 liberi, 8 nella zona buona\nMigliori: H 9-11\n\nApri sala: https://cw.example/showings/k1?hunt=abcd1234")).toBe(true);
     expect(text?.keyboard).toEqual([[{ text: "Acquista", url: "https://cart.example/1" }], REFRESH_ROW]);
   });
 
@@ -438,9 +438,9 @@ describe("composeRound size limit", () => {
     expect(omitted).toBeGreaterThan(0);
     expect(shown + omitted).toBe(64);
     expect(lines.slice(-3)).toEqual([
-      "Apri sala: https://cw.example/showings/k0",
-      "Apri sala: https://cw.example/showings/k1",
-      "Apri sala: https://cw.example/showings/k2",
+      "Apri sala: https://cw.example/showings/k0?hunt=abcd1234",
+      "Apri sala: https://cw.example/showings/k1?hunt=abcd1234",
+      "Apri sala: https://cw.example/showings/k2?hunt=abcd1234",
     ]);
     expect(lines[lines.length - 4]).toBe("");
     expect(lines[lines.length - 5]).toBe(`e altri ${omitted}`);
