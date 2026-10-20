@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Cinema Watch: social preview</title>
+<style>
+@font-face { font-family: "Bebas Neue"; src: url("../../assets/fonts/BebasNeue-Regular.ttf"); }
+@font-face { font-family: "Barlow"; font-weight: 400; src: url("../../assets/fonts/Barlow-Regular.ttf"); }
+@font-face { font-family: "Barlow"; font-weight: 600; src: url("../../assets/fonts/Barlow-SemiBold.ttf"); }
+html, body { margin: 0; width: 1280px; height: 640px; overflow: hidden; background: #121014; }
+body { position: relative; font-family: "Barlow", sans-serif; color: #f4efe6; }
+.safe { position: absolute; inset: 40px; display: flex; align-items: center; gap: 48px; }
+.text { flex: 1 1 0; min-width: 0; padding-left: 24px; }
+.logo { width: 112px; height: 112px; display: block; }
+h1 { margin: 28px 0 0; font-family: "Bebas Neue", sans-serif; font-weight: 400; font-size: 112px; line-height: 0.9; letter-spacing: 1px; }
+.tagline { margin: 20px 0 0; font-size: 30px; line-height: 1.3; color: #f4efe6; max-width: 560px; }
+.chains { margin: 28px 0 0; font-size: 24px; font-weight: 600; color: #f5c518; letter-spacing: 0.5px; }
+.hall { flex: 0 0 auto; width: 540px; height: 450px; border-radius: 24px; overflow: hidden; border: 2px solid #2e2932; background: #121014; }
+.hall img { width: 756px; margin: -8px 0 0 -108px; display: block; }
+.guide { position: absolute; inset: 40px; outline: 2px dashed #f5c518; display: none; }
+body.check .guide { display: block; }
+</style>
+</head>
+<body>
+<div class="safe">
+  <div class="text">
+    <img class="logo" src="../../assets/logo.svg" alt="">
+    <h1>Cinema Watch</h1>
+    <p class="tagline">Cacce ai biglietti dei cinema italiani, con avvisi su Telegram e la pianta della sala</p>
+    <p class="chains">UCI · The Space · Webtic · 18Tickets</p>
+  </div>
+  <div class="hall"><img src="pianta.png" alt=""></div>
+</div>
+<div class="guide"></div>
+<script>if (location.hash === "#check") document.body.classList.add("check");</script>
+</body>
+</html>

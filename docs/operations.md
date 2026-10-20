@@ -85,6 +85,18 @@ Per verificare l'attestazione di un'immagine:
 gh attestation verify oci://ghcr.io/pilascat/cinema-watch:<tag> -R PilaScat/cinema-watch
 ```
 
+### Immagini del repo
+
+Stanno in `docs/img/`, tutte in tema scuro e a 1280×800: `pianta.png` (la pianta come arriva su Telegram), `home.png` (le cacce) e `cinema.png` (i cinema dalla casa d'esempio in piazza del Duomo a Milano, mai una casa vera). Si rifanno da un server locale con dati veri e il tema scuro scelto nell'app.
+
+La social preview segue il template di GitHub: 1280×640, PNG sotto 1 MB, contenuto entro 40 px dai bordi. La sorgente è `docs/img/social-preview.html` (font, icona e pianta del repo); si rigenera con Edge headless e poi si carica a mano da Settings → General → Social preview, perché GitHub non ha un'API per farlo:
+
+```sh
+msedge --headless=new --hide-scrollbars --window-size=1280,640 --screenshot=docs/img/social-preview.png file:///<percorso del repo>/docs/img/social-preview.html
+```
+
+Aprendo la sorgente con `#check` in fondo all'indirizzo si vede il bordo dell'area sicura.
+
 ### Se fallisce solo il job Release
 
 Immagini, manifest e attestazione sono già pubblicati. Il tag non si sposta e non si cancella, e rilanciare il workflow ricostruirebbe le immagini con digest nuovi: `:latest` e il tag non coinciderebbero più. La Release si completa a mano con gli stessi passi del job, da Git Bash nella cartella del repo:
