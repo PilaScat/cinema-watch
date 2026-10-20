@@ -241,7 +241,7 @@ describe("search", () => {
     const html = await (await instance.request("/search?q=Dune%3A%20Parte%20Tre")).text();
 
     expect(html).toContain("Catalogo dei film non disponibile");
-    expect(html).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre"');
+    expect(html).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre?from=');
   });
 
   it("says no theatre shows the chosen film when UCI lists none", async () => {

@@ -36,6 +36,10 @@ async function page(instance: Awaited<ReturnType<typeof app>>["instance"], path:
   return html;
 }
 
+function backOf(html: string): string | undefined {
+  return /<a href="([^"]*)"[^>]*>(?:(?!<\/a>)[\s\S])*Indietro/.exec(html)?.[1];
+}
+
 function withoutSeats(occupancy: unknown, seatIds: string[]): unknown {
   const copyOf = structuredClone(occupancy) as { Data: { Occupancy: { Seats: Array<{ SeatId: string }> } } };
   copyOf.Data.Occupancy.Seats = copyOf.Data.Occupancy.Seats.filter((seat) => !seatIds.includes(seat.SeatId));
@@ -81,8 +85,8 @@ describe("theatres", () => {
     expect(html).toContain("SALA 1 IMAX");
     expect(html).toContain("44 liberi");
     expect(html).toContain("0 nella zona buona");
-    expect(html).toContain('href="/showings/5116-575978?theatre=uci-cinemas-verona&amp;movie=dune-parte-tre"');
-    expect(html).toContain('href="/hunts/new?theatre=uci-cinemas-verona&amp;movie=dune-parte-tre"');
+    expect(html).toContain('href="/showings/5116-575978?theatre=uci-cinemas-verona&amp;movie=dune-parte-tre&amp;from=');
+    expect(html).toContain('href="/hunts/new?theatre=uci-cinemas-verona&amp;movie=dune-parte-tre&amp;from=');
     expect(html).toContain("Aggiungi caccia");
   });
 
@@ -199,6 +203,66 @@ describe("performance", () => {
   });
 });
 
+describe("back links", () => {
+  const showing = "/showings/5116-575978";
+
+  it("goes back to the hunt, to the log or to the cinema the showing was opened from", async () => {
+    const { instance, config } = await app();
+    const hunt = config.hunts[0]?.id ?? "";
+
+    expect(backOf(await page(instance, `${showing}?hunt=${hunt}&movie=dune-parte-tre&theatre=uci-cinemas-verona&from=${encodeURIComponent(`/hunts/${hunt}#showings`)}`))).toBe(`/hunts/${hunt}#showings`);
+    expect(backOf(await page(instance, `${showing}?hunt=${hunt}`))).toBe(`/hunts/${hunt}#showings`);
+    expect(backOf(await page(instance, `${showing}?hunt=${hunt}&from=${encodeURIComponent("/log?kind=newShowing&hunt=x")}`))).toBe("/log?kind=newShowing&amp;hunt=x");
+    expect(backOf(await page(instance, `${showing}?movie=dune-parte-tre&theatre=uci-cinemas-verona`))).toBe("/theatres/uci-cinemas-verona/movies/dune-parte-tre?day=2026-12-15");
+    expect(backOf(await page(instance, `${showing}?hunt=nothere1`))).toBeUndefined();
+  });
+
+  it("ignores an origin outside the app", async () => {
+    const { instance } = await app();
+
+    for (const from of ["//evil.example/x", "https://evil.example/", "javascript:alert(1)", "/\\evil.example"]) {
+      expect(backOf(await page(instance, `${showing}?movie=dune-parte-tre&theatre=uci-cinemas-verona&from=${encodeURIComponent(from)}`))).toBe("/theatres/uci-cinemas-verona/movies/dune-parte-tre?day=2026-12-15");
+    }
+  });
+
+  it("goes back from a film in a cinema to the search it was opened from, keeping it across days and showings", async () => {
+    const { instance } = await app();
+    const search = "/search?movie=avengers-doomsday";
+
+    const html = await page(instance, `/theatres/uci-cinemas-verona/movies/avengers-doomsday?from=${encodeURIComponent(search)}`);
+
+    expect(backOf(html)).toBe("/search?movie=avengers-doomsday");
+    expect(html).toContain(`href="?day=2026-12-16&amp;from=${encodeURIComponent(search)}"`);
+    expect(html).toContain(`from=${encodeURIComponent(`/theatres/uci-cinemas-verona/movies/avengers-doomsday?from=${encodeURIComponent(search)}`)}`);
+    expect(backOf(await page(instance, "/theatres/uci-cinemas-verona/movies/avengers-doomsday"))).toBe("/theatres/uci-cinemas-verona");
+  });
+
+  it("goes back from a new hunt to the showing it was added from, also after an error", async () => {
+    const { instance } = await app();
+    const from = `${showing}?movie=dune-parte-tre&theatre=uci-cinemas-verona`;
+
+    const form = await page(instance, `/hunts/new?theatre=uci-cinemas-verona&movie=dune-parte-tre&from=${encodeURIComponent(from)}`);
+    const failed = await instance.request(`/hunts?from=${encodeURIComponent(from)}`, { method: "POST", body: new URLSearchParams({ name: "" }), headers: { origin: "http://localhost" } });
+
+    expect(backOf(form)).toBe("/showings/5116-575978?movie=dune-parte-tre&amp;theatre=uci-cinemas-verona");
+    expect(form).toContain(`action="/hunts?from=${encodeURIComponent(from)}"`);
+    expect(failed.status).toBe(400);
+    expect(backOf(await failed.text())).toBe("/showings/5116-575978?movie=dune-parte-tre&amp;theatre=uci-cinemas-verona");
+    expect(backOf(await page(instance, "/hunts/new"))).toBe("/");
+  });
+
+  it("opens the showings of a hunt with the way back to its list", async () => {
+    const { instance, watcher, config } = await app();
+    const hunt = config.hunts[0]?.id ?? "";
+    await watcher.tick();
+
+    const html = await page(instance, `/hunts/${hunt}`);
+
+    expect(html).toContain('id="showings"');
+    expect(html).toContain(`from=${encodeURIComponent(`/hunts/${hunt}#showings`)}`);
+  });
+});
+
 describe("search", () => {
   it("finds a film from part of its title and opens the only match on its theatres", async () => {
     const { instance } = await app();
@@ -207,7 +271,7 @@ describe("search", () => {
 
     expect(html).toContain("Dune: Parte Tre");
     expect(html).toContain("Cinema con Dune: Parte Tre");
-    expect(html).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre"');
+    expect(html).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre?from=');
   });
 
   it("lists every film that matches, each leading to its theatres", async () => {
@@ -237,7 +301,7 @@ describe("search", () => {
     const html = await page(instance, "/search?q=d&movie=dune-parte-tre");
 
     expect(html).toContain("Cinema con Dune: Parte Tre");
-    expect(html).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre"');
+    expect(html).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre?from=');
   });
 
   it("refuses a film that is not a slug", async () => {

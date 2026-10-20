@@ -39,7 +39,7 @@ describe("18Tickets cinemas in the web UI", () => {
 
     expect(theatre).toContain('href="/theatres/t18-roma-andromeda/movies/l-estranea"');
     expect(theatre).toContain("https://cdn.18tickets.net/");
-    expect(movie).toContain(`href="/showings/${SHOWING}?theatre=t18-roma-andromeda&amp;movie=avengers-doomsday"`);
+    expect(movie).toContain(`href="/showings/${SHOWING}?theatre=t18-roma-andromeda&amp;movie=avengers-doomsday&amp;from=`);
     expect(movie).toContain("Sala 1");
   });
 
@@ -54,6 +54,6 @@ describe("18Tickets cinemas in the web UI", () => {
   });
 
   it("finds the 18Tickets cinemas of a film", async () => {
-    expect(await page("/search?movie=l-estranea")).toContain('href="/theatres/t18-roma-andromeda/movies/l-estranea"');
+    expect(await page("/search?movie=l-estranea")).toContain('href="/theatres/t18-roma-andromeda/movies/l-estranea?from=');
   });
 });

@@ -6,6 +6,7 @@ import type { EventEntry } from "../../events.js";
 import { formatDay, formatTime } from "../../format.js";
 import { renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { Badge, Button, Card, Empty, inputClass, PageHeader, type Tone } from "../components.js";
+import { hereOf } from "../parts/navigation.js";
 
 const ui = copy.ui.log;
 const EVENTS_SHOWN = 500;
@@ -27,10 +28,9 @@ function timeOf(entry: EventEntry): string {
   return `${formatDay(romeToday(new Date(entry.t)))} ${formatTime(entry.t)}`;
 }
 
-function showingLink(entry: EventEntry): string | null {
+function showingLink(entry: EventEntry, here: string): string | null {
   if (entry.key === null || !SHOWING_KEY.test(entry.key)) return null;
-  const query = entry.huntId === null ? "" : `?${new URLSearchParams({ hunt: entry.huntId }).toString()}`;
-  return `/showings/${entry.key}${query}`;
+  return `/showings/${entry.key}?${new URLSearchParams({ ...(entry.huntId === null ? {} : { hunt: entry.huntId }), from: here }).toString()}`;
 }
 
 function Select(props: { name: string; label: string; value: string; options: Array<[string, string]> }) {
@@ -79,7 +79,7 @@ export function registerLogRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
           ) : (
             <ul class="flex flex-col divide-y divide-border rounded-xl border border-border bg-surface">
               {entries.map((entry) => {
-                const link = showingLink(entry);
+                const link = showingLink(entry, hereOf(c));
                 const huntName = entry.huntId === null ? null : (names.get(entry.huntId) ?? ui.deletedHunt);
                 return (
                   <li class="grid min-w-0 gap-1 px-4 py-3 text-sm sm:grid-cols-[9rem_12rem_11rem_1fr] sm:gap-3">

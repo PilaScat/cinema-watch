@@ -10,6 +10,7 @@ import { absoluteSummary, bodyText, noErrors, splitErrors, type FieldErrors } fr
 import { ErrorList, HuntFormBody, huntFieldOf, huntOfValues, preferListed, valuesOfBody, valuesOfHunt, valuesOfQuery, type HuntValues } from "../parts/hunt-form.js";
 import { StatusCards } from "../parts/hunt-status.js";
 import { listedMovies, MAX_MOVIE_THEATRES } from "../parts/movies.js";
+import { backHref, fromOf, withFrom } from "../parts/navigation.js";
 
 type PageContext = Parameters<typeof renderPage>[0];
 
@@ -53,7 +54,7 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
           <PageHeader
             title={title}
             description={hunt ? ui.descriptionEdit : ui.descriptionNew}
-            actions={<LinkButton href="/" label={common.actions.back} icon="arrowLeft" variant="outline" />}
+            actions={<LinkButton href={backHref(c, "/")} label={common.actions.back} icon="arrowLeft" variant="outline" />}
           />
           <ErrorList errors={page.errors.general} />
           {hunt && c.req.query("sent") === "ok" ? <Notice tone="success">{ui.sent.ok}</Notice> : null}
@@ -71,7 +72,7 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
             settings={watcher.config().settings}
             movies={movies}
             zoneKept={zone ? ui.fields.zoneKept(zone.rows, zone.seats) : undefined}
-            action={hunt ? `/hunts/${hunt.id}` : "/hunts"}
+            action={withFrom(hunt ? `/hunts/${hunt.id}` : "/hunts", fromOf(c))}
             restore={restore}
           />
           <script src="/assets/movie-picker.js" defer nonce={pageContext(c, deps).nonce}></script>

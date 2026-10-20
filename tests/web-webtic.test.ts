@@ -38,7 +38,7 @@ describe("Webtic cinemas in the web UI", () => {
 
     expect(theatre).toContain('href="/theatres/webtic-5779/movies/dune-parte-tre"');
     expect(theatre).toContain("https://secure.webtic.it/api/HandlerLocandinaEx.ashx");
-    expect(movie).toContain('href="/showings/5779-51133?theatre=webtic-5779&amp;movie=dune-parte-tre"');
+    expect(movie).toContain('href="/showings/5779-51133?theatre=webtic-5779&amp;movie=dune-parte-tre&amp;from=');
     expect(movie).toContain("SALA 1");
   });
 
@@ -56,9 +56,9 @@ describe("Webtic cinemas in the web UI", () => {
     const dune = await page("/search?movie=dune-parte-tre");
 
     expect(results).toContain("/search?q=primetime&amp;movie=primetime");
-    expect(primetime).toContain('href="/theatres/webtic-5779/movies/primetime"');
-    expect(dune).toContain('href="/theatres/webtic-5779/movies/dune-parte-tre"');
-    expect(dune).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre"');
+    expect(primetime).toContain('href="/theatres/webtic-5779/movies/primetime?from=');
+    expect(dune).toContain('href="/theatres/webtic-5779/movies/dune-parte-tre?from=');
+    expect(dune).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre?from=');
   });
 
   it("offers Webtic cinemas in the hunt form", async () => {

@@ -36,9 +36,9 @@ export function PageHeader(props: { title: string; description?: string; actions
   );
 }
 
-export function Card(props: { title?: string; actions?: Child; children?: Child; class?: string }) {
+export function Card(props: { title?: string; actions?: Child; children?: Child; class?: string; id?: string }) {
   return (
-    <section class={cx("rounded-xl border border-border bg-surface p-4 sm:p-5", props.class)}>
+    <section id={props.id} class={cx("rounded-xl border border-border bg-surface p-4 sm:p-5", props.class)}>
       {props.title || props.actions ? (
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
           {props.title ? <h2 class="font-display text-2xl tracking-wide">{props.title}</h2> : <span />}

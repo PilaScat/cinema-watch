@@ -133,7 +133,7 @@ describe("log page edge cases", () => {
 
     expect(html).toContain("Caccia eliminata");
     expect(html).toContain("vecchio");
-    expect(html).toContain('href="/showings/5116-575978"');
+    expect(html).toContain('href="/showings/5116-575978?from=');
     expect(html).toContain("Pianta cambiata");
   });
 

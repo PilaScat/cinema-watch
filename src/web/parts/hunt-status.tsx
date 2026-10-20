@@ -14,6 +14,7 @@ export function StatusCards(props: { hunt: Hunt; state: HuntState | undefined; t
   return (
     <>
       <Card
+        id="showings"
         title={ui.sections.status}
         actions={
           <>
@@ -40,7 +41,7 @@ export function StatusCards(props: { hunt: Hunt; state: HuntState | undefined; t
         ) : (
           <ul class="flex flex-col divide-y divide-border">
             {showings.map((showing) => {
-              const query = new URLSearchParams({ hunt: hunt.id, movie: showing.movieSlug, theatre: showing.theatreSlug });
+              const query = new URLSearchParams({ hunt: hunt.id, movie: showing.movieSlug, theatre: showing.theatreSlug, from: `/hunts/${hunt.id}#showings` });
               const free = showing.seats?.freeInZone;
               return (
                 <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">

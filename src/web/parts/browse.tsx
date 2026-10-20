@@ -68,12 +68,12 @@ export function MovieCard(props: { href: string; title: string; poster: string |
   );
 }
 
-export function DayTabs(props: { days: Array<{ day: string; label: string }>; selected: string }) {
+export function DayTabs(props: { days: Array<{ day: string; label: string }>; selected: string; from?: string | null }) {
   return (
     <nav aria-label={copy.ui.theatres.daysLabel} class="mb-4 flex flex-wrap gap-2">
       {props.days.map((item) => (
         <a
-          href={`?day=${item.day}`}
+          href={`?${new URLSearchParams({ day: item.day, ...(props.from ? { from: props.from } : {}) }).toString()}`}
           aria-current={item.day === props.selected ? "page" : undefined}
           class={cx(
             "rounded-lg border px-3 py-2 text-sm font-semibold",
