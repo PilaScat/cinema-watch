@@ -35,7 +35,7 @@ Il token è validato nel formato, il chat id deve essere un numero o `@nome`.
 
 Invia prova manda un messaggio di prova alla chat principale.
 
-L'URL pubblico è l'indirizzo con cui la web UI si raggiunge da fuori; serve al pulsante Apri sala, che porta a `{URL pubblico}/showings/{chiave dello spettacolo}`. I link della forma vecchia, `/performances/{LocalId}/{PerformanceId}`, portano alla stessa pagina. Se è impostato, la prova include un pulsante Apri cinema-watch che lo verifica:
+L'URL pubblico è l'indirizzo con cui la web UI si raggiunge da fuori; serve al pulsante Apri sala, che porta a `{URL pubblico}/showings/{chiave dello spettacolo}?hunt={id della caccia}`: la pagina usa la zona buona della caccia e il suo Indietro torna alla caccia. I link della forma vecchia, `/performances/{LocalId}/{PerformanceId}`, portano alla stessa pagina. Se è impostato, la prova include un pulsante Apri cinema-watch che lo verifica:
 
 - se Telegram accetta il pulsante, l'URL è usato come pulsante negli avvisi;
 - se lo rifiuta, per esempio perché è un indirizzo privato o in `http`, la prova è rimandata con il link nel testo. Da allora Apri sala compare nel testo dell'avviso e le Impostazioni lo dicono: "Telegram non lo accetta come pulsante: i link vanno nel testo".

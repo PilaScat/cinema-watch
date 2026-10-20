@@ -203,8 +203,8 @@ function fitText(sections: Section[], header: string, footer: string[]): string 
   return text;
 }
 
-function hallUrl(showing: ShowingSnapshot, publicUrl: string): string {
-  return `${publicUrl.replace(/\/+$/, "")}/showings/${showing.key}`;
+function hallUrl(showing: ShowingSnapshot, publicUrl: string, huntId: string): string {
+  return `${publicUrl.replace(/\/+$/, "")}/showings/${showing.key}?hunt=${encodeURIComponent(huntId)}`;
 }
 
 function captionFor(showing: ShowingSnapshot): string {
@@ -246,7 +246,7 @@ function buildKeyboard(
   }
   const [first] = photos;
   if (context.publicUrl !== null && context.openAsButton && first) {
-    rows.push([{ text: buttons.openHall, url: hallUrl(first, context.publicUrl) }]);
+    rows.push([{ text: buttons.openHall, url: hallUrl(first, context.publicUrl, huntId) }]);
   }
   if (primary) {
     rows.push([
@@ -283,7 +283,7 @@ export function composeRound(events: HuntEvent[], context: ComposeContext): Outg
   const publicUrl = context.publicUrl;
   const footer =
     publicUrl !== null && !context.openAsButton
-      ? photos.map((showing) => copy.telegram.openHall(escapeHtml(hallUrl(showing, publicUrl))))
+      ? photos.map((showing) => copy.telegram.openHall(escapeHtml(hallUrl(showing, publicUrl, context.hunt.id))))
       : [];
   const text = fitText(
     buildSections(events, context),
