@@ -278,6 +278,11 @@ function includesIgnoreCase(values: string[], value: string): boolean {
   return values.some((candidate) => candidate.toLowerCase() === lower);
 }
 
+function inHours(showing: Showing, filter: ShowingFilter): boolean {
+  const own = filter.dayTimes?.[String(weekdayOf(showing.day))];
+  return own ? timeInRange(showing.time, own.from, own.to) : timeInRange(showing.time, filter.timeFrom, filter.timeTo);
+}
+
 export function filterShowings(showings: Showing[], filter: ShowingFilter, now: Date): Showing[] {
   const rome = romeNow(now);
   const nowLocal = `${rome.day}T${rome.time}`;
@@ -289,7 +294,7 @@ export function filterShowings(showings: Showing[], filter: ShowingFilter, now: 
       (!filter.titleWords || matchesTitle(s.movie.title, filter.titleWords)) &&
       (!filter.formats || [s.formatGroup, s.format, formatEdition(s.format)].some((value) => value !== null && includesIgnoreCase(filter.formats ?? [], value))) &&
       (!days || days.has(s.day)) &&
-      timeInRange(s.time, filter.timeFrom, filter.timeTo) &&
+      inHours(s, filter) &&
       (!filter.weekdays || filter.weekdays.includes(weekdayOf(s.day))) &&
       (!filter.languages || (s.language !== null && includesIgnoreCase(filter.languages, s.language))),
   );

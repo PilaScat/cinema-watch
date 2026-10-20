@@ -361,6 +361,17 @@ describe("filterShowings", () => {
     expect(filterShowings([base, sunday], { weekdays: [1, 2] }, now)).toEqual([]);
   });
 
+  it("uses the times of the day in place of the general ones", () => {
+    const saturday = make({ key: "sat", time: "16:00", startsAt: "2026-10-17T16:00:00" });
+    const monday = make({ key: "mon", day: "2026-10-19", time: "16:00", startsAt: "2026-10-19T16:00:00" });
+    const mondayEvening = make({ key: "mon-late", day: "2026-10-19", time: "20:30", startsAt: "2026-10-19T20:30:00" });
+    const saturdayNight = make({ key: "sat-night", time: "00:30", startsAt: "2026-10-18T00:30:00" });
+
+    expect(filterShowings([saturday, monday, mondayEvening], { timeFrom: "19:00", dayTimes: { "6": { from: "15:00" } } }, now)).toEqual([saturday, mondayEvening]);
+    expect(filterShowings([base, saturday], { timeFrom: "19:00", timeTo: "21:00", dayTimes: { "6": { from: "15:00" } } }, now)).toEqual([base, saturday]);
+    expect(filterShowings([base, saturday, saturdayNight], { dayTimes: { "6": { from: "20:00", to: "01:00" } } }, now)).toEqual([base, saturdayNight]);
+  });
+
   it("filters by language, case-insensitively", () => {
     const eng = make({ language: "ENG" });
     const none = make({ language: null });
