@@ -47,6 +47,7 @@ interface SettingsValues {
   zone: ZoneValues;
   home: string;
   radiusKm: string;
+  t18Hosts: string;
 }
 
 interface PageNotice {
@@ -70,6 +71,7 @@ function valuesOfSettings(settings: Settings): SettingsValues {
     zone: zoneValuesOf(settings.defaultZone),
     home: settings.home === null ? "" : `${settings.home.lat}, ${settings.home.lon}`,
     radiusKm: settings.radiusKm === null ? "" : String(settings.radiusKm),
+    t18Hosts: settings.t18Hosts.join(", "),
   };
 }
 
@@ -88,7 +90,12 @@ function valuesOfBody(body: FormBody): SettingsValues {
     zone: zoneValuesFromBody(body, "zone"),
     home: bodyText(body, "home"),
     radiusKm: bodyText(body, "radiusKm"),
+    t18Hosts: bodyText(body, "t18Hosts"),
   };
+}
+
+function hostOfEntry(entry: string): string {
+  return entry.toLowerCase().replace(/^https:\/\//, "").replace(/\/+$/, "");
 }
 
 function homeOf(text: string): { lat: number; lon: number } | null {
@@ -111,6 +118,7 @@ function settingsOfValues(values: SettingsValues, tokenChange: { token: string; 
     defaultZone: zoneFromValues(values.zone, base.defaultZone),
     home: homeOf(values.home),
     radiusKm: nullableNumber(values.radiusKm),
+    t18Hosts: [...new Set(splitList(values.t18Hosts).map(hostOfEntry))],
   };
 }
 
@@ -128,6 +136,7 @@ const SETTINGS_FIELDS: Record<string, string> = {
   sellableTypes: "sellableTypes",
   defaultZone: "zone",
   radiusKm: "radiusKm",
+  t18Hosts: "t18Hosts",
 };
 
 function settingsFieldOf(rest: string): string | null {
@@ -242,6 +251,13 @@ function SettingsPage(props: {
                 </button>
               </Wide>
               <TextField name="radiusKm" label={ui.fields.radiusKm} value={values.radiusKm} type="number" min={1} max={1000} hint={ui.fields.radiusKmHint} error={fieldError["radiusKm"]} />
+            </FormGrid>
+          </Card>
+          <Card title={ui.sections.cinemas}>
+            <FormGrid>
+              <Wide>
+                <TextField name="t18Hosts" label={ui.fields.t18Hosts} value={values.t18Hosts} hint={ui.fields.t18HostsHint} error={fieldError["t18Hosts"]} />
+              </Wide>
             </FormGrid>
           </Card>
           <Card title={ui.sections.zone}>

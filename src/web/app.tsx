@@ -134,7 +134,7 @@ export async function createApp(deps: AppDeps): Promise<Hono<AppEnv>> {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", NONCE],
         styleSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https://storage.googleapis.com", "https://secure.webtic.it", "https://www.thespacecinema.it"],
+        imgSrc: ["'self'", "data:", "https://storage.googleapis.com", "https://secure.webtic.it", "https://www.thespacecinema.it", "https://cdn.18tickets.net"],
         fontSrc: ["'self'"],
         connectSrc: ["'self'"],
         formAction: ["'self'"],

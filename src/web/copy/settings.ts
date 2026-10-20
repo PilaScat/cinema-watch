@@ -6,6 +6,7 @@ export const settings = {
     rounds: "Giri e avvisi",
     zone: "Zona buona predefinita",
     home: "Casa e distanza",
+    cinemas: "Cinema 18Tickets",
     backup: "Esporta e importa",
   },
   fields: {
@@ -41,6 +42,8 @@ export const settings = {
     homeLocate: "Usa la mia posizione",
     radiusKm: "Raggio massimo (km)",
     radiusKmHint: "Vuoto: nessun limite",
+    t18Hosts: "Altri cinema 18Tickets",
+    t18HostsHint: "Indirizzi separati da virgola, per esempio nomecinema.18tickets.it. Compaiono fra i cinema dopo il controllo successivo",
   },
   actions: {
     save: "Salva",
