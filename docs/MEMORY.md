@@ -17,7 +17,8 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   00:01 del 16 ha `day` 15. Date e giorni della settimana usano `day`; i filtri "dalle/alle"
   usano l'ora reale. L'orario di un giorno (`dayTimes`, chiave = giorno della settimana di `day`)
   sostituisce del tutto Dalle e Alle generali: un suo Alle vuoto vuol dire senza limite, non
-  "quello generale" (scelta di Filippo del 20/10/2026).
+  "quello generale" (scelta di Filippo del 20/10/2026). Dalle e Alle uguali (per esempio 00:00 e
+  00:00) valgono tutto il giorno, sia generali sia di un giorno (`timeInRange`).
 - **Posti presi**: l'occupazione elenca solo i posti presi. `ACQUISTO` è venduto, `BLOCCATO` è nel
   carrello di qualcuno e si libera in pochi minuti: conta come preso, altrimenti gli avvisi dei posti
   liberati oscillano.

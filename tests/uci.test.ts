@@ -370,6 +370,7 @@ describe("filterShowings", () => {
     expect(filterShowings([saturday, monday, mondayEvening], { timeFrom: "19:00", dayTimes: { "6": { from: "15:00" } } }, now)).toEqual([saturday, mondayEvening]);
     expect(filterShowings([base, saturday], { timeFrom: "19:00", timeTo: "21:00", dayTimes: { "6": { from: "15:00" } } }, now)).toEqual([base, saturday]);
     expect(filterShowings([base, saturday, saturdayNight], { dayTimes: { "6": { from: "20:00", to: "01:00" } } }, now)).toEqual([base, saturdayNight]);
+    expect(filterShowings([base, saturday, saturdayNight, monday], { timeFrom: "18:00", dayTimes: { "6": { from: "00:00", to: "00:00" } } }, now)).toEqual([base, saturday, saturdayNight]);
   });
 
   it("filters by language, case-insensitively", () => {

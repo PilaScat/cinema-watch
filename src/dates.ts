@@ -82,6 +82,7 @@ export function resolveWindow(window: DayWindow, now: Date): IsoDay[] {
 }
 
 export function timeInRange(time: HhMm, from?: HhMm, to?: HhMm): boolean {
+  if (from !== undefined && from === to) return true;
   if (from !== undefined && to !== undefined && from > to) {
     return time >= from || time <= to;
   }
