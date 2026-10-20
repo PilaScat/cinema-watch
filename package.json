@@ -1,7 +1,7 @@
 {
   "name": "cinema-watch",
   "version": "0.0.0",
-  "description": "Cacce ai biglietti dei cinema italiani (UCI, The Space, Notorious e gli altri cinema Webtic): avvisi Telegram con la pianta della sala quando escono gli spettacoli o si liberano posti buoni.",
+  "description": "Cacce ai biglietti dei cinema italiani (UCI, The Space, i cinema Webtic e 18Tickets): avvisi Telegram con la pianta della sala quando escono gli spettacoli o si liberano posti buoni.",
   "license": "MIT",
   "author": "Filippo Scatigna (PilaScat)",
   "repository": {

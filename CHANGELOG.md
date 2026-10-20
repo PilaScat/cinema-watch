@@ -2,6 +2,18 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.10.10
+
+### Novità
+
+- **Cinema 18Tickets**: i cinema che vendono con 18Tickets (Circuito Cinema a Roma, Genova e Torino, Andromeda, Pop Up Cinema, Cinema Barberini e altri) entrano nella pagina Cinema, nella ricerca e nelle cacce, con pianta e posti presi. Il pulsante Acquista apre la proiezione sul sito 18Tickets del cinema.
+- L'elenco parte dai domini noti e dalle pagine dei gruppi, con un controllo settimanale. Un cinema che manca si aggiunge nelle Impostazioni, sezione Cinema 18Tickets, e compare dopo il controllo che parte subito.
+
+### Interno
+
+- `config.json` passa alla versione 3 (`settings.t18Hosts`), con la migrazione automatica.
+- Le pagine di 18Tickets si leggono con almeno 10 secondi fra due pagine dello stesso gestore, che altrimenti risponde 429.
+
 ## v2026.10.9
 
 ### Novità
