@@ -137,6 +137,7 @@ export const copy = {
     hallKeyFormat: "chiavi nel formato cinema-sala",
     tokenFormat: "formato del token non valido",
     publicUrlFormat: "URL http o https senza credenziali",
+    t18HostFormat: "indirizzi del tipo nomecinema.18tickets.it",
     emptyType: "tipo vuoto",
     atLeastOneType: "almeno un tipo",
     repeatedId: "id ripetuto",

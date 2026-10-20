@@ -52,12 +52,13 @@ describe("defaults", () => {
       defaultZone: { kind: "relative", rowsFromPercent: 40, rowsToPercent: 85, centerPercent: 60 },
       home: null,
       radiusKm: null,
+      t18Hosts: [],
     });
   });
 
   it("builds an empty default config with a fresh copy of the settings", () => {
     const config = defaultConfig();
-    expect(config).toEqual({ schemaVersion: 2, settings: DEFAULT_SETTINGS, hunts: [] });
+    expect(config).toEqual({ schemaVersion: 3, settings: DEFAULT_SETTINGS, hunts: [] });
     config.settings.sellableTypes.push("X");
     expect(DEFAULT_SETTINGS.sellableTypes).toEqual(["STANDARD"]);
     expect(defaultConfig().settings.sellableTypes).toEqual(["STANDARD"]);
@@ -199,6 +200,7 @@ function fullConfig(): Config {
     defaultZone: { kind: "absolute", rows: ["E", "F"], seatFrom: 3, seatTo: null },
     home: { lat: 45.4384, lon: 10.9916 },
     radiusKm: 80,
+    t18Hosts: ["splendorbari.18tickets.it"],
   };
   config.hunts = [
     {
@@ -353,20 +355,21 @@ describe("parseConfig invalid", () => {
 
 describe("migration and versions", () => {
   it("treats a missing schemaVersion as version 1 and brings it to the current one", () => {
-    const { home, radiusKm, ...settings } = DEFAULT_SETTINGS;
+    const { home, radiusKm, t18Hosts, ...settings } = DEFAULT_SETTINGS;
     const input = { settings, hunts: [] };
-    expect(migrateConfig(input)).toEqual({ schemaVersion: 2, settings: { ...settings, home: null, radiusKm: null }, hunts: [] });
+    expect(migrateConfig(input)).toEqual({ schemaVersion: 3, settings: { ...settings, home: null, radiusKm: null, t18Hosts: [] }, hunts: [] });
+    expect(t18Hosts).toEqual([]);
     expect(input).not.toHaveProperty("schemaVersion");
     expect([home, radiusKm]).toEqual([null, null]);
   });
 
   it("adds home and radius to a version 1 config without touching the rest", () => {
-    const { home, radiusKm, ...settings } = DEFAULT_SETTINGS;
+    const { home, radiusKm, t18Hosts, ...settings } = DEFAULT_SETTINGS;
     const v1 = { schemaVersion: 1, settings: { ...settings, publicUrl: "https://cw.example" }, hunts: [] };
     const result = parseConfig(v1);
     expect(result.ok).toBe(true);
-    expect(result.ok ? result.config.settings : null).toEqual({ ...settings, publicUrl: "https://cw.example", home: null, radiusKm: null });
-    expect(result.ok ? result.config.schemaVersion : null).toBe(2);
+    expect(result.ok ? result.config.settings : null).toEqual({ ...settings, publicUrl: "https://cw.example", home: null, radiusKm: null, t18Hosts });
+    expect(result.ok ? result.config.schemaVersion : null).toBe(3);
     expect(v1.settings).not.toHaveProperty("home");
     expect([home, radiusKm]).toEqual([null, null]);
   });
@@ -383,8 +386,17 @@ describe("migration and versions", () => {
     expect(result).toEqual({ ok: true, config: defaultConfig() });
   });
 
+  it("adds the 18Tickets cinemas to a version 2 config and refuses addresses outside 18Tickets", () => {
+    const { t18Hosts, ...settings } = DEFAULT_SETTINGS;
+    const result = parseConfig({ schemaVersion: 2, settings, hunts: [] });
+    const outside = parseConfig({ ...defaultConfig(), settings: { ...DEFAULT_SETTINGS, t18Hosts: ["evil.example.com"] } });
+
+    expect(result.ok ? result.config : null).toEqual({ schemaVersion: 3, settings: { ...settings, t18Hosts }, hunts: [] });
+    expect(outside).toEqual({ ok: false, errors: ["settings.t18Hosts[0]: indirizzi del tipo nomecinema.18tickets.it"] });
+  });
+
   it("rejects a version newer than the app", () => {
-    expect(parseConfig({ ...defaultConfig(), schemaVersion: 3 })).toEqual({
+    expect(parseConfig({ ...defaultConfig(), schemaVersion: 4 })).toEqual({
       ok: false,
       errors: ["schemaVersion: versione più recente dell'app"],
     });
@@ -430,7 +442,7 @@ describe("exportConfig and importConfig", () => {
   it("exports indented json without the token by default choice", () => {
     const config = withToken(TOKEN);
     const text = exportConfig(config, { includeToken: false });
-    expect(text.split(LF)[1]).toBe('  "schemaVersion": 2,');
+    expect(text.split(LF)[1]).toBe('  "schemaVersion": 3,');
     expect(text).not.toContain(TOKEN);
     const parsed = JSON.parse(text) as Config;
     expect(parsed.settings.telegram).toEqual({ token: null, chatId: "-100123" });
