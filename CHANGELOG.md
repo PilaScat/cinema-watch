@@ -2,6 +2,12 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.10.12
+
+### Novità
+
+- **Indietro torna da dove sei venuto**: dallo spettacolo aperto da una caccia si torna alla caccia, sugli spettacoli; dal registro al registro con i suoi filtri; dal film aperto da Cerca alla ricerca; da una caccia nuova aperta da uno spettacolo o da un film a quella pagina. Il pulsante Apri sala di Telegram porta la caccia, quindi anche lì Indietro torna alla caccia e la pianta usa la sua zona buona.
+
 ## v2026.10.11
 
 ### Novità

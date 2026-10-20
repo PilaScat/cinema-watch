@@ -102,6 +102,8 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
 
 ## Browser e sicurezza
 
+- **Indietro**: una pagina aperta da un'altra riceve `from` (percorso e query di chi l'ha aperta) e il suo Indietro ci torna; senza `from` resta il genitore fisso (cinema, scheda del cinema, home), e uno spettacolo con `hunt` valido torna a `/hunts/<id>#showings`. `from` vale solo se è un percorso locale (`localPath` in `src/web/parts/navigation.ts`: inizia con `/`, niente `//`, `\` o caratteri di controllo, al massimo 1000 caratteri), così nessun link porta fuori. Richiesta di Filippo del 20/10/2026.
+
 - **`Referrer-Policy: same-origin`, non `no-referrer`**: con `no-referrer` Chrome ed Edge mandano
   `Origin: null` su ogni POST. Su `http://IP` (contesto non sicuro) non mandano nemmeno
   `Sec-Fetch-Site`, quindi il CSRF di Hono rifiuta tutti i form con "Forbidden". Su HTTPS e su
