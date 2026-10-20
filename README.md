@@ -29,15 +29,13 @@
 - **Cinema**: UCI Cinemas, i 35 The Space Cinema, circa 300 cinema che vendono con Webtic (Notorious, Cinelandia, Movie Planet e molti indipendenti) e i cinema 18Tickets, ordinabili per distanza da casa; un cinema 18Tickets che manca si aggiunge nelle Impostazioni.
 - **Web UI**: cacce, programmazione, pagina dello spettacolo con la pianta dal vivo e l'andamento dei posti, ricerca di un film anche con un errore di battitura; si installa come app dietro HTTPS.
 
-![La pianta della sala come arriva su Telegram](docs/img/pianta.png)
+<p align="center">
+  <img src="docs/img/pianta.png" width="32%" alt="La pianta della sala come arriva su Telegram">
+  <img src="docs/img/home.png" width="32%" alt="Le cacce">
+  <img src="docs/img/cinema.png" width="32%" alt="I cinema dal più vicino a casa">
+</p>
 
-![Le cacce, tema scuro](docs/img/home.png)
-
-![I cinema UCI e Webtic dal più vicino a casa, tema chiaro](docs/img/cinema.png)
-
-![La pagina di uno spettacolo, tema chiaro](docs/img/spettacolo.png)
-
-Dall'alto: la pianta di una sala come arriva su Telegram, le cacce nel tema scuro, i cinema ordinati per distanza da una casa d'esempio a Milano e la pagina di uno spettacolo con la zona buona tratteggiata.
+<p align="center">La pianta su Telegram, le cacce e i cinema per distanza da una casa d'esempio a Milano.</p>
 
 ## Stack
 
