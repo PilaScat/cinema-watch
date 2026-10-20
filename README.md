@@ -5,11 +5,19 @@
 <p align="center">Cacce ai biglietti dei cinema italiani, con avvisi su Telegram e la pianta della sala.</p>
 
 <p align="center">
+  <a href="https://github.com/PilaScat/cinema-watch/releases/latest"><img src="https://img.shields.io/github/v/release/PilaScat/cinema-watch" alt="Versione"></a>
+  <a href="https://github.com/PilaScat/cinema-watch/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/PilaScat/cinema-watch/ci.yml" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/PilaScat/cinema-watch" alt="Licenza"></a>
+  <a href="https://github.com/PilaScat/cinema-watch/commits/main"><img src="https://img.shields.io/github/last-commit/PilaScat/cinema-watch" alt="Ultimo commit"></a>
+  <br>
+  <a href="https://github.com/PilaScat/cinema-watch/pkgs/container/cinema-watch"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fipitio.github.io%2Fbackage%2FPilaScat%2Fcinema-watch%2Fcinema-watch.json&amp;query=%24.downloads&amp;label=ghcr%20pulls" alt="Download dell'immagine"></a>
+  <a href="https://github.com/PilaScat/cinema-watch/pkgs/container/cinema-watch"><img src="https://ghcr-badge.egpl.dev/pilascat/cinema-watch/size" alt="Dimensione dell'immagine"></a>
+  <a href="https://github.com/PilaScat/cinema-watch/pkgs/container/cinema-watch"><img src="https://img.shields.io/badge/docker-amd64%20%7C%20arm64-2496ED?logo=docker&amp;logoColor=white" alt="Piattaforme"></a>
+  <br>
   <a href="https://scorecard.dev/viewer/?uri=github.com/PilaScat/cinema-watch"><img src="https://api.scorecard.dev/projects/github.com/PilaScat/cinema-watch/badge" alt="OpenSSF Scorecard"></a>
   <a href="https://www.bestpractices.dev/projects/15670"><img src="https://www.bestpractices.dev/projects/15670/badge" alt="OpenSSF Best Practices"></a>
-  <a href="https://github.com/PilaScat/cinema-watch/stargazers"><img src="https://img.shields.io/github/stars/PilaScat/cinema-watch" alt="Stelle su GitHub"></a>
-  <a href="https://github.com/PilaScat/cinema-watch/pkgs/container/cinema-watch"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fipitio.github.io%2Fbackage%2FPilaScat%2Fcinema-watch%2Fcinema-watch.json&amp;query=%24.downloads&amp;label=ghcr%20pulls" alt="Download dell'immagine"></a>
   <a href="https://github.com/sponsors/PilaScat"><img src="https://img.shields.io/badge/sponsor-GitHub-ea4aaa?logo=githubsponsors" alt="Sponsor"></a>
+  <a href="https://github.com/PilaScat/cinema-watch/stargazers"><img src="https://img.shields.io/github/stars/PilaScat/cinema-watch?style=social" alt="Stelle su GitHub"></a>
 </p>
 
 ## Cosa fa

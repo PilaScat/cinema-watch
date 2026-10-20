@@ -117,6 +117,10 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
 
 ## Strumenti
 
+- **Badge del README di servizi terzi**: i pull dell'immagine vengono da ipitio/backage (indicizza
+  chi mette una stella al suo repo; se dopo un giorno manca, si aggiunge `PilaScat` al suo
+  `owners.txt` con una PR), la dimensione da ghcr-badge.egpl.dev. Le Piattaforme sono un badge
+  fisso: va riallineato se cambiano quelle di `release.yml`.
 - **Vitest resta alla 4**: con Vitest 5 Stryker 10 non attiva i mutanti (tutti "sopravvissuti",
   verificato il 16/10/2026). Dependabot ignora Vitest 5 finché Stryker non lo supporta.
 - **Stryker fuori da Nextcloud**: dentro `D:\Nextcloud` la cartella `.stryker-tmp` dà `EPERM` sui
