@@ -13,6 +13,7 @@
   <a href="https://github.com/PilaScat/cinema-watch/pkgs/container/cinema-watch"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fipitio.github.io%2Fbackage%2FPilaScat%2Fcinema-watch%2Fcinema-watch.json&amp;query=%24.downloads&amp;label=ghcr%20pulls" alt="Download dell'immagine"></a>
   <a href="https://github.com/PilaScat/cinema-watch/pkgs/container/cinema-watch"><img src="https://ghcr-badge.egpl.dev/pilascat/cinema-watch/size" alt="Dimensione dell'immagine"></a>
   <a href="https://github.com/PilaScat/cinema-watch/pkgs/container/cinema-watch"><img src="https://img.shields.io/badge/docker-amd64%20%7C%20arm64-2496ED?logo=docker&amp;logoColor=white" alt="Piattaforme"></a>
+  <a href="https://ca.unraid.net/apps?q=cinema-watch"><img src="https://img.shields.io/badge/Unraid-Community%20Apps-F15A2C?logo=unraid&amp;logoColor=white" alt="Unraid Community Apps"></a>
   <br>
   <a href="https://scorecard.dev/viewer/?uri=github.com/PilaScat/cinema-watch"><img src="https://api.scorecard.dev/projects/github.com/PilaScat/cinema-watch/badge" alt="OpenSSF Scorecard"></a>
   <a href="https://www.bestpractices.dev/projects/15670"><img src="https://www.bestpractices.dev/projects/15670/badge" alt="OpenSSF Best Practices"></a>
@@ -49,6 +50,13 @@
 
 ## Avvio rapido
 
+### Su Unraid
+
+1. Aprire la scheda **Apps**, cercare `cinema-watch` e premere **Install**.
+2. Il template propone già la cartella dei dati `/mnt/user/appdata/cinema-watch` e `PUID` 99 / `PGID` 100: basta premere **Apply**.
+
+I dettagli (percorso, proprietario, rete) sono in [docs/operations.md](docs/operations.md#deploy-su-unraid).
+
 ### Con Docker
 
 ```sh
@@ -69,8 +77,12 @@ docker run -d --name cinema-watch \
 Il file [docker-compose.yml](docker-compose.yml) è un esempio con le stesse opzioni, con i dati in `./data`:
 
 ```sh
+mkdir cinema-watch && cd cinema-watch
+wget https://raw.githubusercontent.com/PilaScat/cinema-watch/main/docker-compose.yml
 docker compose up -d
 ```
+
+Se `id` non dà 1000, prima dell'avvio vanno cambiati `PUID` e `PGID` nel file.
 
 ### Primi passi
 
