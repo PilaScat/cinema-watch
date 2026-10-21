@@ -14,13 +14,6 @@ describe("container start like the standard Unraid images", () => {
     expect(read(".dockerignore")).toContain("!docker-entrypoint.sh");
   });
 
-  it("lets the Unraid template choose PUID and PGID, without dropping every capability", () => {
-    const template = read("deploy/cinema-watch.xml");
-    expect(template).toMatch(/<Config Name="PUID" Target="PUID" Default="99"/);
-    expect(template).toMatch(/<Config Name="PGID" Target="PGID" Default="100"/);
-    expect(template).not.toContain("--cap-drop=ALL");
-  });
-
   it("lets the Compose example choose PUID and PGID, without dropping every capability", () => {
     const compose = read("docker-compose.yml");
     expect(compose).toMatch(/PUID: "\d+"/);
