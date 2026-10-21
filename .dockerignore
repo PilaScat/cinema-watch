@@ -9,3 +9,4 @@
 !assets/
 !LICENSE
 !NOTICE
+!docker-entrypoint.sh

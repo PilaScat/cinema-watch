@@ -2,7 +2,6 @@
 set -eu
 
 HOST="${UNRAID_HOST:-root@192.168.1.20}"
-APPDATA="/mnt/cache/appdata/cinema-watch"
 TEMPLATE="$(dirname "$0")/cinema-watch.xml"
 TEMPLATES_DIR="/boot/config/plugins/dockerMan/templates-user"
 SERVICE="svc:cinema-watch"
@@ -19,8 +18,6 @@ else
   scp -q "$TEMPLATE" "$HOST:$TEMPLATES_DIR/my-cinema-watch.xml"
   echo "Template copiato in $TEMPLATES_DIR/my-cinema-watch.xml"
 fi
-
-ssh "$HOST" "mkdir -p '$APPDATA' && chown 99:100 '$APPDATA' && chmod 750 '$APPDATA' && stat -c '%a %u:%g %n' '$APPDATA'"
 
 if ssh "$HOST" "tailscale serve status 2>/dev/null | grep -q '($SERVICE)'"; then
   echo "$SERVICE già pubblicato"
