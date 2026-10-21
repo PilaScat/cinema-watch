@@ -103,7 +103,7 @@ Altri comandi:
 
 ## Rilascio e deploy
 
-Un rilascio è un tag annotato `vAAAA.MM.N`, che fa partire `release.yml`: verifica, scansione, immagini amd64 e arm64, attestazione e Release su GitHub. Su Unraid si installa con il template [deploy/cinema-watch.xml](deploy/cinema-watch.xml). Tutti i passaggi sono in [docs/operations.md](docs/operations.md).
+Un rilascio è un tag annotato `vAAAA.MM.N`, che fa partire `release.yml`: verifica, scansione, immagini amd64 e arm64, attestazione e Release su GitHub. Su Unraid si installa con il template [cinema-watch.xml](https://github.com/PilaScat/unraid-templates/blob/main/cinema-watch/cinema-watch.xml) del repo [unraid-templates](https://github.com/PilaScat/unraid-templates). Tutti i passaggi sono in [docs/operations.md](docs/operations.md).
 
 ## Variabili d'ambiente
 

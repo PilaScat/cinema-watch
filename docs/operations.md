@@ -19,14 +19,14 @@ Chi vuole togliere al container anche i privilegi dell'avvio lo fa partire diret
 
 ## Deploy su Unraid
 
-Il template [deploy/cinema-watch.xml](../deploy/cinema-watch.xml) crea il container con le opzioni di sicurezza e le variabili d'ambiente. Per usarlo, copiarlo in `/boot/config/plugins/dockerMan/templates-user/my-cinema-watch.xml` e aggiungere il container dalla scheda Docker scegliendo il template.
+Il template [cinema-watch.xml](https://github.com/PilaScat/unraid-templates/blob/main/cinema-watch/cinema-watch.xml), nel repo [unraid-templates](https://github.com/PilaScat/unraid-templates) insieme al profilo per Community Apps, crea il container con le opzioni di sicurezza e le variabili d'ambiente. Per usarlo, copiarlo in `/boot/config/plugins/dockerMan/templates-user/my-cinema-watch.xml` e aggiungere il container dalla scheda Docker scegliendo il template.
 
 - **Percorso dei dati**: `/mnt/user/appdata/cinema-watch`, come le altre app. Su Unraid 7.3.2 il FUSE di `/mnt/user` applica `chown` e `chmod` (misurato il 21/10/2026), quindi `config.json` resta a `600`. Va bene anche il percorso diretto del pool, per esempio `/mnt/cache/appdata/cinema-watch`. Una cartella sotto `/mnt` senza pool finisce in RAM e si perde al riavvio.
 - **Proprietario**: `PUID` 99 e `PGID` 100 (nobody:users). Se la cartella non esiste, Docker la crea di root e il container la dà a 99:100 al primo avvio.
 - **Rete**: il template usa `bridge`; si può scegliere un'altra rete nella scheda del container.
-- **Template**: una volta creato il container, Unraid salva i valori inseriti (password compresa) in `my-cinema-watch.xml`. Ricopiare il template del repo sopra quel file li cancella.
+- **Template**: una volta creato il container, Unraid salva i valori inseriti (password compresa) in `my-cinema-watch.xml`. Ricopiare il template del repo sopra quel file li cancella. Una variabile o un'opzione del container nuova va aggiunta nel template di unraid-templates, nello stesso giro del rilascio che la introduce.
 
-[deploy/deploy.sh](../deploy/deploy.sh) è lo script usato dall'autore sul suo server Unraid: copia il template e pubblica il servizio. L'indirizzo del server si passa con `UNRAID_HOST`.
+[deploy/deploy.sh](../deploy/deploy.sh) è lo script usato dall'autore sul suo server Unraid: scarica il template da unraid-templates se sul server manca, e pubblica il servizio. L'indirizzo del server si passa con `UNRAID_HOST`.
 
 ## Aggiornare l'immagine
 
