@@ -6,21 +6,27 @@ Questo documento raccoglie le operazioni per far girare cinema-watch e per rilas
 
 I comandi `docker run` e `docker compose` sono nel [README](../README.md#avvio-rapido). Valgono questi punti per un'installazione stabile:
 
-- la cartella dei dati è l'unico stato da conservare e deve essere scrivibile dall'utente 99:100;
+- la cartella dei dati è l'unico stato da conservare. All'avvio il container, che parte come root, la dà a `PUID:PGID` (predefiniti 99:100) se ha un altro proprietario, e poi fa girare l'app con quell'utente tramite `su-exec`, senza nessuna capability. Se il `chown` non riesce (per esempio su NFS o su certi bind mount di Docker Desktop) lo scrive nel log e prosegue;
+- `PUID`/`PGID` si ricavano con `id`: su una distro il primo utente è di solito 1000:1000, su Unraid si lascia 99:100 (nobody:users);
 - l'immagine regge `--read-only`: si scrive solo su `/data` e su `/tmp` (tmpfs);
 - per usare una versione precisa al posto di `latest` basta il tag di una Release, per esempio `ghcr.io/pilascat/cinema-watch:v2026.10.1`;
-- dietro un reverse proxy conviene impostare `UI_PASSWORD` e `TRUST_PROXY=1`, e inserire l'indirizzo pubblico nelle Impostazioni (URL pubblico). Servito in `https`, il sito si può installare come app dal browser.
+- dietro un reverse proxy conviene impostare `UI_PASSWORD` e `TRUST_PROXY=1`, e inserire l'indirizzo pubblico nelle Impostazioni (URL pubblico). Servito in `https`, il sito si può installare come app dal browser;
+- non provati: Docker rootless e Podman. Con SELinux attivo (Fedora, RHEL) il bind mount della cartella dei dati vuole `:Z` (`-v /percorso/dati:/data:Z`).
+
+### Indurimento facoltativo
+
+Chi vuole togliere al container anche i privilegi dell'avvio lo fa partire direttamente con l'utente giusto: `--user 99:100 --cap-drop=ALL` (in Compose `user: "99:100"` e `cap_drop: [ALL]`). Così l'entrypoint non tocca la cartella dei dati, che va data prima a quell'utente (`chown -R 99:100 /percorso/dati`). Con `--cap-drop=ALL` senza `--user` il container si ferma subito e scrive nel log le due correzioni possibili.
 
 ## Deploy su Unraid
 
 Il template [deploy/cinema-watch.xml](../deploy/cinema-watch.xml) crea il container con le opzioni di sicurezza e le variabili d'ambiente. Per usarlo, copiarlo in `/boot/config/plugins/dockerMan/templates-user/my-cinema-watch.xml` e aggiungere il container dalla scheda Docker scegliendo il template.
 
-- **Percorso dei dati**: `/mnt/cache/appdata/cinema-watch` e non `/mnt/user/...`. Il FUSE di Unraid sotto `/mnt/user` non applica `chown` e `chmod`, e `config.json` deve restare con permessi `600`. `cache` è il nome del pool: se il pool ha un altro nome, va cambiato il percorso. Una cartella sotto `/mnt` senza pool finisce in RAM e si perde al riavvio.
-- **Proprietario**: la cartella va creata prima di avviare il container e data a 99:100 (`mkdir -p /mnt/cache/appdata/cinema-watch && chown 99:100 /mnt/cache/appdata/cinema-watch`). Se la crea Unraid è di root, e l'app non riesce a scriverci.
+- **Percorso dei dati**: `/mnt/user/appdata/cinema-watch`, come le altre app. Su Unraid 7.3.2 il FUSE di `/mnt/user` applica `chown` e `chmod` (misurato il 21/10/2026), quindi `config.json` resta a `600`. Va bene anche il percorso diretto del pool, per esempio `/mnt/cache/appdata/cinema-watch`. Una cartella sotto `/mnt` senza pool finisce in RAM e si perde al riavvio.
+- **Proprietario**: `PUID` 99 e `PGID` 100 (nobody:users). Se la cartella non esiste, Docker la crea di root e il container la dà a 99:100 al primo avvio.
 - **Rete**: il template usa `bridge`; si può scegliere un'altra rete nella scheda del container.
 - **Template**: una volta creato il container, Unraid salva i valori inseriti (password compresa) in `my-cinema-watch.xml`. Ricopiare il template del repo sopra quel file li cancella.
 
-[deploy/deploy.sh](../deploy/deploy.sh) è lo script usato dall'autore sul suo server Unraid: copia il template, prepara la cartella dati 99:100 e pubblica il servizio. L'indirizzo del server si passa con `UNRAID_HOST`.
+[deploy/deploy.sh](../deploy/deploy.sh) è lo script usato dall'autore sul suo server Unraid: copia il template e pubblica il servizio. L'indirizzo del server si passa con `UNRAID_HOST`.
 
 ## Aggiornare l'immagine
 
@@ -46,7 +52,7 @@ Il backup è la copia della cartella dei dati (`/data` nel container). Le scritt
 | `webtic-venues.json`, `space-venues.json`, `t18-venues.json` | Elenchi dei cinema Webtic, The Space e 18Tickets dei controlli settimanali; senza, il controllo riparte |
 | `secret` | Chiave che firma i cookie di accesso, presente solo con `UI_PASSWORD` |
 
-Le piante si riscaricano da sole; senza `history/` l'andamento ricomincia da zero. Per ripristinare si rimette la cartella al suo posto con proprietario 99:100 e `config.json` con permessi `600`.
+Le piante si riscaricano da sole; senza `history/` l'andamento ricomincia da zero. Per ripristinare si rimette la cartella al suo posto con `config.json` a permessi `600`; il proprietario lo sistema il container all'avvio.
 
 `config.json` si può anche esportare dalle Impostazioni, sezione Esporta e importa, con Esporta senza token o Esporta con token. L'importazione valida tutto il file prima di sostituire la configurazione (limite 1 MB); un file senza token mantiene quello attuale. Se `config.json` non è valido all'avvio, l'app non lo sovrascrive: ne fa una copia `config.json.bak-<codice>` e chiede di correggerlo o eliminarlo.
 
@@ -121,7 +127,7 @@ Tutti i workflow si possono lanciare anche a mano (`workflow_dispatch`).
 
 | Workflow | Quando parte |
 |---|---|
-| `ci.yml` | Su ogni pull request. Esegue test, tipi, lint, build, audit, licenze, `actionlint` e `zizmor`. Il suo job "Test, tipi, lint, build e sicurezza" è obbligatorio per entrare in `main` |
+| `ci.yml` | Su ogni pull request. Esegue test, tipi, lint, build, audit, licenze, `actionlint` e `zizmor`. Il suo job "Test, tipi, lint, build e sicurezza" è obbligatorio per entrare in `main`. Il job "Smoke del container" lancia `scripts/smoke.sh` e non è obbligatorio: legge le API vere di UCI, e un loro guasto non deve bloccare i merge |
 | `codeql.yml` | Push su `main`, pull request e ogni settimana |
 | `scorecard.yml` | Ogni settimana |
 | Dependabot | Ogni settimana, per le dipendenze npm, le GitHub Actions e l'immagine base |
@@ -136,12 +142,18 @@ Dal 19/10/2026 su `main` si entra solo con una pull request (regola "main protet
 `sh scripts/smoke.sh` costruisce l'immagine e la prova come in produzione. Servono Docker e `curl`, e la rete: l'ultimo passaggio chiama le API vere. Si controlla che:
 
 - l'immagine sia sotto i 200 MB;
-- il container diventi `healthy` in sola lettura e con `--cap-drop=ALL`;
+- il container diventi `healthy` in sola lettura partendo da una cartella dati di root, che dà a 99:100;
+- l'app giri come 99:100 e senza capability;
 - la home risponda `200` e `/api/status` riporti la versione dell'immagine;
 - una caccia aggiunta dal form venga accettata;
 - `config.json` sia `600` e `/data` sia di 99:100;
 - la RAM a riposo sia sotto i 100 MiB;
 - l'arresto su SIGTERM sia pulito e il log non contenga errori;
-- un giro completo a secco (`--dry-run`) contro le API vere produca messaggi e piante PNG.
+- al riavvio su una cartella già di 99:100 non ci sia nessun `chown`;
+- un giro completo a secco (`--dry-run`) con `--user 99:100 --cap-drop=ALL` contro le API vere produca messaggi e piante PNG;
+- con `PUID=1000 PGID=1000` cartella, `config.json` e processo passino a 1000:1000, anche su un volume nuovo;
+- con `PUID` non numerico, o con `--cap-drop=ALL` senza `--user`, il container si fermi con un messaggio chiaro.
+
+Lo smoke gira anche nel CI, nel job "Smoke del container" di `ci.yml`.
 
 Variabili utili: `PLATFORM` (predefinita `linux/amd64`), `IMAGE`, `SKIP_BUILD=1` per usare un'immagine già costruita e `SMOKE_PORT`. Con `PLATFORM=linux/arm64` su una macchina amd64 l'immagine gira emulata: lo smoke funziona, ma la RAM non si misura e lo script lo dice.

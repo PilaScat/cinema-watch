@@ -55,20 +55,20 @@
 docker run -d --name cinema-watch \
   -p 8790:8790 \
   -v /percorso/dati:/data \
+  -e PUID=1000 -e PGID=1000 \
   --read-only --tmpfs /tmp \
-  --cap-drop=ALL --security-opt=no-new-privileges \
+  --security-opt=no-new-privileges \
   --restart unless-stopped \
   ghcr.io/pilascat/cinema-watch:latest
 ```
 
-La cartella dei dati deve essere scrivibile dall'utente 99:100: `chown 99:100 /percorso/dati`.
+`PUID` e `PGID` sono l'utente e il gruppo a cui va la cartella dei dati (`id` li mostra; su Unraid 99 e 100). All'avvio il container dà loro la cartella e fa girare l'app con quell'utente, quindi non serve nessun `chown` a mano.
 
 ### Con Docker Compose
 
 Il file [docker-compose.yml](docker-compose.yml) è un esempio con le stesse opzioni, con i dati in `./data`:
 
 ```sh
-mkdir -p data && chown 99:100 data
 docker compose up -d
 ```
 
@@ -99,7 +99,7 @@ npm run build
 Altri comandi:
 
 - `node dist/server.js --dry-run` esegue un giro contro le API vere. Messaggi e piante finiscono in `DATA_DIR/dry-run` e non viene inviato nulla a Telegram.
-- `sh scripts/smoke.sh` prova il container: immagine, avvio in sola lettura, route, permessi, arresto, giro a secco. Il dettaglio è in [docs/operations.md](docs/operations.md#smoke-test).
+- `sh scripts/smoke.sh` prova il container: immagine, avvio in sola lettura, `PUID`/`PGID`, route, permessi, arresto, giro a secco. Il dettaglio è in [docs/operations.md](docs/operations.md#smoke-test).
 
 ## Rilascio e deploy
 
@@ -109,6 +109,8 @@ Un rilascio è un tag annotato `vAAAA.MM.N`, che fa partire `release.yml`: verif
 
 | Variabile | Predefinito | Significato |
 |---|---|---|
+| `PUID` | `99` | Utente a cui va la cartella dei dati e con cui gira l'app. |
+| `PGID` | `100` | Gruppo a cui va la cartella dei dati e con cui gira l'app. |
 | `PORT` | `8790` | Porta della web UI. |
 | `DATA_DIR` | `/data` | Cartella di configurazione, stato, piante, andamento e registro. |
 | `UI_PASSWORD` | vuota | Password della web UI. Vuota: nessuna password. |
