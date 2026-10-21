@@ -103,6 +103,8 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
 
 ## Browser e sicurezza
 
+- **Il container parte come root e scende a `PUID:PGID`** (dalla v2026.10.13), come le immagini standard di Unraid (linuxserver, binhex). Con `USER 99:100` fisso, la cartella dei dati creata da Docker è di root e l'app non ci scrive, e chi installa da Community Apps non lancia nessuno script prima. Dopo `su-exec` node non ha capability, quindi l'app resta chiusa come prima. `--cap-drop=ALL` è diventato facoltativo, insieme a `--user`, perché senza SETUID e SETGID l'entrypoint non può cambiare utente: in quel caso si ferma con un messaggio che spiega cosa fare. Scelta di Filippo del 21/10/2026.
+
 - **Indietro**: una pagina aperta da un'altra riceve `from` (percorso e query di chi l'ha aperta) e il suo Indietro ci torna; senza `from` resta il genitore fisso (cinema, scheda del cinema, home), e uno spettacolo con `hunt` valido torna a `/hunts/<id>#showings`. `from` vale solo se è un percorso locale (`localPath` in `src/web/parts/navigation.ts`: inizia con `/`, niente `//`, `\` o caratteri di controllo, al massimo 1000 caratteri), così nessun link porta fuori. Richiesta di Filippo del 20/10/2026.
 
 - **`Referrer-Policy: same-origin`, non `no-referrer`**: con `no-referrer` Chrome ed Edge mandano

@@ -2,6 +2,32 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.10.13
+
+### Modifiche incompatibili
+
+Il container ora parte come root, dà la cartella dei dati a `PUID:PGID` (predefiniti 99:100) e fa girare l'app con quell'utente, come le immagini standard di Unraid. Per questo **non parte più con `--cap-drop=ALL` senza `--user`**, cioè con le opzioni consigliate fino alla v2026.10.12 dal template Unraid, dal `docker run` e dal `docker-compose.yml` del README. In quel caso si ferma subito e scrive nel log come correggere. Le strade sono due, e ne basta una:
+
+- **Togliere `--cap-drop=ALL`** e impostare `PUID` e `PGID`. È quello che fanno il template e il Compose nuovi.
+  - Unraid: scheda Docker, cinema-watch, Edit. In Extra Parameters cancellare `--cap-drop=ALL`. Con "Add another Path, Port, Variable, Label or Device" aggiungere due Variable, Key `PUID` valore `99` e Key `PGID` valore `100`. Poi Apply.
+  - `docker run`: togliere `--cap-drop=ALL` e aggiungere `-e PUID=99 -e PGID=100`, con l'utente che oggi è proprietario della cartella dei dati.
+  - Compose: togliere `cap_drop` e aggiungere `PUID` e `PGID` in `environment`.
+- **Tenere `--cap-drop=ALL` e aggiungere `--user 99:100`** (in Compose `user: "99:100"`), con lo stesso utente che è già proprietario della cartella dei dati. L'app gira come prima e l'entrypoint non tocca la cartella.
+
+Chi non usa `--cap-drop=ALL` non deve fare niente. Dati e configurazione non cambiano.
+
+### Novità
+
+- **`PUID` e `PGID`**: nessun `chown` a mano prima del primo avvio. Una cartella dei dati creata da Docker o da Unraid (di root) passa da sola a `PUID:PGID`, e lo stesso succede se si cambia utente. Dopo il passaggio l'app gira senza nessuna capability. Template e Compose li hanno fra le variabili.
+- **Percorso standard su Unraid**: il template propone `/mnt/user/appdata/cinema-watch`. Su Unraid 7.3.2 il FUSE applica `chown` e `chmod`, quindi `config.json` resta a `600`.
+
+### Progetto
+
+- README con i badge di versione, CI, licenza, ultimo commit, dimensione dell'immagine e piattaforme; immagini scure in una riga e anteprima social dal modello del repo.
+- La descrizione dell'immagine su GHCR è quella del repo (tutti i circuiti, non solo UCI).
+- Lo smoke del container gira anche nel CI, su `ubuntu-24.04`, e prova `PUID`/`PGID`, una cartella di root, `--user` con `--cap-drop=ALL` e gli errori di avvio.
+- Gli adapter dei circuiti (Webtic, The Space, 18Tickets) sono entrati nel mutation test.
+
 ## v2026.10.12
 
 ### Novità
