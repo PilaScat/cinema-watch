@@ -123,6 +123,11 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   chi mette una stella al suo repo; se dopo un giorno manca, si aggiunge `PilaScat` al suo
   `owners.txt` con una PR), la dimensione da ghcr-badge.egpl.dev. Le Piattaforme sono un badge
   fisso: va riallineato se cambiano quelle di `release.yml`.
+- **I rilasci di sicurezza di Node non arrivano subito da Dependabot**: le immagini `node` e
+  `alpine` sono fissate per digest e l'aggiornamento Docker ha `cooldown` di 7 giorni, quindi il
+  digest nuovo viene proposto una settimana dopo. Con un bollettino Node.js si aggiornano a mano
+  i digest del `Dockerfile` (`docker buildx imagetools inspect node:24-alpine`) e si controlla la
+  `NODE_VERSION` dell'immagine. Fatto il 22/10/2026 per la 24.22.1.
 - **Vitest resta alla 4**: con Vitest 5 Stryker 10 non attiva i mutanti (tutti "sopravvissuti",
   verificato il 16/10/2026). Dependabot ignora Vitest 5 finché Stryker non lo supporta.
 - **Stryker fuori da Nextcloud**: dentro `D:\Nextcloud` la cartella `.stryker-tmp` dà `EPERM` sui
