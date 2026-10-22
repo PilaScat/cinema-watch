@@ -2,6 +2,12 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.10.14
+
+### Sicurezza
+
+- **Node 24.22.1** nell'immagine, al posto della 24.22.0. Corregge le vulnerabilità del [bollettino Node.js di ottobre 2026](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases): fra le alte, la verifica del nome host TLS aggirabile e la scrittura fuori limite nel decoder Brotli, entrambe sulla strada delle richieste HTTPS verso i cinema e Telegram. Aggiornata anche la base `alpine:3.24`. Basta aggiornare il container, dati e configurazione non cambiano.
+
 ## v2026.10.13
 
 ### Modifiche incompatibili
