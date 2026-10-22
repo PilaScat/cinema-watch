@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:24-alpine@sha256:44fce696f38ba8c987c4db89954051000bbd05ffd8d8659ba15ed4a8602e937f AS build
+FROM --platform=$BUILDPLATFORM node:24-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53 AS build
 WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
 RUN npm ci
@@ -7,12 +7,12 @@ COPY scripts/build-css.mjs ./scripts/
 COPY src ./src
 RUN npm run build
 
-FROM node:24-alpine@sha256:44fce696f38ba8c987c4db89954051000bbd05ffd8d8659ba15ed4a8602e937f AS deps
+FROM node:24-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53 AS deps
 WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
 RUN npm ci --omit=dev
 
-FROM alpine:3.24@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
+FROM alpine:3.24@sha256:71e9b7bae160ba167fa17414401b94cbcdaf3c32feeab9298bd794a2a0614c35
 RUN apk add --no-cache libstdc++ su-exec \
   && mkdir -p /data \
   && chown 99:100 /data
