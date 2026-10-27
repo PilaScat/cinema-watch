@@ -70,7 +70,7 @@ Se l'avviso contiene solo film comparsi, non ci sono piante e la tastiera ha il 
 
 Ogni tipo di avviso (nuovi spettacoli, posti liberati, ultimi posti, annullati, spostati, film comparsi, riepilogo giornaliero) si attiva o disattiva per caccia nel suo form. Se Telegram non è configurato o l'invio fallisce, lo stato della caccia non avanza e gli stessi eventi si ripresentano al giro dopo.
 
-Se la lettura di una caccia non riesce, arriva un messaggio di avviso, al massimo uno al giorno per caccia, alla chat principale.
+Se la lettura di una caccia non riesce da almeno 30 minuti di fila, arriva un messaggio di avviso, al massimo uno al giorno per caccia, alla chat principale. Un errore che sparisce prima, come una risposta 502 isolata di UCI, resta solo nel log e nello stato della caccia.
 
 ## Chat aggiuntive per caccia
 
