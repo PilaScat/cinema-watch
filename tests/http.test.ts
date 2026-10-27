@@ -20,6 +20,7 @@ function setup(
     userAgent: "test-agent/1.0",
     fetch: fetchMock,
     now: () => clock,
+    sleep: () => Promise.resolve(),
     ...extra,
   });
   return {
@@ -232,6 +233,62 @@ describe("backoff", () => {
     await catchHttpError(client.getJson(URL_A));
     expect(await client.getJson(URL_B)).toEqual({ ok: true });
     expect((await catchHttpError(client.getJson(URL_A))).kind).toBe("backoff");
+  });
+});
+
+describe("retry", () => {
+  function sequence(...responses: Array<Response | Error>) {
+    let call = 0;
+    return () => {
+      const next = responses[Math.min(call, responses.length - 1)];
+      call += 1;
+      if (next instanceof Error) throw next;
+      return next?.clone() ?? jsonResponse({});
+    };
+  }
+
+  it("tries again once after a 502, 503, 504 or a network error, without backoff", async () => {
+    for (const failure of [new Response("x", { status: 502 }), new Response("x", { status: 503 }), new Response("x", { status: 504 }), new Error("reset")]) {
+      const sleep = vi.fn(() => Promise.resolve());
+      const { client, fetchMock } = setup(sequence(failure, jsonResponse({ ok: true })), { sleep });
+      expect(await client.getJson(URL_A)).toEqual({ ok: true });
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(sleep).toHaveBeenCalledWith(2000);
+      expect(client.hostStatus("a.example.com")).toBeNull();
+    }
+  });
+
+  it("goes into backoff when the second try fails too", async () => {
+    const sleep = vi.fn(() => Promise.resolve());
+    const { client, fetchMock } = setup(() => new Response("x", { status: 502 }), { sleep, retryDelayMs: 500 });
+    expect((await catchHttpError(client.getJson(URL_A))).status).toBe(502);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(sleep).toHaveBeenCalledWith(500);
+    expect(client.hostStatus("a.example.com")?.failures).toBe(1);
+  });
+
+  it("does not try again on other failures, on a 503 with Retry-After, after an abort or with the retry off", async () => {
+    const cases: Array<[Response | Error, object]> = [
+      [new Response("x", { status: 500 }), {}],
+      [new Response("x", { status: 429 }), {}],
+      [new Response("x", { status: 404 }), {}],
+      [new Response("x", { status: 503, headers: { "Retry-After": "1" } }), {}],
+      [new Response("x", { status: 502 }), { retryDelayMs: 0 }],
+    ];
+    for (const [failure, extra] of cases) {
+      const sleep = vi.fn(() => Promise.resolve());
+      const { client, fetchMock } = setup(sequence(failure, jsonResponse({ ok: true })), { sleep, ...extra });
+      await catchHttpError(client.getJson(URL_A));
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(sleep).not.toHaveBeenCalled();
+    }
+    const controller = new AbortController();
+    controller.abort();
+    const sleep = vi.fn(() => Promise.resolve());
+    const aborted = setup(sequence(new Error("aborted"), jsonResponse({ ok: true })), { sleep });
+    expect((await catchHttpError(aborted.client.getJson(URL_A, { signal: controller.signal }))).kind).toBe("network");
+    expect(aborted.fetchMock).toHaveBeenCalledTimes(1);
+    expect(sleep).not.toHaveBeenCalled();
   });
 });
 

@@ -9,6 +9,8 @@ export interface HttpClientOptions {
   now?: () => number;
   backoffBaseMs?: number;
   backoffMaxMs?: number;
+  retryDelayMs?: number;
+  sleep?: (ms: number) => Promise<void>;
 }
 
 interface HostState {
@@ -52,6 +54,18 @@ function countsAsHostFailure(error: HttpError): boolean {
   return error.kind === "status" && error.status !== null && (error.status >= 500 || error.status === 429);
 }
 
+const RETRIED_STATUSES = new Set([502, 503, 504]);
+
+function worthRetrying(error: unknown, signal: AbortSignal | undefined): boolean {
+  if (!(error instanceof HttpError) || signal?.aborted === true) {
+    return false;
+  }
+  if (error.kind === "network") {
+    return true;
+  }
+  return error.kind === "status" && error.status !== null && RETRIED_STATUSES.has(error.status) && error.retryAfterMs === null;
+}
+
 export function createHttpClient(
   options: HttpClientOptions,
 ): HttpClient & { hostStatus(host: string): { failures: number; until: number } | null } {
@@ -61,6 +75,8 @@ export function createHttpClient(
   const now = options.now ?? Date.now;
   const backoffBaseMs = options.backoffBaseMs ?? 30_000;
   const backoffMaxMs = options.backoffMaxMs ?? 1_800_000;
+  const retryDelayMs = options.retryDelayMs ?? 2_000;
+  const sleep = options.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
   const states = new Map<string, HostState>();
   const queues = new Map<string, Promise<unknown>>();
 
@@ -122,8 +138,13 @@ export function createHttpClient(
     const headers = { "User-Agent": options.userAgent, Accept: "application/json", ...init.headers, ...extra?.headers };
     const run = async (): Promise<unknown> => {
       assertNotInBackoff(host);
+      const attempt = () => perform(parsed, { ...init, headers }, extra);
       try {
-        const result = await perform(parsed, { ...init, headers }, extra);
+        const result = await attempt().catch(async (error: unknown) => {
+          if (retryDelayMs <= 0 || !worthRetrying(error, extra?.signal)) throw error;
+          await sleep(retryDelayMs);
+          return attempt();
+        });
         states.delete(host);
         return result;
       } catch (error) {

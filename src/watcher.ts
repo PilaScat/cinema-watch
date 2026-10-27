@@ -214,6 +214,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     userAgent,
     now,
     ...(options.fetch ? { fetch: options.fetch } : {}),
+    ...(options.sleep ? { sleep: options.sleep } : {}),
   });
   const baseFetch = options.fetch ?? globalThis.fetch;
   const probeAbort = new AbortController();
@@ -224,6 +225,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     timeoutMs: VENUE_TIMEOUT_MS,
     backoffBaseMs: 0,
     backoffMaxMs: 0,
+    retryDelayMs: 0,
     fetch: (input, init) => baseFetch(input, { ...init, signal: init?.signal ? AbortSignal.any([init.signal, probeAbort.signal]) : probeAbort.signal }),
   });
   const telegram = createTelegram({
