@@ -88,6 +88,15 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   la prima volta (finestra "prossimi N giorni" che avanza, cinema aggiunto) si registrano senza
   avvisare. Un giorno conta come controllato appena UCI risponde, **anche se è vuoto**: così gli
   spettacoli che escono in un giorno già nella finestra avvisano. È il caso per cui l'app esiste.
+- **Avviso di lettura non riuscita dopo 30 minuti**: un solo 502 di UCI mette l'host in pausa
+  (backoff di 30 s) e, siccome la programmazione si chiede un giorno alla volta sulla stessa coda,
+  fa fallire tutti i giorni dopo ("in pausa dopo errori ripetuti") e anche le cacce che girano
+  subito dopo: il 27/10/2026 due cacce hanno avvisato per un 502 isolato. Per questo il client HTTP
+  riprova una volta dopo 2 s su 502, 503 e 504 (senza `Retry-After`) e sugli errori di rete, prima
+  della pausa; e l'avviso parte solo se la caccia ha errori da almeno 30 minuti di fila
+  (`errorSince` nello stato, azzerato da un giro senza errori), sempre al massimo uno al giorno.
+  Il controllo settimanale dei cinema Webtic non riprova: al primo errore si ferma come prima.
+  Scelta di Filippo del 27/10/2026.
 - **Un'operazione alla volta**: giri, Aggiorna ora, Silenzia, Acquistato e conferma dei film passano
   da un solo mutex nel watcher; lo scheduler sta in `watcher.ts` e non in un modulo suo.
 
