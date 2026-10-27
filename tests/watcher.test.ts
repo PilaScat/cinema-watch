@@ -411,7 +411,7 @@ describe("watcher", () => {
 
     expect(found).toBe("v2026.10.1");
     expect(sameDayCalls).toBe(1);
-    expect(githubCalls()).toBe(2);
+    expect(githubCalls()).toBe(3);
     expect(subject.state().latestVersion).toBe("v2026.10.1");
   });
 
