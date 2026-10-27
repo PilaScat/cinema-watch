@@ -68,6 +68,7 @@ import {
   deliveryOf,
   digestDue,
   digestEntries,
+  errorSinceOf,
   errorWarningDue,
   eventAllowed,
   finishedHuntIds,
@@ -585,6 +586,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     logger.error("round", { hunt: hunt.id, error: message });
     setHuntState(hunt.id, {
       ...previous,
+      errorSince: errorSinceOf(previous, true, at),
       nextRunAt: nextRunAt(hunt, config.settings, at, random()),
       lastRun: { at, ok: false, error: message, showings: 0 },
     });
@@ -606,13 +608,15 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       const allowed = isMuted(previous, at) ? [] : events.filter((event) => eventAllowed(event, hunt));
       const delivery = await notify(hunt, allowed, observation);
       await recordRound(hunt, observation, events, at, delivery);
-      const errorNotifiedDay = await warnOnErrors(hunt, previous, observation.errors, at);
+      const errorSince = errorSinceOf(previous, observation.errors.length > 0, at);
+      const errorNotifiedDay = await warnOnErrors(hunt, { ...previous, errorSince }, observation.errors, at);
       const base = delivery.delivered ? next : previous;
       const firstError = observation.errors[0] ?? delivery.errors[0];
       const lastError = firstError === undefined ? null : redact(firstError, secrets());
       setHuntState(hunt.id, {
         ...base,
         errorNotifiedDay,
+        errorSince,
         hallsToReconfirm: hallsToReconfirm(hunt, previous, observation),
         nextRunAt: nextRunAt(hunt, config.settings, at, random()),
         lastRun: { at, ok: lastError === null, error: lastError, showings: observation.round.showings.length },

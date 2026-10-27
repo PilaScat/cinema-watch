@@ -288,6 +288,23 @@ describe("watcher", () => {
     expect(subject.state().hunts[huntId]?.lastRun?.ok).toBe(false);
   });
 
+  it("does not warn about errors that last less than 30 minutes", async () => {
+    const config = await seed();
+    const huntId = config.hunts[0]?.id ?? "";
+    world.failHost("myuci---uci-backend-production-nfluwp7wga-oc.a.run.app", 502);
+    const subject = await watcher();
+    const start = clock;
+
+    for (let round = 0; round < 3; round += 1) {
+      await subject.tick();
+      clock += 10 * MINUTE;
+    }
+
+    expect(world.telegram).toEqual([]);
+    expect(subject.state().hunts[huntId]?.errorSince).toBe(start);
+    expect(subject.state().hunts[huntId]?.lastRun?.error).toContain("UCI: risposta 502");
+  });
+
   it("keeps the error warning quiet while the hunt is muted", async () => {
     const config = await seed();
     const huntId = config.hunts[0]?.id ?? "";
@@ -295,6 +312,8 @@ describe("watcher", () => {
     const subject = await watcher();
     await subject.mute(huntId, 24 * 60 * MINUTE);
 
+    await subject.tick();
+    clock += 30 * MINUTE;
     await subject.tick();
 
     expect(world.telegram).toEqual([]);
@@ -810,6 +829,8 @@ describe("watcher", () => {
       },
     });
 
+    await subject.runNow();
+    clock += 30 * MINUTE;
     await subject.runNow();
     const { readdir } = await import("node:fs/promises");
 

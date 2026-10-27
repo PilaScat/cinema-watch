@@ -25,6 +25,12 @@ function withPublicUrl(url: string) {
   };
 }
 
+async function tickFor30Minutes(watcher: Awaited<ReturnType<Harness["watcher"]>>): Promise<void> {
+  await watcher.tick();
+  harness.advance(30 * MINUTE);
+  await watcher.tick();
+}
+
 async function errorDetails(watcher: Awaited<ReturnType<Harness["watcher"]>>): Promise<string[]> {
   return (await watcher.events(50)).filter((entry) => entry.kind === "error").map((entry) => entry.detail ?? "");
 }
@@ -211,7 +217,7 @@ describe("reading problems are described by their cause", () => {
     harness.world.setProgramming("uci-cinemas-verona", "2026-12-16", { unexpected: true });
     const watcher = await harness.watcher();
 
-    await watcher.tick();
+    await tickFor30Minutes(watcher);
     const warning = harness.world.telegram.find((call) => call.text?.includes("lettura non riuscita"));
 
     expect(warning?.text).toContain("UCI: risposta in formato inatteso (+1)");
@@ -223,7 +229,7 @@ describe("reading problems are described by their cause", () => {
     harness.world.setOccupancy(5116, 575978, { Status: { Success: false, ReasonCode: 1, Message: `token ${token}` } });
     const watcher = await harness.watcher();
 
-    await watcher.tick();
+    await tickFor30Minutes(watcher);
     const warning = harness.world.telegram.find((call) => call.text?.includes("lettura non riuscita"));
 
     expect(warning?.text).toContain("token ***");

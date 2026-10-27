@@ -28,6 +28,7 @@ export function emptyHuntState(): HuntState {
     daysSeen: [],
     manualRunAt: null,
     errorNotifiedDay: null,
+    errorSince: null,
     hallsToReconfirm: [],
   };
 }
