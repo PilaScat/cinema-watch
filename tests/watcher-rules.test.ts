@@ -8,6 +8,8 @@ import {
   deliveryOf,
   digestDue,
   digestEntries,
+  ERROR_WARNING_AFTER_MS,
+  errorSinceOf,
   errorWarningDue,
   eventAllowed,
   finishedHuntIds,
@@ -220,13 +222,30 @@ describe("deliveryOf", () => {
 describe("errorWarningDue", () => {
   const at = ROME_NOON_DEC_1;
 
+  const failing = { errorSince: at - ERROR_WARNING_AFTER_MS };
+
   it("warns once a Rome day, only with errors, a chat and no mute", () => {
-    expect(errorWarningDue(huntState(), ["x"], at, "p")).toBe(true);
-    expect(errorWarningDue(huntState(), [], at, "p")).toBe(false);
-    expect(errorWarningDue(huntState(), ["x"], at, null)).toBe(false);
-    expect(errorWarningDue(huntState({ mutedUntil: at + 1 }), ["x"], at, "p")).toBe(false);
-    expect(errorWarningDue(huntState({ errorNotifiedDay: "2026-12-01" }), ["x"], at, "p")).toBe(false);
-    expect(errorWarningDue(huntState({ errorNotifiedDay: "2026-11-30" }), ["x"], at, "p")).toBe(true);
+    expect(errorWarningDue(huntState(failing), ["x"], at, "p")).toBe(true);
+    expect(errorWarningDue(huntState(failing), [], at, "p")).toBe(false);
+    expect(errorWarningDue(huntState(failing), ["x"], at, null)).toBe(false);
+    expect(errorWarningDue(huntState({ ...failing, mutedUntil: at + 1 }), ["x"], at, "p")).toBe(false);
+    expect(errorWarningDue(huntState({ ...failing, errorNotifiedDay: "2026-12-01" }), ["x"], at, "p")).toBe(false);
+    expect(errorWarningDue(huntState({ ...failing, errorNotifiedDay: "2026-11-30" }), ["x"], at, "p")).toBe(true);
+  });
+
+  it("waits until the errors have lasted 30 minutes", () => {
+    expect(errorWarningDue(huntState(), ["x"], at, "p")).toBe(false);
+    expect(errorWarningDue(huntState({ errorSince: at }), ["x"], at, "p")).toBe(false);
+    expect(errorWarningDue(huntState({ errorSince: at - ERROR_WARNING_AFTER_MS + 1 }), ["x"], at, "p")).toBe(false);
+    expect(ERROR_WARNING_AFTER_MS).toBe(30 * 60_000);
+  });
+});
+
+describe("errorSinceOf", () => {
+  it("keeps the start of the errors and clears it on a clean round", () => {
+    expect(errorSinceOf(huntState(), true, 500)).toBe(500);
+    expect(errorSinceOf(huntState({ errorSince: 100 }), true, 500)).toBe(100);
+    expect(errorSinceOf(huntState({ errorSince: 100 }), false, 500)).toBeNull();
   });
 });
 

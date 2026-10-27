@@ -8,6 +8,7 @@ import { huntStateOf } from "./state.js";
 const MINUTE = 60_000;
 const JITTER = 0.1;
 export const MANUAL_REFRESH_MS = 30_000;
+export const ERROR_WARNING_AFTER_MS = 30 * MINUTE;
 
 export interface Delivery {
   delivered: boolean;
@@ -85,9 +86,14 @@ export function deliveryOf(chats: string[], results: SentResult[], primary: stri
   return { delivered: failures.every((failure) => failure.chatId !== primary), errors: failures.map((failure) => failure.error) };
 }
 
-export function errorWarningDue(previous: HuntState, errors: string[], at: number, chatId: string | null): boolean {
-  if (errors.length === 0 || chatId === null || isMuted(previous, at)) return false;
-  return previous.errorNotifiedDay !== romeToday(new Date(at));
+export function errorSinceOf(previous: HuntState, failed: boolean, at: number): number | null {
+  return failed ? (previous.errorSince ?? at) : null;
+}
+
+export function errorWarningDue(huntState: HuntState, errors: string[], at: number, chatId: string | null): boolean {
+  if (errors.length === 0 || chatId === null || isMuted(huntState, at)) return false;
+  if (huntState.errorSince === null || at - huntState.errorSince < ERROR_WARNING_AFTER_MS) return false;
+  return huntState.errorNotifiedDay !== romeToday(new Date(at));
 }
 
 export function digestEntries(config: Config, state: State, onlyDigest: boolean): DigestEntry[] {

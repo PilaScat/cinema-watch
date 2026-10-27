@@ -124,6 +124,7 @@ export interface HuntState {
   daysSeen: string[];
   manualRunAt: number | null;
   errorNotifiedDay: IsoDay | null;
+  errorSince: number | null;
   hallsToReconfirm: string[];
 }
 
