@@ -2,6 +2,23 @@
 
 Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
 
+## v2026.10.15
+
+### Correzioni
+
+- **Meno avvisi "lettura non riuscita" per guasti brevi.** Il messaggio arriva solo se la lettura di una caccia non riesce da almeno 30 minuti di fila, sempre al massimo uno al giorno per caccia; un giro senza errori azzera il conto. Prima partiva al primo giro con errori: il 27/10 un solo 502 di UCI ha mandato un avviso per ogni caccia.
+- **Un nuovo tentativo prima della pausa.** Dopo una risposta 502, 503 o 504 (senza `Retry-After`) o un errore di rete, l'app aspetta 2 secondi e riprova una volta; solo se fallisce ancora mette il sito in pausa come prima. Un errore isolato non fa più fallire tutti i giorni della programmazione e le cacce che girano subito dopo.
+
+Basta aggiornare il container, dati e configurazione non cambiano.
+
+### Sicurezza
+
+- **fast-uri 3.1.9**: corregge quattro avvisi di gravità moderata e bassa (GHSA-w74x-v6f9-j3xg, GHSA-xhq7-xmqj-769h, GHSA-wjr9-j795-jxcr, GHSA-333x-w4r6-6crp). È una dipendenza solo di sviluppo (Stryker) e non era nell'immagine.
+
+### Progetto
+
+- Dipendenze di sviluppo: eslint 10.13.0, typescript-eslint 8.72.0, lucide-static 1.60.0.
+
 ## v2026.10.14
 
 ### Sicurezza
