@@ -35,9 +35,18 @@ if ! has_setid_caps; then
   exit 1
 fi
 
+if [ "$PUID" = "0" ]; then
+  log warn "PUID=0: the app runs as root. Use the owner of the data folder instead."
+fi
+
+owned_by_someone_else() {
+  [ "$(stat -c %u:%g "$DATA")" != "$PUID:$PGID" ] && return 0
+  [ -n "$(find "$DATA" \( ! -user "$PUID" -o ! -group "$PGID" \) 2>/dev/null | head -n 1)" ]
+}
+
 mkdir -p "$DATA"
-if [ "$(stat -c %u:%g "$DATA")" != "$PUID:$PGID" ]; then
-  if chown -R "$PUID:$PGID" "$DATA" 2>/dev/null; then
+if owned_by_someone_else; then
+  if chown -hR "$PUID:$PGID" "$DATA" 2>/dev/null; then
     log info "data folder $DATA given to $PUID:$PGID"
   else
     log warn "could not give $DATA to $PUID:$PGID; the app may not be able to write there"

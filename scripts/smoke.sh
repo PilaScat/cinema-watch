@@ -100,6 +100,11 @@ docker rm -f "$NAME" >/dev/null
 again=$(run_standard --rm -v "$VOLUME:/data" "$IMAGE" sh -c 'stat -c "%a %u:%g" /data/config.json' 2>&1)
 [ "$again" = "600 99:100" ]; check "riavvio sulla cartella già di 99:100: nessun chown, config.json $again" $?
 
+docker run --rm --platform "$PLATFORM" --entrypoint sh -u 0 -v "$VOLUME:/data" "$IMAGE" -c "touch /data/restored-as-root && ln -s /etc/passwd /data/link-out"
+fixed=$(run_standard --rm -v "$VOLUME:/data" "$IMAGE" sh -c 'stat -c "%u:%g" /data/restored-as-root; stat -c "%u:%g" /etc/passwd' 2>/dev/null | grep -v '^{' | tr '\n' ' ')
+[ "$fixed" = "99:100 0:0 " ]; check "file di root dentro una cartella di 99:100: dato a 99:100, il link verso fuori non seguito ($fixed)" $?
+docker run --rm --platform "$PLATFORM" --entrypoint sh -u 0 -v "$VOLUME:/data" "$IMAGE" -c "rm -f /data/restored-as-root /data/link-out"
+
 started=$(date +%s)
 run_hardened --rm "$IMAGE" node dist/server.js --dry-run >/dev/null 2>&1; dry=$?
 check "giro completo a secco con --user 99:100 e cap-drop=ALL in $(( $(date +%s) - started )) s" $dry
@@ -116,6 +121,9 @@ fresh=$(run_standard --rm -e PUID=1000 -e PGID=1000 -v "$VOLUME_UID:/data" "$IMA
 
 bad=$(run_standard --rm -e PUID=abc -v "$VOLUME_UID:/data" "$IMAGE" 2>&1); code=$?
 [ "$code" != "0" ] && echo "$bad" | grep -q 'PUID and PGID must be numbers'; check "PUID non numerico: si ferma con un errore chiaro" $?
+
+asroot=$(run_standard --rm -e PUID=0 -e PGID=0 -v "$VOLUME_UID:/data" "$IMAGE" true 2>&1)
+echo "$asroot" | grep -q 'PUID=0'; check "PUID 0: parte e avvisa che l'app gira come root" $?
 
 old=$(run_standard --rm --cap-drop=ALL -v "$VOLUME_UID:/data" "$IMAGE" 2>&1); code=$?
 [ "$code" != "0" ] && echo "$old" | grep -q 'add --user'; check "cap-drop=ALL senza --user: si ferma e dice come correggere" $?
