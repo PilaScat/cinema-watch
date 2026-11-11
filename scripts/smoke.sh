@@ -60,7 +60,7 @@ status=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/")
 [ "$status" = "200" ]; check "home 200" $?
 curl -s "$BASE/api/status" | grep -q '"version":"v0.0.0-smoke"'; check "/api/status con la versione dell'immagine" $?
 
-movie=$(curl -s "$BASE/api/movies?theatres=uci-cinemas-verona" | sed 's/},{/}\n{/g' | grep "\"firstDay\":\"$(date +%F)\"" | head -1 | sed -n 's/.*"slug":"\([a-z0-9-]*\)".*/\1/p')
+movie=$(curl -s "$BASE/api/movies?theatres=uci-cinemas-verona" | sed 's/},{/}\n{/g' | grep "\"firstDay\":\"$(TZ=Europe/Rome date +%F)\"" | head -1 | sed -n 's/.*"slug":"\([a-z0-9-]*\)".*/\1/p')
 [ -n "$movie" ]; check "film in programmazione a Verona: ${movie:-nessuno}" $?
 
 created=$(curl -s -o /dev/null -w '%{http_code}' -H "Origin: $BASE" \
