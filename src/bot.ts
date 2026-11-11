@@ -120,7 +120,7 @@ export function createBot(options: BotOptions) {
     if (message === null) return;
     const huntIds = huntsForChat(message.chatId);
     if (huntIds === null) return;
-    if (isCommand(message.text, "aggiorna")) await refresh(message.chatId, huntIds);
+    if (isCommand(message.text, "refresh")) await refresh(message.chatId, huntIds);
   }
 
   async function pollOnce(): Promise<number> {

@@ -79,8 +79,8 @@ describe("bot updates", () => {
       return Promise.reject(failures.shift());
     };
     const bot = createBot({ watcher, sleep: harness.sleep });
-    harness.world.pushUpdate({ update_id: 1, message: { chat: { id: Number(PRIMARY_CHAT) }, text: "/aggiorna", from: { id: 1 } } });
-    harness.world.pushUpdate({ update_id: 2, message: { chat: { id: Number(PRIMARY_CHAT) }, text: "/aggiorna", from: { id: 1 } } });
+    harness.world.pushUpdate({ update_id: 1, message: { chat: { id: Number(PRIMARY_CHAT) }, text: "/refresh", from: { id: 1 } } });
+    harness.world.pushUpdate({ update_id: 2, message: { chat: { id: Number(PRIMARY_CHAT) }, text: "/refresh", from: { id: 1 } } });
 
     const handled = await bot.pollOnce();
     const again = await bot.pollOnce();
