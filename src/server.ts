@@ -11,7 +11,7 @@ const DEFAULT_PORT = 8790;
 
 const dataDir = process.env.DATA_DIR ?? "/data";
 const version = process.env.APP_VERSION ?? "dev";
-const port = Number(process.env.PORT ?? DEFAULT_PORT);
+const port = Number(process.env.PORT) || DEFAULT_PORT;
 
 async function dryRun(): Promise<void> {
   const outDir = join(dataDir, "dry-run");
