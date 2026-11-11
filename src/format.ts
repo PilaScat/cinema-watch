@@ -1,55 +1,59 @@
+import { INTL_LOCALES, type Locale } from "./i18n/index.js";
 import type { PriceTier, SeatGroup } from "./types.js";
 
 const TIME_ZONE = "Europe/Rome";
 
-const eurFormatter = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
-
-const shortDayFormatter = new Intl.DateTimeFormat("it-IT", {
-  timeZone: TIME_ZONE,
-  weekday: "short",
-  day: "2-digit",
-  month: "2-digit",
-});
-
-const longDayFormatter = new Intl.DateTimeFormat("it-IT", {
-  timeZone: TIME_ZONE,
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-});
+export interface Formatters {
+  eur: (amount: number) => string;
+  day: (isoDay: string) => string;
+  dayOf: (epochMs: number) => string;
+  dayTime: (epochMs: number) => string;
+  dayLong: (isoDay: string) => string;
+  time: (epochMs: number) => string;
+  tier: (tier: PriceTier) => string;
+}
 
 function noonOf(isoDay: string): Date {
   return new Date(`${isoDay}T12:00:00Z`);
 }
 
-export function formatEur(amount: number): string {
-  return eurFormatter.format(amount);
+function formattersOf(locale: Locale): Formatters {
+  const tag = INTL_LOCALES[locale];
+  const eurFormat = new Intl.NumberFormat(tag, { style: "currency", currency: "EUR" });
+  const shortDayFormat = new Intl.DateTimeFormat(tag, { timeZone: TIME_ZONE, weekday: "short", day: "2-digit", month: "2-digit" });
+  const longDayFormat = new Intl.DateTimeFormat(tag, { timeZone: TIME_ZONE, weekday: "long", day: "numeric", month: "long" });
+  const timeFormat = new Intl.DateTimeFormat(tag, { timeZone: TIME_ZONE, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  const shortDay = (date: Date): string => {
+    const picked: Record<string, string> = Object.fromEntries(shortDayFormat.formatToParts(date).map((part) => [part.type, part.value]));
+    return `${picked["weekday"]} ${picked["day"]}/${picked["month"]}`;
+  };
+  const eur = (amount: number): string => eurFormat.format(amount);
+  const dayOf = (epochMs: number): string => shortDay(new Date(epochMs));
+  const time = (epochMs: number): string => timeFormat.format(new Date(epochMs));
+  return {
+    eur,
+    day: (isoDay) => shortDay(noonOf(isoDay)),
+    dayOf,
+    dayTime: (epochMs) => `${dayOf(epochMs)} ${time(epochMs)}`,
+    dayLong: (isoDay) => longDayFormat.format(noonOf(isoDay)),
+    time,
+    tier: (tier) => (tier.name === "" ? eur(tier.price) : `${tier.name} ${eur(tier.price)}`),
+  };
 }
 
-function shortDay(date: Date): string {
-  const picked: Record<string, string> = Object.fromEntries(shortDayFormatter.formatToParts(date).map((part) => [part.type, part.value]));
-  return `${picked["weekday"]} ${picked["day"]}/${picked["month"]}`;
+const built: Record<Locale, Formatters> = { en: formattersOf("en"), it: formattersOf("it") };
+
+export function formatters(locale: Locale): Formatters {
+  return built[locale];
 }
 
-export function formatDay(isoDay: string): string {
-  return shortDay(noonOf(isoDay));
-}
-
-export function formatDayOf(epochMs: number): string {
-  return shortDay(new Date(epochMs));
-}
-
-export function formatDayTime(epochMs: number): string {
-  return `${formatDayOf(epochMs)} ${formatTime(epochMs)}`;
-}
-
-export function formatTier(tier: PriceTier): string {
-  return tier.name === "" ? formatEur(tier.price) : `${tier.name} ${formatEur(tier.price)}`;
-}
-
-export function formatDayLong(isoDay: string): string {
-  return longDayFormatter.format(noonOf(isoDay));
-}
+export const formatEur = built.it.eur;
+export const formatDay = built.it.day;
+export const formatDayOf = built.it.dayOf;
+export const formatDayTime = built.it.dayTime;
+export const formatTier = built.it.tier;
+export const formatDayLong = built.it.dayLong;
+export const formatTime = built.it.time;
 
 export function formatGroup(group: SeatGroup): string {
   const numbers = (group.numbers ?? group.seatIds.map((id) => (id.includes("/") ? Number(id.slice(id.lastIndexOf("/") + 1)) : Number.NaN)))
@@ -67,15 +71,4 @@ export function escapeHtml(text: string): string {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
-}
-
-const timeFormatter = new Intl.DateTimeFormat("it-IT", {
-  timeZone: TIME_ZONE,
-  hour: "2-digit",
-  minute: "2-digit",
-  hourCycle: "h23",
-});
-
-export function formatTime(epochMs: number): string {
-  return timeFormatter.format(new Date(epochMs));
 }
