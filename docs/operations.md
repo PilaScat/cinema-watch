@@ -38,6 +38,16 @@ docker compose pull && docker compose up -d
 
 Su Unraid si aggiorna il container dalla scheda Docker. Dati e configurazione stanno nella cartella dei dati e non si perdono. Le versioni nuove migrano da sole `config.json` e `state.json` (la versione 1 dello stato passa alla 2 conservando cacce, spettacoli e storico); se `state.json` ha una versione che l'app non conosce, riparte da uno stato vuoto e lascia accanto la copia `state.json.bak-<millisecondi>`. Il contrario no: un `config.json` scritto da una versione più recente viene rifiutato ("versione più recente dell'app"), quindi tornare a una versione vecchia richiede il backup della cartella dati.
 
+### Tornare alla versione precedente
+
+Serve la copia della cartella dei dati fatta prima dell'aggiornamento (vedi [Backup](#backup)).
+
+1. Fermare il container.
+2. Rimettere `config.json` e `state.json` della copia al posto di quelli attuali.
+3. Riavviare con il tag dell'immagine precedente (per esempio `ghcr.io/pilascat/cinema-watch:v2026.10.15`) al posto di `latest`.
+
+Le cacce aggiunte e le impostazioni cambiate dopo la copia si perdono. La versione che porta la lingua dei messaggi scrive `config.json` in versione 5: quelle fino alla v2026.10.15 lo rifiutano.
+
 ## Backup
 
 Il backup è la copia della cartella dei dati (`/data` nel container). Le scritture sono atomiche, quindi ogni file copiato è intero.
