@@ -170,7 +170,8 @@ jobs:
         run: |
           set --
           for digest in *; do set -- "$@" "$IMAGE@sha256:$digest"; done
-          if [ "$EVENT" = "push" ]; then set -- -t "$IMAGE:latest" "$@"; fi
+          newest=$(git ls-remote --tags --refs "https://github.com/$GITHUB_REPOSITORY" 'v*' | sed 's#.*refs/tags/##' | sort -V | tail -n 1)
+          if [ "$EVENT" = "push" ] && [ "$newest" = "$TAG" ]; then set -- -t "$IMAGE:latest" "$@"; fi
           docker buildx imagetools create -t "$IMAGE:$TAG" "$@"
       - id: manifest
         name: Digest del manifest
