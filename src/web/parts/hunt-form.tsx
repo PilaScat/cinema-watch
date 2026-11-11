@@ -1,6 +1,5 @@
-import { copy } from "../../copy.js";
 import { ISO_DAY } from "../../keys.js";
-import { byDistance, formatKm } from "../../distance.js";
+import { byDistance } from "../../distance.js";
 import type { Hunt, NotifyFlags, Settings } from "../../model.js";
 import type { Theatre } from "../../types.js";
 import { Button, Card, Field, inputClass, Notice } from "../components.js";
@@ -26,8 +25,9 @@ import {
   type ZoneValues,
 } from "./forms.js";
 import { MAX_MOVIE_THEATRES, type ListedMovie } from "./movies.js";
+import { formatKm, localized } from "../i18n.js";
 
-const ui = copy.ui.hunts;
+const ui = localized((all) => all.ui.hunts);
 const NOTIFY_KEYS: Array<keyof NotifyFlags> = ["newShowings", "seatsFreed", "lastSeats", "cancelled", "moved", "movieAppeared", "digest"];
 const DEFAULT_DAYS = "30";
 

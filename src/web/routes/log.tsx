@@ -1,14 +1,13 @@
 import type { Hono } from "hono";
 import { SHOWING_KEY } from "../../keys.js";
 import { romeToday } from "../../dates.js";
-import { copy } from "../../copy.js";
 import type { EventEntry } from "../../events.js";
-import { formatDay, formatTime } from "../../format.js";
 import { renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { Badge, Button, Card, Empty, inputClass, PageHeader, type Tone } from "../components.js";
 import { hereOf } from "../parts/navigation.js";
+import { formatDay, formatTime, localized } from "../i18n.js";
 
-const ui = copy.ui.log;
+const ui = localized((all) => all.ui.log);
 const EVENTS_SHOWN = 500;
 const KIND_TONES: Record<string, Tone> = {
   newShowing: "success",

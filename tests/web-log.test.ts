@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createStore } from "../src/store.js";
 import { createApp } from "../src/web/app.js";
 import { createHarness, type Harness } from "./support/harness.js";
-import { scriptTags } from "./support/web.js";
+import { scriptTags, askingFor } from "./support/web.js";
 
 const publicDir = fileURLToPath(new URL("../src/web/public/", import.meta.url));
 const assetsDir = fileURLToPath(new URL("../assets/", import.meta.url));
@@ -22,7 +22,7 @@ async function app(options: { tick?: boolean } = {}) {
   const config = await harness.seed();
   const watcher = await harness.watcher();
   if (options.tick !== false) await watcher.tick();
-  const instance = await createApp({ watcher, version: "v2026.10.1", dataDir: harness.dataDir, env: {}, now: () => harness.now(), publicDir, assetsDir });
+  const instance = askingFor(await createApp({ watcher, version: "v2026.10.1", dataDir: harness.dataDir, env: {}, now: () => harness.now(), publicDir, assetsDir }), "it");
   return { instance, watcher, huntId: config.hunts[0]?.id ?? "" };
 }
 

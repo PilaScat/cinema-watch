@@ -1,12 +1,10 @@
 import { raw } from "hono/html";
-import { copy } from "../../copy.js";
-import { formatKm } from "../../distance.js";
-import { formatDayOf, formatDayTime } from "../../format.js";
 import { romeMidnightsBetween } from "../../dates.js";
 import type { HistoryPoint } from "../../history.js";
 import { renderTrendSvg } from "../../chart-svg.js";
 import type { SeatAnalysis, Showing, Theatre } from "../../types.js";
 import { Badge, Card, cx, Icon, PreviewButton, PreviewPanel } from "../components.js";
+import { copy, formatDayOf, formatDayTime, formatKm } from "../i18n.js";
 
 const TREND_WIDTH = 640;
 const TREND_HEIGHT = 240;

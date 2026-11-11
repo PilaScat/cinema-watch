@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createHunt } from "../src/config.js";
+import { createHunt, issueLines } from "../src/config.js";
+import { copy } from "../src/copy.js";
 import { createHarness, PRIMARY_CHAT, type Harness } from "./support/harness.js";
 
 let harness: Harness;
@@ -39,7 +40,7 @@ describe("watcher services for the web UI", () => {
 
     expect(saved).toEqual({ ok: true, config: renamed });
     expect(refused.ok).toBe(false);
-    expect(refused.ok ? [] : refused.errors).toContain("settings.albumSize: intero da 1 a 10");
+    expect(refused.ok ? [] : issueLines(refused.issues, copy.validation)).toContain("settings.albumSize: intero da 1 a 10");
     expect(watcher.config().hunts[0]?.name).toBe("Dune a Verona");
   });
 

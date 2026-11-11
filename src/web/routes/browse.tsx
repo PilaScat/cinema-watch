@@ -1,12 +1,11 @@
 import type { Context, Hono } from "hono";
-import { copy } from "../../copy.js";
-import { formatDay, formatEur, formatGroup, formatTier } from "../../format.js";
+import { formatGroup } from "../../format.js";
 import { renderHallSvg } from "../../hall-svg.js";
 import type { HistoryPoint } from "../../history.js";
 import type { HallView, VenueStatus } from "../../watcher.js";
 import type { CatalogMovie, IsoDay, Showing, Theatre } from "../../types.js";
 import type { Settings } from "../../model.js";
-import { byDistance, formatKm } from "../../distance.js";
+import { byDistance } from "../../distance.js";
 import { localIdOfSlug } from "../../webtic-direct.js";
 import { normalizeTitle } from "../../uci.js";
 import { searchMovies } from "../../movie-search.js";
@@ -16,6 +15,7 @@ import { DayTabs, HallPair, HallPreview, MovieCard, ShowingRow, Stat, TheatreGro
 import { backHref, fromOf, hereOf, withFrom } from "../parts/navigation.js";
 import { movieTitleFor } from "../parts/titles.js";
 import { ISO_DAY, SHOWING_KEY, SLUG } from "../../keys.js";
+import { copy, formatDay, formatEur, formatKm, formatTier, localized } from "../i18n.js";
 
 const NUMERIC = /^\d+$/;
 const MAX_SHOWINGS = 12;
@@ -156,8 +156,8 @@ async function loadMovieTheatres(deps: AppDeps, movie: string): Promise<Array<{ 
 }
 
 export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
-  const theatresUi = copy.ui.theatres;
-  const searchUi = copy.ui.search;
+  const theatresUi = localized((all) => all.ui.theatres);
+  const searchUi = localized((all) => all.ui.search);
 
   app.get("/theatres", async (c) => {
     const query = (c.req.query("q") ?? "").trim().slice(0, MAX_QUERY);

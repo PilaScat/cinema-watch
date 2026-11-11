@@ -62,7 +62,7 @@ describe("settings page", () => {
 
   it("shows an error that belongs to no settings field above the form", async () => {
     const { instance, watcher } = await createWebApp(harness);
-    watcher.saveConfig = () => Promise.resolve({ ok: false, errors: ["hunts[0].name: da 1 a 80 caratteri", "settings.schema: valore non ammesso"] });
+    watcher.saveConfig = () => Promise.resolve({ ok: false, issues: [{ path: "hunts[0].name", message: "nameLength" }, { path: "settings.schema", message: "valueNotAllowed" }] });
 
     const response = await instance.request("/settings", post(settingsForm()));
     const html = await response.text();

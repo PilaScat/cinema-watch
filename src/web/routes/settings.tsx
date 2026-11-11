@@ -1,9 +1,9 @@
 import type { Hono } from "hono";
-import { copy } from "../../copy.js";
-import type { TelegramSource } from "../../config.js";
+import { issueLines, type TelegramSource } from "../../config.js";
 import type { Config, Settings } from "../../model.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { Button, Card, inputClass, LinkButton, Notice, PageHeader, type Tone } from "../components.js";
+import { copy, localized } from "../i18n.js";
 import {
   absoluteSummary,
   bodyText,
@@ -29,7 +29,7 @@ import {
 
 type PageContext = Parameters<typeof renderPage>[0];
 
-const ui = copy.ui.settings;
+const ui = localized((all) => all.ui.settings);
 const EXPORT_NAME = "cinema-watch-config.json";
 const TOKEN_TAIL = 4;
 
@@ -357,7 +357,7 @@ export function registerSettingsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const settings = settingsOfValues(values, { token: bodyText(body, "token"), clear: bodyValues(body, "clearToken").length > 0 }, config.settings);
     const result = await watcher.saveConfig({ ...config, settings });
     if (result.ok) return c.redirect("/settings?saved=1", 303);
-    return page(c, { status: 400, values, errors: splitErrors(result.errors, "settings.", settingsFieldOf) });
+    return page(c, { status: 400, values, errors: splitErrors(issueLines(result.issues, copy.validation), "settings.", settingsFieldOf) });
   });
 
   app.post("/settings/test", async (c) => {
@@ -383,6 +383,6 @@ export function registerSettingsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     if (text.trim() === "") return page(c, { status: 400, notice: { tone: "danger", text: ui.backup.empty } });
     const result = await watcher.importConfig(text);
     if (result.ok) return page(c, { notice: { tone: "success", text: ui.backup.imported } });
-    return page(c, { status: 400, notice: { tone: "danger", text: ui.backup.failed, lines: result.errors } });
+    return page(c, { status: 400, notice: { tone: "danger", text: ui.backup.failed, lines: issueLines(result.issues, copy.validation) } });
   });
 }

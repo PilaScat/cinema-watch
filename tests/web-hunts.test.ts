@@ -5,7 +5,7 @@ import { createApp } from "../src/web/app.js";
 import { createStore } from "../src/store.js";
 import { fixture } from "./support/fake-world.js";
 import { createHarness, PRIMARY_CHAT, type Harness } from "./support/harness.js";
-import { occupancyWithTaken, scriptTags } from "./support/web.js";
+import { occupancyWithTaken, scriptTags, askingFor } from "./support/web.js";
 
 const publicDir = fileURLToPath(new URL("../src/web/public/", import.meta.url));
 const assetsDir = fileURLToPath(new URL("../assets/", import.meta.url));
@@ -25,7 +25,7 @@ afterEach(async () => {
 async function app(mutate?: (config: Config) => void) {
   const config = await harness.seed(mutate);
   const watcher = await harness.watcher();
-  const instance = await createApp({ watcher, version: "v2026.10.1", dataDir: harness.dataDir, env: {}, now: () => harness.now(), publicDir, assetsDir });
+  const instance = askingFor(await createApp({ watcher, version: "v2026.10.1", dataDir: harness.dataDir, env: {}, now: () => harness.now(), publicDir, assetsDir }), "it");
   return { instance, watcher, config, huntId: config.hunts[0]?.id ?? "" };
 }
 

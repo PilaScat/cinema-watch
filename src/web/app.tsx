@@ -3,12 +3,13 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Hono, type Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
-import { getSignedCookie, setSignedCookie, deleteCookie } from "hono/cookie";
+import { getCookie, getSignedCookie, setCookie, setSignedCookie, deleteCookie } from "hono/cookie";
 import { csrf } from "hono/csrf";
 import { HTTPException } from "hono/http-exception";
+import { languageDetector } from "hono/language";
 import { NONCE, secureHeaders } from "hono/secure-headers";
 import type { Child } from "hono/jsx";
-import { copy } from "../copy.js";
+import { FALLBACK_LOCALE, isLocale, LOCALES } from "../i18n/index.js";
 import type { Watcher } from "../watcher.js";
 import { createLockout, createPasswordCheck, hostAllowed, loadSecret, sessionValid, sessionValue } from "./auth.js";
 import { Button, Card, Field, inputClass, Notice } from "./components.js";
@@ -20,6 +21,7 @@ import { registerHuntsRoutes } from "./routes/hunts.js";
 import { registerLogRoutes } from "./routes/log.js";
 import { registerSettingsRoutes } from "./routes/settings.js";
 import { statusOf } from "./status.js";
+import { copy, withLocale } from "./i18n.js";
 
 export interface AppDeps {
   watcher: Watcher;
@@ -35,15 +37,18 @@ export interface AppEnv {
   Variables: {
     secureHeadersNonce?: string;
     signedIn?: boolean;
+    language?: string;
   };
 }
 
 const BODY_LIMIT = 1024 * 1024;
 const SESSION_COOKIE = "cw_session";
 const SESSION_DAYS = 30;
+const LANGUAGE_COOKIE = "language";
+const LANGUAGE_DAYS = 365;
 const DAY_MS = 24 * 60 * 60_000;
 const ANY_HOST_PATHS = [/^\/health$/];
-const OPEN_PATHS = [/^\/health$/, /^\/api\/status$/, /^\/assets\//, /^\/manifest\.webmanifest$/, /^\/login$/];
+const OPEN_PATHS = [/^\/health$/, /^\/api\/status$/, /^\/assets\//, /^\/manifest\.webmanifest$/, /^\/login$/, /^\/language$/];
 const ASSET_NAME = /^[A-Za-z0-9-]+\.(png|svg|ttf|css|js)$/;
 const CONTENT_TYPES: Record<string, string> = {
   png: "image/png",
@@ -62,7 +67,13 @@ export function pageContext(c: Context<AppEnv>, deps: AppDeps): PageContext {
     version: deps.version,
     latestVersion: deps.watcher.state().latestVersion,
     canLogout: c.get("signedIn") === true,
+    languageChoice: chosenLanguage(c),
   };
+}
+
+function chosenLanguage(c: Context<AppEnv>): PageContext["languageChoice"] {
+  const chosen = getCookie(c, LANGUAGE_COOKIE);
+  return isLocale(chosen) ? chosen : "auto";
 }
 
 export function renderPage(c: Context<AppEnv>, deps: AppDeps, page: { title: string; section: Section; body: Child; status?: 200 | 400 | 404 | 500 }) {
@@ -152,6 +163,11 @@ export async function createApp(deps: AppDeps): Promise<Hono<AppEnv>> {
       crossOriginOpenerPolicy: false,
     }),
   );
+  app.use(languageDetector({ order: ["cookie", "header"], lookupCookie: LANGUAGE_COOKIE, supportedLanguages: [...LOCALES], fallbackLanguage: FALLBACK_LOCALE, caches: false }));
+  app.use((c, next) => {
+    const detected = c.get("language");
+    return withLocale(isLocale(detected) ? detected : FALLBACK_LOCALE, next);
+  });
   app.use(async (c, next) => {
     await next();
     if (arrivedOverHttps(c, deps.watcher.config().settings.publicUrl)) c.res.headers.set("Cross-Origin-Opener-Policy", "same-origin");
@@ -227,6 +243,21 @@ export async function createApp(deps: AppDeps): Promise<Hono<AppEnv>> {
       maxAge: SESSION_DAYS * 24 * 60 * 60,
     });
     return c.redirect("/", 303);
+  });
+  app.post("/language", async (c) => {
+    const form = await c.req.parseBody();
+    if (isLocale(form.language)) {
+      setCookie(c, LANGUAGE_COOKIE, form.language, {
+        httpOnly: true,
+        sameSite: "Strict",
+        secure: arrivedOverHttps(c, deps.watcher.config().settings.publicUrl),
+        path: "/",
+        maxAge: LANGUAGE_DAYS * 24 * 60 * 60,
+      });
+    } else {
+      deleteCookie(c, LANGUAGE_COOKIE, { path: "/" });
+    }
+    return backTo(c);
   });
   app.post("/logout", (c) => {
     deleteCookie(c, SESSION_COOKIE, { path: "/" });

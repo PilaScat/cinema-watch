@@ -1,10 +1,9 @@
-import { copy } from "../../copy.js";
-import { formatDay } from "../../format.js";
 import type { Hunt, HuntState } from "../../model.js";
 import { ActionForm, Badge, Button, Card, LinkButton, PreviewButton, PreviewPanel } from "../components.js";
+import { copy, formatDay, localized } from "../i18n.js";
 
-const ui = copy.ui.hunts;
-const common = copy.ui.common;
+const ui = localized((all) => all.ui.hunts);
+const common = localized((all) => all.ui.common);
 
 
 export function StatusCards(props: { hunt: Hunt; state: HuntState | undefined; theatreNames: Record<string, string> }) {

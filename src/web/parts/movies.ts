@@ -1,7 +1,6 @@
-import { copy } from "../../copy.js";
-import { formatDay } from "../../format.js";
 import type { IsoDay } from "../../types.js";
 import type { AppDeps } from "../app.js";
+import { copy, formatDay } from "../i18n.js";
 
 export const MAX_MOVIE_THEATRES = 3;
 

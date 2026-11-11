@@ -237,7 +237,7 @@ describe("hunt form errors", () => {
 
   it("reports an error that belongs to no field above the form", async () => {
     const { instance, watcher } = await createWebApp(harness);
-    watcher.saveConfig = () => Promise.resolve({ ok: false, errors: ["settings.albumSize: intero da 1 a 10", "hunts[1].hallZones: chiavi nel formato cinema-sala", "errore senza percorso"] });
+    watcher.saveConfig = () => Promise.resolve({ ok: false, issues: [{ path: "settings.albumSize", message: "integerFrom|1|10" }, { path: "hunts[1].hallZones", message: "hallKeyFormat" }, { path: null, message: "errore senza percorso" }] });
 
     const response = await instance.request("/hunts", post(huntForm()));
     const html = await response.text();
@@ -475,7 +475,7 @@ describe("hall zone page", () => {
 
   it("reports a zone error that belongs to no field above the page", async () => {
     const { instance, huntId, watcher } = await createWebApp(harness);
-    watcher.saveConfig = () => Promise.resolve({ ok: false, errors: ["settings.albumSize: intero da 1 a 10"] });
+    watcher.saveConfig = () => Promise.resolve({ ok: false, issues: [{ path: "settings.albumSize", message: "integerFrom|1|10" }] });
 
     const response = await instance.request(`/hunts/${huntId}/zone`, post({ performance: PERFORMANCE, rows: "F", seatFrom: "5", seatTo: "9" }));
 

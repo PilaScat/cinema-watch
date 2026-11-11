@@ -5,7 +5,7 @@ import { createApp } from "../src/web/app.js";
 import { FAKE_TOKEN } from "./support/fake-world.js";
 import { createHarness, PRIMARY_CHAT, type Harness } from "./support/harness.js";
 import { fakeBotToken } from "./support/tokens.js";
-import { createWebApp, scriptTags } from "./support/web.js";
+import { createWebApp, scriptTags, askingFor } from "./support/web.js";
 
 const publicDir = fileURLToPath(new URL("../src/web/public/", import.meta.url));
 const assetsDir = fileURLToPath(new URL("../assets/", import.meta.url));
@@ -24,7 +24,7 @@ afterEach(async () => {
 async function app() {
   const config = await harness.seed();
   const watcher = await harness.watcher();
-  const instance = await createApp({ watcher, version: "v2026.10.1", dataDir: harness.dataDir, env: {}, now: () => harness.now(), publicDir, assetsDir });
+  const instance = askingFor(await createApp({ watcher, version: "v2026.10.1", dataDir: harness.dataDir, env: {}, now: () => harness.now(), publicDir, assetsDir }), "it");
   return { instance, watcher, config };
 }
 
@@ -162,7 +162,7 @@ describe("telegram test", () => {
       return original(input, init);
     };
     const watcher = await harness.watcher();
-    const instance = await createApp({ watcher, version: "v2026.10.1", dataDir: harness.dataDir, env: {}, now: () => harness.now(), publicDir, assetsDir });
+    const instance = askingFor(await createApp({ watcher, version: "v2026.10.1", dataDir: harness.dataDir, env: {}, now: () => harness.now(), publicDir, assetsDir }), "it");
 
     await instance.request("/settings/test", post());
     const page = await (await instance.request("/settings")).text();

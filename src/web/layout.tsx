@@ -1,9 +1,10 @@
 import type { Child } from "hono/jsx";
 import { raw } from "hono/html";
-import { copy } from "../copy.js";
 import { Badge, cx, Icon } from "./components.js";
 import type { IconName } from "./icon-set.js";
 import { isNewerVersion } from "./version.js";
+import { LOCALE_NAMES, LOCALES, type Locale } from "../i18n/index.js";
+import { copy, currentLocale } from "./i18n.js";
 
 export type Section = "hunts" | "theatres" | "search" | "log" | "settings" | "none";
 
@@ -12,6 +13,7 @@ export interface PageContext {
   version: string;
   latestVersion: string | null;
   canLogout?: boolean;
+  languageChoice: Locale | "auto";
 }
 
 const THEME_BOOT =
@@ -36,7 +38,7 @@ const themes: Array<{ choice: "light" | "dark" | "system"; icon: IconName }> = [
 export function Layout(props: { title: string; section: Section; context: PageContext; children: Child }) {
   const ui = copy.ui.common;
   return (
-    <html lang="it">
+    <html lang={currentLocale()}>
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -96,8 +98,24 @@ export function Layout(props: { title: string; section: Section; context: PageCo
               <Badge tone="gold">{ui.version.update(props.context.latestVersion)}</Badge>
             </a>
           ) : null}
+          <form method="post" action="/language" class="ml-auto flex items-center gap-2">
+            <label for="language">{ui.language.label}</label>
+            <select id="language" name="language" class="rounded-md border border-border bg-surface px-2 py-1 text-foreground">
+              <option value="auto" selected={props.context.languageChoice === "auto"}>
+                {ui.language.auto}
+              </option>
+              {LOCALES.map((locale) => (
+                <option value={locale} selected={props.context.languageChoice === locale}>
+                  {LOCALE_NAMES[locale]}
+                </option>
+              ))}
+            </select>
+            <button type="submit" class="font-semibold hover:text-foreground">
+              {ui.language.apply}
+            </button>
+          </form>
           {props.context.canLogout ? (
-            <form method="post" action="/logout" class="ml-auto">
+            <form method="post" action="/logout">
               <button type="submit" class="font-semibold hover:text-foreground">
                 {ui.login.logout}
               </button>
