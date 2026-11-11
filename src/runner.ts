@@ -55,7 +55,7 @@ function showingFilter(hunt: Hunt): ShowingFilter {
     ...(hunt.timeTo ? { timeTo: hunt.timeTo } : {}),
     ...(hunt.weekdays ? { weekdays: hunt.weekdays } : {}),
     ...(Object.keys(hunt.dayTimes).length > 0 ? { dayTimes: filterDayTimes(hunt) } : {}),
-    ...(hunt.languages ? { languages: hunt.languages } : {}),
+    ...(hunt.languages && hunt.languages.length > 0 ? { languages: hunt.languages } : {}),
   };
 }
 
