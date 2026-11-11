@@ -78,6 +78,7 @@ import {
   isMuted,
   isQuiet,
   nextRunAt,
+  MANUAL_REFRESH_MS,
   refreshedRecently,
   urlButtonsAccepted,
   type Delivery,
@@ -747,7 +748,17 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     await persistState();
   }
 
+  const manualSendAt = new Map<string, number>();
+
+  function sentRecently(what: string): boolean {
+    const last = manualSendAt.get(what);
+    if (last !== undefined && now() - last < MANUAL_REFRESH_MS) return true;
+    manualSendAt.set(what, now());
+    return false;
+  }
+
   async function sendTestLocked(): Promise<SentResult> {
+    if (sentRecently("test")) return { ok: false, messageIds: [], error: copy.callbacks.sentTooSoon };
     const chatId = telegramSettings().chatId;
     if (chatId === null) return { ok: false, messageIds: [], error: copy.errors.telegramNotConfigured };
     const text = `${copy.telegram.test.header}\n${copy.telegram.test.body}`;
@@ -766,7 +777,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
 
   async function sendSnapshotLocked(huntId: string): Promise<boolean> {
     const hunt = huntById(huntId);
-    if (!hunt) return false;
+    if (!hunt || sentRecently(hunt.id)) return false;
     const observation = await observeHunt(runnerDeps, hunt, config.settings, new Date(now()), { fresh: true });
     const events: HuntEvent[] = observation.round.showings.map((observed) => ({ kind: "newShowing", showing: snapshotOf(observed) }));
     return (await notify(hunt, events, observation)).delivered && events.length > 0;
