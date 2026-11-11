@@ -86,9 +86,10 @@ I posti rispondono solo dal dominio del cinema o del suo gruppo: dagli altri dom
 
 Tutte le chiamate a UCI, Webtic, The Space e GitHub passano da `src/http.ts`:
 
-- solo `https` e solo gli host consentiti elencati sotto; i reindirizzamenti non si seguono;
+- solo `https`, solo gli host consentiti elencati sotto, sulla porta predefinita e senza credenziali nell'indirizzo; i reindirizzamenti non si seguono;
+- una risposta oltre 10 MB si scarta senza finire di leggerla (vale anche per le pagine di The Space e di 18Tickets);
 - timeout di 15 secondi per chiamata, una richiesta alla volta per host;
-- dopo un timeout, un errore di rete, una risposta 5xx o 429 l'host va in attesa: 30 secondi, che raddoppiano a ogni errore fino a 30 minuti, o il `Retry-After` se più lungo;
+- dopo un timeout, un errore di rete, una risposta 5xx o 429 l'host va in attesa: 30 secondi, che raddoppiano a ogni errore fino a 30 minuti, o il `Retry-After` se più lungo, mai oltre 30 minuti;
 - l'`User-Agent` porta il nome dell'app.
 
 Le chiamate a 18Tickets passano dal client di `src/circuits/t18.ts`: solo `https`, solo domini `*.18tickets.it`, nessun reindirizzamento seguito, timeout di 20 secondi, e fra due pagine dello stesso gestore almeno 10 secondi, un minuto dopo un 429 (il perché è in [MEMORY.md](MEMORY.md)).

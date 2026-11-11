@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { TtlCache } from "../cache.js";
 import { isIsoDay } from "../dates.js";
 import { ApiShapeError, HttpError } from "../errors.js";
-import type { GuardedFetch } from "../http.js";
+import { readLimitedText, type GuardedFetch } from "../http.js";
 import { regionOfPostalCode, regionOfProvince } from "../regions.js";
 import type { createStore } from "../store.js";
 import { normalizeTitle } from "../uci.js";
@@ -352,7 +352,7 @@ export function createSpaceClient(deps: SpaceClientDeps) {
   async function page(url: string): Promise<string> {
     const response = await deps.fetch(url, { headers: { "User-Agent": deps.userAgent }, signal: AbortSignal.timeout(PAGE_TIMEOUT_MS) });
     if (!response.ok) throw new HttpError("status", new URL(url).hostname, `Status ${response.status}`, response.status);
-    return response.text();
+    return readLimitedText(response, new URL(url).hostname);
   }
 
   return {

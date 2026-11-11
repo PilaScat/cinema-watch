@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { TtlCache } from "../cache.js";
 import { ApiShapeError, HttpError } from "../errors.js";
 import { isT18Host } from "../keys.js";
-import type { GuardedFetch } from "../http.js";
+import { readLimitedText, type GuardedFetch } from "../http.js";
 import { regionOfPostalCode, regionOfProvince } from "../regions.js";
 import type { createStore } from "../store.js";
 import type { HallStore } from "../webtic.js";
@@ -39,13 +39,14 @@ const ROME_CLOCK = new Intl.DateTimeFormat("en-CA", {
   hourCycle: "h23",
 });
 
+const MAX_CODE_POINT = 0x10ffff;
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
 
 export function decodeEntities(text: string): string {
   return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, code: string) => {
-    if (code.startsWith("#x") || code.startsWith("#X")) return String.fromCodePoint(Number.parseInt(code.slice(2), 16));
-    if (code.startsWith("#")) return String.fromCodePoint(Number(code.slice(1)));
-    return ENTITIES[code.toLowerCase()] ?? whole;
+    if (!code.startsWith("#")) return ENTITIES[code.toLowerCase()] ?? whole;
+    const point = code[1]?.toLowerCase() === "x" ? Number.parseInt(code.slice(2), 16) : Number(code.slice(1));
+    return point <= MAX_CODE_POINT ? String.fromCodePoint(point) : whole;
   });
 }
 
@@ -132,7 +133,7 @@ function languageOf(label: string, title: string, field: string): string {
 }
 
 function parseFilmBlock(block: string, host: string): T18Film | null {
-  const titleMatch = /class='movie__title'[^>]*\/film\/(\d+)'>\s*([^<]+)</.exec(block);
+  const titleMatch = /class='movie__title'[^>]{0,500}\/film\/(\d+)'>\s*([^<]+)</.exec(block);
   if (!titleMatch) return null;
   const filmId = titleMatch[1] as string;
   const rawTitle = decodeEntities(titleMatch[2] as string).trim();
@@ -179,7 +180,7 @@ function parseFilmBlock(block: string, host: string): T18Film | null {
 
 export function parseHome(html: string, host: string): T18Home {
   const title = decodeEntities(/<title>([^<]*)<\/title>/.exec(html)?.[1] ?? "").trim();
-  const places = [...new Set([...html.matchAll(/time-select__place'>[\s\S]*?<\/a>\s*([^<]+)<\/div>/g)].map((match) => decodeEntities(match[1] as string).trim()))];
+  const places = [...new Set([...html.matchAll(/time-select__place'>[\s\S]{0,2000}?<\/a>\s*([^<]+)<\/div>/g)].map((match) => decodeEntities(match[1] as string).trim()))];
   const address = /maps\.google\.com\/\?q=([^'"]+)['"]/.exec(html)?.[1];
   const films = html
     .split("<div class='movie movie--preview'>")
@@ -349,7 +350,7 @@ export function createT18Client(deps: T18ClientDeps) {
   async function text(host: string, path: string): Promise<string> {
     const response = await request(host, path, true);
     if (!response.ok) throw new HttpError("status", host, `Status ${response.status}`, response.status);
-    return response.text();
+    return readLimitedText(response, host);
   }
 
   return {
@@ -358,7 +359,7 @@ export function createT18Client(deps: T18ClientDeps) {
       const location = response.headers.get("location");
       if (response.status >= 300 && response.status < 400 && location !== null) return { kind: "redirect", location };
       if (!response.ok) throw new HttpError("status", host, `Status ${response.status}`, response.status);
-      return { kind: "page", html: await response.text() };
+      return { kind: "page", html: await readLimitedText(response, host) };
     },
     home: async (host: string) => parseHome(await text(host, "/"), host),
     theaters: async (host: string, filmId: string) => parseFilmPage(await text(host, `/film/${filmId}`)),
@@ -368,7 +369,7 @@ export function createT18Client(deps: T18ClientDeps) {
       if (!response.ok) throw new HttpError("status", host, `Status ${response.status}`, response.status);
       let json: unknown;
       try {
-        json = JSON.parse(await response.text());
+        json = JSON.parse(await readLimitedText(response, host));
       } catch {
         throw new HttpError("parse", host, "Response is not JSON");
       }

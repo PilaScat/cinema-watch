@@ -72,6 +72,22 @@ describe("hosts, slugs and keys", () => {
   });
 });
 
+describe("pages that are not what they should be", () => {
+  it("leaves a numeric entity outside Unicode as it is written", () => {
+    expect(decodeEntities("A &#x110000; B &#99999999; C")).toBe("A &#x110000; B &#99999999; C");
+  });
+
+  it("reads a page full of unfinished titles and places without stalling", () => {
+    const html = `<div class='movie movie--preview'>${"class='movie__title' ".repeat(20_000)}${"time-select__place'> ".repeat(20_000)}`;
+    const startedAt = performance.now();
+
+    const home = parseHome(html, "roma.andromeda.18tickets.it");
+
+    expect(home.films).toEqual([]);
+    expect(performance.now() - startedAt).toBeLessThan(1000);
+  });
+});
+
 describe("home of a cinema", () => {
   it("reads name, address and the films with their projections", () => {
     const parsed = home();
