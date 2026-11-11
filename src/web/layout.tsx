@@ -11,6 +11,7 @@ export interface PageContext {
   nonce: string;
   version: string;
   latestVersion: string | null;
+  canLogout?: boolean;
 }
 
 const THEME_BOOT =
@@ -94,6 +95,13 @@ export function Layout(props: { title: string; section: Section; context: PageCo
             <a href="https://github.com/PilaScat/cinema-watch/releases" target="_blank" rel="noopener noreferrer">
               <Badge tone="gold">{ui.version.update(props.context.latestVersion)}</Badge>
             </a>
+          ) : null}
+          {props.context.canLogout ? (
+            <form method="post" action="/logout" class="ml-auto">
+              <button type="submit" class="font-semibold hover:text-foreground">
+                {ui.login.logout}
+              </button>
+            </form>
           ) : null}
         </footer>
       </body>
