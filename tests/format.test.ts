@@ -23,6 +23,17 @@ describe("formatDayLong", () => {
   });
 });
 
+describe("formatGroup for seats whose id is not row/number", () => {
+  it("uses the seat numbers of the group when it has them", () => {
+    expect(formatGroup({ rowLabel: "A", seatIds: ["A22", "A23", "A24"], numbers: [22, 23, 24], score: 1 })).toBe("A 22-24");
+    expect(formatGroup({ rowLabel: "F", seatIds: ["7_12"], numbers: [12], score: 1 })).toBe("F 12");
+  });
+
+  it("reads the number after the last slash when the group has no numbers", () => {
+    expect(formatGroup({ rowLabel: "P/1", seatIds: ["P/1/8", "P/1/9"], score: 1 })).toBe("P/1 8-9");
+  });
+});
+
 describe("formatGroup", () => {
   it("gives row and first-last seat", () => {
     expect(formatGroup({ rowLabel: "H", seatIds: ["H/9", "H/10", "H/11"], score: 1 })).toBe("H 9-11");

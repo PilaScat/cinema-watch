@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import { describe, expect, it } from "vitest";
 import { HALL_PALETTE, escapeXml, renderHallSvg } from "../src/hall-svg.js";
+import { copy } from "../src/copy.js";
 import { analyzeSeats } from "../src/seats.js";
 import type {
   Hall,
@@ -171,5 +172,17 @@ describe("renderHallSvg", () => {
 describe("escapeXml", () => {
   it("escapes the five XML entities", () => {
     expect(escapeXml(`<a href="x">&'</a>`)).toBe("&lt;a href=&quot;x&quot;&gt;&amp;&apos;&lt;/a&gt;");
+  });
+});
+
+describe("seats that the zone picker can read in every circuit", () => {
+  it("carry their row and number apart from the id", () => {
+    const hall: Hall = { key: "space-1-sala", fetchedAt: 0, seats: [{ id: "A22", rowLabel: "A", number: 22, row: 1, column: 1, sector: "1", type: "STANDARD" }] };
+    const occupancy = { key: "space-1-2", taken: {} };
+    const rule = { zone: { kind: "relative" as const, rowsFromPercent: 0, rowsToPercent: 100, centerPercent: 100 }, together: 1, sellableTypes: ["STANDARD"] };
+
+    const svg = renderHallSvg(hall, occupancy, analyzeSeats(hall, occupancy, rule), rule, { title: "T", subtitle: "S", labels: copy.hall.labels, theme: "dark" });
+
+    expect(svg).toContain('data-seat="A22" data-row="A" data-number="22"');
   });
 });

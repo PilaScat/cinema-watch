@@ -125,6 +125,7 @@ export interface SeatRule {
 export interface SeatGroup {
   rowLabel: string;
   seatIds: string[];
+  numbers?: number[];
   score: number;
 }
 
