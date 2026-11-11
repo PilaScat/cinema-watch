@@ -125,6 +125,8 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
 
 - **Accesso** (review dell'11/11/2026): senza `UI_PASSWORD` l'app risponde solo se il nome nell'indirizzo è un IP, `localhost`, un nome senza punti, `.local`, `.lan`, `.internal`, `.home.arpa` o l'host dell'URL pubblico; gli altri prendono 403. Serve contro il DNS rebinding: un sito aperto da un browser di casa che si fa risolvere sull'IP dell'app leggerebbe il token del bot da `/settings/export`. `/health` risponde su qualunque nome. Con la password il controllo non c'è, perché il cookie `SameSite=Strict` non parte verso un altro nome. Il cookie di sessione porta la scadenza e un'impronta della password, firmate: scade davvero dopo 30 giorni e cade quando la password cambia. Con `TRUST_PROXY` l'IP è l'ultimo valore di `X-Forwarded-For`, quello che aggiunge il proxy; il primo lo scrive il client. `/api/status` senza accesso dà i totali e un elenco `hunts` vuoto.
 
+- **Entrypoint e proprietà dei file**: il `chown` parte anche quando la cartella dei dati è già di `PUID:PGID` ma dentro c'è un file di qualcun altro (un backup ripristinato come root lasciava `config.json` non scrivibile), e usa `-h`, così un link dentro `/data` non fa cambiare proprietario a un file fuori. `PUID=0` parte ma avvisa nel log.
+
 - **Indietro**: una pagina aperta da un'altra riceve `from` (percorso e query di chi l'ha aperta) e il suo Indietro ci torna; senza `from` resta il genitore fisso (cinema, scheda del cinema, home), e uno spettacolo con `hunt` valido torna a `/hunts/<id>#showings`. `from` vale solo se è un percorso locale (`localPath` in `src/web/parts/navigation.ts`: inizia con `/`, niente `//`, `\` o caratteri di controllo, al massimo 1000 caratteri), così nessun link porta fuori. Richiesta di Filippo del 20/10/2026.
 
 - **`Referrer-Policy: same-origin`, non `no-referrer`**: con `no-referrer` Chrome ed Edge mandano
@@ -143,6 +145,8 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   chi mette una stella al suo repo; se dopo un giorno manca, si aggiunge `PilaScat` al suo
   `owners.txt` con una PR), la dimensione da ghcr-badge.egpl.dev. Le Piattaforme sono un badge
   fisso: va riallineato se cambiano quelle di `release.yml`.
+- **Versioni che Dependabot non vede**: Trivy (`version:` in `release.yml`), actionlint e zizmor (immagini dentro un `run:` di `ci.yml`) sono fissate a mano e nessun aggiornamento automatico le propone. Si guardano a ogni rilascio. Dalla review dell'11/11/2026.
+- **`latest` segue il tag più alto**: `release.yml` sposta `latest` solo se il tag pubblicato è il più alto fra i `v*` del repo (`sort -V`), così un tag vecchio pushato per recupero non riporta indietro chi segue `latest`.
 - **I rilasci di sicurezza di Node non arrivano subito da Dependabot**: le immagini `node` e
   `alpine` sono fissate per digest e l'aggiornamento Docker ha `cooldown` di 7 giorni, quindi il
   digest nuovo viene proposto una settimana dopo. Con un bollettino Node.js si aggiornano a mano
