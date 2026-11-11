@@ -227,6 +227,28 @@ describe("client", () => {
     expect(world.spaceCalls.filter((call) => call === "/auth/token")).toHaveLength(3);
   });
 
+  it("waits a minute before asking a refused guest token again", async () => {
+    const world = createFakeWorld();
+    let clock = 0;
+    let asked = 0;
+    const refuse = (input: Parameters<typeof fetch>[0], init?: RequestInit) => {
+      if (!new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url).pathname.endsWith("/auth/token")) return world.fetch(input, init);
+      asked += 1;
+      return Promise.resolve(new Response("", { status: 429 }));
+    };
+    const http = createHttpClient({ allowedHosts: [HOST], userAgent: "test", fetch: refuse });
+    const space = createSpaceClient({ http, fetch: createGuardedFetch([HOST], refuse), userAgent: "test", now: () => clock });
+
+    await expect(space.cinemas()).rejects.toThrow("guest token refused (429)");
+    await expect(space.programming("1028")).rejects.toThrow("guest token refused (429)");
+    const whileWaiting = asked;
+    clock = 61_000;
+    await expect(space.cinemas()).rejects.toThrow("guest token refused (429)");
+
+    expect(whileWaiting).toBe(1);
+    expect(asked).toBe(2);
+  });
+
   it("fails clearly when the guest token is refused and passes other errors on", async () => {
     const world = createFakeWorld();
     const refuse = (input: Parameters<typeof fetch>[0], init?: RequestInit) =>

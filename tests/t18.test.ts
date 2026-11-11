@@ -283,6 +283,18 @@ describe("client", () => {
   });
 });
 
+describe("weekly check of a page that lists too much", () => {
+  it("stops at 300 hosts", async () => {
+    const { t18, world } = client();
+    const links = Array.from({ length: 2000 }, (_, index) => `<a href="https://c${index}.big.18tickets.it" class="dropdown-item">c${index}</a>`).join("");
+    world.setT18Page("big.18tickets.it", "/", `<title>Big</title>${links}`);
+
+    const list = await buildT18Venues(t18, { hosts: [ANDROMEDA, "big.18tickets.it"], previous: null, now: () => 7 });
+
+    expect(list.checkedHosts).toHaveLength(300);
+  });
+});
+
 describe("weekly check", () => {
   it("keeps the cinemas, follows group pages and choice pages, and records every host checked", async () => {
     const { t18, world } = client();
