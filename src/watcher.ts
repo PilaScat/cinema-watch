@@ -516,7 +516,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     const hunt = huntId === undefined ? null : huntById(huntId);
     const zone = hunt ? zoneFor(hunt, performance.hallKey) : config.settings.defaultZone;
     const rule = { zone, together: hunt?.together ?? DEFAULT_TOGETHER, sellableTypes: config.settings.sellableTypes };
-    return { performance, chain, hall, occupancy, rule, analysis: analyzeSeats(hall, occupancy, rule), cartUrl: (movieSlug) => circuit.cartUrl(key, performance, movieSlug) };
+    return { performance, chain, hall, occupancy, rule, tiers: performance.priceTiers ?? [], analysis: analyzeSeats(hall, occupancy, rule), cartUrl: (movieSlug) => circuit.cartUrl(key, performance, movieSlug) };
   }
 
   function chatFor(): string | null {
