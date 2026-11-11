@@ -1,8 +1,9 @@
 import type { Hono } from "hono";
 import { issueLines, type TelegramSource } from "../../config.js";
+import { isLocale, LOCALE_NAMES, LOCALES } from "../../i18n/index.js";
 import type { Config, Settings } from "../../model.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { Button, Card, inputClass, LinkButton, Notice, PageHeader, type Tone } from "../components.js";
+import { Button, Card, Field, inputClass, LinkButton, Notice, PageHeader, type Tone } from "../components.js";
 import { copy, localized } from "../i18n.js";
 import {
   absoluteSummary,
@@ -48,6 +49,7 @@ interface SettingsValues {
   home: string;
   radiusKm: string;
   t18Hosts: string;
+  language: string;
 }
 
 interface PageNotice {
@@ -72,6 +74,7 @@ function valuesOfSettings(settings: Settings): SettingsValues {
     home: settings.home === null ? "" : `${settings.home.lat}, ${settings.home.lon}`,
     radiusKm: settings.radiusKm === null ? "" : String(settings.radiusKm),
     t18Hosts: settings.t18Hosts.join(", "),
+    language: settings.language,
   };
 }
 
@@ -91,6 +94,7 @@ function valuesOfBody(body: FormBody): SettingsValues {
     home: bodyText(body, "home"),
     radiusKm: bodyText(body, "radiusKm"),
     t18Hosts: bodyText(body, "t18Hosts"),
+    language: bodyText(body, "messageLanguage"),
   };
 }
 
@@ -119,6 +123,7 @@ function settingsOfValues(values: SettingsValues, tokenChange: { token: string; 
     home: homeOf(values.home),
     radiusKm: nullableNumber(values.radiusKm),
     t18Hosts: [...new Set(splitList(values.t18Hosts).map(hostOfEntry))],
+    language: isLocale(values.language) ? values.language : base.language,
   };
 }
 
@@ -232,6 +237,15 @@ function SettingsPage(props: {
               <div class="flex items-end pb-2">
                 <CheckBox name="digestEnabled" value="1" label={ui.fields.digestEnabled} checked={values.digestEnabled} />
               </div>
+              <Field label={ui.fields.language} for="messageLanguage" hint={ui.fields.languageHint}>
+                <select id="messageLanguage" name="messageLanguage" class={inputClass}>
+                  {LOCALES.map((locale) => (
+                    <option value={locale} selected={values.language === locale}>
+                      {LOCALE_NAMES[locale]}
+                    </option>
+                  ))}
+                </select>
+              </Field>
               <TextField name="threshold" label={ui.fields.threshold} value={values.threshold} type="number" min={0} error={fieldError["threshold"]} />
               <TextField
                 name="sellableTypes"

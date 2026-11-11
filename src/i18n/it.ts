@@ -323,6 +323,8 @@ export const it: Copy = {
         digestEnabled: "Riepilogo giornaliero",
         digestTime: "Ora del riepilogo",
         albumSize: "Piante per giro",
+        language: "Lingua dei messaggi",
+        languageHint: "Telegram, registro ed errori",
         threshold: "Soglia ultimi posti",
         sellableTypes: "Tipi di posto vendibili",
         sellableTypesHint: "Separati da virgola",

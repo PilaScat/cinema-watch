@@ -18,8 +18,6 @@ const MAX_RETRY_AFTER_MS = 60_000;
 const REQUEST_TIMEOUT_MS = 30_000;
 const LONG_POLL_MARGIN_MS = 15_000;
 const DEFAULT_MAX_RETRIES = 3;
-const NOT_CONFIGURED = copy.errors.telegramNotConfigured;
-const INVALID_RESPONSE = copy.errors.telegramInvalid;
 
 export type TelegramErrorKind =
   | "unauthorized"
@@ -246,7 +244,7 @@ export function createTelegram(options: TelegramOptions): Telegram {
     timeoutMs = REQUEST_TIMEOUT_MS,
   ): Promise<T> {
     const token = options.token();
-    if (token === null) throw new TelegramError("unauthorized", null, NOT_CONFIGURED);
+    if (token === null) throw new TelegramError("unauthorized", null, copy.errors.telegramNotConfigured);
     let rateRetries = 0;
     let transientRetried = false;
     for (;;) {
@@ -260,7 +258,7 @@ export function createTelegram(options: TelegramOptions): Telegram {
         if (outcome.status >= 200 && outcome.status < 300) {
           const result = envelope?.ok === true ? schema.safeParse(envelope.result) : null;
           if (result?.success !== true) {
-            throw new TelegramError("server", outcome.status, INVALID_RESPONSE);
+            throw new TelegramError("server", outcome.status, copy.errors.telegramInvalid);
           }
           return result.data;
         }
@@ -311,14 +309,14 @@ export function createTelegram(options: TelegramOptions): Telegram {
     ids: (result: T) => number[],
     fallbackBody: Record<string, unknown> | null = null,
   ): Promise<SentResult> {
-    if (options.token() === null) return failed(NOT_CONFIGURED);
+    if (options.token() === null) return failed(copy.errors.telegramNotConfigured);
     return enqueue(chatId, async () => {
       await throttle(chatId, units);
       try {
         const result = await requestWithFallback(method, body, fallbackBody, units, chatId, schema);
         return { ok: true, messageIds: ids(result), error: null };
       } catch (error) {
-        return failed(error instanceof TelegramError ? error.description : INVALID_RESPONSE);
+        return failed(error instanceof TelegramError ? error.description : copy.errors.telegramInvalid);
       }
     });
   }

@@ -82,6 +82,7 @@ export async function createHarness(start = Date.parse("2026-12-01T10:00:00Z")):
     async seed(mutate = () => undefined, options = {}) {
       const config = defaultConfig();
       config.settings.telegram = { token: FAKE_TOKEN, chatId: PRIMARY_CHAT };
+      config.settings.language = "it";
       config.hunts.push(duneHunt(config));
       mutate(config);
       const store = createStore(dataDir);

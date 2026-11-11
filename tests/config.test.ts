@@ -56,12 +56,13 @@ describe("defaults", () => {
       home: null,
       radiusKm: null,
       t18Hosts: [],
+      language: "en",
     });
   });
 
   it("builds an empty default config with a fresh copy of the settings", () => {
     const config = defaultConfig();
-    expect(config).toEqual({ schemaVersion: 4, settings: DEFAULT_SETTINGS, hunts: [] });
+    expect(config).toEqual({ schemaVersion: 5, settings: DEFAULT_SETTINGS, hunts: [] });
     config.settings.sellableTypes.push("X");
     expect(DEFAULT_SETTINGS.sellableTypes).toEqual(["STANDARD"]);
     expect(defaultConfig().settings.sellableTypes).toEqual(["STANDARD"]);
@@ -205,6 +206,7 @@ function fullConfig(): Config {
     home: { lat: 45.4384, lon: 10.9916 },
     radiusKm: 80,
     t18Hosts: ["splendorbari.18tickets.it"],
+    language: "it",
   };
   config.hunts = [
     {
@@ -365,7 +367,7 @@ describe("migration and versions", () => {
   it("treats a missing schemaVersion as version 1 and brings it to the current one", () => {
     const { home, radiusKm, t18Hosts, ...settings } = DEFAULT_SETTINGS;
     const input = { settings, hunts: [] };
-    expect(migrateConfig(input)).toEqual({ schemaVersion: 4, settings: { ...settings, home: null, radiusKm: null, t18Hosts: [] }, hunts: [] });
+    expect(migrateConfig(input)).toEqual({ schemaVersion: 5, settings: { ...settings, home: null, radiusKm: null, t18Hosts: [] }, hunts: [] });
     expect(t18Hosts).toEqual([]);
     expect(input).not.toHaveProperty("schemaVersion");
     expect([home, radiusKm]).toEqual([null, null]);
@@ -377,7 +379,7 @@ describe("migration and versions", () => {
     const result = parseConfig(v1);
     expect(result.ok).toBe(true);
     expect(result.ok ? result.config.settings : null).toEqual({ ...settings, publicUrl: "https://cw.example", home: null, radiusKm: null, t18Hosts });
-    expect(result.ok ? result.config.schemaVersion : null).toBe(4);
+    expect(result.ok ? result.config.schemaVersion : null).toBe(5);
     expect(v1.settings).not.toHaveProperty("home");
     expect([home, radiusKm]).toEqual([null, null]);
   });
@@ -399,7 +401,7 @@ describe("migration and versions", () => {
     const result = parseConfig({ schemaVersion: 2, settings, hunts: [] });
     const outside = parseConfig({ ...defaultConfig(), settings: { ...DEFAULT_SETTINGS, t18Hosts: ["evil.example.com"] } });
 
-    expect(result.ok ? result.config : null).toEqual({ schemaVersion: 4, settings: { ...settings, t18Hosts }, hunts: [] });
+    expect(result.ok ? result.config : null).toEqual({ schemaVersion: 5, settings: { ...settings, t18Hosts }, hunts: [] });
     expect(inItalian(outside)).toEqual({ ok: false, errors: ["settings.t18Hosts[0]: indirizzi del tipo nomecinema.18tickets.it"] });
   });
 
@@ -409,7 +411,17 @@ describe("migration and versions", () => {
 
     expect(dayTimes).toEqual({});
     expect(result.ok ? result.config.hunts[0] : null).toEqual({ ...withoutDayTimes, timeFrom: "19:00", dayTimes: {} });
-    expect(result.ok ? result.config.schemaVersion : null).toBe(4);
+    expect(result.ok ? result.config.schemaVersion : null).toBe(5);
+  });
+
+  it("keeps the messages in Italian for a version 4 config, and starts a new one in English", () => {
+    const { language, ...settings } = DEFAULT_SETTINGS;
+    const migrated = parseConfig({ schemaVersion: 4, settings, hunts: [] });
+    const unknown = parseConfig({ ...defaultConfig(), settings: { ...DEFAULT_SETTINGS, language: "fr" } });
+
+    expect(language).toBe("en");
+    expect(migrated.ok ? migrated.config : null).toEqual({ schemaVersion: 5, settings: { ...settings, language: "it" }, hunts: [] });
+    expect(inItalian(unknown)).toEqual({ ok: false, errors: ["settings.language: valore non ammesso"] });
   });
 
   it("accepts times of their own on chosen days and refuses empty, malformed or unchosen ones", () => {
@@ -424,7 +436,7 @@ describe("migration and versions", () => {
   });
 
   it("rejects a version newer than the app", () => {
-    expect(inItalian(parseConfig({ ...defaultConfig(), schemaVersion: 5 }))).toEqual({
+    expect(inItalian(parseConfig({ ...defaultConfig(), schemaVersion: 6 }))).toEqual({
       ok: false,
       errors: ["schemaVersion: versione più recente dell'app"],
     });
@@ -470,7 +482,7 @@ describe("exportConfig and importConfig", () => {
   it("exports indented json without the token by default choice", () => {
     const config = withToken(TOKEN);
     const text = exportConfig(config, { includeToken: false });
-    expect(text.split(LF)[1]).toBe('  "schemaVersion": 4,');
+    expect(text.split(LF)[1]).toBe('  "schemaVersion": 5,');
     expect(text).not.toContain(TOKEN);
     const parsed = JSON.parse(text) as Config;
     expect(parsed.settings.telegram).toEqual({ token: null, chatId: "-100123" });

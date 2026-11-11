@@ -1,4 +1,5 @@
 import { INTL_LOCALES, type Locale } from "./i18n/index.js";
+import { messageLocale } from "./i18n/messages.js";
 import type { PriceTier, SeatGroup } from "./types.js";
 
 const TIME_ZONE = "Europe/Rome";
@@ -47,13 +48,13 @@ export function formatters(locale: Locale): Formatters {
   return built[locale];
 }
 
-export const formatEur = built.it.eur;
-export const formatDay = built.it.day;
-export const formatDayOf = built.it.dayOf;
-export const formatDayTime = built.it.dayTime;
-export const formatTier = built.it.tier;
-export const formatDayLong = built.it.dayLong;
-export const formatTime = built.it.time;
+export const formatEur = (amount: number): string => built[messageLocale()].eur(amount);
+export const formatDay = (isoDay: string): string => built[messageLocale()].day(isoDay);
+export const formatDayOf = (epochMs: number): string => built[messageLocale()].dayOf(epochMs);
+export const formatDayTime = (epochMs: number): string => built[messageLocale()].dayTime(epochMs);
+export const formatTier = (tier: PriceTier): string => built[messageLocale()].tier(tier);
+export const formatDayLong = (isoDay: string): string => built[messageLocale()].dayLong(isoDay);
+export const formatTime = (epochMs: number): string => built[messageLocale()].time(epochMs);
 
 export function formatGroup(group: SeatGroup): string {
   const numbers = (group.numbers ?? group.seatIds.map((id) => (id.includes("/") ? Number(id.slice(id.lastIndexOf("/") + 1)) : Number.NaN)))

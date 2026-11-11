@@ -137,6 +137,73 @@ describe("choice of the language", () => {
   });
 });
 
+describe("language of the messages", () => {
+  const settingsForm = (overrides: Record<string, string> = {}): Record<string, string> => ({
+    token: "",
+    chatId: "4242",
+    publicUrl: "",
+    interval: "5",
+    quietFrom: "",
+    quietTo: "",
+    digestEnabled: "1",
+    digestTime: "20:00",
+    albumSize: "3",
+    threshold: "10",
+    sellableTypes: "STANDARD",
+    zoneFrom: "",
+    zoneTo: "",
+    zoneCenter: "",
+    ...overrides,
+  });
+
+  it("is the one of the settings, whatever the browser asks", async () => {
+    const { instance } = await createWebApp(harness, { language: "en" });
+
+    const page = await (await instance.request("/settings")).text();
+    await instance.request("/settings/test", post());
+
+    expect(page).toContain("Language of the messages");
+    expect(page).toContain('<option value="it" selected="">Italiano</option>');
+    expect(harness.world.telegram[0]?.text).toContain("Prova di cinema-watch");
+  });
+
+  it("changes as soon as the setting is saved, without touching the language of the page", async () => {
+    const { instance, watcher } = await createWebApp(harness);
+
+    const saved = await instance.request("/settings", post(settingsForm({ messageLanguage: "en" })));
+    await instance.request("/settings/test", post());
+    const page = await (await instance.request("/settings")).text();
+
+    expect(saved.status).toBe(303);
+    expect(watcher.config().settings.language).toBe("en");
+    expect(harness.world.telegram[0]?.text).toContain("cinema-watch test");
+    expect(harness.world.telegram[0]?.text).toContain("The alerts of the hunts will arrive in this chat.");
+    expect(page).toContain('<html lang="it">');
+  });
+
+  it("stays as it was when the form does not carry it or carries one it does not have", async () => {
+    const { instance, watcher } = await createWebApp(harness);
+
+    await instance.request("/settings", post(settingsForm()));
+    await instance.request("/settings", post(settingsForm({ messageLanguage: "fr" })));
+
+    expect(watcher.config().settings.language).toBe("it");
+  });
+
+  it("writes the alerts of a round in English when the setting says so", async () => {
+    await harness.seed((config) => {
+      config.settings.language = "en";
+    });
+    const watcher = await harness.watcher();
+
+    await watcher.tick();
+    const texts = harness.world.telegram.map((call) => call.text ?? call.caption ?? "").join(" | ");
+
+    expect(texts).toContain("New showings");
+    expect(texts).not.toContain("Nuovi spettacoli");
+  });
+});
+
 describe("texts of the pages", () => {
   const webDir = fileURLToPath(new URL("../src/web/", import.meta.url));
   const sources = ["", "parts", "routes"].flatMap((folder) =>

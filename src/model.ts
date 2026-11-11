@@ -1,3 +1,4 @@
+import type { Locale } from "./i18n/index.js";
 import type {
   DayWindow,
   HhMm,
@@ -10,7 +11,7 @@ import type {
   Zone,
 } from "./types.js";
 
-export const CONFIG_SCHEMA_VERSION = 4;
+export const CONFIG_SCHEMA_VERSION = 5;
 export const STATE_SCHEMA_VERSION = 2;
 
 export type AbsoluteZone = Extract<Zone, { kind: "absolute" }>;
@@ -67,6 +68,7 @@ export interface Settings {
   home: { lat: number; lon: number } | null;
   radiusKm: number | null;
   t18Hosts: string[];
+  language: Locale;
 }
 
 export interface Config {
