@@ -321,6 +321,8 @@ export const en = {
         digestEnabled: "Daily summary",
         digestTime: "Time of the summary",
         albumSize: "Seat maps per round",
+        language: "Language of the messages",
+        languageHint: "Telegram, log and errors",
         threshold: "Last seats threshold",
         sellableTypes: "Seat types on sale",
         sellableTypesHint: "Separated by commas",

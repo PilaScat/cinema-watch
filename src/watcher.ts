@@ -1,4 +1,5 @@
 import { createTtlCache } from "./cache.js";
+import { setMessageLocale } from "./i18n/messages.js";
 import {
   ConfigError,
   effectiveTelegram,
@@ -200,6 +201,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   const store = createStore(options.dataDir);
   const dryRun = options.outbox !== undefined;
   let config = await loadConfig(store);
+  setMessageLocale(config.settings.language);
   let state = await loadState(store, now);
   let queue: Promise<unknown> = Promise.resolve();
   const knownUnknownTypes = new Set<string>();
@@ -325,6 +327,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   async function reloadConfig(): Promise<void> {
     try {
       config = await loadConfig(store, { createIfMissing: false });
+      setMessageLocale(config.settings.language);
     } catch (error) {
       if (!(error instanceof ConfigError)) throw error;
       logger.error("config", { error: error.message });
@@ -333,6 +336,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
 
   async function writeConfig(next: Config): Promise<void> {
     config = next;
+    setMessageLocale(config.settings.language);
     await saveConfig(store, config);
   }
 

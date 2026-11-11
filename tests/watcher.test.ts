@@ -48,6 +48,7 @@ function duneHunt(config: Config, overrides: Partial<Hunt> = {}): Hunt {
 async function seed(mutate: (config: Config) => void = () => undefined): Promise<Config> {
   const config = defaultConfig();
   config.settings.telegram = { token: FAKE_TOKEN, chatId: PRIMARY_CHAT };
+  config.settings.language = "it";
   config.hunts.push(duneHunt(config));
   mutate(config);
   const store = createStore(dataDir);

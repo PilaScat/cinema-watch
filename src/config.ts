@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { z } from "zod";
 import { CONFIG_SCHEMA_VERSION, type Config, type Hunt, type Settings } from "./model.js";
 import { copy } from "./copy.js";
-import type { Copy } from "./i18n/index.js";
+import { LOCALES, type Copy } from "./i18n/index.js";
 import { StoreError, type createStore } from "./store.js";
 import { HALL_KEY, HUNT_ID, isT18Host, SLUG } from "./keys.js";
 
@@ -20,6 +20,7 @@ export const DEFAULT_SETTINGS: Settings = {
   home: null,
   radiusKm: null,
   t18Hosts: [],
+  language: "en",
 };
 
 export function defaultConfig(): Config {
@@ -263,6 +264,7 @@ const settingsSchema = z.strictObject({
     .nullable(),
   radiusKm: intIn(1, 1000).nullable(),
   t18Hosts: z.array(z.string().refine(isT18Host, say("t18HostFormat"))),
+  language: z.enum(LOCALES),
 });
 
 const configSchema = z
@@ -331,12 +333,18 @@ function toVersion3(json: Record<string, unknown>): Record<string, unknown> {
   return { ...json, schemaVersion: 3, settings: isRecord(settings) ? { t18Hosts: [], ...settings } : settings };
 }
 
+function toVersion5(json: Record<string, unknown>): Record<string, unknown> {
+  const settings = json["settings"];
+  return { ...json, schemaVersion: 5, settings: isRecord(settings) ? { language: "it", ...settings } : settings };
+}
+
 export function migrateConfig(json: unknown): unknown {
   if (!isRecord(json)) return json;
   const versioned = json["schemaVersion"] === undefined ? { ...json, schemaVersion: 1 } : json;
   const second = versioned["schemaVersion"] === 1 ? toVersion2(versioned) : versioned;
   const third = second["schemaVersion"] === 2 ? toVersion3(second) : second;
-  return third["schemaVersion"] === 3 ? toVersion4(third) : third;
+  const fourth = third["schemaVersion"] === 3 ? toVersion4(third) : third;
+  return fourth["schemaVersion"] === 4 ? toVersion5(fourth) : fourth;
 }
 
 export function parseConfig(json: unknown): ParseResult {

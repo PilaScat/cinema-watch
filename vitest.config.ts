@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     include: ["tests/**/*.test.ts"],
     exclude: ["tests/live/**"],
+    setupFiles: ["tests/support/italian-messages.ts"],
     environment: "node",
     testTimeout: 15_000,
     coverage: {
