@@ -69,6 +69,31 @@ function bindBusy() {
   });
 }
 
+function bindPreview() {
+  document.querySelectorAll("button[data-preview]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const panel = button.closest("[data-preview-row]")?.querySelector("[data-preview-panel]");
+      if (!panel) return;
+      const open = panel.hidden;
+      panel.hidden = !open;
+      button.setAttribute("aria-expanded", String(open));
+      if (!open || panel.dataset.loaded === "true") return;
+      button.dataset.busy = "true";
+      try {
+        const response = await fetch(button.dataset.preview, { headers: { accept: "text/html" } });
+        const parsed = new DOMParser().parseFromString(await response.text(), "text/html");
+        panel.replaceChildren(...parsed.body.childNodes);
+        panel.dataset.loaded = String(response.ok);
+      } catch {
+        panel.hidden = true;
+        button.setAttribute("aria-expanded", "false");
+      } finally {
+        delete button.dataset.busy;
+      }
+    });
+  });
+}
+
 window.addEventListener("pageshow", (event) => {
   if (!event.persisted) return;
   document.querySelectorAll("[data-busy]").forEach((button) => {
@@ -80,3 +105,4 @@ window.addEventListener("pageshow", (event) => {
 bindTheme();
 bindConfirm();
 bindBusy();
+bindPreview();

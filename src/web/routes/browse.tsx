@@ -1,6 +1,6 @@
 import type { Context, Hono } from "hono";
 import { copy } from "../../copy.js";
-import { formatDay, formatEur, formatGroup } from "../../format.js";
+import { formatDay, formatEur, formatGroup, formatTier } from "../../format.js";
 import { renderHallSvg } from "../../hall-svg.js";
 import type { HistoryPoint } from "../../history.js";
 import type { HallView, VenueStatus } from "../../watcher.js";
@@ -12,7 +12,7 @@ import { normalizeTitle } from "../../uci.js";
 import { searchMovies } from "../../movie-search.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { Badge, buttonClass, Card, Empty, Field, inputClass, LinkButton, Notice, PageHeader } from "../components.js";
-import { DayTabs, HallPair, MovieCard, ShowingRow, Stat, TheatreGroup, TrendSection } from "../parts/browse.js";
+import { DayTabs, HallPair, HallPreview, MovieCard, ShowingRow, Stat, TheatreGroup, TrendSection } from "../parts/browse.js";
 import { backHref, fromOf, hereOf, withFrom } from "../parts/navigation.js";
 import { movieTitleFor } from "../parts/titles.js";
 import { ISO_DAY, SHOWING_KEY, SLUG } from "../../keys.js";
@@ -223,8 +223,9 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const days = programming ? movieShowings(programming, movie) : [];
     const selected = days.find(([day]) => day === dayParam) ?? days[0];
     const ordered = [...(selected?.[1] ?? [])].sort((a, b) => a.time.localeCompare(b.time) || a.room.localeCompare(b.room));
-    const shown = ordered.slice(0, MAX_SHOWINGS);
-    const analyses = await Promise.all(shown.map(async (showing) => (await hallOf(deps, showing.key, undefined, showing.theatreSlug))?.analysis ?? null));
+    const showAll = c.req.query("all") === "1";
+    const shown = showAll ? ordered : ordered.slice(0, MAX_SHOWINGS);
+    const analyses = await Promise.all(shown.slice(0, MAX_SHOWINGS).map(async (showing) => (await hallOf(deps, showing.key, undefined, showing.theatreSlug))?.analysis ?? null));
     const title = days[0]?.[1][0]?.movie.title ?? movie;
     const huntQuery = queryString({ theatre: slug, movie });
     return renderPage(c, deps, {
@@ -248,10 +249,19 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
               <DayTabs days={days.map(([day]) => ({ day, label: formatDay(day) }))} selected={selected[0]} from={fromOf(c)} />
               <div class="grid gap-3">
                 {shown.map((showing, index) => (
-                  <ShowingRow href={withFrom(`/showings/${showing.key}?${huntQuery}`, hereOf(c))} showing={showing} analysis={analyses[index] ?? null} />
+                  <ShowingRow
+                    href={withFrom(`/showings/${showing.key}?${huntQuery}`, hereOf(c))}
+                    previewUrl={`/showings/${showing.key}/preview?${queryString({ theatre: slug })}`}
+                    showing={showing}
+                    analysis={index < MAX_SHOWINGS ? (analyses[index] ?? null) : undefined}
+                  />
                 ))}
               </div>
-              {ordered.length > shown.length ? <p class="mt-3 text-sm text-muted">{theatresUi.cap(MAX_SHOWINGS)}</p> : null}
+              {ordered.length > shown.length ? (
+                <a href={`?${queryString({ day: selected[0], from: fromOf(c) ?? undefined, all: "1" })}`} class="mt-3 inline-block font-semibold text-primary hover:underline">
+                  {theatresUi.showAll(ordered.length)}
+                </a>
+              ) : null}
             </>
           ) : (
             <Empty text={theatresUi.emptyShowings} />
@@ -347,6 +357,26 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     return c.redirect(`/showings/${localId}-${performanceId}${new URL(c.req.url).search}`, 301);
   });
 
+  app.get("/showings/:key/preview", async (c) => {
+    const key = c.req.param("key");
+    const theatre = c.req.query("theatre");
+    if (!SHOWING_KEY.test(key) || (theatre !== undefined && !SLUG.test(theatre))) return c.notFound();
+    const huntParam = c.req.query("hunt");
+    const huntId = huntParam !== undefined && deps.watcher.huntById(huntParam) !== null ? huntParam : undefined;
+    const view = await hallOf(deps, key, huntId, theatre);
+    if (!view) return c.html(<p class="mt-3 text-sm text-muted">{copy.ui.performance.hallError}</p>, 502);
+    const options = { title: "", subtitle: "", labels: copy.hall.labels, tiers: view.tiers, compact: true };
+    return c.html(
+      <HallPreview
+        light={renderHallSvg(view.hall, view.occupancy, view.analysis, view.rule, { ...options, theme: "light" })}
+        dark={renderHallSvg(view.hall, view.occupancy, view.analysis, view.rule, { ...options, theme: "dark" })}
+        analysis={view.analysis}
+        best={view.analysis.best.map(formatGroup)}
+        tiers={view.tiers.length > 1 ? view.tiers.map(formatTier) : []}
+      />,
+    );
+  });
+
   app.get("/showings/:key", (c) => performancePage(c, deps));
 }
 
@@ -377,7 +407,8 @@ async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
   const time = performance.startTime.slice(11, 16);
   const subtitle = ui.subtitle(performance.screenName, formatDay(day), time);
   const movieTitle = await movieTitleFor(deps, key, performance.title, theatre ? [theatre] : []);
-  const svgOptions = { title: movieTitle, subtitle, labels: copy.hall.labels };
+  const svgOptions = { title: movieTitle, subtitle, labels: copy.hall.labels, tiers: view.tiers };
+  const prices = view.tiers.length > 1 ? view.tiers.map(formatTier).join(" · ") : performance.priceFrom === null ? null : ui.priceFrom(formatEur(performance.priceFrom));
   const light = renderHallSvg(hall, occupancy, analysis, rule, { ...svgOptions, theme: "light" });
   const dark = renderHallSvg(hall, occupancy, analysis, rule, { ...svgOptions, theme: "dark" });
   const history = await loadHistory(deps, key);
@@ -396,7 +427,7 @@ async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
       <>
         <PageHeader
           title={movieTitle}
-          description={performance.priceFrom === null ? subtitle : `${subtitle} · ${ui.priceFrom(formatEur(performance.priceFrom))}`}
+          description={prices === null ? subtitle : `${subtitle} · ${prices}`}
           actions={
             <>
               {back ? <LinkButton href={back} label={copy.ui.common.actions.back} icon="arrowLeft" variant="outline" /> : null}

@@ -20,6 +20,7 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   "quello generale" (scelta di Filippo del 20/10/2026). Dalle e Alle uguali (per esempio 00:00 e
   00:00) valgono tutto il giorno, sia generali sia di un giorno (`timeInRange`).
 - **Limiti di una caccia** (review dell'11/11/2026): una finestra a date fisse si legge per 120 giorni al massimo da oggi (o dal suo inizio), anche se l'ultima data è più lontana: UCI si chiede un giorno alla volta, e una caccia "fino al 2099" teneva fermo tutto il resto per ore. Il numero l'ha scelto Filippo. Il limite è nella lettura (`resolveWindow`), non nello schema, così una configurazione che già lo supera continua a caricarsi. Per lo stesso motivo il silenzio notturno con Dalle uguale ad Alle vale "spento" (prima fermava l'app per sempre) senza diventare un errore, e un elenco di lingue vuoto vale "tutte". Nello schema ci sono solo i massimi di 100 cinema e 20 chat aggiuntive per caccia.
+- **Livelli di prezzo** (`priceTiers`, dall'11/11/2026): il proxy Webtic di UCI dà un prezzo per settore (`SectorPrices`: `PT` normale, `HA` VIP), The Space uno per area (`areaCategories`); Webtic diretto e 18Tickets nessuno. Il prezzo di un livello è l'intero (`PriceStartFrom`). Il nome del settore a volte è vuoto (Verona, SALA 02): allora è `VIP` se lo dicono i biglietti, altrimenti resta solo il prezzo. Le aree di The Space si chiamano coi colori del loro sito ("Blu", "Rosso"), che sulla nostra pianta sarebbero dipinti d'altro: quei nomi si tolgono. Con almeno due livelli vendibili la pianta colora i posti liberi per livello (il più economico resta verde) e li mette in legenda, anche nel PNG di Telegram; con uno solo resta com'era. I tre colori in più sono scelti col validatore della skill `dataviz` contro gli altri colori della pianta, in chiaro e in scuro; oltre il quarto livello si riusa l'ultimo.
 - **Posti presi**: l'occupazione elenca solo i posti presi. `ACQUISTO` è venduto, `BLOCCATO` è nel
   carrello di qualcuno e si libera in pochi minuti: conta come preso, altrimenti gli avvisi dei posti
   liberati oscillano.
@@ -119,6 +120,7 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
 
 ## Prestazioni
 
+- **Pagina del film oltre i 12 spettacoli**: "Mostra tutti" li elenca, ma i posti si leggono solo per i primi 12, perché ogni spettacolo è una richiesta di pianta in coda una alla volta; gli altri hanno "Apri pianta", che la legge al clic (`GET /showings/<chiave>/preview`).
 - **resvg su Windows è lento col testo**: la pianta di Verona si disegna in circa 800 ms su
   Windows e in circa 50 ms su Linux Alpine (misurato il 16/10/2026). Il costo è nella composizione
   dei testi, non nei pixel né nel caricamento dei font. Il test dei 500 ms vale solo su Linux; su

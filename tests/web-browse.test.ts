@@ -97,7 +97,7 @@ describe("theatres", () => {
     const second = await page(instance, "/theatres/uci-cinemas-verona/movies/avengers-doomsday?day=2026-12-16");
     expect(second).toContain("09:40");
     expect(second).toContain("SALA 07 XL");
-    expect(second).toContain("Mostrati i primi 12 spettacoli.");
+    expect(second).toContain("Mostra tutti (");
     expect(second).toContain('href="/showings/5116-576749?');
     expect(first).not.toBe(second);
     expect(first).toContain('aria-current="page"');
