@@ -65,6 +65,16 @@ describe("loadState", () => {
     expect(await store.readLines("state.json.bak-42")).toEqual(["{ not json"]);
   });
 
+  it("keeps a copy of a state without a version it knows before starting empty", async () => {
+    const store = createStore(dir);
+    await store.writeJson("state.json", { hunts: { abcd1234: { initialized: true } } });
+
+    const state = await loadState(store, () => 42);
+
+    expect(state).toEqual(emptyState());
+    expect(await store.readJson("state.json.bak-42")).toEqual({ hunts: { abcd1234: { initialized: true } } });
+  });
+
   it("starts empty when there is no file", async () => {
     expect(await loadState(createStore(dir), () => 1)).toEqual(emptyState());
   });
