@@ -847,3 +847,27 @@ describe("telegram egress", () => {
     expect(result.ok).toBe(false);
   });
 });
+
+describe("waits that Telegram asks for", () => {
+  it("never waits more than a minute before trying again", async () => {
+    const { telegram, clock } = setup([failure(429, "Too Many Requests", 3600), okMessage(9)]);
+
+    const result = await telegram.sendMessage("555", "x");
+
+    expect(result.ok).toBe(true);
+    expect(clock.sleeps).toEqual([60_000]);
+  });
+
+  it("stops waiting as soon as the caller gives up", async () => {
+    const stuck: TelegramClock = { now: () => 0, sleep: () => new Promise(() => undefined) };
+    const fetchMock = vi.fn<typeof fetch>(() => Promise.resolve(failure(429, "Too Many Requests", 30)));
+    const telegram = createTelegram({ token: () => TOKEN, fetch: fetchMock, clock: stuck });
+    const controller = new AbortController();
+
+    const pending = telegram.getUpdates(0, 0, controller.signal);
+    setTimeout(() => controller.abort(), 10);
+
+    await expect(pending).rejects.toBeInstanceOf(TelegramError);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});
