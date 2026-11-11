@@ -17,7 +17,7 @@ Come segnalare un problema e proporre una modifica a cinema-watch. Issues and pu
 ## Regole del codice
 
 - Codice in inglese: identificatori, nomi dei file, route e campi.
-- Testi visibili in italiano, nei file dei testi (`src/copy.ts` e `src/web/copy/`) e secondo [docs/UI-COPY.md](docs/UI-COPY.md); `tests/copy-style.test.ts` li controlla.
+- Testi visibili in inglese (la fonte, `src/i18n/en.ts`) e in italiano (`src/i18n/it.ts`), secondo [docs/UI-COPY.md](docs/UI-COPY.md); `tests/copy-style.test.ts` e `tests/i18n.test.ts` li controllano.
 - Niente commenti nel codice: si spiega con nomi giusti e funzioni piccole. Restano le direttive, come `// eslint-disable-*` e `// @ts-expect-error`.
 - Fine riga LF, come chiede `.gitattributes`.
 - Le chiamate esterne passano da `src/http.ts`, solo verso gli host elencati in [docs/api.md](docs/api.md).
