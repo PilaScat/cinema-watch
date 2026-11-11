@@ -14,6 +14,7 @@ const PRIVATE_INTERVAL_MS = 1000;
 const GROUP_WINDOW_MS = 60_000;
 const GROUP_LIMIT = 20;
 const TRANSIENT_RETRY_MS = 1000;
+const MAX_RETRY_AFTER_MS = 60_000;
 const REQUEST_TIMEOUT_MS = 30_000;
 const LONG_POLL_MARGIN_MS = 15_000;
 const DEFAULT_MAX_RETRIES = 3;
@@ -222,6 +223,21 @@ export function createTelegram(options: TelegramOptions): Telegram {
     }
   }
 
+  async function pause(ms: number, signal: AbortSignal | undefined, failure: TelegramError): Promise<void> {
+    if (signal === undefined) return clock.sleep(ms);
+    let giveUp = (): void => undefined;
+    const aborted = new Promise<never>((_resolve, reject) => {
+      giveUp = () => reject(failure);
+      if (signal.aborted) giveUp();
+      else signal.addEventListener("abort", giveUp, { once: true });
+    });
+    try {
+      await Promise.race([clock.sleep(ms), aborted]);
+    } finally {
+      signal.removeEventListener("abort", giveUp);
+    }
+  }
+
   async function request<T>(
     method: string,
     body: Record<string, unknown> | FormData,
@@ -256,13 +272,13 @@ export function createTelegram(options: TelegramOptions): Telegram {
       }
       if (failure.kind === "rate_limited" && rateRetries < maxRetries) {
         rateRetries++;
-        await clock.sleep(retryAfter * 1000);
+        await pause(Math.min(retryAfter * 1000, MAX_RETRY_AFTER_MS), signal, failure);
         continue;
       }
       const transient = failure.status === null || failure.status >= 500;
       if (transient && !transientRetried && signal?.aborted !== true) {
         transientRetried = true;
-        await clock.sleep(TRANSIENT_RETRY_MS);
+        await pause(TRANSIENT_RETRY_MS, signal, failure);
         continue;
       }
       throw failure;
