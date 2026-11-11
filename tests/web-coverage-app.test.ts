@@ -128,7 +128,7 @@ describe("lockout by address", () => {
   it("blocks one forwarded address and leaves another one free when the proxy is trusted", async () => {
     const { instance } = await createWebApp(harness, { env: { UI_PASSWORD: "segreta", TRUST_PROXY: "1" } });
 
-    for (let attempt = 0; attempt < 5; attempt += 1) await fail(instance, "10.0.0.1, 172.16.0.1");
+    for (let attempt = 0; attempt < 5; attempt += 1) await fail(instance, "172.16.0.1, 10.0.0.1");
     const blocked = await (await fail(instance, "10.0.0.1")).text();
     const other = await (await fail(instance, "10.0.0.2")).text();
 

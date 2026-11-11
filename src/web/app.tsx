@@ -10,7 +10,7 @@ import { NONCE, secureHeaders } from "hono/secure-headers";
 import type { Child } from "hono/jsx";
 import { copy } from "../copy.js";
 import type { Watcher } from "../watcher.js";
-import { createLockout, loadSecret, samePassword } from "./auth.js";
+import { createLockout, createPasswordCheck, hostAllowed, loadSecret, sessionValid, sessionValue } from "./auth.js";
 import { Button, Card, Field, inputClass, Notice } from "./components.js";
 import { Layout, type PageContext, type Section } from "./layout.js";
 import { registerBrowseRoutes } from "./routes/browse.js";
@@ -34,12 +34,15 @@ export interface AppDeps {
 export interface AppEnv {
   Variables: {
     secureHeadersNonce?: string;
+    signedIn?: boolean;
   };
 }
 
 const BODY_LIMIT = 1024 * 1024;
 const SESSION_COOKIE = "cw_session";
 const SESSION_DAYS = 30;
+const DAY_MS = 24 * 60 * 60_000;
+const ANY_HOST_PATHS = [/^\/health$/];
 const OPEN_PATHS = [/^\/health$/, /^\/api\/status$/, /^\/assets\//, /^\/manifest\.webmanifest$/, /^\/login$/];
 const ASSET_NAME = /^[A-Za-z0-9-]+\.(png|svg|ttf|css|js)$/;
 const CONTENT_TYPES: Record<string, string> = {
@@ -58,6 +61,7 @@ export function pageContext(c: Context<AppEnv>, deps: AppDeps): PageContext {
     nonce: c.get("secureHeadersNonce") ?? "",
     version: deps.version,
     latestVersion: deps.watcher.state().latestVersion,
+    canLogout: c.get("signedIn") === true,
   };
 }
 
@@ -94,7 +98,7 @@ function arrivedOverHttps(c: Context<AppEnv>, publicUrl: string | null): boolean
 
 function clientIp(c: Context<AppEnv>, trustProxy: boolean): string {
   if (trustProxy) {
-    const forwarded = c.req.header("x-forwarded-for")?.split(",")[0]?.trim();
+    const forwarded = c.req.header("x-forwarded-for")?.split(",").at(-1)?.trim();
     if (forwarded) return forwarded;
   }
   const incoming = (c.env as { incoming?: { socket?: { remoteAddress?: string } } } | undefined)?.incoming;
@@ -125,6 +129,7 @@ export async function createApp(deps: AppDeps): Promise<Hono<AppEnv>> {
   const trustProxy = deps.env.TRUST_PROXY === "1";
   const secret = password ? await loadSecret(deps.dataDir) : "";
   const lockout = createLockout(now);
+  const passwordMatches = createPasswordCheck(password);
   const publicDir = deps.publicDir ?? defaultPublicDir;
   const assetsDir = deps.assetsDir ?? defaultAssetsDir;
 
@@ -155,14 +160,24 @@ export async function createApp(deps: AppDeps): Promise<Hono<AppEnv>> {
   app.use(csrf());
 
   app.use(async (c, next) => {
-    if (!password || OPEN_PATHS.some((pattern) => pattern.test(c.req.path))) return next();
-    const session = await getSignedCookie(c, secret, SESSION_COOKIE);
-    if (session === "ok") return next();
+    if (password || ANY_HOST_PATHS.some((pattern) => pattern.test(c.req.path))) return next();
+    if (hostAllowed(new URL(c.req.url).hostname, deps.watcher.config().settings.publicUrl)) return next();
+    return c.text(copy.ui.common.hostRefused, 403);
+  });
+
+  app.use(async (c, next) => {
+    if (!password) return next();
+    const valid = sessionValid(await getSignedCookie(c, secret, SESSION_COOKIE), secret, password, now());
+    c.set("signedIn", valid);
+    if (valid || OPEN_PATHS.some((pattern) => pattern.test(c.req.path))) return next();
     return c.redirect("/login", 303);
   });
 
   app.get("/health", (c) => c.json({ status: "ok" }));
-  app.get("/api/status", (c) => c.json(statusOf(deps.watcher, deps.version, now())));
+  app.get("/api/status", (c) => {
+    const status = statusOf(deps.watcher, deps.version, now());
+    return c.json(password && c.get("signedIn") !== true ? { ...status, hunts: [] } : status);
+  });
 
   app.get("/manifest.webmanifest", (c) =>
     c.json(
@@ -199,12 +214,12 @@ export async function createApp(deps: AppDeps): Promise<Hono<AppEnv>> {
     }
     const form = await c.req.parseBody();
     const given = typeof form.password === "string" ? form.password : "";
-    if (!samePassword(given, password)) {
+    if (!(await passwordMatches(given))) {
       lockout.fail(ip);
       return renderPage(c, deps, { title: copy.ui.common.login.title, section: "none", status: 400, body: <LoginPage error={copy.ui.common.login.wrong} /> });
     }
     lockout.succeed(ip);
-    await setSignedCookie(c, SESSION_COOKIE, "ok", secret, {
+    await setSignedCookie(c, SESSION_COOKIE, sessionValue(secret, password, now() + SESSION_DAYS * DAY_MS), secret, {
       httpOnly: true,
       sameSite: "Strict",
       secure: new URL(c.req.url).protocol === "https:",

@@ -45,9 +45,11 @@ export const common = {
     title: "Accesso",
     password: "Password",
     submit: "Entra",
+    logout: "Esci",
     wrong: "Password errata",
     locked: "Troppi tentativi: riprovare tra 15 minuti",
   },
+  hostRefused: "Indirizzo non ammesso senza password: va impostata UI_PASSWORD, oppure l'URL pubblico nelle Impostazioni aprendo l'app dal suo IP.",
   notFound: {
     title: "Pagina non trovata",
     description: "L'indirizzo non corrisponde a nessuna pagina.",
