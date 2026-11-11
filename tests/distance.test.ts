@@ -50,9 +50,9 @@ describe("byDistance", () => {
 
 describe("formatKm", () => {
   it("rounds to whole km, with one decimal under 10 km", () => {
-    expect(formatKm(0.34)).toBe("0,3 km");
-    expect(formatKm(9.96)).toBe("10 km");
-    expect(formatKm(141.4)).toBe("141 km");
+    expect(formatKm(0.34, "it")).toBe("0,3 km");
+    expect(formatKm(9.96, "it")).toBe("10 km");
+    expect(formatKm(141.4, "it")).toBe("141 km");
   });
 });
 

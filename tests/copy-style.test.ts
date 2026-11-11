@@ -1,9 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { copy } from "../src/copy.js";
+import { copyFor, LOCALES } from "../src/i18n/index.js";
 
 const EMOJI = /\p{Extended_Pictographic}/u;
 const EMOJI_ALL = /\p{Extended_Pictographic}/gu;
 const EMOJI_KEYS = new Set(["telegram.huntHeader", "telegram.digest.header", "telegram.noNews.header", "telegram.test.header", "telegram.archived", "telegram.mutedNotice", "errors.huntFailed"]);
+
+const SHARED = new Set([
+  "ui.common.appName",
+  "ui.common.theme.system",
+  "ui.common.login.password",
+  "ui.hunts.fields.movieKind",
+  "ui.hunts.formats",
+  "ui.theatres.chains.uci",
+  "ui.theatres.chains.webtic",
+  "ui.theatres.chains.space",
+  "ui.theatres.chains.t18",
+  "ui.theatres.filterPlaceholder",
+  "ui.theatres.luxe",
+  "ui.search.resultsTitle",
+  "ui.settings.sections.telegram",
+  "ui.settings.backup.file",
+]);
 
 function collect(node: unknown, path: string, out: Array<[string, string]>): Array<[string, string]> {
   if (typeof node === "string") {
@@ -32,13 +49,26 @@ function violations(root: unknown): string[] {
 }
 
 describe("copy style", () => {
-  it("has no exclamation marks and emoji only in the allowed headers", () => {
-    expect(violations(copy)).toEqual([]);
+  it.each(LOCALES)("has no exclamation marks and emoji only in the allowed headers, in %s", (locale) => {
+    expect(violations(copyFor(locale))).toEqual([]);
   });
 
-  it("reaches the allowed emoji keys", () => {
-    const paths = collect(copy, "", []).map(([path]) => path);
+  it.each(LOCALES)("reaches the allowed emoji keys, in %s", (locale) => {
+    const paths = collect(copyFor(locale), "", []).map(([path]) => path);
     for (const key of EMOJI_KEYS) expect(paths).toContain(key);
+  });
+
+  it("has no English text left equal to the Italian one, apart from names and words the two languages share", () => {
+    const italian = new Map(collect(copyFor("it"), "", []).map(([path, text], index) => [`${path}#${index}`, text]));
+    const same = collect(copyFor("en"), "", [])
+      .filter(([path, text], index) => italian.get(`${path}#${index}`) === text && /\p{L}{3}/u.test(text.replaceAll(/<\/?b>|X/g, "")))
+      .map(([path]) => path);
+
+    expect([...new Set(same)].filter((path) => !SHARED.has(path.replace(/\.\d+$/, "")))).toEqual([]);
+  });
+
+  it("has no accented letters in the English text", () => {
+    expect(collect(copyFor("en"), "", []).filter(([, text]) => /[àèéìòù]/i.test(text)).map(([path]) => path)).toEqual([]);
   });
 
   it("flags an exclamation mark", () => {
