@@ -6,7 +6,7 @@ import { resolveWindow } from "./dates.js";
 import { ApiShapeError, HttpError, WebticError } from "./errors.js";
 import type { Hunt, ObservedShowing, RoundObservation, Settings } from "./model.js";
 import { analyzeSeats } from "./seats.js";
-import type { Hall, MovieRef, Occupancy, SeatAnalysis, SeatRule, Showing, ShowingFilter, Zone } from "./types.js";
+import type { Hall, MovieRef, Occupancy, SeatAnalysis, SeatRule, Showing, ShowingFilter, Zone, PriceTier } from "./types.js";
 import { filterShowings, matchesTitle } from "./uci.js";
 
 export interface RunnerDeps {
@@ -18,6 +18,7 @@ export interface SeatDetail {
   occupancy: Occupancy;
   analysis: SeatAnalysis;
   rule: SeatRule;
+  tiers: PriceTier[];
 }
 
 export interface HuntObservation {
@@ -97,7 +98,7 @@ async function observeSeats(
   const analysis = analyzeSeats(hall, occupancy, rule);
   return {
     observed: { showing, performance, analysis, zoneSignature: zoneSignature(zone, hunt.together) },
-    detail: { hall, occupancy, analysis, rule },
+    detail: { hall, occupancy, analysis, rule, tiers: performance.priceTiers ?? [] },
     hallChanged,
     hallKey: performance.hallKey,
   };

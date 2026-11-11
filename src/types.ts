@@ -79,6 +79,12 @@ export interface ShowingFilter {
   languages?: string[];
 }
 
+export interface PriceTier {
+  sector: string;
+  name: string;
+  price: number;
+}
+
 export interface PerformanceInfo {
   key: string;
   hallKey: string;
@@ -87,6 +93,7 @@ export interface PerformanceInfo {
   startTime: string;
   title: string;
   priceFrom: number | null;
+  priceTiers?: PriceTier[];
 }
 
 export interface Seat {
@@ -172,4 +179,6 @@ export interface HallRenderOptions {
   subtitle: string;
   labels: HallLabels;
   theme: ThemeName;
+  tiers?: PriceTier[];
+  compact?: boolean;
 }

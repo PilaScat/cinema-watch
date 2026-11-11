@@ -1,8 +1,10 @@
-import { seatState } from "./seats.js";
+import { formatTier } from "./format.js";
+import { isSellable, seatState } from "./seats.js";
 import type {
   Hall,
   HallLabels,
   HallRenderOptions,
+  PriceTier,
   Occupancy,
   Seat,
   SeatAnalysis,
@@ -46,6 +48,30 @@ const DARK_TEXT_STATES: Record<ThemeName, SeatState[]> = {
   dark: ["free", "best"],
   light: ["blocked", "reserved", "best"],
 };
+export const TIER_PALETTE: Record<ThemeName, string[]> = {
+  dark: ["#f472b6", "#22d3ee", "#e5e7eb"],
+  light: ["#a21caf", "#0891b2", "#374151"],
+};
+const TIER_INK_DARK: Record<ThemeName, boolean> = { dark: true, light: false };
+
+interface TierPaint {
+  tier: PriceTier;
+  color: string;
+  darkInk: boolean;
+}
+
+function tierPaints(hall: Hall, rule: SeatRule, tiers: PriceTier[], theme: ThemeName): TierPaint[] {
+  const sectors = new Set(hall.seats.filter((seat) => isSellable(seat, rule.sellableTypes)).map((seat) => seat.sector));
+  const shown = tiers.filter((tier) => sectors.has(tier.sector)).sort((a, b) => a.price - b.price);
+  if (shown.length < 2) return [];
+  const extra = TIER_PALETTE[theme];
+  return shown.map((tier, index) =>
+    index === 0
+      ? { tier, color: HALL_PALETTE[theme].free, darkInk: DARK_TEXT_STATES[theme].includes("free") }
+      : { tier, color: extra[Math.min(index, extra.length) - 1] as string, darkInk: TIER_INK_DARK[theme] },
+  );
+}
+
 const DARK_INK = "#121014";
 const LIGHT_INK = "#faf7f2";
 
@@ -56,6 +82,7 @@ const MARGIN = 24;
 const LETTER_WIDTH = 22;
 const MIN_WIDTH = 560;
 const HEADER_HEIGHT = 84;
+const COMPACT_HEADER_HEIGHT = 16;
 const SCREEN_HEIGHT = 48;
 const LEGEND_ROW_HEIGHT = 28;
 const LEGEND_COLUMNS = 4;
@@ -140,6 +167,7 @@ function legendEntries(
   counts: Record<SeatState, number>,
   analysis: SeatAnalysis,
   palette: Record<PaletteKey, string>,
+  paints: TierPaint[],
 ): LegendEntry[] {
   const bestSeats = new Set(analysis.best.flatMap((group) => group.seatIds)).size;
   const states = LEGEND_STATES.map((state) => ({
@@ -150,6 +178,7 @@ function legendEntries(
   return [
     ...states,
     { color: palette.zone, text: `${labels.zone} ${analysis.sellableInZone}`, outline: true },
+    ...paints.map((paint) => ({ color: paint.color, text: formatTier(paint.tier), outline: false })),
   ];
 }
 
@@ -161,6 +190,7 @@ function renderSeat(
   seat: Seat,
   state: SeatState,
   theme: ThemeName,
+  paint: TierPaint | undefined,
   bounds: Bounds,
   originX: number,
   originY: number,
@@ -177,7 +207,7 @@ function renderSeat(
     width: CELL,
     height: CELL,
     rx: 6,
-    fill: palette[state],
+    fill: paint?.color ?? palette[state],
   })}/>`;
   if (seat.number === null) return rect;
   const label = textElement(String(seat.number), {
@@ -187,7 +217,7 @@ function renderSeat(
     "font-family": BODY_FONT,
     "font-size": 13,
     "font-weight": 600,
-    fill: inkFor(state, theme),
+    fill: paint ? (paint.darkInk ? DARK_INK : LIGHT_INK) : inkFor(state, theme),
   });
   return rect + label;
 }
@@ -329,10 +359,12 @@ export function renderHallSvg(
   const gridHeight = rowCount * PITCH - GAP;
   const width = Math.max(MIN_WIDTH, gridWidth + (MARGIN + LETTER_WIDTH + 8) * 2);
   const originX = (width - gridWidth) / 2;
-  const screenTop = HEADER_HEIGHT;
+  const screenTop = options.compact ? COMPACT_HEADER_HEIGHT : HEADER_HEIGHT;
+  const paints = tierPaints(hall, rule, options.tiers ?? [], theme);
+  const paintOf = new Map(paints.map((paint) => [paint.tier.sector, paint]));
   const originY = screenTop + SCREEN_HEIGHT + 16;
   const legendTop = originY + gridHeight + 28;
-  const legendRows = Math.ceil((LEGEND_STATES.length + 1) / LEGEND_COLUMNS);
+  const legendRows = Math.ceil((LEGEND_STATES.length + 1 + paints.length) / LEGEND_COLUMNS);
   const height = legendTop + legendRows * LEGEND_ROW_HEIGHT + MARGIN - 8;
   const bestIds = new Set(analysis.best.flatMap((group) => group.seatIds));
   const counts = countStates(hall, occupancy, rule);
@@ -340,7 +372,7 @@ export function renderHallSvg(
     .map((seat) => {
       const base = seatState(seat, occupancy, rule.sellableTypes);
       const state = bestIds.has(seat.id) && base === "free" ? "best" : base;
-      return renderSeat(seat, state, theme, bounds, originX, originY);
+      return renderSeat(seat, state, theme, state === "free" ? paintOf.get(seat.sector) : undefined, bounds, originX, originY);
     })
     .join("");
   const parts = [
@@ -351,25 +383,17 @@ export function renderHallSvg(
       viewBox: `0 0 ${width} ${height}`,
     })}>`,
     `<rect ${attrs({ width, height, fill: palette.background })}/>`,
-    textElement(options.title, {
-      x: MARGIN,
-      y: 40,
-      "font-family": TITLE_FONT,
-      "font-size": 34,
-      fill: palette.text,
-    }),
-    textElement(options.subtitle, {
-      x: MARGIN,
-      y: 64,
-      "font-family": BODY_FONT,
-      "font-size": 15,
-      fill: palette.muted,
-    }),
+    ...(options.compact
+      ? []
+      : [
+          textElement(options.title, { x: MARGIN, y: 40, "font-family": TITLE_FONT, "font-size": 34, fill: palette.text }),
+          textElement(options.subtitle, { x: MARGIN, y: 64, "font-family": BODY_FONT, "font-size": 15, fill: palette.muted }),
+        ]),
     renderScreen(labels.screen, theme, width, screenTop, gridWidth),
     renderRowLetters(rowLabels(hall), theme, bounds, originX, originX + gridWidth, originY),
     seats,
     renderZoneOutlines(hall, analysis, theme, bounds, originX, originY),
-    renderLegend(legendEntries(labels, counts, analysis, palette), theme, width, legendTop),
+    renderLegend(legendEntries(labels, counts, analysis, palette, paints), theme, width, legendTop),
     "</svg>",
   ];
   return parts.join("");

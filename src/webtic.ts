@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ApiShapeError, WebticError } from "./errors.js";
 import { hallKey, showingKey } from "./keys.js";
-import type { HttpClient, Hall, Occupancy, PerformanceInfo, Seat, TakenStatus } from "./types.js";
+import type { HttpClient, Hall, Occupancy, PerformanceInfo, PriceTier, Seat, TakenStatus } from "./types.js";
 
 export const WEBTIC_API_BASE = "https://uci-website-webtic-proxy-production-1042268733238.europe-west8.run.app/Api2";
 export const WEBTIC_HEADERS = { Origin: "https://ucicinemas.it", Referer: "https://ucicinemas.it/" };
@@ -32,9 +32,11 @@ const envelopeSchema = z.object({
   }),
 });
 
-const priceSchema = z.object({ TotalPrice: z.number().nullish() });
+const priceSchema = z.object({ TotalPrice: z.number().nullish(), PriceType: z.number().nullish().catch(null), PriceDescription: z.string().nullish().catch(null) });
 
 const sectorPriceSchema = z.object({
+  SectorId: z.string().nullish().catch(null),
+  SectorName: z.string().nullish().catch(null),
   PriceStartFrom: z.number().nullish(),
   Prices: z.array(priceSchema).nullish(),
 });
@@ -121,6 +123,39 @@ function lowestPrice(data: z.infer<typeof performanceDataSchema>): number | null
   return minimum(totals);
 }
 
+const FULL_PRICE_TYPE = 1;
+
+function capitalized(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}
+
+function tierPrice(sector: z.infer<typeof sectorPriceSchema>): number | null {
+  if (typeof sector.PriceStartFrom === "number") return sector.PriceStartFrom;
+  const prices = sector.Prices ?? [];
+  const full = prices.filter((price) => price.PriceType === FULL_PRICE_TYPE).flatMap((price) => price.TotalPrice ?? []);
+  const all = prices.flatMap((price) => price.TotalPrice ?? []);
+  return full.length > 0 ? Math.max(...full) : all.length > 0 ? Math.max(...all) : null;
+}
+
+function tierName(sector: z.infer<typeof sectorPriceSchema>): string {
+  const name = (sector.SectorName ?? "").trim();
+  if (name !== "") return capitalized(name);
+  return (sector.Prices ?? []).some((price) => /\bVIP\b/i.test(price.PriceDescription ?? "")) ? "VIP" : "";
+}
+
+function priceTiers(data: z.infer<typeof performanceDataSchema>): PriceTier[] {
+  const tiers = new Map<string, PriceTier>();
+  const sectors = (data.Tickets?.ShoppingModes ?? []).flatMap((mode) => mode.PaymentModes ?? []).flatMap((payment) => payment.SectorPrices ?? []);
+  for (const sector of sectors) {
+    const price = tierPrice(sector);
+    const id = sector.SectorId ?? "";
+    if (id === "" || price === null) continue;
+    const known = tiers.get(id);
+    if (!known || price < known.price) tiers.set(id, { sector: id, name: tierName(sector), price });
+  }
+  return [...tiers.values()].sort((a, b) => a.price - b.price);
+}
+
 export function parsePerformance(json: unknown): PerformanceInfo {
   const data = unwrapData(json, performanceDataSchema, "performance");
   const performance = data.Performance;
@@ -132,6 +167,7 @@ export function parsePerformance(json: unknown): PerformanceInfo {
     startTime: performance.StartTime,
     title: data.Event.Title,
     priceFrom: lowestPrice(data),
+    priceTiers: priceTiers(data),
   };
 }
 

@@ -7,7 +7,7 @@ import { regionOfPostalCode, regionOfProvince } from "../regions.js";
 import type { createStore } from "../store.js";
 import { normalizeTitle } from "../uci.js";
 import { parseTitle } from "../webtic-direct.js";
-import type { CatalogMovie, Hall, HttpClient, IsoDay, Occupancy, PerformanceInfo, Seat, Showing, TakenStatus, Theatre } from "../types.js";
+import type { CatalogMovie, Hall, HttpClient, IsoDay, Occupancy, PerformanceInfo, Seat, Showing, TakenStatus, Theatre, PriceTier } from "../types.js";
 import type { Circuit, DayResult } from "./types.js";
 
 type Store = ReturnType<typeof createStore>;
@@ -22,6 +22,7 @@ const TOKEN_COOKIE = "microservicesToken";
 const TOKEN_TTL_MS = 11 * 60 * 60 * 1000;
 const PAGE_TIMEOUT_MS = 15_000;
 const TOKEN_REFUSAL_PAUSE_MS = 60_000;
+const COLOUR_NAMES = new Set(["verde", "blu", "rosso", "giallo", "arancione", "viola", "rosa", "azzurro", "nero", "bianco", "grigio"]);
 const VENUE_CHECK_MS = 7 * 24 * 60 * 60 * 1000;
 const COORDINATES = /q=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/;
 const ADDRESS = /<address[^>]*>([^<]*)<\/address>/;
@@ -70,7 +71,7 @@ const seatSchema = z.object({ name: z.string().min(1), seatStatus: z.number(), a
 const seatsSchema = z.object({
   seatingData: z.object({ screenLabel: z.string().catch("") }).catch({ screenLabel: "" }),
   seatRows: z.array(z.object({ rowLabel: z.string().catch(""), columns: z.array(z.unknown()).catch([]) })),
-  areaCategories: z.array(z.object({ areaCategoryCode: z.string(), areaMainPriceInCents: z.number().nullable().catch(null) })).catch([]),
+  areaCategories: z.array(z.object({ areaCategoryCode: z.string(), areaName: z.string().catch(""), areaMainPriceInCents: z.number().nullable().catch(null) })).catch([]),
 });
 
 const venueListSchema = z.object({
@@ -102,6 +103,7 @@ export interface SpaceSeats {
   seats: Seat[];
   taken: Record<string, TakenStatus>;
   priceFrom: number | null;
+  priceTiers: PriceTier[];
 }
 
 export interface SpaceVenueList {
@@ -295,8 +297,11 @@ export function parseSeats(json: unknown): SpaceSeats {
   });
   if (seats.length === 0) throw new ApiShapeError("space", "seats: no seats");
   const sellableAreas = new Set(seats.filter((seat) => seat.type === "STANDARD").map((seat) => seat.sector));
-  const prices = parsed.data.areaCategories.filter((area) => sellableAreas.has(area.areaCategoryCode)).flatMap((area) => (area.areaMainPriceInCents === null ? [] : [area.areaMainPriceInCents / 100]));
-  return { screenName: parsed.data.seatingData.screenLabel.trim(), seats, taken, priceFrom: prices.length === 0 ? null : Math.min(...prices) };
+  const priceTiers = parsed.data.areaCategories
+    .filter((area) => sellableAreas.has(area.areaCategoryCode))
+    .flatMap((area): PriceTier[] => (area.areaMainPriceInCents === null ? [] : [{ sector: area.areaCategoryCode, name: COLOUR_NAMES.has(area.areaName.trim().toLowerCase()) ? "" : area.areaName.trim(), price: area.areaMainPriceInCents / 100 }]))
+    .sort((a, b) => a.price - b.price);
+  return { screenName: parsed.data.seatingData.screenLabel.trim(), seats, taken, priceFrom: priceTiers[0]?.price ?? null, priceTiers };
 }
 
 function cookieOf(response: Response): string | null {
@@ -442,7 +447,7 @@ export function createSpaceCircuit(deps: SpaceCircuitDeps): Circuit {
       const signature = read.seats.map((seat) => seat.id).sort().join(",");
       const previous = hallSeats.get(hallKey);
       hallSeats.set(hallKey, signature);
-      const performance: PerformanceInfo = { key, hallKey, eventRef: "", screenName: read.screenName, startTime: info.startsAt, title: info.title, priceFrom: read.priceFrom };
+      const performance: PerformanceInfo = { key, hallKey, eventRef: "", screenName: read.screenName, startTime: info.startsAt, title: info.title, priceFrom: read.priceFrom, priceTiers: read.priceTiers };
       const hall: Hall = { key: hallKey, seats: read.seats, fetchedAt: deps.now() };
       const occupancy: Occupancy = { key, taken: read.taken };
       return { performance, hall, occupancy, hallChanged: previous !== undefined && previous !== signature };

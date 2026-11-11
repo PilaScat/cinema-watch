@@ -73,6 +73,7 @@ describe("parsePerformance", () => {
       startTime: "2026-12-15T20:30:00",
       title: "Dune - Parte Tre Sala Imax",
       priceFrom: 14.9,
+      priceTiers: [{ sector: "PT", name: "Normale", price: 14.9 }],
     });
   });
 

@@ -25,6 +25,7 @@ export function renderPhotos(keys: string[], observation: HuntObservation, theat
       subtitle: copy.hall.subtitle(theatreNames[showing.theatreSlug] ?? showing.theatreSlug, showing.room, formatDay(showing.day), showing.time),
       labels: copy.hall.labels,
       theme: "dark",
+      tiers: detail.tiers,
     });
     photos.set(key, svgToPng(svg, { width: TELEGRAM_PHOTO_WIDTH }));
   }
