@@ -172,6 +172,10 @@ Ogni voce di `hunts`:
 
 I totali `activeHunts`, `showings` e `withSeats` contano solo le cacce attive; `hunts` le elenca tutte.
 
+### `GET /showings/<chiave>/preview`
+
+Frammento HTML con la pianta compatta di uno spettacolo nei due temi, i posti liberi, i prezzi per livello e i migliori posti: è quello che la UI carica quando si preme sul conteggio dei posti in un elenco. Parametri facoltativi `theatre` (slug del cinema) e `hunt` (per usare la zona di una caccia). Risponde `404` per una chiave o uno slug malformati e `502` se la pianta non si legge. Protetta come il resto della UI.
+
 ### `GET /api/movies?theatres=a,b`
 
 Elenca i film in programmazione nei cinema indicati, per riempire l'elenco del form di una caccia. `theatres` è un elenco di slug separati da virgola. Con `UI_PASSWORD` impostata la route è protetta come il resto della UI: senza sessione risponde con un reindirizzamento a `/login`.

@@ -126,6 +126,29 @@ export function LinkButton(props: { href: string; label: string; icon?: IconName
   );
 }
 
+export function PreviewButton(props: { url: string; label: string; title: string; class?: string }) {
+  return (
+    <button
+      type="button"
+      data-preview={props.url}
+      aria-expanded="false"
+      title={props.title}
+      class={cx(
+        "inline-flex items-center gap-1 rounded-md underline decoration-dotted underline-offset-4 hover:text-primary",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        props.class,
+      )}
+    >
+      <Icon name="armchair" class="busy-icon" />
+      {props.label}
+    </button>
+  );
+}
+
+export function PreviewPanel() {
+  return <div data-preview-panel hidden class="w-full"></div>;
+}
+
 export function ActionForm(props: { action: string; children: Child; class?: string }) {
   return (
     <form method="post" action={props.action} class={cx("inline", props.class)}>

@@ -128,7 +128,7 @@ describe("movie page", () => {
 
     const html = await (await instance.request(MOVIE_PAGE)).text();
 
-    expect(html).toContain("font-semibold text-gold\">3 nella zona buona");
+    expect(html).toMatch(/font-semibold text-gold"[^>]*><svg[\s\S]*?<\/svg>3 nella zona buona/);
   });
 });
 

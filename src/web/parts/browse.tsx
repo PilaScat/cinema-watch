@@ -1,11 +1,12 @@
 import { raw } from "hono/html";
 import { copy } from "../../copy.js";
 import { formatKm } from "../../distance.js";
-import { formatTime } from "../../format.js";
+import { formatDayOf, formatDayTime } from "../../format.js";
+import { romeMidnightsBetween } from "../../dates.js";
 import type { HistoryPoint } from "../../history.js";
 import { renderTrendSvg } from "../../chart-svg.js";
 import type { SeatAnalysis, Showing, Theatre } from "../../types.js";
-import { Badge, Card, cx, Icon } from "../components.js";
+import { Badge, Card, cx, Icon, PreviewButton, PreviewPanel } from "../components.js";
 
 const TREND_WIDTH = 640;
 const TREND_HEIGHT = 240;
@@ -87,26 +88,59 @@ export function DayTabs(props: { days: Array<{ day: string; label: string }>; se
   );
 }
 
-export function ShowingRow(props: { href: string; showing: Showing; analysis: SeatAnalysis | null }) {
+export function ShowingRow(props: { href: string; previewUrl: string; showing: Showing; analysis: SeatAnalysis | null | undefined }) {
   const ui = copy.ui.theatres;
   const { showing, analysis } = props;
   return (
-    <a href={props.href} class="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-border bg-surface px-4 py-3 hover:border-primary">
-      <span class="font-display text-2xl tracking-wide">{showing.time}</span>
-      <Badge>{showing.formatGroup}</Badge>
-      {showing.language ? <span class="text-sm text-muted">{showing.language}</span> : null}
-      <span class="text-sm text-muted">{showing.room}</span>
-      <span class="ml-auto flex flex-wrap gap-x-4 text-sm">
+    <div data-preview-row class="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-border bg-surface px-4 py-3 hover:border-primary">
+      <a href={props.href} class="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1">
+        <span class="font-display text-2xl tracking-wide">{showing.time}</span>
+        <Badge>{showing.formatGroup}</Badge>
+        {showing.language ? <span class="text-sm text-muted">{showing.language}</span> : null}
+        <span class="text-sm text-muted">{showing.room}</span>
+      </a>
+      <span class="flex flex-wrap items-center gap-x-4 text-sm">
         {analysis ? (
           <>
             <span>{ui.free(analysis.free)}</span>
-            <span class={analysis.freeInZone > 0 ? "font-semibold text-gold" : "text-muted"}>{ui.freeGood(analysis.freeInZone)}</span>
+            <PreviewButton
+              url={props.previewUrl}
+              label={ui.freeGood(analysis.freeInZone)}
+              title={ui.previewTitle}
+              class={analysis.freeInZone > 0 ? "font-semibold text-gold" : "text-muted"}
+            />
           </>
-        ) : (
+        ) : analysis === null ? (
           <span class="text-muted">{ui.hallUnavailable}</span>
+        ) : (
+          <PreviewButton url={props.previewUrl} label={ui.openHall} title={ui.previewTitle} class="text-muted" />
         )}
       </span>
-    </a>
+      <PreviewPanel />
+    </div>
+  );
+}
+
+export function HallPreview(props: { dark: string; light: string; analysis: SeatAnalysis; best: string[]; tiers: string[] }) {
+  const ui = copy.ui.theatres;
+  return (
+    <div class="mt-3 rounded-lg border border-border bg-background p-3">
+      <p class="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+        <span>{ui.free(props.analysis.free)}</span>
+        <span class={props.analysis.freeInZone > 0 ? "font-semibold text-gold" : "text-muted"}>{ui.freeGood(props.analysis.freeInZone)}</span>
+        {props.tiers.map((tier) => (
+          <span class="text-muted">{tier}</span>
+        ))}
+      </p>
+      <HallPair dark={props.dark} light={props.light} />
+      {props.best.length > 0 ? (
+        <p class="mt-2 flex flex-wrap gap-1.5">
+          {props.best.map((group) => (
+            <Badge tone="gold">{group}</Badge>
+          ))}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -137,10 +171,12 @@ export function TrendSection(props: { points: HistoryPoint[] }) {
       </Card>
     );
   }
+  const times = props.points.map((point) => point.t);
   const svg = renderTrendSvg(props.points, {
     width: TREND_WIDTH,
     height: TREND_HEIGHT,
-    labels: { free: ui.legendFree, freeGood: ui.legendGood, time: formatTime },
+    labels: { free: ui.legendFree, freeGood: ui.legendGood, time: formatDayTime },
+    dayMarks: romeMidnightsBetween(Math.min(...times), Math.max(...times)).map((t) => ({ t, label: formatDayOf(t) })),
   });
   return (
     <Card title={ui.trendTitle}>
@@ -170,7 +206,7 @@ export function TrendSection(props: { points: HistoryPoint[] }) {
             <tbody>
               {props.points.map((point) => (
                 <tr>
-                  <td class="py-1 pr-4">{formatTime(point.t)}</td>
+                  <td class="py-1 pr-4">{formatDayTime(point.t)}</td>
                   <td class="py-1 pr-4">{point.free}</td>
                   <td class="py-1">{point.freeGood}</td>
                 </tr>

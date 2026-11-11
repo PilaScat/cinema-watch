@@ -1,7 +1,7 @@
 import { copy } from "../../copy.js";
 import { formatDay } from "../../format.js";
 import type { Hunt, HuntState } from "../../model.js";
-import { ActionForm, Badge, Button, Card, LinkButton } from "../components.js";
+import { ActionForm, Badge, Button, Card, LinkButton, PreviewButton, PreviewPanel } from "../components.js";
 
 const ui = copy.ui.hunts;
 const common = copy.ui.common;
@@ -44,7 +44,7 @@ export function StatusCards(props: { hunt: Hunt; state: HuntState | undefined; t
               const query = new URLSearchParams({ hunt: hunt.id, movie: showing.movieSlug, theatre: showing.theatreSlug, from: `/hunts/${hunt.id}#showings` });
               const free = showing.seats?.freeInZone;
               return (
-                <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+                <li data-preview-row class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
                   <div class="min-w-0">
                     <span class="font-semibold">{`${formatDay(showing.day)} ${showing.time}`}</span>
                     <span class="text-muted">{` · ${props.theatreNames[showing.theatreSlug] ?? showing.theatreSlug} · ${showing.screenName ?? showing.room}`}</span>
@@ -53,12 +53,18 @@ export function StatusCards(props: { hunt: Hunt; state: HuntState | undefined; t
                     {free === undefined ? (
                       <Badge tone="muted">{ui.showing.unknown}</Badge>
                     ) : (
-                      <Badge tone={showing.seats?.ok ? "gold" : "neutral"}>{ui.showing.free(free)}</Badge>
+                      <PreviewButton
+                        url={`/showings/${showing.key}/preview?${new URLSearchParams({ hunt: hunt.id, theatre: showing.theatreSlug }).toString()}`}
+                        label={ui.showing.free(free)}
+                        title={copy.ui.theatres.previewTitle}
+                        class={showing.seats?.ok ? "font-semibold text-gold" : "text-muted"}
+                      />
                     )}
                     <a href={`/showings/${showing.key}?${query.toString()}`} class="font-semibold text-primary hover:underline">
                       {ui.showing.open}
                     </a>
                   </div>
+                  <PreviewPanel />
                 </li>
               );
             })}

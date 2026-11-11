@@ -24,6 +24,8 @@ export const theatres = {
   free: (count: number): string => `${count} liberi`,
   freeGood: (count: number): string => `${count} nella zona buona`,
   hallUnavailable: "Pianta non disponibile",
-  cap: (count: number): string => `Mostrati i primi ${count} spettacoli.`,
+  showAll: (count: number): string => `Mostra tutti (${count})`,
+  openHall: "Apri pianta",
+  previewTitle: "Anteprima della pianta",
   addHunt: "Aggiungi caccia",
 } as const;
