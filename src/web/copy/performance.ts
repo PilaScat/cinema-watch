@@ -13,5 +13,5 @@ export const performance = {
   legendFree: "Liberi",
   legendGood: "Nella zona buona",
   tableSummary: "Tabella dei valori",
-  columnTime: "Ora",
+  columnTime: "Giorno e ora",
 } as const;

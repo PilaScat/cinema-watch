@@ -5,6 +5,7 @@ export interface TrendOptions {
   width: number;
   height: number;
   labels: { free: string; freeGood: string; time: (t: number) => string };
+  dayMarks?: Array<{ t: number; label: string }>;
 }
 
 const MARGIN = { top: 12, right: 44, bottom: 28, left: 40 };
@@ -13,6 +14,8 @@ const LABEL_GAP = 14;
 const DOT_RADIUS = 4;
 const LINE_WIDTH = 2;
 const FONT_SIZE = 12;
+const EDGE_LABEL_WIDTH = 110;
+const MARK_LABEL_GAP = 64;
 
 function num(value: number): string {
   return String(Math.round(value * 10) / 10);
@@ -69,6 +72,17 @@ export function renderTrendSvg(points: HistoryPoint[], options: TrendOptions): s
     }
   }
 
+  const marks: string[] = [];
+  let lastLabelX = MARGIN.left + EDGE_LABEL_WIDTH - MARK_LABEL_GAP;
+  for (const mark of span === 0 ? [] : (options.dayMarks ?? [])) {
+    if (mark.t <= tMin || mark.t >= tMin + span) continue;
+    const x = xOf(mark.t);
+    marks.push(`<line x1="${num(x)}" x2="${num(x)}" y1="${MARGIN.top}" y2="${num(bottom)}" class="chart-grid" stroke-width="1" stroke-dasharray="4 3" data-day="${escapeHtml(mark.label)}"/>`);
+    if (x - lastLabelX < MARK_LABEL_GAP || right - x < EDGE_LABEL_WIDTH) continue;
+    marks.push(textAt(x, bottom + 16, "middle", mark.label));
+    lastLabelX = x;
+  }
+
   const line = (pick: (point: HistoryPoint) => number, index: 1 | 2): string =>
     `<polyline points="${sorted.map((point) => `${num(xOf(point.t))},${num(yOf(pick(point)))}`).join(" ")}" fill="none" stroke-width="${LINE_WIDTH}" stroke-linejoin="round" stroke-linecap="round" class="chart-line-${index}"/>`;
 
@@ -88,13 +102,14 @@ export function renderTrendSvg(points: HistoryPoint[], options: TrendOptions): s
     const next = sorted[index + 1];
     const from = previous ? (xOf(previous.t) + x) / 2 : MARGIN.left;
     const to = next ? (xOf(next.t) + x) / 2 : right;
-    return `<rect x="${num(from)}" y="${MARGIN.top}" width="${num(Math.max(to - from, 1))}" height="${num(plotHeight)}" fill="transparent" tabindex="0" data-t="${point.t}" data-free="${point.free}" data-good="${point.freeGood}"/>`;
+    return `<rect x="${num(from)}" y="${MARGIN.top}" width="${num(Math.max(to - from, 1))}" height="${num(plotHeight)}" fill="transparent" tabindex="0" data-label="${escapeHtml(labels.time(point.t))}" data-t="${point.t}" data-free="${point.free}" data-good="${point.freeGood}"/>`;
   });
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="${escapeHtml(`${labels.free}, ${labels.freeGood}`)}">`,
     ...grid,
     ...axisX,
+    ...marks,
     line((point) => point.free, 1),
     line((point) => point.freeGood, 2),
     ...ending,

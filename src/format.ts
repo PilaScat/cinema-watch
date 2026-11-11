@@ -1,4 +1,4 @@
-import type { SeatGroup } from "./types.js";
+import type { PriceTier, SeatGroup } from "./types.js";
 
 const TIME_ZONE = "Europe/Rome";
 
@@ -26,10 +26,25 @@ export function formatEur(amount: number): string {
   return eurFormatter.format(amount);
 }
 
-export function formatDay(isoDay: string): string {
-  const parts = shortDayFormatter.formatToParts(noonOf(isoDay));
-  const picked: Record<string, string> = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+function shortDay(date: Date): string {
+  const picked: Record<string, string> = Object.fromEntries(shortDayFormatter.formatToParts(date).map((part) => [part.type, part.value]));
   return `${picked["weekday"]} ${picked["day"]}/${picked["month"]}`;
+}
+
+export function formatDay(isoDay: string): string {
+  return shortDay(noonOf(isoDay));
+}
+
+export function formatDayOf(epochMs: number): string {
+  return shortDay(new Date(epochMs));
+}
+
+export function formatDayTime(epochMs: number): string {
+  return `${formatDayOf(epochMs)} ${formatTime(epochMs)}`;
+}
+
+export function formatTier(tier: PriceTier): string {
+  return tier.name === "" ? formatEur(tier.price) : `${tier.name} ${formatEur(tier.price)}`;
 }
 
 export function formatDayLong(isoDay: string): string {

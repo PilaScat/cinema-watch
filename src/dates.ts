@@ -71,6 +71,26 @@ export function romeNow(now: Date): { day: IsoDay; time: HhMm; weekday: number }
   return { day, time: `${p["hour"]}:${p["minute"]}`, weekday: weekdayOf(day) };
 }
 
+const HOUR_MS = 60 * 60 * 1000;
+
+export function romeMidnight(day: IsoDay): number {
+  const utc = dayToUtcMs(day);
+  for (const hours of [1, 2]) {
+    const at = romeNow(new Date(utc - hours * HOUR_MS));
+    if (at.day === day && at.time === "00:00") return utc - hours * HOUR_MS;
+  }
+  return utc - HOUR_MS;
+}
+
+export function romeMidnightsBetween(fromMs: number, toMs: number): number[] {
+  const marks: number[] = [];
+  for (let day = addDays(romeToday(new Date(fromMs)), 1); day <= romeToday(new Date(toMs)); day = addDays(day, 1)) {
+    const at = romeMidnight(day);
+    if (at > fromMs && at < toMs) marks.push(at);
+  }
+  return marks;
+}
+
 export function romeToday(now: Date): IsoDay {
   return romeNow(now).day;
 }
