@@ -1,37 +1,37 @@
-# Sicurezza
+# Security
 
-## Versioni supportate
+## Supported versions
 
-Riceve correzioni solo l'ultima release pubblicata.
+Only the latest published release receives fixes.
 
-## Come segnalare una vulnerabilità
+## How to report a vulnerability
 
-Non aprire una issue pubblica. Usa la segnalazione privata di GitHub:
-**Security → Report a vulnerability** in questo repository, oppure direttamente
+Do not open a public issue. Use GitHub's private report:
+**Security → Report a vulnerability** in this repository, or directly
 <https://github.com/PilaScat/cinema-watch/security/advisories/new>.
 
-Nella segnalazione servono la versione, i passi per riprodurre il problema e l'impatto. La
-prima risposta arriva entro 7 giorni.
+The report needs the version, the steps to reproduce the problem and the impact. The
+first answer arrives within 7 days.
 
-## Divulgazione coordinata (coordinated disclosure)
+## Coordinated disclosure
 
-1. La segnalazione resta privata finché non esce la correzione.
-2. La correzione esce in una release nuova, con una voce nel [CHANGELOG](CHANGELOG.md).
-3. Insieme alla release si pubblica un GitHub Security Advisory con la descrizione della
-   vulnerabilità, le versioni colpite e quella corretta, e il nome di chi l'ha segnalata, se lo
-   desidera.
+1. The report stays private until the fix is out.
+2. The fix is released in a new release, with an entry in the [CHANGELOG](CHANGELOG.md).
+3. Together with the release, a GitHub Security Advisory is published with the description of the
+   vulnerability, the affected versions and the fixed one, and the name of the reporter, if they
+   wish.
 
-## Cosa rientra
+## What is in scope
 
-- l'app e l'immagine Docker `ghcr.io/pilascat/cinema-watch`;
-- la gestione del token Telegram e della password della web UI;
-- le chiamate verso UCI, Webtic, Telegram e GitHub.
+- the app and the Docker image `ghcr.io/pilascat/cinema-watch`;
+- the handling of the Telegram token and of the web UI password;
+- the calls to UCI, Webtic, Telegram and GitHub.
 
-Le API dei circuiti, come UCI e Webtic, non sono di questo progetto: i loro problemi vanno segnalati ai rispettivi gestori.
+The APIs of the circuits, such as UCI and Webtic, do not belong to this project: their problems must be reported to their respective operators.
 
-## Verificare un'immagine
+## Verifying an image
 
-Ogni immagine pubblicata ha un'attestazione di provenienza:
+Every published image has a provenance attestation:
 
 ```sh
 gh attestation verify oci://ghcr.io/pilascat/cinema-watch:<versione> -R PilaScat/cinema-watch

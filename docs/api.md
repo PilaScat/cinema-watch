@@ -1,148 +1,148 @@
-# API usate ed esposte
+# APIs used and exposed
 
-Questo documento descrive le API esterne che cinema-watch legge e le API che l'app espone. Le trappole dei dati (chiave di uno spettacolo, giorno del cinema, posti `BLOCCATO`, asse delle file) sono in [MEMORY.md](MEMORY.md) e qui non si ripetono.
+This document describes the external APIs that cinema-watch reads and the APIs the app exposes. The data traps (showing key, cinema day, `BLOCCATO` seats, row axis) are in [MEMORY.md](MEMORY.md) and are not repeated here.
 
-## API esterne
+## External APIs
 
-Sono pubbliche, senza login, e non sono ufficiali: i circuiti possono cambiarle senza preavviso. Le risposte si validano con zod; un campo che manca o ha il tipo sbagliato scarta quell'elemento o dà un errore tipizzato, mai un arresto dell'app.
+They are public, need no login, and are not official: the circuits can change them without notice. Responses are validated with zod; a missing field or a field of the wrong type discards that item or gives a typed error, never a crash of the app.
 
-### Backend UCI
+### UCI backend
 
-Base: `https://myuci---uci-backend-production-nfluwp7wga-oc.a.run.app/api`. Le richieste portano l'header `Referer: https://ucicinemas.it`. Tutte rispondono con `{ "data": ... }`.
+Base: `https://myuci---uci-backend-production-nfluwp7wga-oc.a.run.app/api`. Requests carry the header `Referer: https://ucicinemas.it`. All of them answer with `{ "data": ... }`.
 
-| Chiamata | A cosa serve | Campi usati |
+| Call | What it is for | Fields used |
 |---|---|---|
-| `GET /theatres` | Elenco dei cinema | `slug`, `name`, `city`, `province`, `region`, `is_luxe`, `screens` (formati di sala del cinema) |
-| `GET /theatres/{slug}/programming/{AAAA-MM-GG}` | Programmazione di un giorno | vedi sotto |
-| `GET /theatres/{slug}/programming` | Programmazione di tutti i giorni, circa 2 MB: `data` è un elenco di oggetti `{ giorno: [film] }`. Serve solo alla UI | come sopra |
-| `GET /movies` | Catalogo di tutti i film, circa 450 KB. Serve alla pagina Cerca, con una cache di un'ora | `slug`, `title`, `poster`, `first_performance`, `last_performance`, `screens[].name` |
-| `GET /movies/{slug}` | Dettaglio di un film | `slug`, `title`, `poster` |
-| `GET /movies/{slug}/theatres` | Cinema in cui il film è in programma | `slug`, `name`, `movie_variants` |
+| `GET /theatres` | List of cinemas | `slug`, `name`, `city`, `province`, `region`, `is_luxe`, `screens` (hall formats of the cinema) |
+| `GET /theatres/{slug}/programming/{AAAA-MM-GG}` | Programme of one day | see below |
+| `GET /theatres/{slug}/programming` | Programme of all days, about 2 MB: `data` is a list of `{ day: [film] }` objects. Used only by the UI | as above |
+| `GET /movies` | Catalogue of all films, about 450 KB. Used by the Search page, with a one-hour cache | `slug`, `title`, `poster`, `first_performance`, `last_performance`, `screens[].name` |
+| `GET /movies/{slug}` | Detail of a film | `slug`, `title`, `poster` |
+| `GET /movies/{slug}/theatres` | Cinemas where the film is showing | `slug`, `name`, `movie_variants` |
 
-Ogni film della programmazione porta `slug`, `title`, `poster` e `screens`, un elenco di oggetti che hanno come chiave il formato (`IMAX`, `XL - INFINITY VISION`, `2D`) e come valore le versioni. Una versione ha:
+Each film in the programme carries `slug`, `title`, `poster` and `screens`, a list of objects whose key is the format (`IMAX`, `XL - INFINITY VISION`, `2D`) and whose value is the versions. A version has:
 
-- `language.name` e `duration` (`HH:MM`);
-- `performances`, con `day` (giorno del cinema), `starts_at` (`AAAA-MM-GG HH:MM:SS`), `actual_start_at` (`HH:MM`), `room` e `cart_link`.
+- `language.name` and `duration` (`HH:MM`);
+- `performances`, with `day` (cinema day), `starts_at` (`AAAA-MM-GG HH:MM:SS`), `actual_start_at` (`HH:MM`), `room` and `cart_link`.
 
-Da `cart_link` (`/movies/{film}/acquista/{LocalId}/{EventId}/{PerformanceId}`) l'app ricava i tre identificativi e il link di acquisto su `ucicinemas.it`. Uno spettacolo senza un `cart_link` in questo formato si scarta. Gli slug ammessi sono `[a-z0-9-]` e i giorni sono date ISO: altro non parte come richiesta.
+From `cart_link` (`/movies/{film}/acquista/{LocalId}/{EventId}/{PerformanceId}`) the app gets the three identifiers and the purchase link on `ucicinemas.it`. A showing without a `cart_link` in this format is discarded. The allowed slugs are `[a-z0-9-]` and the days are ISO dates: anything else is not sent as a request.
 
-### Proxy Webtic
+### Webtic proxy
 
-Base: `https://uci-website-webtic-proxy-production-1042268733238.europe-west8.run.app/Api2`. Le richieste sono `POST` con corpo JSON e portano `Origin: https://ucicinemas.it` e `Referer: https://ucicinemas.it/`. Gli identificativi devono essere interi positivi. Ogni risposta ha la forma `{ "Status": { "Success", "Message", "ReasonCode" }, "Data": ... }`; con `Success` falso l'app lo tratta come errore e ne riporta il `ReasonCode`.
+Base: `https://uci-website-webtic-proxy-production-1042268733238.europe-west8.run.app/Api2`. Requests are `POST` with a JSON body and carry `Origin: https://ucicinemas.it` and `Referer: https://ucicinemas.it/`. Identifiers must be positive integers. Every response has the form `{ "Status": { "Success", "Message", "ReasonCode" }, "Data": ... }`; when `Success` is false the app treats it as an error and reports the `ReasonCode`.
 
-| Chiamata | Corpo | Campi usati |
+| Call | Body | Fields used |
 |---|---|---|
-| `POST /Performance` | `{ LocalId, PerformanceId }` | `Performance` (`LocalId`, `EventId`, `PerformanceId`, `ScreenId`, `ScreenName`, `StartTime`), `Event.Title`, e dai prezzi in `Tickets.ShoppingModes[].PaymentModes[].SectorPrices[]` il minimo fra `PriceStartFrom` o, se manca, `Prices[].TotalPrice` |
-| `POST /Screen` | `{ LocalId, ScreenId }` | `Screen.Seats[]` con `SeatId` (per esempio `F/12`), `SeatType`, `SectorId`, `Row`, `Column` |
-| `POST /Occupancy` | `{ LocalId, PerformanceId }` | `Occupancy.Seats[]` con `SeatId` e `SeatStatus`: `ACQUISTO` è venduto, `BLOCCATO` è nel carrello, qualunque altro valore conta come preso |
+| `POST /Performance` | `{ LocalId, PerformanceId }` | `Performance` (`LocalId`, `EventId`, `PerformanceId`, `ScreenId`, `ScreenName`, `StartTime`), `Event.Title`, and from the prices in `Tickets.ShoppingModes[].PaymentModes[].SectorPrices[]` the minimum of `PriceStartFrom` or, if missing, `Prices[].TotalPrice` |
+| `POST /Screen` | `{ LocalId, ScreenId }` | `Screen.Seats[]` with `SeatId` (for example `F/12`), `SeatType`, `SectorId`, `Row`, `Column` |
+| `POST /Occupancy` | `{ LocalId, PerformanceId }` | `Occupancy.Seats[]` with `SeatId` and `SeatStatus`: `ACQUISTO` is sold, `BLOCCATO` is in a basket, any other value counts as taken |
 
-La pianta di una sala (`/Screen`) cambia di rado: l'app la tiene in `screens/` per 7 giorni e la scarica prima se l'occupazione contiene posti che la pianta non ha.
+The seat map of a hall (`/Screen`) rarely changes: the app keeps it in `screens/` for 7 days and downloads it earlier if the occupancy contains seats that the seat map does not have.
 
-Il proxy risponde solo per i cinema UCI: per un'altra sede dà `Unauthorized` (`ReasonCode` 1).
+The proxy answers only for UCI cinemas: for any other venue it gives `Unauthorized` (`ReasonCode` 1).
 
-### Webtic diretto
+### Webtic direct
 
-Base: `https://secure.webtic.it/api/wtjsonservices.ashx`, con il metodo nel parametro `wtid`. Serve ai cinema che non sono UCI (Notorious, Cinelandia, Movie Planet e gli indipendenti). Nessun header particolare. Ogni risposta ha la forma `{ "userdata": { "StatusOk", "ReasonCode", "Message" }, "DS": ... }`; con `StatusOk` falso l'app lo tratta come errore. Una sede chiusa risponde con `StatusOk` falso dopo circa 12 secondi.
+Base: `https://secure.webtic.it/api/wtjsonservices.ashx`, with the method in the `wtid` parameter. It is used for the cinemas that are not UCI (Notorious, Cinelandia, Movie Planet and the independents). No special headers. Every response has the form `{ "userdata": { "StatusOk", "ReasonCode", "Message" }, "DS": ... }`; when `StatusOk` is false the app treats it as an error. A closed venue answers with `StatusOk` false after about 12 seconds.
 
-| Chiamata | A cosa serve | Campi usati |
+| Call | What it is for | Fields used |
 |---|---|---|
-| `GET ?wtid=getLocalsTitles` | Tutte le 1171 sedi, circa 1,3 MB | `LocalsTitles.Locals` (`LocalId`, `Description`, `Town`, `District`, `DistrictAbbreviation`, `Latitude`, `Longitude`) e `LocalsTitles.Titles[]` (`Category`, `Locals[].LocalId`) |
-| `GET ?wtid=getFullScheduling&localid=N` | Programmazione di tutti i giorni di una sede, circa 100 KB | `Scheduling.LocalId` e `Events[]` con `EventId`, `Title`, `Type` (`CINEMA` per i film), `Is3D`, `Duration`, `Picture`, `EventProperties[]` (`EventProperty`, `EventPropertyCategory`: `SCREEN`, `LANGUAGE`), `Days[]` con `Day` (giorno del cinema) e `Performances[]` (`PerformanceId`, `Time`, `ScreenName`, `StartTime`) |
-| `GET ?wtid=getPerformanceInfo&localid=N&performanceid=P` | Spettacolo, senza prezzi | `Performance` (`LocalId`, `EventId`, `PerformanceId`, `ScreenId`, `Screen`, `StartTime`, `Title`) |
-| `POST ?wtid=getMapSeats` con `{ data: { LocalId, ScreenId } }` | Pianta | `MapSeats.posti[]` con `idposto`, `fila`, `colonna`, `settore`, `tipologia`: gli stessi valori di `SeatId`, `Row`, `Column`, `SectorId` e `SeatType` del proxy |
-| `POST ?wtid=getOccupancy` con `{ data: { LocalId, PerformanceId } }` | Posti presi | `Occupancy.posti[]` con `idposto` e `status` (`ACQUISTO`, `BLOCCATO`) |
+| `GET ?wtid=getLocalsTitles` | All 1171 venues, about 1.3 MB | `LocalsTitles.Locals` (`LocalId`, `Description`, `Town`, `District`, `DistrictAbbreviation`, `Latitude`, `Longitude`) and `LocalsTitles.Titles[]` (`Category`, `Locals[].LocalId`) |
+| `GET ?wtid=getFullScheduling&localid=N` | Programme of all days of a venue, about 100 KB | `Scheduling.LocalId` and `Events[]` with `EventId`, `Title`, `Type` (`CINEMA` for films), `Is3D`, `Duration`, `Picture`, `EventProperties[]` (`EventProperty`, `EventPropertyCategory`: `SCREEN`, `LANGUAGE`), `Days[]` with `Day` (cinema day) and `Performances[]` (`PerformanceId`, `Time`, `ScreenName`, `StartTime`) |
+| `GET ?wtid=getPerformanceInfo&localid=N&performanceid=P` | Showing, without prices | `Performance` (`LocalId`, `EventId`, `PerformanceId`, `ScreenId`, `Screen`, `StartTime`, `Title`) |
+| `POST ?wtid=getMapSeats` with `{ data: { LocalId, ScreenId } }` | Seat map | `MapSeats.posti[]` with `idposto`, `fila`, `colonna`, `settore`, `tipologia`: the same values as `SeatId`, `Row`, `Column`, `SectorId` and `SeatType` of the proxy |
+| `POST ?wtid=getOccupancy` with `{ data: { LocalId, PerformanceId } }` | Taken seats | `Occupancy.posti[]` with `idposto` and `status` (`ACQUISTO`, `BLOCCATO`) |
 
-Le locandine sono `https://secure.webtic.it/api/` seguito dal `Picture` relativo. Il link "Acquista" è `https://secure.webtic.it/angwt/webtic.aspx?lid={LocalId}&lng=it#/shoppingmode/it/0/{LocalId}/{EventId}/{PerformanceId}`: apre il login di Webtic e poi lo spettacolo.
+The posters are `https://secure.webtic.it/api/` followed by the relative `Picture`. The "Buy" link is `https://secure.webtic.it/angwt/webtic.aspx?lid={LocalId}&lng=it#/shoppingmode/it/0/{LocalId}/{EventId}/{PerformanceId}`: it opens the Webtic login and then the showing.
 
 ### The Space
 
-Base: `https://www.thespacecinema.it/api/microservice`. Senza token quasi tutte le chiamate rispondono 401. Le risposte hanno la forma `{ "result": ..., "responseCode", "errorMessage" }`.
+Base: `https://www.thespacecinema.it/api/microservice`. Without a token almost every call answers 401. Responses have the form `{ "result": ..., "responseCode", "errorMessage" }`.
 
-| Chiamata | A cosa serve | Campi usati |
+| Call | What it is for | Fields used |
 |---|---|---|
-| `POST /auth/token` | Token ospite, senza login | i cookie della risposta: `microservicesToken` (12 ore), `microservicesRefreshToken` e `__cflb` di Cloudflare |
-| `GET /showings/cinemas` | Elenco dei 35 cinema | `cinemaId`, `cinemaName`, `whatsOnUrl` (la pagina del cinema) |
-| `GET /showings/cinemas/{id}/films?minEmbargoLevel=1&includesSession=true` | Programmazione di tutti i giorni di un cinema, 450-600 KB | `filmId`, `filmTitle`, `posterImageSrc`, `showingGroups[]` con `date` (giorno del cinema) e `sessions[]` (`sessionId`, `startTime`, `screenName`, `duration`, `bookingUrl`, `attributes[]`) |
-| `GET /showings/films` | Catalogo dei film, per la pagina Cerca, con una cache di un'ora | `filmId`, `filmTitle`, `posterImageSrc`, `releaseDate`, `showingInCinemas` |
-| `GET /booking/Session/{cinemaId}/{sessionId}/seats` | Pianta e posti presi in una chiamata | `seatingData.screenLabel`, `seatRows[]` (`rowLabel`, `columns[]` con `name`, `seatStatus`, `areaCategoryCode`), `areaCategories[]` (`areaCategoryCode`, `areaMainPriceInCents`) |
+| `POST /auth/token` | Guest token, without login | the cookies of the response: `microservicesToken` (12 hours), `microservicesRefreshToken` and Cloudflare's `__cflb` |
+| `GET /showings/cinemas` | List of the 35 cinemas | `cinemaId`, `cinemaName`, `whatsOnUrl` (the page of the cinema) |
+| `GET /showings/cinemas/{id}/films?minEmbargoLevel=1&includesSession=true` | Programme of all days of a cinema, 450-600 KB | `filmId`, `filmTitle`, `posterImageSrc`, `showingGroups[]` with `date` (cinema day) and `sessions[]` (`sessionId`, `startTime`, `screenName`, `duration`, `bookingUrl`, `attributes[]`) |
+| `GET /showings/films` | Catalogue of films, for the Search page, with a one-hour cache | `filmId`, `filmTitle`, `posterImageSrc`, `releaseDate`, `showingInCinemas` |
+| `GET /booking/Session/{cinemaId}/{sessionId}/seats` | Seat map and taken seats in one call | `seatingData.screenLabel`, `seatRows[]` (`rowLabel`, `columns[]` with `name`, `seatStatus`, `areaCategoryCode`), `areaCategories[]` (`areaCategoryCode`, `areaMainPriceInCents`) |
 
-Gli `attributes` danno il formato (`Session` "2D"; `Session_Special` "3D", "INFINITY VISION", "ANTEPRIMA") e la lingua (`Language` "ITALIANO" o "LINGUA ORIGINALE"). Coordinate e provincia di un cinema vengono dalla sua pagina HTML: `q=lat, lon` nel link della mappa e la sigla in fondo a `<address>`. Le locandine sono su `www.thespacecinema.it`. Il link "Acquista" è `https://www.thespacecinema.it/prenotare-il-biglietto/summary/{cinemaId}/{filmId}/{sessionId}`.
+The `attributes` give the format (`Session` "2D"; `Session_Special` "3D", "INFINITY VISION", "ANTEPRIMA") and the language (`Language` "ITALIANO" or "LINGUA ORIGINALE"). Coordinates and province of a cinema come from its HTML page: `q=lat, lon` in the map link and the abbreviation at the end of `<address>`. The posters are on `www.thespacecinema.it`. The "Buy" link is `https://www.thespacecinema.it/prenotare-il-biglietto/summary/{cinemaId}/{filmId}/{sessionId}`.
 
 ### 18Tickets
 
-Ogni cinema ha un dominio suo, `<cinema>.<gestore>.18tickets.it` o `<cinema>.18tickets.it`; i gestori con più cinema (Circuito Cinema a Roma, Genova e Torino, Andromeda, Pop Up Cinema…) hanno anche una pagina di gruppo. Le pagine sono HTML con gli attributi fra apici singoli; solo i posti sono JSON.
+Each cinema has its own domain, `<cinema>.<operator>.18tickets.it` or `<cinema>.18tickets.it`; operators with several cinemas (Circuito Cinema in Rome, Genoa and Turin, Andromeda, Pop Up Cinema…) also have a group page. The pages are HTML with attributes in single quotes; only the seats are JSON.
 
-| Chiamata | A cosa serve | Campi usati |
+| Call | What it is for | Fields used |
 |---|---|---|
-| `GET /` sul dominio di un cinema | Programmazione di tutti i giorni pubblicati, 100 KB-1,2 MB | `<title>`; per ogni film (`div.movie--preview`) il link `a.movie__title` (`/film/<id>`), la locandina, `film-label` (INFINITY VISION, INGLESE, LINGUA ORIGINALE…), "Lingua:", e per ogni giorno l'intestazione `fa-calendar` ("Mercoledì 16/12/2026") con le proiezioni `<a data-time='<ms>' href='…/film/<id>/<uuid>#theater-init'>` (ora e sala nel testo); il luogo in `time-select__place` e l'indirizzo nel link `maps.google.com/?q=` |
-| `GET /` sul dominio di un gruppo | Elenco dei cinema del gruppo | i link `<a href="https://<cinema>.<gruppo>.18tickets.it" class="dropdown-item">`; alcuni gruppi rispondono 302 verso `/select_cinema?mandatory=true`, che ha gli stessi link |
-| `GET /film/<id>` | Sala di ogni proiezione del film | `film-projection` con `data-id` (uuid della proiezione) e `data-theater` (uuid della sala) |
-| `GET /theater/<uuid della sala>.svg` | Pianta | `<g class='posto' data-row data-seat data-area id='g_<fila>_<colonna>'>`; `userhide` è un posto nascosto |
-| `GET /seats/<uuid della proiezione>` | Posti presi, JSON | `bought`, `locked`, `reserved`, `quarantined`, `preemption`, `mine`: elenchi di `{x, y}` (`x` colonna, `y` fila); `total` |
+| `GET /` on the domain of a cinema | Programme of all published days, 100 KB-1.2 MB | `<title>`; for each film (`div.movie--preview`) the link `a.movie__title` (`/film/<id>`), the poster, `film-label` (INFINITY VISION, INGLESE, LINGUA ORIGINALE…), "Lingua:", and for each day the `fa-calendar` heading ("Mercoledì 16/12/2026") with the screenings `<a data-time='<ms>' href='…/film/<id>/<uuid>#theater-init'>` (time and hall in the text); the place in `time-select__place` and the address in the `maps.google.com/?q=` link |
+| `GET /` on the domain of a group | List of the cinemas of the group | the links `<a href="https://<cinema>.<gruppo>.18tickets.it" class="dropdown-item">`; some groups answer 302 to `/select_cinema?mandatory=true`, which has the same links |
+| `GET /film/<id>` | Hall of each screening of the film | `film-projection` with `data-id` (uuid of the screening) and `data-theater` (uuid of the hall) |
+| `GET /theater/<uuid della sala>.svg` | Seat map | `<g class='posto' data-row data-seat data-area id='g_<fila>_<colonna>'>`; `userhide` is a hidden seat |
+| `GET /seats/<uuid della proiezione>` | Taken seats, JSON | `bought`, `locked`, `reserved`, `quarantined`, `preemption`, `mine`: lists of `{x, y}` (`x` column, `y` row); `total` |
 
-I posti rispondono solo dal dominio del cinema o del suo gruppo: dagli altri domini la stessa chiamata dà `{}`. Il link "Acquista" è quello della proiezione, `https://<cinema>/film/<id>/<uuid>#theater-init`.
+The seats answer only from the domain of the cinema or of its group: from other domains the same call gives `{}`. The "Buy" link is the one of the screening, `https://<cinema>/film/<id>/<uuid>#theater-init`.
 
-### Come l'app le chiama
+### How the app calls them
 
-Tutte le chiamate a UCI, Webtic, The Space e GitHub passano da `src/http.ts`:
+All calls to UCI, Webtic, The Space and GitHub go through `src/http.ts`:
 
-- solo `https`, solo gli host consentiti elencati sotto, sulla porta predefinita e senza credenziali nell'indirizzo; i reindirizzamenti non si seguono;
-- una risposta oltre 10 MB si scarta senza finire di leggerla (vale anche per le pagine di The Space e di 18Tickets);
-- timeout di 15 secondi per chiamata, una richiesta alla volta per host, al massimo 200 in attesa: quelle in più falliscono subito;
-- dopo un timeout, un errore di rete, una risposta 5xx o 429 l'host va in attesa: 30 secondi, che raddoppiano a ogni errore fino a 30 minuti, o il `Retry-After` se più lungo, mai oltre 30 minuti;
-- l'`User-Agent` porta il nome dell'app.
+- `https` only, only the allowed hosts listed below, on the default port and with no credentials in the address; redirects are not followed;
+- a response over 10 MB is discarded without reading it to the end (this also applies to the pages of The Space and 18Tickets);
+- 15-second timeout per call, one request at a time per host, at most 200 waiting: the extra ones fail at once;
+- after a timeout, a network error, a 5xx or 429 response the host goes on hold: 30 seconds, doubling at each error up to 30 minutes, or the `Retry-After` if longer, never beyond 30 minutes;
+- the `User-Agent` carries the name of the app.
 
-Le chiamate a 18Tickets passano dal client di `src/circuits/t18.ts`: solo `https`, solo domini `*.18tickets.it`, nessun reindirizzamento seguito, timeout di 20 secondi, e fra due pagine dello stesso gestore almeno 10 secondi, un minuto dopo un 429 (il perché è in [MEMORY.md](MEMORY.md)).
+Calls to 18Tickets go through the client in `src/circuits/t18.ts`: `https` only, only `*.18tickets.it` domains, no redirects followed, 20-second timeout, and at least 10 seconds between two pages of the same operator, one minute after a 429 (the reason is in [MEMORY.md](MEMORY.md)).
 
-### Host verso cui l'app esce
+### Hosts the app calls out to
 
-| Host | Per cosa | Da dove |
+| Host | What for | From where |
 |---|---|---|
-| `myuci---uci-backend-production-nfluwp7wga-oc.a.run.app` | Backend UCI | `src/http.ts` |
-| `uci-website-webtic-proxy-production-1042268733238.europe-west8.run.app` | Proxy Webtic | `src/http.ts` |
-| `secure.webtic.it` | Webtic diretto, per i cinema che non sono UCI | `src/http.ts` |
-| `www.thespacecinema.it` | The Space: token ospite, programmazione, posti e pagine dei cinema | `src/http.ts`, e `src/circuits/the-space.ts` per il token |
-| `*.18tickets.it` | 18Tickets: pagine dei cinema e dei gruppi, piante e posti | `src/circuits/t18.ts` |
-| `api.github.com` | Ultima Release (`/repos/PilaScat/cinema-watch/releases/latest`), una volta al giorno, per avvisare di una versione nuova | `src/http.ts` |
-| `api.telegram.org` | Invio dei messaggi e lettura dei comandi, vedi [telegram.md](telegram.md) | `src/telegram.ts` |
+| `myuci---uci-backend-production-nfluwp7wga-oc.a.run.app` | UCI backend | `src/http.ts` |
+| `uci-website-webtic-proxy-production-1042268733238.europe-west8.run.app` | Webtic proxy | `src/http.ts` |
+| `secure.webtic.it` | Webtic direct, for the cinemas that are not UCI | `src/http.ts` |
+| `www.thespacecinema.it` | The Space: guest token, programme, seats and cinema pages | `src/http.ts`, and `src/circuits/the-space.ts` for the token |
+| `*.18tickets.it` | 18Tickets: cinema and group pages, seat maps and seats | `src/circuits/t18.ts` |
+| `api.github.com` | Latest Release (`/repos/PilaScat/cinema-watch/releases/latest`), once a day, to announce a new version | `src/http.ts` |
+| `api.telegram.org` | Sending messages and reading commands, see [telegram.md](telegram.md) | `src/telegram.ts` |
 
-Il browser di chi usa la UI carica le locandine da `storage.googleapis.com`, `secure.webtic.it`, `www.thespacecinema.it` e `cdn.18tickets.net`, ammessi dalla CSP; è il browser a farlo, non l'app. I link "Acquista" portano a `ucicinemas.it`, a `secure.webtic.it`, a `www.thespacecinema.it` o al dominio 18Tickets del cinema, e l'app non li apre.
+The browser of whoever uses the UI loads the posters from `storage.googleapis.com`, `secure.webtic.it`, `www.thespacecinema.it` and `cdn.18tickets.net`, allowed by the CSP; it is the browser that does this, not the app. The "Buy" links lead to `ucicinemas.it`, to `secure.webtic.it`, to `www.thespacecinema.it` or to the 18Tickets domain of the cinema, and the app does not open them.
 
-## API dell'app
+## App APIs
 
 ### `GET /health`
 
-Risponde sempre `200` con `{"status":"ok"}`. È la verifica usata dall'`HEALTHCHECK` del container. È aperta anche con `UI_PASSWORD`.
+Always answers `200` with `{"status":"ok"}`. It is the check used by the container `HEALTHCHECK`. It is open even with `UI_PASSWORD`.
 
 ### `GET /api/status`
 
-Riepilogo dello stato, pensato per il widget di [homepage.md](homepage.md). È aperta anche con `UI_PASSWORD` e non contiene segreti: niente token, chat o password. Con `UI_PASSWORD` impostata e senza accesso, `hunts` è un elenco vuoto: restano i totali.
+Summary of the state, made for the widget of [homepage.md](homepage.md). It is open even with `UI_PASSWORD` and holds no secrets: no token, chat or password. With `UI_PASSWORD` set and no access, `hunts` is an empty list: the totals remain.
 
-| Campo | Tipo | Significato |
+| Field | Type | Meaning |
 |---|---|---|
-| `status` | `"ok"` | Sempre `ok` |
-| `version` | stringa | Versione dell'immagine (`dev` fuori dal container) |
-| `latestVersion` | stringa o `null` | Ultima Release su GitHub, `null` se non ancora letta |
-| `telegramConfigured` | booleano | Token e chat principale sono presenti |
-| `activeHunts` | numero | Cacce attive (abilitate e non archiviate) |
-| `showings` | numero | Spettacoli seguiti dalle cacce attive |
-| `withSeats` | numero | Fra questi, quelli con posti vicini liberi nella zona buona |
-| `hunts` | elenco | Una voce per caccia, anche non attiva |
+| `status` | `"ok"` | Always `ok` |
+| `version` | string | Version of the image (`dev` outside the container) |
+| `latestVersion` | string or `null` | Latest Release on GitHub, `null` if not read yet |
+| `telegramConfigured` | boolean | Token and main chat are present |
+| `activeHunts` | number | Active hunts (enabled and not archived) |
+| `showings` | number | Showings followed by the active hunts |
+| `withSeats` | number | Of these, the ones with free seats together in the good zone |
+| `hunts` | list | One entry per hunt, including inactive ones |
 
-Ogni voce di `hunts`:
+Each entry of `hunts`:
 
-| Campo | Tipo | Significato |
+| Field | Type | Meaning |
 |---|---|---|
-| `id` | stringa | Identificativo di 8 caratteri |
-| `name` | stringa | Nome della caccia |
-| `active` | booleano | Abilitata e non archiviata |
-| `muted` | booleano | Silenziata in questo momento |
-| `showings` | numero | Spettacoli seguiti |
-| `withSeats` | numero | Spettacoli con posti vicini liberi nella zona buona |
-| `freeInZone` | numero | Posti liberi nella zona buona, sommati sugli spettacoli |
-| `lastRunAt` | numero o `null` | Ultimo giro, in millisecondi Unix |
-| `lastRunOk` | booleano o `null` | Esito dell'ultimo giro |
-| `nextRunAt` | numero o `null` | Prossimo giro, in millisecondi Unix |
+| `id` | string | Identifier of 8 characters |
+| `name` | string | Name of the hunt |
+| `active` | boolean | Enabled and not archived |
+| `muted` | boolean | Muted at this moment |
+| `showings` | number | Showings followed |
+| `withSeats` | number | Showings with free seats together in the good zone |
+| `freeInZone` | number | Free seats in the good zone, summed over the showings |
+| `lastRunAt` | number or `null` | Last round, in Unix milliseconds |
+| `lastRunOk` | boolean or `null` | Result of the last round |
+| `nextRunAt` | number or `null` | Next round, in Unix milliseconds |
 
 ```json
 {
@@ -170,21 +170,21 @@ Ogni voce di `hunts`:
 }
 ```
 
-I totali `activeHunts`, `showings` e `withSeats` contano solo le cacce attive; `hunts` le elenca tutte.
+The totals `activeHunts`, `showings` and `withSeats` count only the active hunts; `hunts` lists them all.
 
 ### `GET /showings/<chiave>/preview`
 
-Frammento HTML con la pianta compatta di uno spettacolo nei due temi, i posti liberi, i prezzi per livello e i migliori posti: è quello che la UI carica quando si preme sul conteggio dei posti in un elenco. Parametri facoltativi `theatre` (slug del cinema) e `hunt` (per usare la zona di una caccia). Risponde `404` per una chiave o uno slug malformati e `502` se la pianta non si legge. Protetta come il resto della UI.
+HTML fragment with the compact seat map of a showing in both themes, the free seats, the prices by level and the best seats: it is what the UI loads when the seat count in a list is pressed. Optional parameters `theatre` (slug of the cinema) and `hunt` (to use the zone of a hunt). It answers `404` for a malformed key or slug and `502` if the seat map cannot be read. Protected like the rest of the UI.
 
 ### `POST /language`
 
-Sceglie la lingua della web UI. Campo `language`: `en` o `it` la salva nel cookie `language`; `auto`, o qualunque altro valore, cancella il cookie e torna alla lingua del browser. Risponde `303` verso la pagina da cui arriva. È aperta anche prima dell'accesso, perché il selettore sta pure nella pagina di login; come ogni `POST` rifiuta le richieste da un altro sito.
+Chooses the language of the web UI. Field `language`: `en` or `it` saves it in the `language` cookie; `auto`, or any other value, deletes the cookie and goes back to the browser language. It answers `303` to the page it comes from. It is open even before sign-in, because the selector is also on the login page; like every `POST` it rejects requests from another site.
 
 ### `GET /api/movies?theatres=a,b`
 
-Elenca i film in programmazione nei cinema indicati, per riempire l'elenco del form di una caccia. `theatres` è un elenco di slug separati da virgola. Con `UI_PASSWORD` impostata la route è protetta come il resto della UI: senza sessione risponde con un reindirizzamento a `/login`.
+Lists the films showing at the given cinemas, to fill the list in the form of a hunt. `theatres` is a list of slugs separated by commas. With `UI_PASSWORD` set the route is protected like the rest of the UI: without a session it answers with a redirect to `/login`.
 
-Risposta `200`, ordinata per titolo:
+Answer `200`, sorted by title:
 
 ```json
 [
@@ -198,9 +198,9 @@ Risposta `200`, ordinata per titolo:
 ]
 ```
 
-| Stato | Quando |
+| Status | When |
 |---|---|
-| `400` con `{"error":"invalid theatres"}` | Manca `theatres`, ci sono più di 3 cinema o uno slug non rispetta `[a-z0-9-]` |
-| `502` con `{"error":"programming unavailable"}` | La programmazione di nessuno dei cinema indicati è leggibile |
+| `400` with `{"error":"invalid theatres"}` | `theatres` is missing, there are more than 3 cinemas or a slug does not match `[a-z0-9-]` |
+| `502` with `{"error":"programming unavailable"}` | The programme of none of the given cinemas can be read |
 
-Con `theatres=` vuoto la risposta è un elenco vuoto. Se solo alcuni cinema non rispondono, i film degli altri sono comunque restituiti.
+With an empty `theatres=` the answer is an empty list. If only some cinemas do not answer, the films of the others are still returned.

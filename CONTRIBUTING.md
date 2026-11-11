@@ -1,25 +1,25 @@
-# Contribuire
+# Contributing
 
-Come segnalare un problema e proporre una modifica a cinema-watch. Issues and pull requests in English are welcome too.
+How to report a problem and propose a change to cinema-watch. Issues and pull requests in English are welcome too.
 
-## Segnalare un problema
+## Reporting a problem
 
-- **Bug, idee e domande**: una [issue](https://github.com/PilaScat/cinema-watch/issues) con la versione (in fondo a ogni pagina della web UI), cosa si è fatto, cosa ci si aspettava e cosa è successo. Il token del bot e gli id delle chat non vanno mai incollati.
-- **Vulnerabilità**: mai in una issue pubblica. Si usa la segnalazione privata descritta in [SECURITY.md](SECURITY.md).
+- **Bugs, ideas and questions**: an [issue](https://github.com/PilaScat/cinema-watch/issues) with the version (at the bottom of every page of the web UI), what was done, what was expected and what happened. The bot token and the chat ids must never be pasted.
+- **Vulnerabilities**: never in a public issue. Use the private report described in [SECURITY.md](SECURITY.md).
 
-## Proporre una modifica
+## Proposing a change
 
-1. Una pull request verso `main`, piccola e su un argomento solo. Per una modifica grande conviene aprire prima una issue.
-2. Devono passare i quattro controlli di [Sviluppo in locale](README.md#sviluppo-in-locale): test, tipi, lint e build. La CI li rilancia sulla pull request, e il merge, con rebase, si fa solo quando è verde.
-3. Una funzione nuova o una correzione arriva con i suoi test (Vitest, in `tests/`). Le risposte delle API si provano con risposte vere ridotte, in `tests/fixtures/`. La copertura minima è il 90% su `src/` e l'80% su `src/web/`.
-4. Le scelte che non si capiscono dal codice vanno in [docs/MEMORY.md](docs/MEMORY.md); una novità visibile va nel [CHANGELOG](CHANGELOG.md) sotto la prossima versione.
+1. A pull request to `main`, small and on a single topic. For a big change it is better to open an issue first.
+2. The four checks in [Local development](README.md#local-development) must pass: test, types, lint and build. CI runs them again on the pull request, and the merge, with rebase, is done only when it is green.
+3. A new feature or a fix comes with its tests (Vitest, in `tests/`). API responses are tested with trimmed real responses, in `tests/fixtures/`. The minimum coverage is 90% on `src/` and 80% on `src/web/`.
+4. Choices that cannot be understood from the code go in [docs/MEMORY.md](docs/MEMORY.md); a visible change goes in the [CHANGELOG](CHANGELOG.md) under the next version.
 
-## Regole del codice
+## Code rules
 
-- Codice in inglese: identificatori, nomi dei file, route e campi.
-- Testi visibili in inglese (la fonte, `src/i18n/en.ts`) e in italiano (`src/i18n/it.ts`), secondo [docs/UI-COPY.md](docs/UI-COPY.md); `tests/copy-style.test.ts` e `tests/i18n.test.ts` li controllano.
-- Niente commenti nel codice: si spiega con nomi giusti e funzioni piccole. Restano le direttive, come `// eslint-disable-*` e `// @ts-expect-error`.
-- Fine riga LF, come chiede `.gitattributes`.
-- Le chiamate esterne passano da `src/http.ts`, solo verso gli host elencati in [docs/api.md](docs/api.md).
+- Code in English: identifiers, file names, routes and fields.
+- Visible texts in English (the source, `src/i18n/en.ts`) and in Italian (`src/i18n/it.ts`), following [docs/UI-COPY.md](docs/UI-COPY.md); `tests/copy-style.test.ts` and `tests/i18n.test.ts` check them.
+- No comments in the code: it is explained with good names and small functions. Directives stay, such as `// eslint-disable-*` and `// @ts-expect-error`.
+- LF line endings, as `.gitattributes` requires.
+- External calls go through `src/http.ts`, only to the hosts listed in [docs/api.md](docs/api.md).
 
-Chi contribuisce accetta che il suo codice sia distribuito con la licenza MIT del progetto ([LICENSE](LICENSE)).
+Contributors agree that their code is distributed under the project's MIT license ([LICENSE](LICENSE)).

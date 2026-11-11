@@ -1,27 +1,27 @@
 # Backlog
 
-Cosa resta da decidere o da fare nei prossimi rilasci. Una voce fatta si toglie da qui e va nel
+What is left to decide or to do in the next releases. A finished item is removed from here and goes in the
 [CHANGELOG](../CHANGELOG.md).
 
-## Da fare
+## To do
 
-| Voce | Cosa serve |
+| Item | What is needed |
 |---|---|
-| Film uguali accorpati nella ricerca | Oggi il catalogo si unisce per slug uguale (`mergeCatalogs`), quindi lo stesso film esce una volta per ogni titolo diverso (versione, formato, circuito) e i cinema vanno cercati voce per voce. Serve un solo risultato per film, con tutti i suoi cinema, senza unire film diversi (seguiti, rifacimenti, titoli simili). Strade da misurare sul catalogo vero prima di scegliere: chiave dal titolo tolte le sole diciture di versione da un elenco chiuso (formato, lingua, sala), non la distanza fra titoli; un dato del circuito che identifichi il film (titolo originale, anno, durata, id), da vedere chi lo dà; oppure lasciare le voci e mostrare sotto ogni risultato i cinema vicini o preferiti. Criterio: zero unioni sbagliate sul catalogo di prova, e le versioni restano scegliibili dentro il film. |
-| Aggiorna un solo cinema | La programmazione di un cinema si legge una volta e resta 10 minuti (`PROGRAMMING_TTL_MS`); il pulsante Aggiorna c'è solo per le cacce. Serve rileggerla all'apertura della pagina del cinema e con un pulsante sulla pagina, per quel cinema soltanto, con un intervallo minimo fra due riletture come per le cacce (30 s). Da decidere se all'apertura la pagina aspetta la rilettura o mostra il dato che ha e si aggiorna dopo. |
-| Altri circuiti | Coperti UCI, Webtic, The Space (v2026.10.9) e 18Tickets (v2026.10.10). Restano gli altri della ricognizione del 19/10: Liveticket (programmazione JSON, posto unico), Eplanet (8 cinema in Sicilia) e la coda lunga con captcha. Per ognuno serve la ricognizione delle API pubbliche (cinema, programmazione, pianta, posti presi) e poi la scelta di Filippo. |
-| Cinema 18Tickets senza regione | 20 su 83 al 20/10, quasi tutti arene e sedi di Lab80 senza programmazione: la home non ha l'indirizzo. Serve un'altra fonte dell'indirizzo (per esempio la pagina informazioni del cinema), da verificare su qualche dominio. |
-| Mutation sotto l'80% | Mutation completa del 20/10 sui 13 file di Stryker: 83,50% (soglia 75). Sotto l'80%: `the-space.ts` 73,91%, `t18.ts` 76,03%, `watcher.ts` 78,27% (era 84,28% prima di The Space e 18Tickets). Sopravvivono soprattutto condizioni e testi d'errore dei parser e il collegamento dei circuiti nel watcher. Servono test mirati su quei casi, da decidere con Filippo. |
-| Punteggio OpenSSF Scorecard (7,7 al 19/10) | Dal repo è fatto quello che si poteva: License, Signed-Releases, Security-Policy e CI-Tests sono a 10, CII-Best-Practices a 5 (badge passing). Maintained sale da sola da metà gennaio 2027, quando il repo ha 90 giorni: è l'unico avviso aperto in Security. Code-Review e Branch-Protection restano bassi (vedi sotto) e Contributors resta a 0. |
+| Identical films merged in the search | Today the catalogue is merged by identical slug (`mergeCatalogs`), so the same film appears once for each different title (version, format, circuit) and the cinemas must be searched item by item. One result per film is needed, with all its cinemas, without merging different films (sequels, remakes, similar titles). Routes to measure on the real catalogue before choosing: a key from the title with only the version wordings removed from a closed list (format, language, hall), not the distance between titles; a circuit datum that identifies the film (original title, year, duration, id), to see who provides it; or leave the items and show under each result the nearby or favourite cinemas. Criterion: zero wrong merges on the test catalogue, and the versions remain selectable inside the film. |
+| Refresh a single cinema | The programme of a cinema is read once and stays for 10 minutes (`PROGRAMMING_TTL_MS`); the Refresh button exists only for the hunts. It must be reread when the cinema page is opened and with a button on the page, for that cinema only, with a minimum interval between two rereads as for the hunts (30 s). To decide whether on opening the page waits for the reread or shows the data it has and updates afterwards. |
+| Other circuits | Covered: UCI, Webtic, The Space (v2026.10.9) and 18Tickets (v2026.10.10). Left are the others from the survey of 19/10: Liveticket (JSON programme, single seat), Eplanet (8 cinemas in Sicily) and the long tail with captcha. For each one a survey of the public APIs is needed (cinemas, programme, seat map, taken seats) and then Filippo's choice. |
+| 18Tickets cinemas without a region | 20 out of 83 on 20/10, almost all arenas and Lab80 venues with no programme: the home page has no address. Another source for the address is needed (for example the cinema's information page), to check on a few domains. |
+| Mutation below 80% | Full mutation run of 20/10 on the 13 Stryker files: 83.50% (threshold 75). Below 80%: `the-space.ts` 73.91%, `t18.ts` 76.03%, `watcher.ts` 78.27% (it was 84.28% before The Space and 18Tickets). Mostly conditions and error texts of the parsers and the wiring of the circuits in the watcher survive. Targeted tests on those cases are needed, to decide with Filippo. |
+| OpenSSF Scorecard score (7.7 on 19/10) | From the repo everything possible is done: License, Signed-Releases, Security-Policy and CI-Tests are at 10, CII-Best-Practices at 5 (passing badge). Maintained rises on its own from mid January 2027, when the repo is 90 days old: it is the only open alert in Security. Code-Review and Branch-Protection stay low (see below) and Contributors stays at 0. |
 
-## Scelte confermate dopo le revisioni
+## Choices confirmed after the reviews
 
-Le revisioni le hanno segnalate. Restano così e sono scritte qui perché non tornino come problemi.
+The reviews flagged them. They stay as they are and are written here so they do not come back as problems.
 
-- "Posti liberati" scatta anche quando la pianta diventa leggibile per la prima volta con posti buoni: il primo avviso era solo testo, con la zona "non disponibile".
-- "Spostato" vale anche per uno spettacolo sparito nel giro prima e non ancora annullato, e per un cambio d'ora o di sala sulla stessa chiave.
-- Lo stato di uno spettacolo esce all'inizio dello spettacolo; l'andamento resta 30 giorni. Il registro ruota a 500 eventi, quindi non si pulisce per spettacolo.
-- Il confronto della password usa `scrypt` con un sale per processo: non si conserva nessun hash.
-- Le piante per giro restano impostabili da 1 a 10 (predefinito 3).
-- Telegram non usa il client JSON di `http.ts` (le code per host bloccherebbero gli invii durante il long polling): condivide la guardia `createGuardedFetch`, cioè solo https verso gli host consentiti e niente redirect.
-- Scorecard Code-Review (0) e Branch-Protection (3): dal 19/10 su `main` si entra solo con una pull request e la CI verde, anche per gli admin, ma per salire servono le approvazioni di un revisore diverso dall'autore, che un unico maintainer non ha. I due avvisi in Security sono chiusi come "won't fix" con questo motivo.
+- "Seats freed" also fires when the seat map becomes readable for the first time with good seats: the first alert was text only, with the zone "not available".
+- "Moved" also applies to a showing that disappeared in the previous round and is not yet cancelled, and to a change of time or hall on the same key.
+- The state of a showing goes out at the start of the showing; the trend stays 30 days. The log rotates at 500 events, so it is not cleaned per showing.
+- The password comparison uses `scrypt` with a per-process salt: no hash is stored.
+- The seat maps per round stay configurable from 1 to 10 (default 3).
+- Telegram does not use the JSON client of `http.ts` (the per-host queues would block the sends during long polling): it shares the `createGuardedFetch` guard, that is only https towards the allowed hosts and no redirects.
+- Scorecard Code-Review (0) and Branch-Protection (3): since 19/10 `main` is entered only with a pull request and green CI, even for admins, but to raise them the approvals of a reviewer other than the author are needed, which a single maintainer does not have. The two alerts in Security are closed as "won't fix" with this reason.

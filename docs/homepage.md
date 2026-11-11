@@ -1,12 +1,12 @@
-# Widget per gethomepage
+# Widget for gethomepage
 
-Questo documento mostra come leggere lo stato di cinema-watch da [gethomepage](https://gethomepage.dev) con il widget `customapi`.
+This document shows how to read the state of cinema-watch from [gethomepage](https://gethomepage.dev) with the `customapi` widget.
 
-Il widget interroga `GET /api/status`, descritta in [api.md](api.md#get-apistatus). La route non contiene segreti ed è aperta anche con `UI_PASSWORD` impostata, quindi il widget non ha bisogno di credenziali. Homepage fa la richiesta dal proprio server: l'indirizzo deve essere raggiungibile da lì.
+The widget queries `GET /api/status`, described in [api.md](api.md#get-apistatus). The route contains no secrets and is open even with `UI_PASSWORD` set, so the widget needs no credentials. Homepage makes the request from its own server: the address must be reachable from there.
 
-## Esempio
+## Example
 
-Nel file `services.yaml` di Homepage, sostituendo `IP` con l'indirizzo di cinema-watch:
+In Homepage's `services.yaml` file, replacing `IP` with the address of cinema-watch:
 
 ```yaml
 - Cinema:
@@ -36,4 +36,4 @@ Nel file `services.yaml` di Homepage, sostituendo `IP` con l'indirizzo di cinema
               format: text
 ```
 
-`refreshInterval` è in millisecondi. Il valore di `latestVersion` è `null` finché l'app non ha letto l'ultima Release da GitHub, cosa che fa una volta al giorno. Gli altri campi disponibili sono nella tabella di [api.md](api.md#get-apistatus); l'elenco `hunts` è vuoto se l'app ha una password, perché il widget non fa l'accesso.
+`refreshInterval` is in milliseconds. The value of `latestVersion` is `null` until the app has read the latest Release from GitHub, which it does once a day. The other available fields are in the table in [api.md](api.md#get-apistatus); the `hunts` list is empty if the app has a password, because the widget does not log in.
