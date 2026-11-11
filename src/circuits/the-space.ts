@@ -21,6 +21,7 @@ const SPACE_KEY = /^space-(\d+)-(\d+)$/;
 const TOKEN_COOKIE = "microservicesToken";
 const TOKEN_TTL_MS = 11 * 60 * 60 * 1000;
 const PAGE_TIMEOUT_MS = 15_000;
+const TOKEN_REFUSAL_PAUSE_MS = 60_000;
 const VENUE_CHECK_MS = 7 * 24 * 60 * 60 * 1000;
 const COORDINATES = /q=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/;
 const ADDRESS = /<address[^>]*>([^<]*)<\/address>/;
@@ -317,6 +318,7 @@ export function createSpaceClient(deps: SpaceClientDeps) {
   let cookie: string | null = null;
   let renewAt = 0;
   let renewing: Promise<string> | null = null;
+  let refusal: { until: number; error: ApiShapeError } | null = null;
 
   async function renewToken(): Promise<string> {
     const response = await deps.fetch(`${SPACE_API}/auth/token`, {
@@ -325,7 +327,11 @@ export function createSpaceClient(deps: SpaceClientDeps) {
       signal: AbortSignal.timeout(PAGE_TIMEOUT_MS),
     });
     const next = response.ok ? cookieOf(response) : null;
-    if (next === null) throw new ApiShapeError("space", `guest token refused (${response.status})`);
+    await response.body?.cancel();
+    if (next === null) {
+      refusal = { until: deps.now() + TOKEN_REFUSAL_PAUSE_MS, error: new ApiShapeError("space", `guest token refused (${response.status})`) };
+      throw refusal.error;
+    }
     cookie = next;
     renewAt = deps.now() + TOKEN_TTL_MS;
     return next;
@@ -333,6 +339,7 @@ export function createSpaceClient(deps: SpaceClientDeps) {
 
   function token(refused: string | null = null): Promise<string> {
     if (cookie !== null && cookie !== refused && deps.now() < renewAt) return Promise.resolve(cookie);
+    if (refusal !== null && deps.now() < refusal.until) return Promise.reject(refusal.error);
     renewing ??= renewToken().finally(() => {
       renewing = null;
     });
@@ -388,11 +395,15 @@ function cinemaIdOf(theatreSlug: string): string {
 
 export function createSpaceCircuit(deps: SpaceCircuitDeps): Circuit {
   const seen = new Map<string, SpaceShowingInfo>();
+  const keysOf = new Map<string, string[]>();
   const hallSeats = new Map<string, string>();
 
   async function load(cinemaId: string): Promise<Map<IsoDay, Showing[]>> {
     const programming = await deps.client.programming(cinemaId);
-    for (const showing of [...programming.values()].flat()) seen.set(showing.key, { startsAt: showing.startsAt, title: showing.movie.title, cartUrl: showing.cartUrl });
+    for (const key of keysOf.get(cinemaId) ?? []) seen.delete(key);
+    const showings = [...programming.values()].flat();
+    keysOf.set(cinemaId, showings.map((showing) => showing.key));
+    for (const showing of showings) seen.set(showing.key, { startsAt: showing.startsAt, title: showing.movie.title, cartUrl: showing.cartUrl });
     return programming;
   }
 

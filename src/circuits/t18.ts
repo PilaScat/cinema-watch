@@ -22,6 +22,7 @@ const T18_KEY = new RegExp(`^(t18-[a-z0-9-]+)-(${UUID})$`);
 const VENUE_CHECK_MS = 7 * 24 * 60 * 60 * 1000;
 const HALL_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const PAGE_TIMEOUT_MS = 20_000;
+const MAX_CHECKED_HOSTS = 300;
 const DAY_HEADER = /(\d{2})\/(\d{2})\/(\d{4})/;
 const DURATION = /\s*\((\d{1,2})H(\d{2})'\)\s*/i;
 const ORIGINAL_MARK = /[\s-]*\bV\.\s?O\.(?:\s?S\.)?(?=\s|$|\()/i;
@@ -452,14 +453,14 @@ export interface T18CheckOptions {
 }
 
 export async function buildT18Venues(client: T18Client, options: T18CheckOptions): Promise<T18VenueList> {
-  const queue = [...new Set(options.hosts.filter(isT18Host))];
+  const queue = [...new Set(options.hosts.filter(isT18Host))].slice(0, MAX_CHECKED_HOSTS);
   const seen = new Set(queue);
   const previous = new Map((options.previous?.venues ?? []).map((venue) => [venue.host, venue]));
   const venues: T18Venue[] = [];
   const retried = new Set<string>();
   const enqueue = (hosts: string[]) => {
     for (const host of hosts) {
-      if (!seen.has(host) && isT18Host(host)) {
+      if (seen.size < MAX_CHECKED_HOSTS && !seen.has(host) && isT18Host(host)) {
         seen.add(host);
         queue.push(host);
       }
@@ -542,6 +543,7 @@ function filmIdOf(cartUrl: string): string | null {
 
 export function createT18Circuit(deps: T18CircuitDeps): Circuit {
   const seen = new Map<string, T18ShowingInfo>();
+  const keysOf = new Map<string, string[]>();
 
   function hostOf(theatreSlug: string): string {
     const host = deps.hostOf(theatreSlug);
@@ -553,8 +555,12 @@ export function createT18Circuit(deps: T18CircuitDeps): Circuit {
     const host = hostOf(theatreSlug);
     const home = await deps.homes.getOrLoad(theatreSlug, () => deps.client.home(host), { bypass: fresh });
     deps.onHome?.(theatreSlug, home);
+    for (const key of keysOf.get(theatreSlug) ?? []) seen.delete(key);
+    const keys: string[] = [];
+    keysOf.set(theatreSlug, keys);
     for (const film of home.films) {
       for (const projection of film.projections) {
+        keys.push(t18Key(theatreSlug, projection.uuid));
         seen.set(t18Key(theatreSlug, projection.uuid), { host, filmId: film.filmId, startsAt: projection.startsAt, title: film.title, room: projection.room, cartUrl: projection.cartUrl });
       }
     }
