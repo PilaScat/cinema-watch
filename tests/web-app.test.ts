@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Config } from "../src/model.js";
 import { createApp } from "../src/web/app.js";
 import { createHarness, type Harness } from "./support/harness.js";
-import { scriptTags } from "./support/web.js";
+import { scriptTags, askingFor } from "./support/web.js";
 
 const publicDir = fileURLToPath(new URL("../src/web/public/", import.meta.url));
 const assetsDir = fileURLToPath(new URL("../assets/", import.meta.url));
@@ -22,7 +22,7 @@ afterEach(async () => {
 async function app(options: { env?: NodeJS.ProcessEnv; mutate?: (config: Config) => void } = {}) {
   const config = await harness.seed(options.mutate);
   const watcher = await harness.watcher();
-  const instance = await createApp({ watcher, version: "v2026.10.1", dataDir: harness.dataDir, env: options.env ?? {}, now: () => harness.now(), publicDir, assetsDir });
+  const instance = askingFor(await createApp({ watcher, version: "v2026.10.1", dataDir: harness.dataDir, env: options.env ?? {}, now: () => harness.now(), publicDir, assetsDir }), "it");
   return { instance, watcher, config };
 }
 

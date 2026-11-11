@@ -1,10 +1,9 @@
 import type { Hono } from "hono";
-import { copy } from "../../copy.js";
-import { formatDay, formatTime } from "../../format.js";
 import type { Hunt, HuntState } from "../../model.js";
 import { backTo, renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { ActionForm, Badge, Button, Card, Empty, LinkButton, Notice, PageHeader, type Tone } from "../components.js";
 import { windowEnded } from "../../watcher-rules.js";
+import { copy, formatDay, formatTime } from "../i18n.js";
 
 const MUTE_MS = 24 * 60 * 60_000;
 

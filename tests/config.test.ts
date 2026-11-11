@@ -17,7 +17,10 @@ import {
   newHuntId,
   parseConfig,
   saveConfig,
+  issueLines,
+  type ParseResult,
 } from "../src/config.js";
+import { copy } from "../src/copy.js";
 import type { AbsoluteZone, Config, Hunt } from "../src/model.js";
 import { createStore, type StoreFs } from "../src/store.js";
 import { fakeBotToken } from "./support/tokens.js";
@@ -230,11 +233,15 @@ function fullConfig(): Config {
 
 type Mutator = (config: Config) => void;
 
+function inItalian(result: ParseResult): { ok: true; config: Config } | { ok: false; errors: string[] } {
+  return result.ok ? result : { ok: false, errors: issueLines(result.issues, copy.validation) };
+}
+
 function parseMutated(mutate: Mutator): string[] {
   const config = structuredClone(fullConfig());
   mutate(config);
   const result = parseConfig(config);
-  return result.ok ? [] : result.errors;
+  return result.ok ? [] : issueLines(result.issues, copy.validation);
 }
 
 function hunt(config: Config, index = 0): Hunt {
@@ -349,7 +356,7 @@ describe("parseConfig invalid", () => {
   });
 
   it("rejects non objects with a root error", () => {
-    expect(parseConfig(null)).toEqual({ ok: false, errors: ["(radice): tipo non valido"] });
+    expect(inItalian(parseConfig(null))).toEqual({ ok: false, errors: ["(radice): tipo non valido"] });
     expect(parseConfig("x")).toMatchObject({ ok: false });
   });
 });
@@ -393,7 +400,7 @@ describe("migration and versions", () => {
     const outside = parseConfig({ ...defaultConfig(), settings: { ...DEFAULT_SETTINGS, t18Hosts: ["evil.example.com"] } });
 
     expect(result.ok ? result.config : null).toEqual({ schemaVersion: 4, settings: { ...settings, t18Hosts }, hunts: [] });
-    expect(outside).toEqual({ ok: false, errors: ["settings.t18Hosts[0]: indirizzi del tipo nomecinema.18tickets.it"] });
+    expect(inItalian(outside)).toEqual({ ok: false, errors: ["settings.t18Hosts[0]: indirizzi del tipo nomecinema.18tickets.it"] });
   });
 
   it("gives every hunt of a version 3 config no times of its own, leaving the rest as it was", () => {
@@ -410,21 +417,21 @@ describe("migration and versions", () => {
 
     expect(withTimes({ timeFrom: "19:00", dayTimes: { "6": { from: "15:00", to: null }, "7": { from: "15:00", to: "23:00" } } }).ok).toBe(true);
     expect(withTimes({ weekdays: [6, 7], dayTimes: { "6": { from: "15:00", to: null } } }).ok).toBe(true);
-    expect(withTimes({ dayTimes: { "6": { from: null, to: null } } })).toEqual({ ok: false, errors: ["hunts[0].dayTimes.6: indicare almeno Dalle o Alle"] });
-    expect(withTimes({ dayTimes: { "6": { from: "25:00", to: null } } })).toEqual({ ok: false, errors: ["hunts[0].dayTimes.6.from: formato HH:MM"] });
+    expect(inItalian(withTimes({ dayTimes: { "6": { from: null, to: null } } }))).toEqual({ ok: false, errors: ["hunts[0].dayTimes.6: indicare almeno Dalle o Alle"] });
+    expect(inItalian(withTimes({ dayTimes: { "6": { from: "25:00", to: null } } }))).toEqual({ ok: false, errors: ["hunts[0].dayTimes.6.from: formato HH:MM"] });
     expect(withTimes({ dayTimes: { "8": { from: "15:00", to: null } } }).ok).toBe(false);
-    expect(withTimes({ weekdays: [1, 2], dayTimes: { "6": { from: "15:00", to: null } } })).toEqual({ ok: false, errors: ["hunts[0].dayTimes.6: orario per un giorno non scelto"] });
+    expect(inItalian(withTimes({ weekdays: [1, 2], dayTimes: { "6": { from: "15:00", to: null } } }))).toEqual({ ok: false, errors: ["hunts[0].dayTimes.6: orario per un giorno non scelto"] });
   });
 
   it("rejects a version newer than the app", () => {
-    expect(parseConfig({ ...defaultConfig(), schemaVersion: 5 })).toEqual({
+    expect(inItalian(parseConfig({ ...defaultConfig(), schemaVersion: 5 }))).toEqual({
       ok: false,
       errors: ["schemaVersion: versione più recente dell'app"],
     });
   });
 
   it("rejects a non numeric version as a type error", () => {
-    expect(parseConfig({ ...defaultConfig(), schemaVersion: "1" })).toEqual({
+    expect(inItalian(parseConfig({ ...defaultConfig(), schemaVersion: "1" }))).toEqual({
       ok: false,
       errors: ["schemaVersion: valore non ammesso"],
     });
@@ -444,9 +451,9 @@ describe("home and radius", () => {
   });
 
   it("refuses coordinates out of range and a radius out of 1-1000", () => {
-    expect(parseConfig(withSettings({ home: { lat: 91, lon: 10 } }))).toEqual({ ok: false, errors: ["settings.home.lat: latitudine da -90 a 90"] });
-    expect(parseConfig(withSettings({ home: { lat: 45, lon: -181 } }))).toEqual({ ok: false, errors: ["settings.home.lon: longitudine da -180 a 180"] });
-    expect(parseConfig(withSettings({ radiusKm: 0 }))).toEqual({ ok: false, errors: ["settings.radiusKm: intero da 1 a 1000"] });
+    expect(inItalian(parseConfig(withSettings({ home: { lat: 91, lon: 10 } })))).toEqual({ ok: false, errors: ["settings.home.lat: latitudine da -90 a 90"] });
+    expect(inItalian(parseConfig(withSettings({ home: { lat: 45, lon: -181 } })))).toEqual({ ok: false, errors: ["settings.home.lon: longitudine da -180 a 180"] });
+    expect(inItalian(parseConfig(withSettings({ radiusKm: 0 })))).toEqual({ ok: false, errors: ["settings.radiusKm: intero da 1 a 1000"] });
     expect(parseConfig(withSettings({ radiusKm: 1001 }))).toMatchObject({ ok: false });
   });
 });
@@ -498,20 +505,20 @@ describe("exportConfig and importConfig", () => {
   it("rejects unknown keys", () => {
     const raw = JSON.parse(exportConfig(fullConfig(), { includeToken: true })) as Record<string, unknown>;
     raw["surprise"] = true;
-    expect(importConfig(defaultConfig(), JSON.stringify(raw))).toEqual({
+    expect(inItalian(importConfig(defaultConfig(), JSON.stringify(raw)))).toEqual({
       ok: false,
       errors: ["surprise: chiave sconosciuta"],
     });
   });
 
   it("rejects invalid json", () => {
-    expect(importConfig(defaultConfig(), "{nope")).toEqual({ ok: false, errors: ["JSON non valido"] });
+    expect(inItalian(importConfig(defaultConfig(), "{nope"))).toEqual({ ok: false, errors: ["JSON non valido"] });
   });
 
   it("rejects files over 1 MB", () => {
     const padding = " ".repeat(1024 * 1024);
     const result = importConfig(defaultConfig(), exportConfig(defaultConfig(), { includeToken: true }) + padding);
-    expect(result).toEqual({ ok: false, errors: ["file oltre 1 MB"] });
+    expect(inItalian(result)).toEqual({ ok: false, errors: ["file oltre 1 MB"] });
   });
 
   it("accepts a file of exactly 1 MB", () => {
@@ -523,7 +530,7 @@ describe("exportConfig and importConfig", () => {
   it("rejects duplicate ids and a future version", () => {
     const config = fullConfig();
     hunt(config, 1).id = hunt(config, 0).id;
-    expect(importConfig(defaultConfig(), JSON.stringify(config))).toEqual({
+    expect(inItalian(importConfig(defaultConfig(), JSON.stringify(config)))).toEqual({
       ok: false,
       errors: ["hunts[1].id: id ripetuto"],
     });

@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { z } from "zod";
 import { CONFIG_SCHEMA_VERSION, type Config, type Hunt, type Settings } from "./model.js";
 import { copy } from "./copy.js";
+import type { Copy } from "./i18n/index.js";
 import { StoreError, type createStore } from "./store.js";
 import { HALL_KEY, HUNT_ID, isT18Host, SLUG } from "./keys.js";
 
@@ -119,15 +120,28 @@ function isPublicUrl(value: string): boolean {
   }
 }
 
+type Validation = Copy["validation"];
+
+export interface ConfigIssue {
+  path: string | null;
+  message: string;
+}
+
+const SAY_SEPARATOR = "|";
+
+function say(name: keyof Validation, ...args: number[]): string {
+  return [name, ...args].join(SAY_SEPARATOR);
+}
+
 function intIn(min: number, max: number) {
-  const message = copy.validation.integerFrom(min, max);
+  const message = say("integerFrom", min, max);
   return z.number().int(message).min(min, message).max(max, message);
 }
 
-const seatNumber = z.number().int(copy.validation.integerFromOne).min(1, copy.validation.integerFromOne);
-const slug = z.string().regex(SLUG, copy.validation.slugFormat);
-const time = z.string().regex(TIME, copy.validation.timeFormat);
-const chatId = z.string().regex(CHAT_ID, copy.validation.chatIdFormat);
+const seatNumber = z.number().int(say("integerFromOne")).min(1, say("integerFromOne"));
+const slug = z.string().regex(SLUG, say("slugFormat"));
+const time = z.string().regex(TIME, say("timeFormat"));
+const chatId = z.string().regex(CHAT_ID, say("chatIdFormat"));
 const percent = intIn(0, 100);
 
 const relativeZone = z
@@ -137,29 +151,29 @@ const relativeZone = z
     rowsToPercent: percent,
     centerPercent: intIn(1, 100),
   })
-  .refine((zone) => zone.rowsFromPercent <= zone.rowsToPercent, copy.validation.rowsStartAfterEnd);
+  .refine((zone) => zone.rowsFromPercent <= zone.rowsToPercent, say("rowsStartAfterEnd"));
 
 const absoluteZone = z
   .strictObject({
     kind: z.literal("absolute"),
-    rows: z.array(z.string().min(1, copy.validation.emptyLabel)).min(1, copy.validation.atLeastOneRow),
+    rows: z.array(z.string().min(1, say("emptyLabel"))).min(1, say("atLeastOneRow")),
     seatFrom: seatNumber.nullable(),
     seatTo: seatNumber.nullable(),
   })
   .refine(
     (zone) => zone.seatFrom === null || zone.seatTo === null || zone.seatFrom <= zone.seatTo,
-    copy.validation.firstSeatAfterLast,
+    say("firstSeatAfterLast"),
   );
 
 const zone = z.discriminatedUnion("kind", [relativeZone, absoluteZone]);
 
 const movie = z.discriminatedUnion("kind", [
-  z.strictObject({ kind: z.literal("slug"), slugs: z.array(slug).min(1, copy.validation.atLeastOneMovie) }),
+  z.strictObject({ kind: z.literal("slug"), slugs: z.array(slug).min(1, say("atLeastOneMovie")) }),
   z.strictObject({
     kind: z.literal("title"),
     words: z
-      .array(z.string().refine((word) => word.trim() !== "", copy.validation.emptyWord))
-      .min(1, copy.validation.atLeastOneWord),
+      .array(z.string().refine((word) => word.trim() !== "", say("emptyWord")))
+      .min(1, say("atLeastOneWord")),
     confirmedSlugs: z.array(slug),
   }),
 ]);
@@ -168,29 +182,29 @@ const window = z.discriminatedUnion("kind", [
   z
     .strictObject({
       kind: z.literal("fixed"),
-      from: z.string().refine(isRealDay, copy.validation.invalidDay),
-      to: z.string().refine(isRealDay, copy.validation.invalidDay),
+      from: z.string().refine(isRealDay, say("invalidDay")),
+      to: z.string().refine(isRealDay, say("invalidDay")),
     })
     .refine((value) => !isRealDay(value.from) || !isRealDay(value.to) || value.from <= value.to, {
       path: ["to"],
-      message: copy.validation.precedesStart,
+      message: say("precedesStart"),
     }),
   z.strictObject({ kind: z.literal("next"), days: intIn(1, 60) }),
 ]);
 
 const dayTime = z
   .strictObject({ from: time.nullable(), to: time.nullable() })
-  .refine((range) => range.from !== null || range.to !== null, copy.validation.emptyDayTime);
+  .refine((range) => range.from !== null || range.to !== null, say("emptyDayTime"));
 
 const MAX_THEATRES = 100;
 const MAX_EXTRA_CHATS = 20;
 
 const huntSchema = z.strictObject({
-  id: z.string().regex(HUNT_ID, copy.validation.idFormat),
-  name: z.string().min(1, copy.validation.nameLength).max(80, copy.validation.nameLength),
+  id: z.string().regex(HUNT_ID, say("idFormat")),
+  name: z.string().min(1, say("nameLength")).max(80, say("nameLength")),
   enabled: z.boolean(),
   archivedAt: z.string().nullable(),
-  theatres: z.array(slug).min(1, copy.validation.atLeastOneTheatre).max(MAX_THEATRES, copy.validation.tooManyTheatres(MAX_THEATRES)),
+  theatres: z.array(slug).min(1, say("atLeastOneTheatre")).max(MAX_THEATRES, say("tooManyTheatres", MAX_THEATRES)),
   movie,
   formats: z.array(z.string()),
   window,
@@ -198,15 +212,15 @@ const huntSchema = z.strictObject({
   timeTo: time.nullable(),
   weekdays: z
     .array(intIn(1, 7))
-    .min(1, copy.validation.atLeastOneDay)
-    .refine((days) => new Set(days).size === days.length, copy.validation.repeatedDays)
+    .min(1, say("atLeastOneDay"))
+    .refine((days) => new Set(days).size === days.length, say("repeatedDays"))
     .nullable(),
   dayTimes: z.partialRecord(z.enum(["1", "2", "3", "4", "5", "6", "7"]), dayTime),
   languages: z.array(z.string()).nullable(),
   zone,
   hallZones: z
     .record(z.string(), absoluteZone)
-    .refine((zones) => Object.keys(zones).every((key) => HALL_KEY.test(key)), copy.validation.hallKeyFormat),
+    .refine((zones) => Object.keys(zones).every((key) => HALL_KEY.test(key)), say("hallKeyFormat")),
   together: intIn(1, 10),
   intervalMinutes: intIn(1, 1440).nullable(),
   lastSeatsThreshold: intIn(0, 500),
@@ -219,36 +233,36 @@ const huntSchema = z.strictObject({
     movieAppeared: z.boolean(),
     digest: z.boolean(),
   }),
-  extraChatIds: z.array(chatId).max(MAX_EXTRA_CHATS, copy.validation.tooManyChats(MAX_EXTRA_CHATS)),
+  extraChatIds: z.array(chatId).max(MAX_EXTRA_CHATS, say("tooManyChats", MAX_EXTRA_CHATS)),
 }).superRefine((hunt, ctx) => {
   for (const day of Object.keys(hunt.dayTimes)) {
     if (hunt.weekdays !== null && !hunt.weekdays.includes(Number(day))) {
-      ctx.addIssue({ code: "custom", path: ["dayTimes", day], message: copy.validation.dayTimeOutsideDays });
+      ctx.addIssue({ code: "custom", path: ["dayTimes", day], message: say("dayTimeOutsideDays") });
     }
   }
 });
 
 const settingsSchema = z.strictObject({
   telegram: z.strictObject({
-    token: z.string().regex(TOKEN_FORMAT, copy.validation.tokenFormat).nullable(),
+    token: z.string().regex(TOKEN_FORMAT, say("tokenFormat")).nullable(),
     chatId: chatId.nullable(),
   }),
-  publicUrl: z.string().refine(isPublicUrl, copy.validation.publicUrlFormat).nullable(),
+  publicUrl: z.string().refine(isPublicUrl, say("publicUrlFormat")).nullable(),
   defaultIntervalMinutes: intIn(1, 1440),
   quietHours: z.strictObject({ from: time, to: time }).nullable(),
   digest: z.strictObject({ enabled: z.boolean(), time }),
   albumSize: intIn(1, 10),
   defaultLastSeatsThreshold: intIn(0, 500),
-  sellableTypes: z.array(z.string().min(1, copy.validation.emptyType)).min(1, copy.validation.atLeastOneType),
+  sellableTypes: z.array(z.string().min(1, say("emptyType"))).min(1, say("atLeastOneType")),
   defaultZone: zone,
   home: z
     .strictObject({
-      lat: z.number({ error: copy.validation.latitude }).min(-90, copy.validation.latitude).max(90, copy.validation.latitude),
-      lon: z.number({ error: copy.validation.longitude }).min(-180, copy.validation.longitude).max(180, copy.validation.longitude),
+      lat: z.number({ error: say("latitude") }).min(-90, say("latitude")).max(90, say("latitude")),
+      lon: z.number({ error: say("longitude") }).min(-180, say("longitude")).max(180, say("longitude")),
     })
     .nullable(),
   radiusKm: intIn(1, 1000).nullable(),
-  t18Hosts: z.array(z.string().refine(isT18Host, copy.validation.t18HostFormat)),
+  t18Hosts: z.array(z.string().refine(isT18Host, say("t18HostFormat"))),
 });
 
 const configSchema = z
@@ -261,20 +275,20 @@ const configSchema = z
     const seen = new Set<string>();
     config.hunts.forEach((item, index) => {
       if (seen.has(item.id)) {
-        ctx.addIssue({ code: "custom", path: ["hunts", index, "id"], message: copy.validation.repeatedId });
+        ctx.addIssue({ code: "custom", path: ["hunts", index, "id"], message: say("repeatedId") });
       }
       seen.add(item.id);
     });
   });
 
-function italianMessage(issue: { code: string }): string {
+function defaultMessage(issue: { code: string }): string {
   switch (issue.code) {
     case "invalid_type":
-      return copy.validation.invalidType;
+      return say("invalidType");
     case "unrecognized_keys":
-      return copy.validation.unknownKey;
+      return say("unknownKey");
     default:
-      return copy.validation.valueNotAllowed;
+      return say("valueNotAllowed");
   }
 }
 
@@ -287,7 +301,16 @@ function formatPath(path: ReadonlyArray<PropertyKey>): string {
   return result;
 }
 
-export type ParseResult = { ok: true; config: Config } | { ok: false; errors: string[] };
+export type ParseResult = { ok: true; config: Config } | { ok: false; issues: ConfigIssue[] };
+
+export function issueLines(issues: ConfigIssue[], validation: Validation): string[] {
+  return issues.map((issue) => {
+    const [name = "", ...args] = issue.message.split(SAY_SEPARATOR);
+    const entry: unknown = Reflect.get(validation, name);
+    const text = typeof entry === "function" ? String(Reflect.apply(entry, validation, args.map(Number))) : typeof entry === "string" ? entry : issue.message;
+    return issue.path === null ? text : `${issue.path === "" ? validation.root : issue.path}: ${text}`;
+  });
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -323,20 +346,20 @@ export function parseConfig(json: unknown): ParseResult {
     typeof migrated["schemaVersion"] === "number" &&
     migrated["schemaVersion"] > CONFIG_SCHEMA_VERSION
   ) {
-    return { ok: false, errors: [`schemaVersion: ${copy.validation.newerSchema}`] };
+    return { ok: false, issues: [{ path: "schemaVersion", message: say("newerSchema") }] };
   }
-  const result = configSchema.safeParse(migrated, { error: italianMessage });
+  const result = configSchema.safeParse(migrated, { error: defaultMessage });
   if (result.success) return { ok: true, config: result.data };
-  const errors: string[] = [];
+  const issues: ConfigIssue[] = [];
   for (const issue of result.error.issues) {
     const base = formatPath(issue.path);
     if (issue.code === "unrecognized_keys") {
-      for (const key of issue.keys) errors.push(`${base === "" ? key : `${base}.${key}`}: ${copy.validation.unknownKey}`);
+      for (const key of issue.keys) issues.push({ path: base === "" ? key : `${base}.${key}`, message: say("unknownKey") });
     } else {
-      errors.push(`${base === "" ? copy.validation.root : base}: ${issue.message}`);
+      issues.push({ path: base, message: issue.message });
     }
   }
-  return { ok: false, errors };
+  return { ok: false, issues };
 }
 
 export function exportConfig(config: Config, options: { includeToken: boolean }): string {
@@ -348,12 +371,12 @@ export function exportConfig(config: Config, options: { includeToken: boolean })
 const IMPORT_LIMIT_BYTES = 1024 * 1024;
 
 export function importConfig(current: Config, text: string): ParseResult {
-  if (Buffer.byteLength(text, "utf8") > IMPORT_LIMIT_BYTES) return { ok: false, errors: [copy.validation.fileTooLarge] };
+  if (Buffer.byteLength(text, "utf8") > IMPORT_LIMIT_BYTES) return { ok: false, issues: [{ path: null, message: say("fileTooLarge") }] };
   let raw: unknown;
   try {
     raw = JSON.parse(text);
   } catch {
-    return { ok: false, errors: [copy.validation.invalidJson] };
+    return { ok: false, issues: [{ path: null, message: say("invalidJson") }] };
   }
   if (isRecord(raw) && isRecord(raw["settings"]) && isRecord(raw["settings"]["telegram"])) {
     const telegram = raw["settings"]["telegram"];
@@ -405,5 +428,5 @@ export async function loadConfig(store: Store, options: { createIfMissing: boole
   }
   const result = parseConfig(raw);
   if (result.ok) return result.config;
-  return rejectConfig(store, copy.storage.configInvalid(CONFIG_FILE, result.errors.join("; ")));
+  return rejectConfig(store, copy.storage.configInvalid(CONFIG_FILE, issueLines(result.issues, copy.validation).join("; ")));
 }

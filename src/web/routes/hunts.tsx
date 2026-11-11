@@ -1,6 +1,5 @@
 import type { Hono } from "hono";
-import { createHunt } from "../../config.js";
-import { copy } from "../../copy.js";
+import { createHunt, issueLines } from "../../config.js";
 import { SLUG } from "../../keys.js";
 import type { Config, Hunt } from "../../model.js";
 import type { Theatre } from "../../types.js";
@@ -11,11 +10,12 @@ import { ErrorList, HuntFormBody, huntFieldOf, huntOfValues, preferListed, value
 import { StatusCards } from "../parts/hunt-status.js";
 import { listedMovies, MAX_MOVIE_THEATRES } from "../parts/movies.js";
 import { backHref, fromOf, withFrom } from "../parts/navigation.js";
+import { copy, localized } from "../i18n.js";
 
 type PageContext = Parameters<typeof renderPage>[0];
 
-const ui = copy.ui.hunts;
-const common = copy.ui.common;
+const ui = localized((all) => all.ui.hunts);
+const common = localized((all) => all.ui.common);
 
 async function loadTheatres(deps: AppDeps): Promise<Theatre[] | null> {
   try {
@@ -95,7 +95,7 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     };
     const result = await watcher.saveConfig(next);
     if (result.ok) return c.redirect("/", 303);
-    return huntPage(c, { hunt, base, values, errors: splitErrors(result.errors, `hunts[${index}].`, huntFieldOf), status: 400, restore });
+    return huntPage(c, { hunt, base, values, errors: splitErrors(issueLines(result.issues, copy.validation), `hunts[${index}].`, huntFieldOf), status: 400, restore });
   }
 
   app.get("/hunts/new", (c) => {

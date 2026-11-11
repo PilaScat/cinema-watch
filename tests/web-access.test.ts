@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Config } from "../src/model.js";
 import { createApp } from "../src/web/app.js";
+import { askingFor } from "./support/web.js";
 import { createLockout } from "../src/web/auth.js";
 import { createHarness, type Harness } from "./support/harness.js";
 
@@ -26,7 +27,7 @@ async function app(options: { env?: NodeJS.ProcessEnv; mutate?: (config: Config)
 
 async function appOnSameData(options: { env?: NodeJS.ProcessEnv; warnings?: string[] } = {}) {
   const watcher = await harness.watcher();
-  return createApp({ watcher, version: "v2026.10.1", dataDir: harness.dataDir, env: options.env ?? {}, now: () => harness.now(), publicDir, assetsDir });
+  return askingFor(await createApp({ watcher, version: "v2026.10.1", dataDir: harness.dataDir, env: options.env ?? {}, now: () => harness.now(), publicDir, assetsDir }), "it");
 }
 
 function login(password: string, headers: Record<string, string> = {}) {

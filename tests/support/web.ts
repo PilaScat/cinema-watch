@@ -14,7 +14,17 @@ export const PERFORMANCE = "5116-575978";
 const publicDir = fileURLToPath(new URL("../../src/web/public/", import.meta.url));
 const assetsDir = fileURLToPath(new URL("../../assets/", import.meta.url));
 
-export async function createWebApp(harness: Harness, options: { env?: NodeJS.ProcessEnv; mutate?: (config: Config) => void; publicDir?: string; venues?: VenueList | null; spaceVenues?: SpaceVenueList; t18Venues?: T18VenueList } = {}) {
+export function askingFor<App extends Awaited<ReturnType<typeof createApp>>>(instance: App, language: string): App {
+  const request = instance.request.bind(instance);
+  instance.request = (input, init, ...rest) => {
+    const headers = new Headers(init?.headers);
+    if (!headers.has("accept-language")) headers.set("accept-language", language);
+    return request(input, input instanceof Request ? init : { ...init, headers }, ...rest);
+  };
+  return instance;
+}
+
+export async function createWebApp(harness: Harness, options: { env?: NodeJS.ProcessEnv; mutate?: (config: Config) => void; publicDir?: string; venues?: VenueList | null; spaceVenues?: SpaceVenueList; t18Venues?: T18VenueList; language?: string | null } = {}) {
   const config = await harness.seed(options.mutate, { ...(options.venues === undefined ? {} : { venues: options.venues }), ...(options.spaceVenues === undefined ? {} : { spaceVenues: options.spaceVenues }), ...(options.t18Venues === undefined ? {} : { t18Venues: options.t18Venues }) });
   const watcher = await harness.watcher({ env: options.env ?? {} });
   const instance = await createApp({
@@ -26,6 +36,7 @@ export async function createWebApp(harness: Harness, options: { env?: NodeJS.Pro
     publicDir: options.publicDir ?? publicDir,
     assetsDir,
   });
+  if (options.language !== null) askingFor(instance, options.language ?? "it");
   return { instance, watcher, config, huntId: config.hunts[0]?.id ?? "" };
 }
 

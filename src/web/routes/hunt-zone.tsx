@@ -1,6 +1,6 @@
 import type { Hono } from "hono";
 import { raw } from "hono/html";
-import { copy } from "../../copy.js";
+import { issueLines } from "../../config.js";
 import { renderHallSvg } from "../../hall-svg.js";
 import { HALL_KEY, SHOWING_KEY } from "../../keys.js";
 import type { Config, Hunt } from "../../model.js";
@@ -9,11 +9,12 @@ import { Button, Card, LinkButton, Notice, PageHeader } from "../components.js";
 import { bodyText, FormGrid, noErrors, nullableNumber, splitErrors, splitList, TextField, Wide, type FieldErrors } from "../parts/forms.js";
 import { ErrorList } from "../parts/hunt-form.js";
 import { movieTitleFor } from "../parts/titles.js";
+import { copy, localized } from "../i18n.js";
 
 type PageContext = Parameters<typeof renderPage>[0];
 
-const ui = copy.ui.hunts;
-const common = copy.ui.common;
+const ui = localized((all) => all.ui.hunts);
+const common = localized((all) => all.ui.common);
 
 interface ZoneFormValues {
   rows: string;
@@ -160,6 +161,6 @@ export function registerHuntZoneRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
       await watcher.confirmHallZone(hunt.id, savedHallKey);
       return c.redirect(`/hunts/${hunt.id}`, 303);
     }
-    return zonePage(c, { hunt, performance, values, errors: splitErrors(result.errors, `hunts[${index}].hallZones.${savedHallKey}`, zoneFieldOf), status: 400 });
+    return zonePage(c, { hunt, performance, values, errors: splitErrors(issueLines(result.issues, copy.validation), `hunts[${index}].hallZones.${savedHallKey}`, zoneFieldOf), status: 400 });
   });
 }
