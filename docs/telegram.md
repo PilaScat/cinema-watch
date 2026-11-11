@@ -78,14 +78,18 @@ Ogni caccia può avere altre chat oltre alla principale. Ricevono gli stessi avv
 
 Il bot ignora le chat che non sono la principale né un'aggiuntiva.
 
-## Il comando /aggiorna
+## Il comando /refresh
 
-`/aggiorna` rilegge le cacce attive, una alla volta:
+`/refresh` rilegge le cacce attive, una alla volta:
 
 - dalla chat principale, tutte;
 - da una chat aggiuntiva, solo quelle che la includono.
 
-Funziona anche nella fascia silenziosa. Risponde con le novità trovate oppure con "Nessuna novità" e, per ogni caccia, spettacoli e posti liberi nella zona buona. Una caccia già aggiornata meno di 30 secondi prima si salta; se si saltano tutte, la risposta è "Aggiornata meno di 30 s fa". Nei gruppi vale anche `/aggiorna@nome_del_bot`.
+Funziona anche nella fascia silenziosa. Risponde con le novità trovate oppure con "Nessuna novità" e, per ogni caccia, spettacoli e posti liberi nella zona buona. Una caccia già aggiornata meno di 30 secondi prima si salta; se si saltano tutte, la risposta è "Aggiornata meno di 30 s fa". Nei gruppi vale anche `/refresh@nome_del_bot`. Fino alla v2026.10.15 il comando era `/aggiorna`, che non risponde più.
+
+## Lingua dei messaggi
+
+Messaggi, pulsanti, registro ed errori sono nella lingua scelta nelle Impostazioni, Lingua dei messaggi: inglese o italiano. Non dipende dalla lingua della web UI, che segue il browser di chi la apre. Un'installazione nuova parte in inglese; una aggiornata da una versione senza questa impostazione resta in italiano. Il cambio vale dal messaggio successivo, senza riavvio. Prima che `config.json` sia letto (un errore all'avvio) i testi sono in inglese.
 
 ## Riepilogo giornaliero
 

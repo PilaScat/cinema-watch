@@ -14,7 +14,9 @@ per la web UI, la sezione `telegram` per i messaggi. Le guardie sono `tests/copy
   `localized((all) => all.ui.…)`, non li legge.
 - Un testo nuovo si scrive prima in `en.ts`, poi in `it.ts`. Un testo uguale nelle due lingue va
   nell'elenco `SHARED` di `tests/copy-style.test.ts`.
-- Messaggi di Telegram, registro ed errori di avvio non hanno un browser: per ora sono in italiano.
+- Messaggi di Telegram, registro ed errori non hanno un browser: seguono l'impostazione Lingua dei
+  messaggi (`settings.language`). I moduli fuori da `src/web/` leggono `copy` da `src/copy.ts` e i
+  formati da `src/format.ts`, che seguono quell'impostazione.
 
 ## Registro e forma
 
