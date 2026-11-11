@@ -115,7 +115,7 @@ Risponde sempre `200` con `{"status":"ok"}`. È la verifica usata dall'`HEALTHCH
 
 ### `GET /api/status`
 
-Riepilogo dello stato, pensato per il widget di [homepage.md](homepage.md). È aperta anche con `UI_PASSWORD` e non contiene segreti: niente token, chat o password.
+Riepilogo dello stato, pensato per il widget di [homepage.md](homepage.md). È aperta anche con `UI_PASSWORD` e non contiene segreti: niente token, chat o password. Con `UI_PASSWORD` impostata e senza accesso, `hunts` è un elenco vuoto: restano i totali.
 
 | Campo | Tipo | Significato |
 |---|---|---|

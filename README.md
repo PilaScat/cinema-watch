@@ -86,7 +86,7 @@ Se `id` non dà 1000, prima dell'avvio vanno cambiati `PUID` e `PGID` nel file.
 
 ### Primi passi
 
-1. Aprire `http://IP:8790`.
+1. Aprire `http://IP:8790`. Senza `UI_PASSWORD` l'app risponde solo su un IP, su `localhost`, su un nome di rete locale o sull'URL pubblico delle Impostazioni.
 2. In Impostazioni, sezione Telegram, inserire il token del bot e la chat principale ([come ottenerli](docs/telegram.md)), salvare e premere Invia prova.
 3. Premere Aggiungi caccia e compilare film, cinema, formati e date.
 4. Facoltativo: in Impostazioni, sezione Casa e distanza, impostare la posizione di casa ("lat, lon" da Google Maps, oppure "Usa la mia posizione" aprendo l'app in HTTPS) e un raggio massimo. Cinema, ricerca e scelta dei cinema nelle cacce si ordinano allora per distanza.
@@ -125,8 +125,8 @@ Un rilascio è un tag annotato `vAAAA.MM.N`, che fa partire `release.yml`: verif
 | `PGID` | `100` | Gruppo a cui va la cartella dei dati e con cui gira l'app. |
 | `PORT` | `8790` | Porta della web UI. |
 | `DATA_DIR` | `/data` | Cartella di configurazione, stato, piante, andamento e registro. |
-| `UI_PASSWORD` | vuota | Password della web UI. Vuota: nessuna password. |
-| `TRUST_PROXY` | vuota | Con `1` l'app si fida di `X-Forwarded-For` per il blocco dei tentativi di accesso per IP. Serve solo con la password. |
+| `UI_PASSWORD` | vuota | Password della web UI. Vuota: nessuna password, e chi raggiunge la porta legge e cambia il token del bot. Va impostata se la porta è raggiungibile fuori dalla rete di casa. |
+| `TRUST_PROXY` | vuota | Con `1` l'app prende l'IP del client dall'ultimo valore di `X-Forwarded-For`, quello aggiunto dal proxy, per il blocco dei tentativi di accesso. Serve solo con la password, dietro un reverse proxy. |
 | `TELEGRAM_TOKEN` | vuota | Token del bot. Vale solo se il campo nelle Impostazioni è vuoto. |
 | `TELEGRAM_CHAT_ID` | vuota | Chat principale. Vale solo se il campo nelle Impostazioni è vuoto. |
 

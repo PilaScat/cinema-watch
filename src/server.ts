@@ -61,6 +61,7 @@ async function serve(): Promise<void> {
   const app = await createApp({ watcher, version, dataDir, env: process.env });
   const server = honoServe({ fetch: app.fetch, port, hostname: "0.0.0.0" });
   watcher.logger.info("started", { version, dataDir, port });
+  if (!process.env.UI_PASSWORD?.trim()) watcher.logger.warn("no UI_PASSWORD: whoever reaches this port can read and change the bot token");
   void tick();
   const shutdown = async () => {
     clearInterval(timer);
