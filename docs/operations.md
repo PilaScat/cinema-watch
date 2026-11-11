@@ -1,121 +1,121 @@
-# Operazioni: deploy, aggiornamenti, backup, rilascio e smoke test
+# Operations: deploy, updates, backup, release and smoke test
 
-Questo documento raccoglie le operazioni per far girare cinema-watch e per rilasciarne le versioni. Per l'avvio di base, le opzioni del container e le variabili d'ambiente c'è il [README](../README.md).
+This document collects the operations for running cinema-watch and releasing its versions. For the basic start, the container options and the environment variables see the [README](../README.md).
 
-## Deploy con Docker
+## Deploy with Docker
 
-I comandi `docker run` e `docker compose` sono nel [README](../README.md#avvio-rapido). Valgono questi punti per un'installazione stabile:
+The `docker run` and `docker compose` commands are in the [README](../README.md#quick-start). These points apply to a stable installation:
 
-- la cartella dei dati è l'unico stato da conservare. All'avvio il container, che parte come root, la dà a `PUID:PGID` (predefiniti 99:100) se ha un altro proprietario, e poi fa girare l'app con quell'utente tramite `su-exec`, senza nessuna capability. Se il `chown` non riesce (per esempio su NFS o su certi bind mount di Docker Desktop) lo scrive nel log e prosegue;
-- `PUID`/`PGID` si ricavano con `id`: su una distro il primo utente è di solito 1000:1000, su Unraid si lascia 99:100 (nobody:users);
-- l'immagine regge `--read-only`: si scrive solo su `/data` e su `/tmp` (tmpfs);
-- per usare una versione precisa al posto di `latest` basta il tag di una Release, per esempio `ghcr.io/pilascat/cinema-watch:v2026.10.1`;
-- dietro un reverse proxy vanno impostate `UI_PASSWORD` e `TRUST_PROXY=1` (senza `TRUST_PROXY` tutti i visitatori hanno l'IP del proxy, e cinque password sbagliate di chiunque bloccano l'accesso a tutti per 15 minuti), e inserire l'indirizzo pubblico nelle Impostazioni (URL pubblico). Servito in `https`, il sito si può installare come app dal browser;
-- non provati: Docker rootless e Podman. Con SELinux attivo (Fedora, RHEL) il bind mount della cartella dei dati vuole `:Z` (`-v /percorso/dati:/data:Z`).
+- the data folder is the only state to keep. At start the container, which starts as root, gives it to `PUID:PGID` (default 99:100) if it has another owner, and then runs the app as that user through `su-exec`, with no capability. If the `chown` fails (for example on NFS or on some Docker Desktop bind mounts) it writes this in the log and goes on;
+- `PUID`/`PGID` are obtained with `id`: on a distro the first user is usually 1000:1000, on Unraid 99:100 (nobody:users) is left as it is;
+- the image works with `--read-only`: it writes only to `/data` and to `/tmp` (tmpfs);
+- to use a specific version instead of `latest` the tag of a Release is enough, for example `ghcr.io/pilascat/cinema-watch:v2026.10.1`;
+- behind a reverse proxy set `UI_PASSWORD` and `TRUST_PROXY=1` (without `TRUST_PROXY` all visitors have the IP of the proxy, and five wrong passwords from anyone block access for everyone for 15 minutes), and enter the public address in Settings (Public URL). Served over `https`, the site can be installed as an app from the browser;
+- not tried: rootless Docker and Podman. With SELinux enabled (Fedora, RHEL) the bind mount of the data folder needs `:Z` (`-v /path/to/data:/data:Z`).
 
-### Indurimento facoltativo
+### Optional hardening
 
-Chi vuole togliere al container anche i privilegi dell'avvio lo fa partire direttamente con l'utente giusto: `--user 99:100 --cap-drop=ALL` (in Compose `user: "99:100"` e `cap_drop: [ALL]`). Così l'entrypoint non tocca la cartella dei dati, che va data prima a quell'utente (`chown -R 99:100 /percorso/dati`). Con `--cap-drop=ALL` senza `--user` il container si ferma subito e scrive nel log le due correzioni possibili.
+Whoever wants to remove the privileges of the start from the container too starts it directly with the right user: `--user 99:100 --cap-drop=ALL` (in Compose `user: "99:100"` and `cap_drop: [ALL]`). This way the entrypoint does not touch the data folder, which must be given to that user beforehand (`chown -R 99:100 /path/to/data`). With `--cap-drop=ALL` and no `--user` the container stops at once and writes the two possible fixes in the log.
 
-## Deploy su Unraid
+## Deploy on Unraid
 
-Il template [cinema-watch.xml](https://github.com/PilaScat/unraid-templates/blob/main/cinema-watch/cinema-watch.xml), nel repo [unraid-templates](https://github.com/PilaScat/unraid-templates) insieme al profilo per Community Apps, crea il container con le opzioni di sicurezza e le variabili d'ambiente. Per usarlo, copiarlo in `/boot/config/plugins/dockerMan/templates-user/my-cinema-watch.xml` e aggiungere il container dalla scheda Docker scegliendo il template.
+The template [cinema-watch.xml](https://github.com/PilaScat/unraid-templates/blob/main/cinema-watch/cinema-watch.xml), in the [unraid-templates](https://github.com/PilaScat/unraid-templates) repo together with the profile for Community Apps, creates the container with the security options and the environment variables. To use it, copy it to `/boot/config/plugins/dockerMan/templates-user/my-cinema-watch.xml` and add the container from the Docker tab by choosing the template.
 
-- **Percorso dei dati**: `/mnt/user/appdata/cinema-watch`, come le altre app. Su Unraid 7.3.2 il FUSE di `/mnt/user` applica `chown` e `chmod` (misurato il 21/10/2026), quindi `config.json` resta a `600`. Va bene anche il percorso diretto del pool, per esempio `/mnt/cache/appdata/cinema-watch`. Una cartella sotto `/mnt` senza pool finisce in RAM e si perde al riavvio.
-- **Proprietario**: `PUID` 99 e `PGID` 100 (nobody:users). Se la cartella non esiste, Docker la crea di root e il container la dà a 99:100 al primo avvio.
-- **Rete**: il template usa `bridge`; si può scegliere un'altra rete nella scheda del container.
-- **Template**: una volta creato il container, Unraid salva i valori inseriti (password compresa) in `my-cinema-watch.xml`. Ricopiare il template del repo sopra quel file li cancella. Una variabile o un'opzione del container nuova va aggiunta nel template di unraid-templates, nello stesso giro del rilascio che la introduce.
+- **Data path**: `/mnt/user/appdata/cinema-watch`, like the other apps. On Unraid 7.3.2 the FUSE of `/mnt/user` applies `chown` and `chmod` (measured on 21/10/2026), so `config.json` stays at `600`. The direct path of the pool is fine too, for example `/mnt/cache/appdata/cinema-watch`. A folder under `/mnt` without a pool ends up in RAM and is lost at reboot.
+- **Owner**: `PUID` 99 and `PGID` 100 (nobody:users). If the folder does not exist, Docker creates it as root and the container gives it to 99:100 at the first start.
+- **Network**: the template uses `bridge`; another network can be chosen in the container tab.
+- **Template**: once the container is created, Unraid saves the values entered (password included) in `my-cinema-watch.xml`. Copying the template of the repo over that file erases them. A new variable or container option must be added to the template in unraid-templates, in the same round as the release that introduces it.
 
-[deploy/deploy.sh](../deploy/deploy.sh) è lo script usato dall'autore sul suo server Unraid: scarica il template da unraid-templates se sul server manca, e pubblica il servizio. L'indirizzo del server si passa con `UNRAID_HOST`.
+[deploy/deploy.sh](../deploy/deploy.sh) is the script the author uses on his Unraid server: it downloads the template from unraid-templates if it is missing on the server, and publishes the service. The address of the server is passed with `UNRAID_HOST`.
 
-## Aggiornare l'immagine
+## Updating the image
 
-La web UI mostra "Disponibile la vAAAA.MM.N" quando su GitHub c'è una Release più recente; l'app lo controlla una volta al giorno.
+The web UI shows "vYYYY.MM.N available" when there is a newer Release on GitHub; the app checks once a day.
 
 ```sh
 docker compose pull && docker compose up -d
 ```
 
-Su Unraid si aggiorna il container dalla scheda Docker. Dati e configurazione stanno nella cartella dei dati e non si perdono. Le versioni nuove migrano da sole `config.json` e `state.json` (la versione 1 dello stato passa alla 2 conservando cacce, spettacoli e storico); se `state.json` ha una versione che l'app non conosce, riparte da uno stato vuoto e lascia accanto la copia `state.json.bak-<millisecondi>`. Il contrario no: un `config.json` scritto da una versione più recente viene rifiutato ("versione più recente dell'app"), quindi tornare a una versione vecchia richiede il backup della cartella dati.
+On Unraid the container is updated from the Docker tab. Data and configuration live in the data folder and are not lost. New versions migrate `config.json` and `state.json` on their own (version 1 of the state becomes 2, keeping hunts, showings and history); if `state.json` has a version the app does not know, it starts again from an empty state and leaves the copy `state.json.bak-<milliseconds>` next to it. The opposite does not work: a `config.json` written by a newer version is rejected ("newer version of the app"), so going back to an old version requires the backup of the data folder.
 
-### Tornare alla versione precedente
+### Going back to the previous version
 
-Serve la copia della cartella dei dati fatta prima dell'aggiornamento (vedi [Backup](#backup)).
+You need the copy of the data folder made before the update (see [Backup](#backup)).
 
-1. Fermare il container.
-2. Rimettere `config.json` e `state.json` della copia al posto di quelli attuali.
-3. Riavviare con il tag dell'immagine precedente (per esempio `ghcr.io/pilascat/cinema-watch:v2026.10.15`) al posto di `latest`.
+1. Stop the container.
+2. Put `config.json` and `state.json` from the copy back in place of the current ones.
+3. Restart with the tag of the previous image (for example `ghcr.io/pilascat/cinema-watch:v2026.10.15`) instead of `latest`.
 
-Le cacce aggiunte e le impostazioni cambiate dopo la copia si perdono. La versione che porta la lingua dei messaggi scrive `config.json` in versione 5: quelle fino alla v2026.10.15 lo rifiutano.
+Hunts added and settings changed after the copy are lost. The version that brings the language of the messages writes `config.json` in version 5: those up to v2026.10.15 reject it.
 
 ## Backup
 
-Il backup è la copia della cartella dei dati (`/data` nel container). Le scritture sono atomiche, quindi ogni file copiato è intero.
+The backup is a copy of the data folder (`/data` in the container). Writes are atomic, so every copied file is whole.
 
-| Percorso | Contenuto |
+| Path | Content |
 |---|---|
-| `config.json` | Impostazioni e cacce, token Telegram compreso. È l'unico file davvero necessario |
-| `state.json` | Stato dei giri: spettacoli noti, silenzi, prossimo giro |
-| `screens/` | Piante delle sale in cache |
-| `history/` | Andamento dei posti liberi di ogni spettacolo |
-| `events.jsonl` | Registro degli ultimi 500 eventi |
-| `webtic-venues.json`, `space-venues.json`, `t18-venues.json` | Elenchi dei cinema Webtic, The Space e 18Tickets dei controlli settimanali; senza, il controllo riparte |
-| `secret` | Chiave che firma i cookie di accesso, presente solo con `UI_PASSWORD` |
+| `config.json` | Settings and hunts, Telegram token included. It is the only file really needed |
+| `state.json` | State of the rounds: known showings, mutes, next round |
+| `screens/` | Cached seat maps of the halls |
+| `history/` | Trend of the free seats of each showing |
+| `events.jsonl` | Log of the last 500 events |
+| `webtic-venues.json`, `space-venues.json`, `t18-venues.json` | Lists of the Webtic, The Space and 18Tickets cinemas from the weekly checks; without them the check starts again |
+| `secret` | Key that signs the sign-in cookies, present only with `UI_PASSWORD` |
 
-Le piante si riscaricano da sole; senza `history/` l'andamento ricomincia da zero. Per ripristinare si rimette la cartella al suo posto con `config.json` a permessi `600`; il proprietario lo sistema il container all'avvio.
+Seat maps are downloaded again on their own; without `history/` the trend starts from zero. To restore, put the folder back in its place with `config.json` at `600` permissions; the container fixes the owner at start.
 
-`config.json` si può anche esportare dalle Impostazioni, sezione Esporta e importa, con Esporta senza token o Esporta con token. L'importazione valida tutto il file prima di sostituire la configurazione (limite 1 MB); un file senza token mantiene quello attuale. Se `config.json` non è valido all'avvio, l'app non lo sovrascrive: ne fa una copia `config.json.bak-<codice>` e chiede di correggerlo o eliminarlo.
+`config.json` can also be exported from Settings, Export and import section, with Export without token or Export with token. The import validates the whole file before replacing the configuration (limit 1 MB); a file without a token keeps the current one. If `config.json` is not valid at start, the app does not overwrite it: it makes a copy `config.json.bak-<code>` and asks to fix or delete it.
 
-## Spegnere o archiviare una caccia
+## Turning off or archiving a hunt
 
-| Azione | Effetto |
+| Action | Effect |
 |---|---|
-| Togliere "Caccia attiva" nel form della caccia | La caccia è in pausa: nessun giro e nessun avviso. Si riprende rimettendo la spunta |
-| Silenzia 24 h (home o avviso su Telegram) | Per 24 ore la caccia continua a leggere ma non manda avvisi, e quelli di quelle ore non si recuperano. Riattiva (home o messaggio del bot) toglie il silenzio prima |
-| Acquistato (pagina della caccia o avviso su Telegram) | Archivia la caccia: non è più attiva e compare fra le Archiviate |
-| Date finite | Una caccia con date fisse si archivia da sola quando l'ultimo giorno è passato |
-| Ripristina (fra le Archiviate, nella pagina della caccia o dal messaggio del bot dopo Acquistato) | Toglie l'archiviazione e apre la caccia. Se le date fisse sono finite, apre il form con un avviso: la caccia torna attiva quando la si salva con date nuove. Da Telegram, con le date finite, il bot non ripristina e rimanda alla pagina della caccia |
-| Elimina | Cancella la caccia dalla configurazione |
+| Untick "Hunt active" in the form of the hunt | The hunt is paused: no rounds and no alerts. It resumes when the tick is put back |
+| Mute for 24 h (home or Telegram alert) | For 24 hours the hunt keeps reading but sends no alerts, and those of those hours are not recovered. Resume (home or message of the bot) removes the mute earlier |
+| Bought (page of the hunt or Telegram alert) | Archives the hunt: it is no longer active and appears among the Archived |
+| Dates over | A hunt with fixed dates archives itself when the last day has passed |
+| Restore (among the Archived, on the page of the hunt or from the message of the bot after Bought) | Removes the archiving and opens the hunt. If the fixed dates are over, it opens the form with a warning: the hunt becomes active again when it is saved with new dates. From Telegram, with the dates over, the bot does not restore and refers to the page of the hunt |
+| Delete | Deletes the hunt from the configuration |
 
-Gli spettacoli passati escono dallo stato e il loro andamento si toglie dopo 30 giorni. I pulsanti Silenzia e Acquistato sono descritti in [telegram.md](telegram.md#comè-fatto-un-avviso).
+Past showings leave the state and their trend is removed after 30 days. The Mute and Bought buttons are described in [telegram.md](telegram.md#what-an-alert-looks-like).
 
-## Rilascio
+## Release
 
-Un rilascio è un tag annotato più una Release su GitHub: un tag senza Release non è un rilascio.
+A release is an annotated tag plus a Release on GitHub: a tag without a Release is not a release.
 
-1. Scrivere in `CHANGELOG.md` una sezione `## vAAAA.MM.N` con le note. Va scritta prima del tag: il workflow si ferma se non la trova.
-2. Creare il tag annotato e pubblicarlo: `git tag -a vAAAA.MM.N -m "vAAAA.MM.N"` e `git push origin vAAAA.MM.N`. Il formato è `vAAAA.MM.N`, per esempio `v2026.10.1`.
-3. `release.yml` parte dal tag. Si può anche lanciare a mano con l'ingresso `tag`, per un tag già pubblicato.
+1. Write in `CHANGELOG.md` a section `## vAAAA.MM.N` with the notes. It must be written before the tag: the workflow stops if it does not find it.
+2. Create the annotated tag and publish it: `git tag -a vAAAA.MM.N -m "vAAAA.MM.N"` and `git push origin vAAAA.MM.N`. The format is `vAAAA.MM.N`, for example `v2026.10.1`.
+3. `release.yml` starts from the tag. It can also be launched by hand with the `tag` input, for a tag already published.
 
-Il workflow `release.yml` esegue in ordine:
+The `release.yml` workflow runs in order:
 
-1. **Verifica** del codice al tag: test, tipi, lint, build, `npm audit`, firme dei pacchetti, licenze e presenza della sezione nel CHANGELOG.
-2. **Trivy** sull'immagine amd64: si ferma su vulnerabilità CRITICAL o HIGH che hanno una correzione.
-3. **Immagini** amd64 e arm64, ciascuna su un runner nativo, con SBOM e provenance.
-4. **Manifest** che unisce le due immagini sotto `:vAAAA.MM.N` e `:latest`, e **attestazione** di provenienza registrata insieme all'immagine.
-5. **Release** su GitHub con il testo della sezione del CHANGELOG, l'elenco dei commit compresi fra il tag precedente e questo, l'indicazione dell'immagine e, allegata, la provenienza firmata `cinema-watch-<tag>.intoto.jsonl` (il bundle Sigstore dell'attestazione). Serve anche al controllo Signed-Releases di OpenSSF Scorecard.
+1. **Check** of the code at the tag: tests, types, lint, build, `npm audit`, package signatures, licences and presence of the section in the CHANGELOG.
+2. **Trivy** on the amd64 image: it stops on CRITICAL or HIGH vulnerabilities that have a fix.
+3. **Images** amd64 and arm64, each on a native runner, with SBOM and provenance.
+4. **Manifest** joining the two images under `:vAAAA.MM.N` and `:latest`, and provenance **attestation** recorded together with the image.
+5. **Release** on GitHub with the text of the CHANGELOG section, the list of the commits between the previous tag and this one, the indication of the image and, attached, the signed provenance `cinema-watch-<tag>.intoto.jsonl` (the Sigstore bundle of the attestation). It is also needed for the Signed-Releases check of OpenSSF Scorecard.
 
-Per verificare l'attestazione di un'immagine:
+To verify the attestation of an image:
 
 ```sh
 gh attestation verify oci://ghcr.io/pilascat/cinema-watch:<tag> -R PilaScat/cinema-watch
 ```
 
-### Immagini del repo
+### Images of the repo
 
-Stanno in `docs/img/`, tutte in tema scuro e a 1280×800: `pianta.png` (la pianta come arriva su Telegram), `home.png` (le cacce) e `cinema.png` (i cinema dalla casa d'esempio in piazza del Duomo a Milano, mai una casa vera). Si rifanno da un server locale con dati veri e il tema scuro scelto nell'app.
+They are in `docs/img/`, all in dark theme and at 1280×800: `pianta.png` (the seat map as it arrives on Telegram), `home.png` (the hunts) and `cinema.png` (the cinemas from the example home in piazza del Duomo in Milan, never a real home). They are redone from a local server with real data and the dark theme chosen in the app.
 
-La social preview segue il template di GitHub: 1280×640, PNG sotto 1 MB, contenuto entro 40 px dai bordi. La sorgente è `docs/img/social-preview.html` (font, icona e pianta del repo); si rigenera con Edge headless e poi si carica a mano da Settings → General → Social preview, perché GitHub non ha un'API per farlo:
+The social preview follows the GitHub template: 1280×640, PNG under 1 MB, content within 40 px of the edges. The source is `docs/img/social-preview.html` (font, icon and seat map of the repo); it is regenerated with headless Edge and then uploaded by hand from Settings → General → Social preview, because GitHub has no API for it:
 
 ```sh
 msedge --headless=new --hide-scrollbars --window-size=1280,640 --screenshot=docs/img/social-preview.png file:///<percorso del repo>/docs/img/social-preview.html
 ```
 
-Aprendo la sorgente con `#check` in fondo all'indirizzo si vede il bordo dell'area sicura.
+Opening the source with `#check` at the end of the address shows the border of the safe area.
 
-### Se fallisce solo il job Release
+### If only the Release job fails
 
-Immagini, manifest e attestazione sono già pubblicati. Il tag non si sposta e non si cancella, e rilanciare il workflow ricostruirebbe le immagini con digest nuovi: `:latest` e il tag non coinciderebbero più. La Release si completa a mano con gli stessi passi del job, da Git Bash nella cartella del repo:
+Images, manifest and attestation are already published. The tag is not moved and not deleted, and re-running the workflow would rebuild the images with new digests: `:latest` and the tag would no longer match. The Release is completed by hand with the same steps as the job, from Git Bash in the repo folder:
 
 ```sh
 TAG=vAAAA.MM.N
@@ -129,41 +129,41 @@ mv ./sha256?"${DIGEST#sha256:}.jsonl" "cinema-watch-$TAG.intoto.jsonl"
 gh release create "$TAG" --verify-tag --title "$TAG" --notes-file notes.md "cinema-watch-$TAG.intoto.jsonl"
 ```
 
-Poi si corregge il workflow su `main`, che vale dal rilascio successivo.
+Then the workflow is fixed on `main`, which applies from the next release.
 
-## Workflow automatici
+## Automatic workflows
 
-Tutti i workflow si possono lanciare anche a mano (`workflow_dispatch`).
+All workflows can also be launched by hand (`workflow_dispatch`).
 
-| Workflow | Quando parte |
+| Workflow | When it starts |
 |---|---|
-| `ci.yml` | Su ogni pull request. Esegue test, tipi, lint, build, audit, licenze, `actionlint` e `zizmor`. Il suo job "Test, tipi, lint, build e sicurezza" è obbligatorio per entrare in `main`. Il job "Smoke del container" lancia `scripts/smoke.sh` e non è obbligatorio: legge le API vere di UCI, e un loro guasto non deve bloccare i merge |
-| `codeql.yml` | Push su `main`, pull request e ogni settimana |
-| `scorecard.yml` | Ogni settimana |
-| Dependabot | Ogni settimana, per le dipendenze npm, le GitHub Actions e l'immagine base |
-| `release.yml` | Solo da un tag `v*` o a mano |
+| `ci.yml` | On every pull request. Runs tests, types, lint, build, audit, licences, `actionlint` and `zizmor`. Its job "Test, tipi, lint, build e sicurezza" is required to get into `main`. The job "Smoke del container" launches `scripts/smoke.sh` and is not required: it reads the real UCI APIs, and a failure of theirs must not block merges |
+| `codeql.yml` | Push to `main`, pull requests and every week |
+| `scorecard.yml` | Every week |
+| Dependabot | Every week, for npm dependencies, GitHub Actions and the base image |
+| `release.yml` | Only from a `v*` tag or by hand |
 
-CodeQL, Scorecard, Dependabot e `ci.yml` sulle pull request partono da soli per scelta dell'autore del 15/10/2026. `release.yml` no: parte solo dal tag o dal lancio manuale.
+CodeQL, Scorecard, Dependabot and `ci.yml` on pull requests start on their own by the author's choice of 15/10/2026. `release.yml` does not: it starts only from the tag or from the manual launch.
 
-Dal 19/10/2026 su `main` si entra solo con una pull request (regola "main protetto"): il job di `ci.yml` deve essere verde e il merge si fa con rebase, così i commit restano divisi per feature. Non serve l'approvazione di un revisore, perché il maintainer è uno solo, e la regola vale anche per gli admin. I passi sono in [CLAUDE.md](../CLAUDE.md).
+Since 19/10/2026 `main` is entered only with a pull request ("protected main" rule): the job of `ci.yml` must be green and the merge is done with a rebase, so the commits stay split by feature. No reviewer approval is needed, because there is only one maintainer, and the rule applies to admins too. The steps are in [CLAUDE.md](../CLAUDE.md).
 
 ## Smoke test
 
-`sh scripts/smoke.sh` costruisce l'immagine e la prova come in produzione. Servono Docker e `curl`, e la rete: l'ultimo passaggio chiama le API vere. Si controlla che:
+`sh scripts/smoke.sh` builds the image and tries it as in production. It needs Docker and `curl`, and the network: the last step calls the real APIs. It checks that:
 
-- l'immagine sia sotto i 200 MB;
-- il container diventi `healthy` in sola lettura partendo da una cartella dati di root, che dà a 99:100;
-- l'app giri come 99:100 e senza capability;
-- la home risponda `200` e `/api/status` riporti la versione dell'immagine;
-- una caccia aggiunta dal form venga accettata;
-- `config.json` sia `600` e `/data` sia di 99:100;
-- la RAM a riposo sia sotto i 100 MiB;
-- l'arresto su SIGTERM sia pulito e il log non contenga errori;
-- al riavvio su una cartella già di 99:100 non ci sia nessun `chown`;
-- un giro completo a secco (`--dry-run`) con `--user 99:100 --cap-drop=ALL` contro le API vere produca messaggi e piante PNG;
-- con `PUID=1000 PGID=1000` cartella, `config.json` e processo passino a 1000:1000, anche su un volume nuovo;
-- con `PUID` non numerico, o con `--cap-drop=ALL` senza `--user`, il container si fermi con un messaggio chiaro.
+- the image is under 200 MB;
+- the container becomes `healthy` read-only, starting from a data folder owned by root, which it gives to 99:100;
+- the app runs as 99:100 and with no capability;
+- the home answers `200` and `/api/status` reports the version of the image;
+- a hunt added from the form is accepted;
+- `config.json` is `600` and `/data` belongs to 99:100;
+- the idle RAM is under 100 MiB;
+- the stop on SIGTERM is clean and the log contains no errors;
+- on restart on a folder already owned by 99:100 there is no `chown`;
+- a complete dry round (`--dry-run`) with `--user 99:100 --cap-drop=ALL` against the real APIs produces messages and PNG seat maps;
+- with `PUID=1000 PGID=1000` folder, `config.json` and process switch to 1000:1000, even on a new volume;
+- with a non-numeric `PUID`, or with `--cap-drop=ALL` without `--user`, the container stops with a clear message.
 
-Lo smoke gira anche nel CI, nel job "Smoke del container" di `ci.yml`.
+The smoke also runs in the CI, in the job "Smoke del container" of `ci.yml`.
 
-Variabili utili: `PLATFORM` (predefinita `linux/amd64`), `IMAGE`, `SKIP_BUILD=1` per usare un'immagine già costruita e `SMOKE_PORT`. Con `PLATFORM=linux/arm64` su una macchina amd64 l'immagine gira emulata: lo smoke funziona, ma la RAM non si misura e lo script lo dice.
+Useful variables: `PLATFORM` (default `linux/amd64`), `IMAGE`, `SKIP_BUILD=1` to use an image already built and `SMOKE_PORT`. With `PLATFORM=linux/arm64` on an amd64 machine the image runs emulated: the smoke works, but the RAM is not measured and the script says so.

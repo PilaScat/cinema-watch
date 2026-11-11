@@ -1,21 +1,21 @@
-# Risposte al questionario OpenSSF Best Practices, livello passing
+# Answers to the OpenSSF Best Practices questionnaire, passing level
 
-Le risposte da incollare su [bestpractices.dev](https://www.bestpractices.dev) per il badge del livello passing, una riga per criterio, nell'ordine del modulo. I criteri sono quelli di `criteria.yml` del progetto [best-practices-badge](https://github.com/coreinfrastructure/best-practices-badge), letti il 18/10/2026: 67 attivi. Le giustificazioni sono in inglese perché il modulo è in inglese.
+The answers to paste on [bestpractices.dev](https://www.bestpractices.dev) for the passing-level badge, one line per criterion, in the order of the form. The criteria are those of `criteria.yml` of the [best-practices-badge](https://github.com/coreinfrastructure/best-practices-badge) project, read on 18/10/2026: 67 active. The justifications are in English because the form is in English.
 
-## Come si usa
+## How to use it
 
-Il progetto è il numero [15670](https://www.bestpractices.dev/projects/15670), aggiunto da Filippo il 19/10/2026 nella serie Metal: livello passing raggiunto lo stesso giorno, con il badge nel README.
+The project is number [15670](https://www.bestpractices.dev/projects/15670), added by Filippo on 19/10/2026 in the Metal series: passing level reached the same day, with the badge in the README.
 
-1. `node scripts/best-practices-fill.mjs > fill.js` scrive il codice che compila il modulo da questo documento: i dati del progetto e tutti i criteri con risposta Met, Unmet o N/A. Il conteggio va su stderr.
-2. Accedere a bestpractices.dev, aprire `https://www.bestpractices.dev/en/projects/15670/passing/edit`, aprire la console del browser (F12), scrivere `allow pasting` se il browser lo chiede, incollare il contenuto di `fill.js` e premere Invio. La console dice quanti campi ha compilato e quali non ha trovato.
-3. I due criteri sullo sviluppatore (`know_secure_design`, `know_common_errors`) riguardano l'autore: li ha valutati Filippo il 19/10/2026 (Met), con le giustificazioni della tabella.
-4. Controllare e salvare. Con tutti i MUST soddisfatti, e i SHOULD soddisfatti o giustificati, il sito assegna il badge, che va nel README; la voce esce da [backlog.md](backlog.md).
+1. `node scripts/best-practices-fill.mjs > fill.js` writes the code that fills in the form from this document: the project data and all the criteria with an answer of Met, Unmet or N/A. The count goes to stderr.
+2. Sign in to bestpractices.dev, open `https://www.bestpractices.dev/en/projects/15670/passing/edit`, open the browser console (F12), type `allow pasting` if the browser asks for it, paste the contents of `fill.js` and press Enter. The console says how many fields it filled in and which ones it did not find.
+3. The two criteria about the developer (`know_secure_design`, `know_common_errors`) concern the author: Filippo assessed them on 19/10/2026 (Met), with the justifications in the table.
+4. Check and save. With all the MUSTs met, and the SHOULDs met or justified, the site awards the badge, which goes in the README; the item comes out of [backlog.md](backlog.md).
 
-Senza lo script si compila a mano, riga per riga. `R` sta per `https://github.com/PilaScat/cinema-watch`; lo script lo espande.
+Without the script, fill it in by hand, line by line. `R` stands for `https://github.com/PilaScat/cinema-watch`; the script expands it.
 
-## Dati del progetto
+## Project data
 
-| Campo | Valore |
+| Field | Value |
 |---|---|
 | name | cinema-watch |
 | description | Watches the programming of Italian cinemas with "hunts" for a film, a set of cinemas, screen formats and dates, and sends a Telegram alert with the seat map when showings come out, good seats free up or run out, or a showing is cancelled or moved. It covers UCI Cinemas and about 300 cinemas that sell tickets through Webtic; other chains are planned. |
@@ -24,10 +24,10 @@ Senza lo script si compila a mano, riga per riga. `R` sta per `https://github.co
 
 ## Basics
 
-| Criterio | Tipo | Risposta | Giustificazione |
+| Criterion | Type | Answer | Justification |
 |---|---|---|---|
 | description_good | MUST | Met | The README opens with what cinema-watch does: it watches the programming of Italian cinemas and sends Telegram alerts with the seat map. R#readme |
-| interact | MUST | Met | README: how to obtain it (Docker image, "Avvio rapido"), give feedback (issues) and contribute (CONTRIBUTING.md). R#readme |
+| interact | MUST | Met | README: how to obtain it (Docker image, "Quick start"), give feedback (issues) and contribute (CONTRIBUTING.md). R#readme |
 | contribution | MUST | Met | Pull requests against main, described in R/blob/main/CONTRIBUTING.md |
 | contribution_requirements | SHOULD | Met | CONTRIBUTING.md lists the required checks (tests, types, lint, build), tests for new code and the coding rules. R/blob/main/CONTRIBUTING.md |
 | floss_license | MUST | Met | MIT License. |
@@ -37,12 +37,12 @@ Senza lo script si compila a mano, riga per riga. `R` sta per `https://github.co
 | documentation_interface | MUST | Met | External interfaces: HTTP endpoints `/health` and `/api/status`, environment variables, Telegram commands and buttons, in docs/api.md, README and docs/telegram.md. R/blob/main/docs/api.md |
 | sites_https | MUST | Met | GitHub repository, GitHub Releases and ghcr.io, all HTTPS only. |
 | discussion | MUST | Met | GitHub issues and pull requests: searchable, addressable by URL, open to new participants, no proprietary software needed. R/issues |
-| english | SHOULD | Unmet | The full documentation is in Italian, the language of its users and of the cinemas it covers. The README has an English summary, and bug reports and comments in English are accepted (CONTRIBUTING.md). |
+| english | SHOULD | Met | The documentation is in English (README, docs/, CONTRIBUTING.md, SECURITY.md), with an Italian README beside it; the web UI is in English and Italian. Bug reports and comments in English are accepted (CONTRIBUTING.md). |
 | maintained | MUST | Met | Active development, regular releases (R/releases), weekly dependency updates. |
 
 ## Change Control
 
-| Criterio | Tipo | Risposta | Giustificazione |
+| Criterion | Type | Answer | Justification |
 |---|---|---|---|
 | repo_public | MUST | Met | R |
 | repo_track | MUST | Met | Git history records every change, its author and its date. |
@@ -56,7 +56,7 @@ Senza lo script si compila a mano, riga per riga. `R` sta per `https://github.co
 
 ## Reporting
 
-| Criterio | Tipo | Risposta | Giustificazione |
+| Criterion | Type | Answer | Justification |
 |---|---|---|---|
 | report_process | MUST | Met | GitHub issues, described in CONTRIBUTING.md. R/issues |
 | report_tracker | SHOULD | Met | GitHub issues. |
@@ -69,7 +69,7 @@ Senza lo script si compila a mano, riga per riga. `R` sta per `https://github.co
 
 ## Quality
 
-| Criterio | Tipo | Risposta | Giustificazione |
+| Criterion | Type | Answer | Justification |
 |---|---|---|---|
 | build | MUST | Met | `npm ci && npm run build`, and a multi-stage Dockerfile; documented in the README. |
 | build_common_tools | SUGGESTED | Met | npm, TypeScript compiler, Docker. |
@@ -87,7 +87,7 @@ Senza lo script si compila a mano, riga per riga. `R` sta per `https://github.co
 
 ## Security
 
-| Criterio | Tipo | Risposta | Giustificazione |
+| Criterion | Type | Answer | Justification |
 |---|---|---|---|
 | know_secure_design | MUST | Met | The primary developer applies the secure design principles listed in the criterion details, and the code shows them. Economy of mechanism: few runtime dependencies, no database, small single-purpose modules. Fail-safe defaults: strict CSP with nonces, CSRF checks on every POST, destructive Telegram buttons accepted only from the primary chat, failed deliveries never advance the alert state. Complete mediation: every form, query parameter and import is validated with zod before use, and every outbound call passes through one guarded HTTP client. Open design: public code and documentation. Least privilege: read-only container, all Linux capabilities dropped, non-root user 99:100, minimal permissions per GitHub Actions job. Input validation with allowlists: slugs, numeric ids, ISO dates and allowed hosts. Limited attack surface: no login to cinema sites and no purchases, outbound HTTPS only to listed hosts, redirects refused. |
 | know_common_errors | MUST | Met | The primary developer knows the common vulnerabilities of web applications and self-hosted services (OWASP Top 10), and the project counters each of them. Cross-site scripting: automatic escaping in JSX and SVG output and a strict CSP without unsafe-inline. CSRF: origin checks on every POST and SameSite=Strict cookies. Injection: no shell or SQL, inputs validated with zod allowlists. SSRF: outbound calls only over HTTPS to an allowlist of hosts, redirects refused. Broken authentication: the optional password is compared with scrypt and timingSafeEqual, the session cookie is signed and HttpOnly, and an IP is locked out for 15 minutes after 5 failed attempts. Sensitive data exposure: the Telegram token is masked in the UI, redacted from logs and exports, and the config file has 0600 permissions. Vulnerable dependencies: Dependabot, npm audit, Trivy and CodeQL before every release. Leaked secrets: GitHub secret scanning with push protection. |
@@ -108,7 +108,7 @@ Senza lo script si compila a mano, riga per riga. `R` sta per `https://github.co
 
 ## Analysis
 
-| Criterio | Tipo | Risposta | Giustificazione |
+| Criterion | Type | Answer | Justification |
 |---|---|---|---|
 | static_analysis | MUST | Met | CodeQL (JavaScript/TypeScript and Actions) on every push, pull request and weekly; ESLint type-checked rules; zizmor and actionlint for workflows. R/blob/main/.github/workflows/codeql.yml |
 | static_analysis_common_vulnerabilities | SUGGESTED | Met | CodeQL security queries look for common vulnerabilities (XSS, injection, SSRF). |

@@ -1,116 +1,118 @@
-# Telegram: bot, chat, avvisi e limiti
+# Telegram: bot, chats, alerts and limits
 
-Questo documento spiega come collegare cinema-watch a Telegram e come sono fatti gli avvisi. Le API di Telegram usate sono l'unica uscita verso `api.telegram.org`; l'elenco di tutti gli host è in [api.md](api.md#host-verso-cui-lapp-esce).
+This document explains how to connect cinema-watch to Telegram and what the alerts look like. The Telegram APIs used are the only exit towards `api.telegram.org`; the list of all hosts is in [api.md](api.md#hosts-the-app-calls-out-to).
 
-## Creare il bot e prendere il token
+## Creating the bot and getting the token
 
-1. In Telegram aprire la chat con `@BotFather` e inviare `/newbot`.
-2. Scegliere un nome e un nome utente che termini con `bot`.
-3. BotFather risponde con il token, nel formato `123456789:AAH...`. È una credenziale: chi lo ha comanda il bot.
+1. In Telegram open the chat with `@BotFather` and send `/newbot`.
+2. Choose a name and a username that ends with `bot`.
+3. BotFather answers with the token, in the format `123456789:AAH...`. It is a credential: whoever has it controls the bot.
 
-Il bot deve essere dedicato a cinema-watch (vedi [Un solo lettore degli aggiornamenti](#un-solo-lettore-degli-aggiornamenti)).
+The bot must be dedicated to cinema-watch (see [A single reader of the updates](#a-single-reader-of-the-updates)).
 
-## Trovare il chat id
+## Finding the chat id
 
-Il chat id è un numero, oppure `@nome` per un canale pubblico.
+The chat id is a number, or `@name` for a public channel.
 
-- **Chat privata**: aprire il bot e premere Avvia (o scrivergli). Il chat id è il numero positivo del proprio utente.
-- **Gruppo**: aggiungere il bot al gruppo e scrivere un messaggio. Il chat id è un numero negativo.
+- **Private chat**: open the bot and press Start (or write to it). The chat id is the positive number of your own user.
+- **Group**: add the bot to the group and write a message. The chat id is a negative number.
 
-Per leggere il numero ci sono due strade:
+There are two ways to read the number:
 
-- scrivere al bot e aprire nel browser `https://api.telegram.org/bot<TOKEN>/getUpdates`: nella risposta, `message.chat.id` è il chat id;
-- scrivere a un bot come `@userinfobot`, che risponde con il proprio id (utile per la chat privata).
+- write to the bot and open `https://api.telegram.org/bot<TOKEN>/getUpdates` in the browser: in the answer, `message.chat.id` is the chat id;
+- write to a bot like `@userinfobot`, which answers with your id (useful for the private chat).
 
-`getUpdates` va usato prima di salvare il token in cinema-watch: l'app legge gli aggiornamenti del bot di continuo e le due letture si ostacolano, con l'errore 409.
+`getUpdates` must be used before saving the token in cinema-watch: the app reads the updates of the bot continuously and the two readings get in each other's way, with error 409.
 
-## Dove si impostano
+## Where to set them
 
-- Nelle Impostazioni, sezione Telegram: Token del bot e Chat principale. Il token si mostra mascherato e si toglie con Elimina il token.
-- Con le variabili `TELEGRAM_TOKEN` e `TELEGRAM_CHAT_ID`. Valgono solo se il campo nelle Impostazioni è vuoto, e le Impostazioni mostrano quando un valore arriva dall'ambiente. Un valore inserito nelle Impostazioni lo sostituisce.
+- In Settings, Telegram section: Bot token and Main chat. The token is shown masked and is removed with Delete the token.
+- With the variables `TELEGRAM_TOKEN` and `TELEGRAM_CHAT_ID`. They apply only if the field in Settings is empty, and Settings shows when a value comes from the environment. A value entered in Settings replaces it.
 
-Il token è validato nel formato, il chat id deve essere un numero o `@nome`.
+The token is validated for its format, the chat id must be a number or `@name`.
 
-## Invia prova e URL pubblico
+## Send test and public URL
 
-Invia prova manda un messaggio di prova alla chat principale.
+Send test sends a test message to the main chat.
 
-L'URL pubblico è l'indirizzo con cui la web UI si raggiunge da fuori; serve al pulsante Apri sala, che porta a `{URL pubblico}/showings/{chiave dello spettacolo}?hunt={id della caccia}`: la pagina usa la zona buona della caccia e il suo Indietro torna alla caccia. I link della forma vecchia, `/performances/{LocalId}/{PerformanceId}`, portano alla stessa pagina. Se è impostato, la prova include un pulsante Apri cinema-watch che lo verifica:
+The public URL is the address by which the web UI is reached from outside; it is needed by the Open hall button, which leads to `{public URL}/showings/{showing key}?hunt={hunt id}`: the page uses the good zone of the hunt and its Back returns to the hunt. Links of the old form, `/performances/{LocalId}/{PerformanceId}`, lead to the same page. If it is set, the test includes an Open cinema-watch button that checks it:
 
-- se Telegram accetta il pulsante, l'URL è usato come pulsante negli avvisi;
-- se lo rifiuta, per esempio perché è un indirizzo privato o in `http`, la prova è rimandata con il link nel testo. Da allora Apri sala compare nel testo dell'avviso e le Impostazioni lo dicono: "Telegram non lo accetta come pulsante: i link vanno nel testo".
+- if Telegram accepts the button, the URL is used as a button in the alerts;
+- if it refuses it, for example because it is a private address or in `http`, the test is sent again with the link in the text. From then on Open hall appears in the text of the alert and Settings says so: "Telegram does not accept it as a button: links go in the text".
 
-Il risultato è ricordato per quell'URL. Finché non si fa una prova, un URL `https` si considera accettato e uno `http` no. Anche i pulsanti Acquista seguono la stessa regola: se Telegram rifiuta un messaggio con i pulsanti, l'app lo rimanda con i link nel testo.
+The result is remembered for that URL. Until a test is made, an `https` URL is considered accepted and an `http` one is not. The Buy buttons also follow the same rule: if Telegram refuses a message with buttons, the app sends it again with the links in the text.
 
-## Com'è fatto un avviso
+## What an alert looks like
 
-Per ogni caccia e per ogni chat, un giro con novità produce due parti:
+The texts of the messages and buttons are in the language chosen in Settings (see [Language of the messages](#language-of-the-messages)); the English ones are shown here.
 
-1. **Le piante**: quelle dei migliori spettacoli, fino al numero indicato in Piante per giro (da 1 a 10, predefinito 3). Con una sola pianta arriva come foto, con due o più come album. Ogni foto ha una didascalia con titolo, giorno, ora, sala, formato e posti liberi. Hanno la precedenza gli spettacoli con posti liberati, poi quelli con più posti liberi nella zona buona, poi quelli con il punteggio migliore.
-2. **Il riepilogo**: un messaggio di testo con le novità in sezioni (Posti liberati, Nuovi spettacoli, Ultimi posti, Spostati, Annullati, Film comparsi), ciascuna riga con giorno, ora, cinema, sala, formato, posti, migliori posti e prezzo "da". Se supera i 4096 caratteri si accorcia con "e altri N". Un album non può avere pulsanti, per questo la tastiera sta qui.
+For each hunt and for each chat, a round with news produces two parts:
 
-La tastiera del riepilogo:
+1. **The seat maps**: those of the best showings, up to the number set in Seat maps per round (from 1 to 10, default 3). With a single seat map it arrives as a photo, with two or more as an album. Each photo has a caption with title, day, time, hall, format and free seats. Showings with freed seats come first, then those with more free seats in the good zone, then those with the best score.
+2. **The summary**: a text message with the news in sections (Seats freed, New showings, Last seats, Moved, Cancelled, Films appeared), each line with day, time, cinema, hall, format, seats, best seats and "from" price. If it exceeds 4096 characters it is shortened with "and N more". An album cannot have buttons, which is why the keyboard is here.
 
-| Pulsante | Cosa fa |
+The keyboard of the summary:
+
+| Button | What it does |
 |---|---|
-| Acquista | Apre la pagina di acquisto su ucicinemas.it o, per i cinema Webtic, su Webtic. Uno per pianta, fino a 3, con l'orario se sono più d'uno |
-| Apri sala | Apre la pagina dello spettacolo nella web UI, per la prima pianta. Solo con l'URL pubblico accettato come pulsante; altrimenti il link è nel testo |
-| Aggiorna ora | Rilegge subito la caccia |
-| Silenzia 24 h | Sospende gli avvisi di quella caccia per 24 ore |
-| Acquistato | Archivia la caccia |
+| Buy | Opens the purchase page on ucicinemas.it or, for Webtic cinemas, on Webtic. One per seat map, up to 3, with the time if there is more than one |
+| Open hall | Opens the page of the showing in the web UI, for the first seat map. Only with the public URL accepted as a button; otherwise the link is in the text |
+| Refresh now | Reads the hunt again at once |
+| Mute for 24 h | Suspends the alerts of that hunt for 24 hours |
+| Bought | Archives the hunt |
 
-Dopo Silenzia 24 h e Acquistato il bot manda un messaggio con il pulsante per annullare:
+After Mute for 24 h and Bought the bot sends a message with the button to undo:
 
-| Messaggio | Pulsante | Cosa fa |
+| Message | Button | What it does |
 |---|---|---|
-| 🔕 *caccia*: silenziata fino alle HH:MM | Riattiva | Toglie il silenzio |
-| 📦 *caccia*: caccia archiviata | Ripristina | Toglie l'archiviazione. Se le date fisse sono finite non ripristina e risponde "Date finite: si cambiano dalla pagina della caccia" |
+| 🔕 *hunt*: muted until HH:MM | Resume | Removes the mute |
+| 📦 *hunt*: hunt archived | Restore | Removes the archiving. If the fixed dates are over it does not restore and answers "Dates over: change them from the page of the hunt" |
 
-Se l'avviso contiene solo film comparsi, non ci sono piante e la tastiera ha il solo Aggiorna ora. Silenzia ferma gli avvisi, non i giri: gli eventi di quelle ore non si recuperano. Cosa fanno questi comandi sulla caccia è in [operations.md](operations.md#spegnere-o-archiviare-una-caccia).
+If the alert contains only films appeared, there are no seat maps and the keyboard has only Refresh now. Mute stops the alerts, not the rounds: the events of those hours are not recovered. What these commands do to the hunt is in [operations.md](operations.md#turning-off-or-archiving-a-hunt).
 
-Ogni tipo di avviso (nuovi spettacoli, posti liberati, ultimi posti, annullati, spostati, film comparsi, riepilogo giornaliero) si attiva o disattiva per caccia nel suo form. Se Telegram non è configurato o l'invio fallisce, lo stato della caccia non avanza e gli stessi eventi si ripresentano al giro dopo.
+Each type of alert (new showings, seats freed, last seats, cancelled, moved, films appeared, daily summary) is switched on or off per hunt in its form. If Telegram is not configured or sending fails, the state of the hunt does not advance and the same events come back at the next round.
 
-Se la lettura di una caccia non riesce da almeno 30 minuti di fila, arriva un messaggio di avviso, al massimo uno al giorno per caccia, alla chat principale. Un errore che sparisce prima, come una risposta 502 isolata di UCI, resta solo nel log e nello stato della caccia.
+If the reading of a hunt has failed for at least 30 minutes in a row, an alert message arrives, at most one a day per hunt, to the main chat. An error that goes away sooner, like an isolated 502 answer from UCI, stays only in the log and in the state of the hunt.
 
-## Chat aggiuntive per caccia
+## Extra chats per hunt
 
-Ogni caccia può avere altre chat oltre alla principale. Ricevono gli stessi avvisi, con la sola tastiera Aggiorna ora. Possono usare Aggiorna ora e `/aggiorna` per le cacce che le includono. Silenzia 24 h, Acquistato, Riattiva e Ripristina funzionano solo dalla chat principale: dalle altre il bot risponde "Solo dalla chat principale". Il riepilogo giornaliero va solo alla chat principale.
+Each hunt can have other chats besides the main one. They receive the same alerts, with the Refresh now keyboard only. They can use Refresh now and `/refresh` for the hunts that include them. Mute for 24 h, Bought, Resume and Restore work only from the main chat: from the others the bot answers "Only from the main chat". The daily summary goes only to the main chat.
 
-Il bot ignora le chat che non sono la principale né un'aggiuntiva.
+The bot ignores chats that are neither the main chat nor an extra one.
 
-## Il comando /refresh
+## The /refresh command
 
-`/refresh` rilegge le cacce attive, una alla volta:
+`/refresh` reads the active hunts again, one at a time:
 
-- dalla chat principale, tutte;
-- da una chat aggiuntiva, solo quelle che la includono.
+- from the main chat, all of them;
+- from an extra chat, only those that include it.
 
-Funziona anche nella fascia silenziosa. Risponde con le novità trovate oppure con "Nessuna novità" e, per ogni caccia, spettacoli e posti liberi nella zona buona. Una caccia già aggiornata meno di 30 secondi prima si salta; se si saltano tutte, la risposta è "Aggiornata meno di 30 s fa". Nei gruppi vale anche `/refresh@nome_del_bot`. Fino alla v2026.10.15 il comando era `/aggiorna`, che non risponde più.
+It works in the quiet hours too. It answers with the news found or with "Nothing new" and, for each hunt, showings and free seats in the good zone. A hunt already refreshed less than 30 seconds earlier is skipped; if all are skipped, the answer is "Refreshed less than 30 s ago". In groups `/refresh@bot_name` also works. Up to v2026.10.15 the command was `/aggiorna`, which no longer answers.
 
-## Lingua dei messaggi
+## Language of the messages
 
-Messaggi, pulsanti, registro ed errori sono nella lingua scelta nelle Impostazioni, Lingua dei messaggi: inglese o italiano. Non dipende dalla lingua della web UI, che segue il browser di chi la apre. Un'installazione nuova parte in inglese; una aggiornata da una versione senza questa impostazione resta in italiano. Il cambio vale dal messaggio successivo, senza riavvio. Prima che `config.json` sia letto (un errore all'avvio) i testi sono in inglese.
+Messages, buttons, log and errors are in the language chosen in Settings, Language of the messages: English or Italian. It does not depend on the language of the web UI, which follows the browser of whoever opens it. A new installation starts in English; one updated from a version without this setting stays in Italian. The change applies from the next message, without a restart. Before `config.json` is read (an error at start) the texts are in English.
 
-## Riepilogo giornaliero
+## Daily summary
 
-Una volta al giorno, all'ora indicata nelle Impostazioni (predefinita 20:00, fuso Europe/Rome), la chat principale riceve un messaggio con una riga per caccia attiva: gli spettacoli seguiti, quanti hanno posti vicini nella zona buona e il migliore. Un testo lungo si divide in più messaggi. Se l'app era ferma all'ora indicata, il riepilogo parte alla prima occasione dello stesso giorno; non parte nella fascia silenziosa. Si disattiva nelle Impostazioni, o per singola caccia.
+Once a day, at the time set in Settings (default 20:00, Europe/Rome time zone), the main chat receives a message with one line per active hunt: the showings followed, how many have seats together in the good zone and the best one. A long text is split into several messages. If the app was stopped at the set time, the summary goes out at the first chance on the same day; it does not go out in the quiet hours. It is switched off in Settings, or per single hunt.
 
-## Fascia silenziosa
+## Quiet hours
 
-Nelle Impostazioni, Silenzio dalle e Silenzio alle fermano i giri programmati nella fascia indicata, anche a cavallo della mezzanotte: nessuna lettura, nessun avviso, nessun riepilogo. Aggiorna ora e `/aggiorna` restano disponibili. Vuota, non c'è fascia.
+In Settings, Quiet from and Quiet to stop the scheduled rounds in the given span, even across midnight: no reading, no alert, no summary. Refresh now and `/refresh` remain available. Empty means no quiet hours.
 
-## Limiti di invio
+## Sending limits
 
-| Limite | Valore |
+| Limit | Value |
 |---|---|
-| Chat privata | 1 messaggio al secondo |
-| Gruppi e canali | 20 messaggi al minuto; ogni foto di un album ne conta uno |
-| Testo | 4096 caratteri |
-| Didascalia | 1024 caratteri |
-| Album | da 2 a 10 foto |
+| Private chat | 1 message per second |
+| Groups and channels | 20 messages per minute; each photo of an album counts as one |
+| Text | 4096 characters |
+| Caption | 1024 characters |
+| Album | from 2 to 10 photos |
 
-I messaggi di ogni chat passano da una coda che rispetta questi limiti. Se Telegram risponde 429, l'app aspetta il `retry_after` indicato (1 secondo se manca) e riprova fino a 3 volte. Dopo un errore di rete o una risposta 5xx riprova una volta dopo un secondo: se la risposta si era persa dopo l'invio, il messaggio può arrivare due volte (è una scelta, vedi [MEMORY.md](MEMORY.md)).
+The messages of each chat go through a queue that respects these limits. If Telegram answers 429, the app waits for the given `retry_after` (1 second if missing) and tries again up to 3 times. After a network error or a 5xx answer it tries once more after a second: if the answer was lost after sending, the message may arrive twice (it is a choice, see [MEMORY.md](MEMORY.md)).
 
-## Un solo lettore degli aggiornamenti
+## A single reader of the updates
 
-Telegram consegna gli aggiornamenti di un bot a un solo lettore alla volta. Se un secondo programma legge gli stessi aggiornamenti (un'altra istanza di cinema-watch, uno script, una chiamata a `getUpdates`), Telegram risponde 409. L'app lo scrive nel registro del container (evento `bot conflict`) e riprova ogni minuto, senza ricevere i pulsanti e `/aggiorna` finché il conflitto dura. Gli avvisi in uscita non ne risentono. Si risolve fermando l'altro lettore, o usando un bot diverso per ogni istanza.
+Telegram delivers the updates of a bot to a single reader at a time. If a second program reads the same updates (another instance of cinema-watch, a script, a `getUpdates` call), Telegram answers 409. The app writes it in the container log (event `bot conflict`) and tries again every minute, without receiving the buttons and `/refresh` while the conflict lasts. Outgoing alerts are not affected. It is solved by stopping the other reader, or by using a different bot for each instance.
