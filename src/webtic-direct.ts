@@ -4,7 +4,7 @@ import { ApiShapeError, WebticError } from "./errors.js";
 import { hallKey, showingKey } from "./keys.js";
 import { regionOfProvince } from "./regions.js";
 import { normalizeTitle } from "./uci.js";
-import { parseSeatId, type SeatTransport } from "./webtic.js";
+import { drawableSeats, parseSeatId, type SeatTransport } from "./webtic.js";
 import type { CatalogMovie, Hall, HttpClient, IsoDay, MovieRef, Occupancy, PerformanceInfo, Seat, Showing, TakenStatus, Theatre } from "./types.js";
 
 export const WEBTIC_DIRECT_BASE = "https://secure.webtic.it/api/wtjsonservices.ashx";
@@ -336,8 +336,7 @@ function seatOf(raw: z.infer<typeof mapSeatSchema>): Seat {
 
 export function parseMap(json: unknown, localId: number, screenId: number, fetchedAt: number): Hall {
   const seats = parseEach(mapSeatSchema, unwrap(json, mapSchema, "map").MapSeats.posti).map(seatOf);
-  if (seats.length === 0) throw new ApiShapeError("webtic", "map: no seats");
-  return { key: hallKey(localId, screenId), seats, fetchedAt };
+  return { key: hallKey(localId, screenId), seats: drawableSeats(seats), fetchedAt };
 }
 
 export function parseDirectOccupancy(json: unknown, localId: number, performanceId: number): Occupancy {

@@ -11,6 +11,7 @@ export interface HttpClientOptions {
   backoffMaxMs?: number;
   retryDelayMs?: number;
   maxBodyBytes?: number;
+  maxQueued?: number;
   sleep?: (ms: number) => Promise<void>;
 }
 
@@ -103,6 +104,8 @@ export function createHttpClient(
   const backoffMaxMs = options.backoffMaxMs ?? 1_800_000;
   const retryDelayMs = options.retryDelayMs ?? 2_000;
   const maxBodyBytes = options.maxBodyBytes ?? MAX_BODY_BYTES;
+  const maxQueued = options.maxQueued ?? 200;
+  const queued = new Map<string, number>();
   const sleep = options.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
   const states = new Map<string, HostState>();
   const queues = new Map<string, Promise<unknown>>();
@@ -182,8 +185,13 @@ export function createHttpClient(
         throw error;
       }
     };
+    const waiting = queued.get(host) ?? 0;
+    if (waiting >= maxQueued) throw new HttpError("backoff", host, `Too many requests waiting for ${host}`);
+    queued.set(host, waiting + 1);
     const previous = queues.get(host) ?? Promise.resolve();
-    const task = previous.then(run);
+    const task = previous.then(run).finally(() => {
+      queued.set(host, (queued.get(host) ?? 1) - 1);
+    });
     queues.set(
       host,
       task.catch(() => undefined),

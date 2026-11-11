@@ -158,11 +158,22 @@ function toSeat(raw: z.infer<typeof seatSchema>): Seat {
   };
 }
 
+const MAX_GRID = 1000;
+
+export function drawableSeats(seats: Seat[]): Seat[] {
+  if (seats.length === 0) throw new ApiShapeError("webtic", "screen: no seats");
+  for (const seat of seats) {
+    if (!Number.isInteger(seat.row) || seat.row < 0 || seat.row > MAX_GRID) throw new ApiShapeError("webtic", `screen: Row ${seat.row} of ${seat.id}`);
+    if (!Number.isInteger(seat.column) || seat.column < 0 || seat.column > MAX_GRID) throw new ApiShapeError("webtic", `screen: Column ${seat.column} of ${seat.id}`);
+  }
+  return seats;
+}
+
 export function parseHall(json: unknown, fetchedAt: number): Hall {
   const screen = unwrapData(json, screenDataSchema, "screen").Screen;
   return {
     key: hallKey(screen.LocalId, screen.ScreenId),
-    seats: screen.Seats.map(toSeat),
+    seats: drawableSeats(screen.Seats.map(toSeat)),
     fetchedAt,
   };
 }
