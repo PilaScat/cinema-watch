@@ -182,12 +182,15 @@ const dayTime = z
   .strictObject({ from: time.nullable(), to: time.nullable() })
   .refine((range) => range.from !== null || range.to !== null, copy.validation.emptyDayTime);
 
+const MAX_THEATRES = 100;
+const MAX_EXTRA_CHATS = 20;
+
 const huntSchema = z.strictObject({
   id: z.string().regex(HUNT_ID, copy.validation.idFormat),
   name: z.string().min(1, copy.validation.nameLength).max(80, copy.validation.nameLength),
   enabled: z.boolean(),
   archivedAt: z.string().nullable(),
-  theatres: z.array(slug).min(1, copy.validation.atLeastOneTheatre),
+  theatres: z.array(slug).min(1, copy.validation.atLeastOneTheatre).max(MAX_THEATRES, copy.validation.tooManyTheatres(MAX_THEATRES)),
   movie,
   formats: z.array(z.string()),
   window,
@@ -216,7 +219,7 @@ const huntSchema = z.strictObject({
     movieAppeared: z.boolean(),
     digest: z.boolean(),
   }),
-  extraChatIds: z.array(chatId),
+  extraChatIds: z.array(chatId).max(MAX_EXTRA_CHATS, copy.validation.tooManyChats(MAX_EXTRA_CHATS)),
 }).superRefine((hunt, ctx) => {
   for (const day of Object.keys(hunt.dayTimes)) {
     if (hunt.weekdays !== null && !hunt.weekdays.includes(Number(day))) {

@@ -88,7 +88,7 @@ Tutte le chiamate a UCI, Webtic, The Space e GitHub passano da `src/http.ts`:
 
 - solo `https`, solo gli host consentiti elencati sotto, sulla porta predefinita e senza credenziali nell'indirizzo; i reindirizzamenti non si seguono;
 - una risposta oltre 10 MB si scarta senza finire di leggerla (vale anche per le pagine di The Space e di 18Tickets);
-- timeout di 15 secondi per chiamata, una richiesta alla volta per host;
+- timeout di 15 secondi per chiamata, una richiesta alla volta per host, al massimo 200 in attesa: quelle in più falliscono subito;
 - dopo un timeout, un errore di rete, una risposta 5xx o 429 l'host va in attesa: 30 secondi, che raddoppiano a ogni errore fino a 30 minuti, o il `Retry-After` se più lungo, mai oltre 30 minuti;
 - l'`User-Agent` porta il nome dell'app.
 

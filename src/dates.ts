@@ -46,6 +46,8 @@ export function isHhMm(s: string): boolean {
   return TIME_PATTERN.test(s);
 }
 
+export const MAX_WINDOW_DAYS = 120;
+
 export function addDays(day: IsoDay, n: number): IsoDay {
   return utcMsToDay(dayToUtcMs(day) + n * MS_PER_DAY);
 }
@@ -76,7 +78,9 @@ export function romeToday(now: Date): IsoDay {
 export function resolveWindow(window: DayWindow, now: Date): IsoDay[] {
   const today = romeToday(now);
   if (window.kind === "fixed") {
-    return dayRange(window.from > today ? window.from : today, window.to);
+    const from = window.from > today ? window.from : today;
+    const last = addDays(from, MAX_WINDOW_DAYS - 1);
+    return dayRange(from, window.to < last ? window.to : last);
   }
   return dayRange(today, addDays(today, window.days - 1));
 }

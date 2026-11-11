@@ -19,12 +19,14 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   sostituisce del tutto Dalle e Alle generali: un suo Alle vuoto vuol dire senza limite, non
   "quello generale" (scelta di Filippo del 20/10/2026). Dalle e Alle uguali (per esempio 00:00 e
   00:00) valgono tutto il giorno, sia generali sia di un giorno (`timeInRange`).
+- **Limiti di una caccia** (review dell'11/11/2026): una finestra a date fisse si legge per 120 giorni al massimo da oggi (o dal suo inizio), anche se l'ultima data è più lontana: UCI si chiede un giorno alla volta, e una caccia "fino al 2099" teneva fermo tutto il resto per ore. Il numero l'ha scelto Filippo. Il limite è nella lettura (`resolveWindow`), non nello schema, così una configurazione che già lo supera continua a caricarsi. Per lo stesso motivo il silenzio notturno con Dalle uguale ad Alle vale "spento" (prima fermava l'app per sempre) senza diventare un errore, e un elenco di lingue vuoto vale "tutte". Nello schema ci sono solo i massimi di 100 cinema e 20 chat aggiuntive per caccia.
 - **Posti presi**: l'occupazione elenca solo i posti presi. `ACQUISTO` è venduto, `BLOCCATO` è nel
   carrello di qualcuno e si libera in pochi minuti: conta come preso, altrimenti gli avvisi dei posti
   liberati oscillano.
 - **Posti vendibili**: `SeatType` fra quelli vendibili (default `STANDARD`) e settore diverso da
   `UN`, che è quello dei disabili. Il settore `HA` (VIP nelle sale XL e 2D di Verona) è vendibile.
   `RISERVATO` non si vende.
+- **Pianta che non si può disegnare**: una pianta Webtic senza posti, o con `Row` o `Column` fuori da 0-1000, è un errore di formato e non arriva al disegno; prima dava un SVG con altezza `-Infinity` o un PNG che falliva dentro l'invio dell'avviso.
 - **Asse della sala**: `Row` più basso è la fila più vicina allo schermo (fila A = `Row` 2 in tutte
   le sale viste). Due posti sono vicini se hanno lo stesso `Row` e `Column` consecutive.
 - **Numeri dei posti**: non seguono sempre la posizione. A Campi Bisenzio la fila A parte da

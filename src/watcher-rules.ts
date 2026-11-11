@@ -48,7 +48,7 @@ export function nextRunAt(hunt: Hunt, settings: Config["settings"], at: number, 
 
 export function isQuiet(settings: Config["settings"], at: number): boolean {
   const hours = settings.quietHours;
-  if (hours === null) return false;
+  if (hours === null || hours.from === hours.to) return false;
   return timeInRange(romeNow(new Date(at)).time, hours.from, hours.to);
 }
 

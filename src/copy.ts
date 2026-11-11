@@ -21,6 +21,7 @@ export const copy = {
   callbacks: {
     refreshing: "Aggiornamento in corso",
     tooSoon: "Aggiornata meno di 30 s fa",
+    sentTooSoon: "Inviato meno di 30 s fa",
     refreshed: "Aggiornato",
     noNews: "Nessuna novità",
     muted: "Silenziata per 24 h",
@@ -132,6 +133,8 @@ export const copy = {
     idFormat: "8 caratteri tra minuscole e cifre",
     nameLength: "da 1 a 80 caratteri",
     atLeastOneTheatre: "almeno un cinema",
+    tooManyTheatres: (max: number): string => `al massimo ${max} cinema`,
+    tooManyChats: (max: number): string => `al massimo ${max} chat`,
     atLeastOneDay: "almeno un giorno",
     repeatedDays: "giorni ripetuti",
     hallKeyFormat: "chiavi nel formato cinema-sala",
