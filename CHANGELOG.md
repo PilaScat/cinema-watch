@@ -1,6 +1,6 @@
 # Changelog
 
-Le versioni seguono il formato `vAAAA.MM.N`. Ogni sezione si scrive prima del tag.
+Versions follow the `vYYYY.MM.N` format. Each section is written before its tag. Sections up to v2026.10.15 are in Italian, as they were released; the later ones are in English.
 
 ## v2026.10.15
 
