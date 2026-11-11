@@ -2,11 +2,8 @@ const root = document.querySelector("[data-trend]");
 
 if (root) {
   const tooltip = root.querySelector("[data-trend-tooltip]");
-  const formatter = new Intl.DateTimeFormat("it-IT", { timeZone: "Europe/Rome", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
-
   const show = (rect) => {
-    const time = formatter.format(new Date(Number(rect.dataset.t)));
-    tooltip.textContent = `${time} · ${tooltip.dataset.freeLabel} ${rect.dataset.free} · ${tooltip.dataset.goodLabel} ${rect.dataset.good}`;
+    tooltip.textContent = `${rect.dataset.label} · ${tooltip.dataset.freeLabel} ${rect.dataset.free} · ${tooltip.dataset.goodLabel} ${rect.dataset.good}`;
     tooltip.hidden = false;
   };
 
