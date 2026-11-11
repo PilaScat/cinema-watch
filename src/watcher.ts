@@ -323,7 +323,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
 
   async function reloadConfig(): Promise<void> {
     try {
-      config = await loadConfig(store);
+      config = await loadConfig(store, { createIfMissing: false });
     } catch (error) {
       if (!(error instanceof ConfigError)) throw error;
       logger.error("config", { error: error.message });
@@ -571,6 +571,17 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     await log(roundEntries({ hunt, observation, events, at, deliveryErrors: delivery.errors, newSeatTypes, secrets: secrets() }));
   }
 
+  async function recordRoundSafely(hunt: Hunt, observation: HuntObservation, events: HuntEvent[], at: number, delivery: Delivery): Promise<string | null> {
+    try {
+      await recordRound(hunt, observation, events, at, delivery);
+      return null;
+    } catch (error) {
+      const message = errorText(error);
+      logger.error("round record", { hunt: hunt.id, error: redact(message, secrets()) });
+      return message;
+    }
+  }
+
   async function warnOnErrors(hunt: Hunt, previous: HuntState, errors: string[], at: number): Promise<string | null> {
     const chatId = chatFor();
     if (chatId === null || !errorWarningDue(previous, errors, at, chatId)) return previous.errorNotifiedDay;
@@ -602,16 +613,18 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   async function runHunt(hunt: Hunt, fresh: boolean): Promise<RunReport> {
     const at = now();
     const previous = huntStateOf(state, hunt.id);
+    let reached = previous;
     try {
       const observation = await observeHunt(runnerDeps, hunt, config.settings, new Date(at), { fresh });
       const { state: next, events } = diffRound(previous, observation.round, hunt);
       const allowed = isMuted(previous, at) ? [] : events.filter((event) => eventAllowed(event, hunt));
       const delivery = await notify(hunt, allowed, observation);
-      await recordRound(hunt, observation, events, at, delivery);
+      if (delivery.delivered) reached = next;
+      const recordError = await recordRoundSafely(hunt, observation, events, at, delivery);
       const errorSince = errorSinceOf(previous, observation.errors.length > 0, at);
       const errorNotifiedDay = await warnOnErrors(hunt, { ...previous, errorSince }, observation.errors, at);
       const base = delivery.delivered ? next : previous;
-      const firstError = observation.errors[0] ?? delivery.errors[0];
+      const firstError = observation.errors[0] ?? delivery.errors[0] ?? recordError ?? undefined;
       const lastError = firstError === undefined ? null : redact(firstError, secrets());
       setHuntState(hunt.id, {
         ...base,
@@ -624,7 +637,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       await persistState();
       return { huntId: hunt.id, events: delivery.delivered ? allowed.length : 0, error: lastError, skipped: false };
     } catch (error) {
-      return failRound(hunt, previous, at, error);
+      return failRound(hunt, reached, at, error);
     }
   }
 
@@ -644,6 +657,15 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     if (JSON.stringify(next) === JSON.stringify(state)) return;
     state = next;
     await persistState();
+  }
+
+  async function maintain(): Promise<void> {
+    try {
+      await archive(finishedHuntIds(config, now()));
+      await prune();
+    } catch (error) {
+      logger.error("maintenance", { error: redact(errorText(error), secrets()) });
+    }
   }
 
   async function checkVersion(): Promise<void> {
@@ -677,14 +699,14 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
 
   async function tickNow(): Promise<void> {
     await reloadConfig();
-    await archive(finishedHuntIds(config, now()));
-    await prune();
+    await maintain();
     if (isQuiet(config.settings, now())) return;
     startVenueProbe();
     startSpaceRefresh();
     startT18Refresh();
     await checkVersion();
     for (const hunt of config.hunts) {
+      if (closed) return;
       if (isDue(hunt, state, now())) await runHunt(hunt, false);
     }
     await sendDigestIfDue();
@@ -695,6 +717,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     const targets = config.hunts.filter((hunt) => isActive(hunt) && (huntId === undefined || hunt.id === huntId));
     const reports: RunReport[] = [];
     for (const hunt of targets) {
+      if (closed) break;
       if (refreshedRecently(huntStateOf(state, hunt.id), now())) {
         reports.push({ huntId: hunt.id, events: 0, error: null, skipped: true });
         continue;
