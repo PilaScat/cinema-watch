@@ -122,20 +122,28 @@ describe("undo buttons", () => {
 });
 
 describe("bot", () => {
-  it("answers /aggiorna with no news in the chat that asked", async () => {
+  it("answers /refresh with no news in the chat that asked", async () => {
     const { bot } = await primed();
 
-    await bot.handleUpdate(command(1, PRIMARY_CHAT, "/aggiorna"));
+    await bot.handleUpdate(command(1, PRIMARY_CHAT, "/refresh"));
 
     expect(harness.world.telegram.map((call) => [call.method, call.chatId])).toEqual([["sendMessage", PRIMARY_CHAT]]);
     expect(harness.world.telegram[0]?.text).toContain("Nessuna novità");
     expect(harness.world.telegram[0]?.text).toContain("Dune IMAX Verona");
   });
 
+  it("no longer answers the old /aggiorna", async () => {
+    const { bot } = await primed();
+
+    await bot.handleUpdate(command(1, PRIMARY_CHAT, "/aggiorna"));
+
+    expect(harness.world.telegram).toEqual([]);
+  });
+
   it("ignores chats it does not know and messages that are not commands", async () => {
     const { bot } = await primed();
 
-    await bot.handleUpdate(command(1, "999", "/aggiorna"));
+    await bot.handleUpdate(command(1, "999", "/refresh"));
     await bot.handleUpdate(command(2, PRIMARY_CHAT, "ciao"));
 
     expect(harness.world.telegram).toEqual([]);
@@ -242,20 +250,20 @@ describe("bot", () => {
 
   it("tells that a hunt was refreshed moments ago instead of reading again", async () => {
     const { bot } = await primed();
-    await bot.handleUpdate(command(1, PRIMARY_CHAT, "/aggiorna"));
+    await bot.handleUpdate(command(1, PRIMARY_CHAT, "/refresh"));
     harness.world.telegram.length = 0;
     harness.advance(10_000);
 
-    await bot.handleUpdate(command(2, PRIMARY_CHAT, "/aggiorna"));
+    await bot.handleUpdate(command(2, PRIMARY_CHAT, "/refresh"));
 
     expect(harness.world.telegram.map((call) => call.text)).toEqual(["Aggiornata meno di 30 s fa"]);
   });
 
-  it("lets /aggiorna deliver the alert instead of a no news reply when something changed", async () => {
+  it("lets /refresh deliver the alert instead of a no news reply when something changed", async () => {
     const { bot } = await primed();
     harness.world.setOccupancy(5116, 575978, freeing(["H/9", "H/10", "H/11"]));
 
-    await bot.handleUpdate(command(1, PRIMARY_CHAT, "/aggiorna@cinema_watch_test_bot"));
+    await bot.handleUpdate(command(1, PRIMARY_CHAT, "/refresh@cinema_watch_test_bot"));
 
     expect(harness.world.telegram.some((call) => call.text?.includes("Nessuna novità"))).toBe(false);
     expect(harness.world.telegram.some((call) => call.text?.includes("Posti liberati"))).toBe(true);
