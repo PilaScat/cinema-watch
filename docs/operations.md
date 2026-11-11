@@ -10,7 +10,7 @@ I comandi `docker run` e `docker compose` sono nel [README](../README.md#avvio-r
 - `PUID`/`PGID` si ricavano con `id`: su una distro il primo utente è di solito 1000:1000, su Unraid si lascia 99:100 (nobody:users);
 - l'immagine regge `--read-only`: si scrive solo su `/data` e su `/tmp` (tmpfs);
 - per usare una versione precisa al posto di `latest` basta il tag di una Release, per esempio `ghcr.io/pilascat/cinema-watch:v2026.10.1`;
-- dietro un reverse proxy conviene impostare `UI_PASSWORD` e `TRUST_PROXY=1`, e inserire l'indirizzo pubblico nelle Impostazioni (URL pubblico). Servito in `https`, il sito si può installare come app dal browser;
+- dietro un reverse proxy vanno impostate `UI_PASSWORD` e `TRUST_PROXY=1` (senza `TRUST_PROXY` tutti i visitatori hanno l'IP del proxy, e cinque password sbagliate di chiunque bloccano l'accesso a tutti per 15 minuti), e inserire l'indirizzo pubblico nelle Impostazioni (URL pubblico). Servito in `https`, il sito si può installare come app dal browser;
 - non provati: Docker rootless e Podman. Con SELinux attivo (Fedora, RHEL) il bind mount della cartella dei dati vuole `:Z` (`-v /percorso/dati:/data:Z`).
 
 ### Indurimento facoltativo

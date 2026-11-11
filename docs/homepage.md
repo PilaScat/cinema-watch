@@ -36,4 +36,4 @@ Nel file `services.yaml` di Homepage, sostituendo `IP` con l'indirizzo di cinema
               format: text
 ```
 
-`refreshInterval` è in millisecondi. Il valore di `latestVersion` è `null` finché l'app non ha letto l'ultima Release da GitHub, cosa che fa una volta al giorno. Gli altri campi disponibili, fra cui l'elenco `hunts`, sono nella tabella di [api.md](api.md#get-apistatus).
+`refreshInterval` è in millisecondi. Il valore di `latestVersion` è `null` finché l'app non ha letto l'ultima Release da GitHub, cosa che fa una volta al giorno. Gli altri campi disponibili sono nella tabella di [api.md](api.md#get-apistatus); l'elenco `hunts` è vuoto se l'app ha una password, perché il widget non fa l'accesso.
