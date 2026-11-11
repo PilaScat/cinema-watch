@@ -383,3 +383,40 @@ describe("createGuardedFetch", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
+
+describe("limits on what a host can ask or send", () => {
+  it("never pauses a host longer than the backoff cap, whatever Retry-After says", async () => {
+    const { client, clock } = setup(() => jsonResponse({}, { status: 429, headers: { "retry-after": "86400000" } }), { retryDelayMs: 0 });
+
+    await catchHttpError(client.getJson(URL_A));
+
+    expect((client.hostStatus("a.example.com")?.until ?? 0) - clock()).toBe(1_800_000);
+  });
+
+  it("gives up on a body larger than the limit", async () => {
+    const { client } = setup(() => new Response(JSON.stringify({ text: "x".repeat(200) })), { maxBodyBytes: 100 });
+
+    const error = await catchHttpError(client.getJson(URL_A));
+
+    expect(error.kind).toBe("parse");
+    expect(error.message).toContain("too large");
+  });
+
+  it("gives up before reading when the declared length is over the limit", async () => {
+    const { client } = setup(() => new Response("{}", { headers: { "content-length": "5000" } }), { maxBodyBytes: 100 });
+
+    expect((await catchHttpError(client.getJson(URL_A))).message).toContain("too large");
+  });
+
+  it("refuses an allowed host on another port or with credentials", async () => {
+    const { client, fetchMock } = setup(() => jsonResponse({}));
+    const guardedMock = vi.fn<typeof fetch>(() => Promise.resolve(new Response("ok")));
+    const guarded = createGuardedFetch(["a.example.com"], guardedMock);
+
+    expect((await catchHttpError(client.getJson("https://a.example.com:8443/x"))).kind).toBe("host");
+    expect((await catchHttpError(client.getJson("https://user:pass@a.example.com/x"))).kind).toBe("host");
+    await expect(guarded("https://a.example.com:8443/x")).rejects.toBeInstanceOf(HttpError);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(guardedMock).not.toHaveBeenCalled();
+  });
+});

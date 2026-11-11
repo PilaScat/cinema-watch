@@ -10,7 +10,33 @@ export interface HttpClientOptions {
   backoffBaseMs?: number;
   backoffMaxMs?: number;
   retryDelayMs?: number;
+  maxBodyBytes?: number;
   sleep?: (ms: number) => Promise<void>;
+}
+
+export const MAX_BODY_BYTES = 10 * 1024 * 1024;
+
+export async function readLimitedText(response: Response, host: string, maxBytes = MAX_BODY_BYTES): Promise<string> {
+  const tooLarge = new HttpError("parse", host, `Response too large: over ${maxBytes} bytes`);
+  if (Number(response.headers.get("content-length")) > maxBytes) {
+    await response.body?.cancel();
+    throw tooLarge;
+  }
+  if (response.body === null) return "";
+  const reader: ReadableStreamDefaultReader<Uint8Array> = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > maxBytes) {
+      await reader.cancel();
+      throw tooLarge;
+    }
+    chunks.push(value);
+  }
+  return Buffer.concat(chunks).toString("utf8");
 }
 
 interface HostState {
@@ -34,7 +60,7 @@ function allowedUrl(url: string, allowed: Set<string>): URL {
   } catch {
     throw new HttpError("host", "", `Invalid URL: ${url}`);
   }
-  if (parsed.protocol !== "https:" || !allowed.has(parsed.hostname)) {
+  if (parsed.protocol !== "https:" || !allowed.has(parsed.hostname) || parsed.port !== "" || parsed.username !== "" || parsed.password !== "") {
     throw new HttpError("host", parsed.hostname, `Host not allowed: ${parsed.protocol}//${parsed.hostname}`);
   }
   return parsed;
@@ -76,6 +102,7 @@ export function createHttpClient(
   const backoffBaseMs = options.backoffBaseMs ?? 30_000;
   const backoffMaxMs = options.backoffMaxMs ?? 1_800_000;
   const retryDelayMs = options.retryDelayMs ?? 2_000;
+  const maxBodyBytes = options.maxBodyBytes ?? MAX_BODY_BYTES;
   const sleep = options.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
   const states = new Map<string, HostState>();
   const queues = new Map<string, Promise<unknown>>();
@@ -83,7 +110,7 @@ export function createHttpClient(
   function registerFailure(host: string, error: HttpError): void {
     const failures = (states.get(host)?.failures ?? 0) + 1;
     const computed = Math.min(backoffBaseMs * 2 ** (failures - 1), backoffMaxMs);
-    const wait = Math.max(computed, error.retryAfterMs ?? 0);
+    const wait = Math.min(Math.max(computed, error.retryAfterMs ?? 0), backoffMaxMs);
     states.set(host, { failures, until: now() + wait });
   }
 
@@ -117,8 +144,9 @@ export function createHttpClient(
     }
     let text: string;
     try {
-      text = await response.text();
+      text = await readLimitedText(response, host, maxBodyBytes);
     } catch (cause) {
+      if (cause instanceof HttpError) throw cause;
       throw failure(cause);
     }
     try {
