@@ -97,6 +97,13 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
   (`errorSince` nello stato, azzerato da un giro senza errori), sempre al massimo uno al giorno.
   Il controllo settimanale dei cinema Webtic non riprova: al primo errore si ferma come prima.
   Scelta di Filippo del 27/10/2026.
+- **Dopo l'invio lo stato avanza comunque**: se l'avviso è partito e poi la scrittura dell'andamento
+  o del registro fallisce (disco pieno, permessi), la caccia tiene lo stato nuovo e il giro risulta
+  con l'errore; prima tornava allo stato vecchio e rimandava lo stesso avviso a ogni giro. Per lo
+  stesso motivo un errore di archiviazione o di pulizia si registra e i giri partono lo stesso, la
+  rilettura periodica non ricrea un `config.json` sparito (resta la configurazione in memoria: il
+  file predefinito nasce solo all'avvio), e all'arresto il giro si ferma fra una caccia e l'altra.
+  Dalla review dell'11/11/2026.
 - **Un'operazione alla volta**: giri, Aggiorna ora, Silenzia, Acquistato e conferma dei film passano
   da un solo mutex nel watcher; lo scheduler sta in `watcher.ts` e non in un modulo suo.
 

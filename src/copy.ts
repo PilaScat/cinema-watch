@@ -164,6 +164,7 @@ export const copy = {
     unreadable: "illeggibile",
     backupNotDone: "non riuscita",
     configInvalid: (file: string, errors: string): string => `${file} non è valido: ${errors}`,
+    configMissing: (file: string): string => `${file} non trovato: resta la configurazione in memoria`,
     configRejected: (detail: string, backup: string, file: string): string =>
       `${detail}. Copia di sicurezza: ${backup}. Va corretto ${file}, oppure eliminato per ripartire dalle impostazioni predefinite.`,
   },

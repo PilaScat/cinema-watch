@@ -386,7 +386,7 @@ async function rejectConfig(store: Store, detail: string): Promise<never> {
   throw new ConfigError(copy.storage.configRejected(detail, backupName ?? copy.storage.backupNotDone, CONFIG_FILE));
 }
 
-export async function loadConfig(store: Store): Promise<Config> {
+export async function loadConfig(store: Store, options: { createIfMissing: boolean } = { createIfMissing: true }): Promise<Config> {
   let raw: unknown;
   try {
     raw = await store.readJson(CONFIG_FILE);
@@ -395,6 +395,7 @@ export async function loadConfig(store: Store): Promise<Config> {
     throw error;
   }
   if (raw === null) {
+    if (!options.createIfMissing) throw new ConfigError(copy.storage.configMissing(CONFIG_FILE));
     const config = defaultConfig();
     await saveConfig(store, config);
     return config;
