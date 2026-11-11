@@ -29,6 +29,12 @@ Quello che non si capisce leggendo il codice. Le API sono descritte in [api.md](
 - **Pianta che non si può disegnare**: una pianta Webtic senza posti, o con `Row` o `Column` fuori da 0-1000, è un errore di formato e non arriva al disegno; prima dava un SVG con altezza `-Infinity` o un PNG che falliva dentro l'invio dell'avviso.
 - **Asse della sala**: `Row` più basso è la fila più vicina allo schermo (fila A = `Row` 2 in tutte
   le sale viste). Due posti sono vicini se hanno lo stesso `Row` e `Column` consecutive.
+- **Fila e numero non stanno nell'id**: l'id di un posto è `H/9` solo in UCI e Webtic; in The Space è
+  `A22` e in 18Tickets `fila_colonna`. Chi deve mostrare o scegliere un posto usa `rowLabel` e
+  `number`: i gruppi di posti portano i loro `numbers`, e la pianta scrive `data-row` e
+  `data-number` su ogni posto per la scelta della zona. Prima "Migliori" dava solo la fila nei
+  cinema The Space e 18Tickets, e il clic sulla pianta scriveva una zona sbagliata. Dalla review
+  dell'11/11/2026.
 - **Numeri dei posti**: non seguono sempre la posizione. A Campi Bisenzio la fila A parte da
   `A/20` sulla colonna più bassa. La centralità si calcola sulle colonne; il ritocco a mano della
   zona usa i numeri, perché sono quelli che si leggono in sala.

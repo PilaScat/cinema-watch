@@ -69,6 +69,14 @@ function bindBusy() {
   });
 }
 
+window.addEventListener("pageshow", (event) => {
+  if (!event.persisted) return;
+  document.querySelectorAll("[data-busy]").forEach((button) => {
+    button.removeAttribute("disabled");
+    delete button.dataset.busy;
+  });
+});
+
 bindTheme();
 bindConfirm();
 bindBusy();

@@ -10,8 +10,7 @@ const seats = [...document.querySelectorAll("rect[data-seat]")];
 let anchor = null;
 
 function parseSeat(rect) {
-  const [row, number] = rect.dataset.seat.split("/");
-  return { row, number: Number(number), y: Number(rect.getAttribute("y")) };
+  return { row: rect.dataset.row, number: Number(rect.dataset.number), y: Number(rect.getAttribute("y")) };
 }
 
 function readSelection() {
@@ -66,7 +65,7 @@ function choose(rect) {
 }
 
 if (rowsInput && fromInput && toInput) {
-  seats.forEach((rect) => {
+  seats.filter((rect) => rect.dataset.number !== undefined).forEach((rect) => {
     rect.addEventListener("click", () => choose(rect));
     rect.setAttribute("cursor", "pointer");
   });

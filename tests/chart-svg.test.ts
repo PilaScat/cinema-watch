@@ -75,3 +75,11 @@ describe("renderTrendSvg", () => {
     expect(single.match(/fill="transparent"/g)).toHaveLength(1);
   });
 });
+
+describe("trend points from the keyboard", () => {
+  it("can be reached with Tab, one by one", () => {
+    const svg = renderTrendSvg([{ t: 1000, free: 4, freeGood: 1 }, { t: 2000, free: 5, freeGood: 2 }], options);
+
+    expect(svg.match(/<rect [^>]*tabindex="0"[^>]*data-t=/g)).toHaveLength(2);
+  });
+});

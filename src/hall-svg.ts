@@ -170,6 +170,8 @@ function renderSeat(
   const y = originY + (seat.row - bounds.minRow) * PITCH;
   const rect = `<rect ${attrs({
     "data-seat": seat.id,
+    "data-row": seat.rowLabel,
+    ...(seat.number === null ? {} : { "data-number": seat.number }),
     x,
     y,
     width: CELL,

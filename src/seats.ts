@@ -157,7 +157,7 @@ function bestWindow(
     const score = windowScore(window, axis, percent);
     const first = window[0];
     if (first && (best === null || score > best.score)) {
-      best = { rowLabel: first.rowLabel, seatIds: window.map((seat) => seat.id), score };
+      best = { rowLabel: first.rowLabel, seatIds: window.map((seat) => seat.id), numbers: window.flatMap((seat) => seat.number ?? []), score };
     }
   }
   return best;

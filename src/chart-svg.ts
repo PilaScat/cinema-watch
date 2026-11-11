@@ -88,7 +88,7 @@ export function renderTrendSvg(points: HistoryPoint[], options: TrendOptions): s
     const next = sorted[index + 1];
     const from = previous ? (xOf(previous.t) + x) / 2 : MARGIN.left;
     const to = next ? (xOf(next.t) + x) / 2 : right;
-    return `<rect x="${num(from)}" y="${MARGIN.top}" width="${num(Math.max(to - from, 1))}" height="${num(plotHeight)}" fill="transparent" data-t="${point.t}" data-free="${point.free}" data-good="${point.freeGood}"/>`;
+    return `<rect x="${num(from)}" y="${MARGIN.top}" width="${num(Math.max(to - from, 1))}" height="${num(plotHeight)}" fill="transparent" tabindex="0" data-t="${point.t}" data-free="${point.free}" data-good="${point.freeGood}"/>`;
   });
 
   return [

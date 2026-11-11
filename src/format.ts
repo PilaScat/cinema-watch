@@ -37,8 +37,7 @@ export function formatDayLong(isoDay: string): string {
 }
 
 export function formatGroup(group: SeatGroup): string {
-  const numbers = group.seatIds
-    .map((id) => Number(id.split("/")[1]))
+  const numbers = (group.numbers ?? group.seatIds.map((id) => (id.includes("/") ? Number(id.slice(id.lastIndexOf("/") + 1)) : Number.NaN)))
     .filter((value) => Number.isFinite(value))
     .sort((a, b) => a - b);
   const first = numbers[0];
