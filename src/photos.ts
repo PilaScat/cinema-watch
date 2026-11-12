@@ -1,5 +1,5 @@
 import { copy } from "./copy.js";
-import { formatDay } from "./format.js";
+import { formatDay, formatTier } from "./format.js";
 import { renderHallSvg } from "./hall-svg.js";
 import type { OutgoingMessage } from "./model.js";
 import { svgToPng, TELEGRAM_PHOTO_WIDTH } from "./png.js";
@@ -24,6 +24,7 @@ export function renderPhotos(keys: string[], observation: HuntObservation, theat
       title: showing.movie.title,
       subtitle: copy.hall.subtitle(theatreNames[showing.theatreSlug] ?? showing.theatreSlug, showing.room, formatDay(showing.day), showing.time),
       labels: copy.hall.labels,
+      formatTier,
       theme: "dark",
       tiers: detail.tiers,
     });

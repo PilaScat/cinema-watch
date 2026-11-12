@@ -43,7 +43,7 @@ describe("hall with more than one price", () => {
   const occupancy = parseOccupancy(fixture("webtic/occupancy-5116-576749.json"));
   const tiers = parsePerformance(fixture("webtic/performance-5116-576749.json")).priceTiers ?? [];
   const draw = (theme: "dark" | "light", shown = tiers, compact = false) =>
-    renderHallSvg(hall, occupancy, analyzeSeats(hall, occupancy, rule), rule, { title: "Avengers", subtitle: "SALA 07 XL", labels: copy.hall.labels, theme, tiers: shown, compact });
+    renderHallSvg(hall, occupancy, analyzeSeats(hall, occupancy, rule), rule, { title: "Avengers", subtitle: "SALA 07 XL", labels: copy.hall.labels, formatTier, theme, tiers: shown, compact });
   const filled = (svg: string, color: string): number => [...svg.matchAll(new RegExp(`<rect data-seat="[^"]*"[^>]*fill="${color}"`, "g"))].length;
 
   it("paints the free VIP seats in their own colour and lists both prices in the legend", () => {

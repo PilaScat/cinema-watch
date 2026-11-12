@@ -178,6 +178,7 @@ export interface HallRenderOptions {
   title: string;
   subtitle: string;
   labels: HallLabels;
+  formatTier: (tier: PriceTier) => string;
   theme: ThemeName;
   tiers?: PriceTier[];
   compact?: boolean;

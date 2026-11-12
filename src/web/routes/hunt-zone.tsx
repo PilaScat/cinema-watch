@@ -9,7 +9,7 @@ import { Button, Card, LinkButton, Notice, PageHeader } from "../components.js";
 import { bodyText, FormGrid, noErrors, nullableNumber, splitErrors, splitList, TextField, Wide, type FieldErrors } from "../parts/forms.js";
 import { ErrorList } from "../parts/hunt-form.js";
 import { movieTitleFor } from "../parts/titles.js";
-import { copy, localized } from "../i18n.js";
+import { copy, formatTier, localized } from "../i18n.js";
 
 type PageContext = Parameters<typeof renderPage>[0];
 
@@ -91,6 +91,7 @@ export function registerHuntZoneRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
       title: await movieTitleFor(deps, view.performance.key, view.performance.title, hunt.theatres),
       subtitle: ui.zonePage.hallSubtitle(hunt.name, view.performance.screenName),
       labels: copy.hall.labels,
+      formatTier,
     };
     const values = page.values ?? zoneFormValuesOf(hunt, viewHallKey);
     const nonce = pageContext(c, deps).nonce;
