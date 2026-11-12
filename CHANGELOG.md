@@ -2,6 +2,48 @@
 
 Versions follow the `vYYYY.MM.N` format. Each section is written before its tag. Sections up to v2026.10.15 are in Italian, as they were released; the later ones are in English.
 
+## v2026.11.1
+
+### Breaking changes
+
+- **The bot command is `/refresh`.** `/aggiorna` no longer answers.
+- **`config.json` moves to version 5** (language of the messages, Google Wallet credentials). It migrates on its own at the first start, but v2026.10.15 and older refuse a version 5 file: copy the data folder before updating. How to go back is in [docs/operations.md](docs/operations.md#going-back-to-the-previous-version).
+- **Without `UI_PASSWORD` the app answers only on an IP address, a local name (`localhost`, a name without dots, `.local`, `.lan`, `.internal`, `.home.arpa`) or the host of the public URL in Settings.** Any other host gets a 403. With a password nothing changes.
+
+### New
+
+- **Tickets.** Upload the PDF of a UCI order and get a card for each ticket, with the entry code as a QR code: to download, share, send to Telegram or save in Google Wallet. The fields read from the PDF can be corrected, and a ticket can be typed by hand. Tickets are deleted on their own 7 days after the showing. Google Wallet needs an Issuer account and a service account key, set in Settings: see [docs/tickets.md](docs/tickets.md).
+- **English and Italian.** The web UI follows the language of the browser, with a selector in the footer. Telegram messages, the log and the errors follow a new setting, Language of the messages: an existing install stays in Italian, a new one starts in English. The documents are now in English, with the Italian README in `README.it.md`.
+- **Seat types and prices on the seat map.** Where the circuit gives a price per sector (UCI, The Space) the free seats take a colour per price tier, with name and price in the legend, also in the photo sent to Telegram.
+- **Seat map preview from the lists.** The count of seats in the good zone, on the page of a film and among the showings of a hunt, opens the seat map under the row.
+- **Show all.** A film with more than 12 showings in a day has a link to list them all.
+- **Trend with the day.** Axis, tooltip and table show day and time, with a line at each midnight.
+- **Sign out**, with a session that really expires after 30 days and ends when the password changes.
+
+### Fixes
+
+- An alert is no longer sent twice, and the rounds no longer stop, after a failed write to disk.
+- A state file that gets discarded is kept as a copy beside it.
+- A hunt with fixed dates is read for 120 days at most; quiet hours with the same start and end count as off.
+- Row and number of a seat no longer come from its id: The Space and 18Tickets seats are written correctly in the best seats.
+- A seat map that cannot be drawn is refused before the alert instead of failing inside it.
+- Limits on what a cinema host can send or ask to wait, and on the wait Telegram can ask for.
+- The Space: a pause after a refused guest token. 18Tickets: a cap on the weekly check and on pages with broken markup.
+- One manual send to Telegram every 30 seconds; an empty `PORT` falls back to 8790.
+- Container: the data folder is given to `PUID:PGID` without following links; a warning when `PUID` is 0 and when there is no `UI_PASSWORD`.
+
+### Security
+
+- Login: the lockout counts on the address added by the proxy, not on the one the client writes; `/api/status` no longer lists the names of the hunts to who is not signed in.
+- hono 4.13.16 and @hono/node-server 2.1.6.
+
+### Project
+
+- The pages share their pieces as components, with one look for tiles, lists, links and file fields.
+- `latest` moves only to the newest release tag.
+- Development dependencies and GitHub Actions updated (Stryker 10.1.1, Tailwind 4.3.4, eslint 10.14, codeql-action 4.39.1, login-action 4.7.0).
+- New runtime dependency: `qrcode-generator` (MIT), for the QR code on the ticket cards.
+
 ## v2026.10.15
 
 ### Correzioni
