@@ -3,7 +3,7 @@ import { issueLines, type TelegramSource } from "../../config.js";
 import { isLocale, LOCALE_NAMES, LOCALES } from "../../i18n/index.js";
 import type { Config, Settings } from "../../model.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { Button, Card, cx, Field, inputClass, LinkButton, Notice, PageHeader, textLinkClass, type Tone } from "../components.js";
+import { Button, Card, cx, Field, inputClass, LinkButton, Notice, PageHeader, textLinkClass, textareaClass, type Tone } from "../components.js";
 import { copy, localized } from "../i18n.js";
 import {
   absoluteSummary,
@@ -50,6 +50,7 @@ interface SettingsValues {
   radiusKm: string;
   t18Hosts: string;
   language: string;
+  walletIssuerId: string;
 }
 
 interface PageNotice {
@@ -75,6 +76,7 @@ function valuesOfSettings(settings: Settings): SettingsValues {
     radiusKm: settings.radiusKm === null ? "" : String(settings.radiusKm),
     t18Hosts: settings.t18Hosts.join(", "),
     language: settings.language,
+    walletIssuerId: settings.wallet?.issuerId ?? "",
   };
 }
 
@@ -95,6 +97,7 @@ function valuesOfBody(body: FormBody): SettingsValues {
     radiusKm: bodyText(body, "radiusKm"),
     t18Hosts: bodyText(body, "t18Hosts"),
     language: bodyText(body, "messageLanguage"),
+    walletIssuerId: bodyText(body, "walletIssuerId"),
   };
 }
 
@@ -108,7 +111,29 @@ function homeOf(text: string): { lat: number; lon: number } | null {
   return rest.length > 0 || lat === undefined || lon === undefined ? { lat: Number.NaN, lon: Number.NaN } : { lat, lon };
 }
 
-function settingsOfValues(values: SettingsValues, tokenChange: { token: string; clear: boolean }, base: Settings): Settings {
+function keyOf(text: string): { clientEmail: string; privateKey: string } {
+  try {
+    const parsed: unknown = JSON.parse(text);
+    const email: unknown = typeof parsed === "object" && parsed !== null ? Reflect.get(parsed, "client_email") : undefined;
+    const key: unknown = typeof parsed === "object" && parsed !== null ? Reflect.get(parsed, "private_key") : undefined;
+    return { clientEmail: typeof email === "string" ? email : "", privateKey: typeof key === "string" ? key : "" };
+  } catch {
+    return { clientEmail: "", privateKey: "" };
+  }
+}
+
+function walletOf(issuerId: string, change: WalletChange, base: Settings["wallet"]): Settings["wallet"] {
+  if (change.clear) return null;
+  if (change.key !== "") return { issuerId, ...keyOf(change.key) };
+  return base === null ? null : { ...base, issuerId };
+}
+
+interface WalletChange {
+  key: string;
+  clear: boolean;
+}
+
+function settingsOfValues(values: SettingsValues, tokenChange: { token: string; clear: boolean }, base: Settings, walletChange: WalletChange): Settings {
   const token = tokenChange.clear ? null : tokenChange.token === "" ? base.telegram.token : tokenChange.token;
   return {
     telegram: { token, chatId: optionalText(values.chatId) },
@@ -124,6 +149,7 @@ function settingsOfValues(values: SettingsValues, tokenChange: { token: string; 
     radiusKm: nullableNumber(values.radiusKm),
     t18Hosts: [...new Set(splitList(values.t18Hosts).map(hostOfEntry))],
     language: isLocale(values.language) ? values.language : base.language,
+    wallet: walletOf(values.walletIssuerId, walletChange, base.wallet),
   };
 }
 
@@ -142,6 +168,9 @@ const SETTINGS_FIELDS: Record<string, string> = {
   defaultZone: "zone",
   radiusKm: "radiusKm",
   t18Hosts: "t18Hosts",
+  "wallet.issuerId": "walletIssuerId",
+  "wallet.clientEmail": "walletKey",
+  "wallet.privateKey": "walletKey",
 };
 
 function settingsFieldOf(rest: string): string | null {
@@ -168,6 +197,7 @@ function SettingsPage(props: {
   errors: FieldErrors;
   telegram: TelegramView;
   urlRefused: boolean;
+  walletEmail: string | null;
   zoneKept: string | undefined;
   notice: PageNotice | null;
 }) {
@@ -274,6 +304,34 @@ function SettingsPage(props: {
               </Wide>
             </FormGrid>
           </Card>
+          <Card title={ui.sections.wallet}>
+            <FormGrid>
+              <TextField
+                name="walletIssuerId"
+                label={ui.fields.walletIssuerId}
+                value={values.walletIssuerId}
+                hint={ui.fields.walletIssuerIdHint}
+                error={fieldError["walletIssuerId"]}
+                autocomplete="off"
+              />
+              <div class="flex items-end pb-2">
+                <CheckBox name="walletClear" value="1" label={ui.fields.walletClear} checked={false} />
+              </div>
+              <Wide>
+                <Field label={ui.fields.walletKey} for="walletKey" hint={ui.fields.walletKeyHint} error={fieldError["walletKey"]}>
+                  <textarea
+                    id="walletKey"
+                    name="walletKey"
+                    rows={4}
+                    autocomplete="off"
+                    spellcheck={false}
+                    placeholder={props.walletEmail === null ? ui.fields.walletUnset : ui.fields.walletSet(props.walletEmail)}
+                    class={textareaClass}
+                  ></textarea>
+                </Field>
+              </Wide>
+            </FormGrid>
+          </Card>
           <Card title={ui.sections.zone}>
             <ZoneFields
               prefix="zone"
@@ -342,6 +400,7 @@ export function registerSettingsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
           errors={options.errors ?? noErrors()}
           telegram={{ token: watcher.botToken(), chatId: watcher.primaryChat(), source: watcher.telegramSource() }}
           urlRefused={urlRefused(config)}
+          walletEmail={config.settings.wallet?.clientEmail ?? null}
           zoneKept={zone ? ui.fields.zoneKept(zone.rows, zone.seats) : undefined}
           notice={options.notice ?? null}
         />
@@ -368,7 +427,8 @@ export function registerSettingsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const config = watcher.config();
     const body = await c.req.parseBody({ all: true });
     const values = valuesOfBody(body);
-    const settings = settingsOfValues(values, { token: bodyText(body, "token"), clear: bodyValues(body, "clearToken").length > 0 }, config.settings);
+    const walletChange = { key: bodyText(body, "walletKey"), clear: bodyValues(body, "walletClear").length > 0 };
+    const settings = settingsOfValues(values, { token: bodyText(body, "token"), clear: bodyValues(body, "clearToken").length > 0 }, config.settings, walletChange);
     const result = await watcher.saveConfig({ ...config, settings });
     if (result.ok) return c.redirect("/settings?saved=1", 303);
     return page(c, { status: 400, values, errors: splitErrors(issueLines(result.issues, copy.validation), "settings.", settingsFieldOf) });

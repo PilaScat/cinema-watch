@@ -22,15 +22,18 @@ const names = [
   "moon",
   "pencil",
   "plus",
+  "qr-code",
   "refresh-cw",
   "scroll-text",
   "search",
   "send",
   "settings",
+  "share-2",
   "sun",
   "ticket",
   "trash-2",
   "upload",
+  "wallet",
 ];
 
 function body(svg) {

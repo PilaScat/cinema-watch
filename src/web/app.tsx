@@ -10,6 +10,7 @@ import { languageDetector } from "hono/language";
 import { NONCE, secureHeaders } from "hono/secure-headers";
 import type { Child } from "hono/jsx";
 import { FALLBACK_LOCALE, isLocale, LOCALES } from "../i18n/index.js";
+import { MAX_PDF_BYTES } from "../tickets/pdf-text.js";
 import type { Watcher } from "../watcher.js";
 import { createLockout, createPasswordCheck, hostAllowed, loadSecret, sessionValid, sessionValue } from "./auth.js";
 import { Button, Card, Field, inputClass, Notice } from "./components.js";
@@ -20,6 +21,7 @@ import { registerHuntZoneRoutes } from "./routes/hunt-zone.js";
 import { registerHuntsRoutes } from "./routes/hunts.js";
 import { registerLogRoutes } from "./routes/log.js";
 import { registerSettingsRoutes } from "./routes/settings.js";
+import { registerTicketsRoutes } from "./routes/tickets.js";
 import { statusOf } from "./status.js";
 import { copy, withLocale } from "./i18n.js";
 
@@ -31,6 +33,7 @@ export interface AppDeps {
   now?: () => number;
   publicDir?: string;
   assetsDir?: string;
+  fetch?: typeof fetch;
 }
 
 export interface AppEnv {
@@ -42,6 +45,8 @@ export interface AppEnv {
 }
 
 const BODY_LIMIT = 1024 * 1024;
+const PDF_BODY_LIMIT = MAX_PDF_BYTES + 64 * 1024;
+const PDF_UPLOAD_PATH = "/tickets/read";
 const SESSION_COOKIE = "cw_session";
 const SESSION_DAYS = 30;
 const LANGUAGE_COOKIE = "language";
@@ -172,7 +177,9 @@ export async function createApp(deps: AppDeps): Promise<Hono<AppEnv>> {
     await next();
     if (arrivedOverHttps(c, deps.watcher.config().settings.publicUrl)) c.res.headers.set("Cross-Origin-Opener-Policy", "same-origin");
   });
-  app.use(bodyLimit({ maxSize: BODY_LIMIT }));
+  const smallBody = bodyLimit({ maxSize: BODY_LIMIT });
+  const pdfBody = bodyLimit({ maxSize: PDF_BODY_LIMIT });
+  app.use((c, next) => (c.req.path === PDF_UPLOAD_PATH ? pdfBody(c, next) : smallBody(c, next)));
   app.use(csrf());
 
   app.use(async (c, next) => {
@@ -270,6 +277,7 @@ export async function createApp(deps: AppDeps): Promise<Hono<AppEnv>> {
   registerBrowseRoutes(app, deps);
   registerLogRoutes(app, deps);
   registerSettingsRoutes(app, deps);
+  registerTicketsRoutes(app, deps);
 
   app.notFound((c) =>
     renderPage(c, deps, {

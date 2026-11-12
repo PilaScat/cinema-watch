@@ -1,4 +1,5 @@
 import { createTtlCache } from "./cache.js";
+import { createTicketStore, type TicketStore } from "./tickets/store.js";
 import { setMessageLocale } from "./i18n/messages.js";
 import {
   ConfigError,
@@ -148,6 +149,8 @@ export interface Watcher {
   importConfig(text: string): Promise<ParseResult>;
   exportConfig(includeToken: boolean): string;
   sendTest(): Promise<SentResult>;
+  sendPhoto(png: Uint8Array, caption: string): Promise<SentResult>;
+  tickets: TicketStore;
   sendSnapshot(huntId: string): Promise<boolean>;
   services: WatcherServices;
   runNow(huntId?: string): Promise<RunReport[]>;
@@ -203,10 +206,11 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   let config = await loadConfig(store);
   setMessageLocale(config.settings.language);
   let state = await loadState(store, now);
+  const tickets = createTicketStore(store, now, random);
   let queue: Promise<unknown> = Promise.resolve();
   const knownUnknownTypes = new Set<string>();
   const telegramSettings = () => effectiveTelegram(config, env);
-  const secrets = () => [telegramSettings().token ?? ""];
+  const secrets = () => [telegramSettings().token ?? "", config.settings.wallet?.privateKey ?? ""];
   const logger = createLogger({
     secrets,
     now,
@@ -668,6 +672,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     try {
       await archive(finishedHuntIds(config, now()));
       await prune();
+      await tickets.prune();
     } catch (error) {
       logger.error("maintenance", { error: redact(errorText(error), secrets()) });
     }
@@ -761,6 +766,12 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     return false;
   }
 
+  async function sendPhotoLocked(png: Uint8Array, caption: string): Promise<SentResult> {
+    const chatId = telegramSettings().chatId;
+    if (chatId === null) return { ok: false, messageIds: [], error: copy.errors.telegramNotConfigured };
+    return telegram.sendPhoto(chatId, png, caption);
+  }
+
   async function sendTestLocked(): Promise<SentResult> {
     if (sentRecently("test")) return { ok: false, messageIds: [], error: copy.callbacks.sentTooSoon };
     const chatId = telegramSettings().chatId;
@@ -822,7 +833,9 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     saveConfig: (next: Config) => exclusive(() => saveValidated(next)),
     importConfig: (text: string) => exclusive(() => importLocked(text)),
     exportConfig: (includeToken: boolean) => exportConfig(config, { includeToken }),
+    tickets,
     sendTest: () => exclusive(sendTestLocked),
+    sendPhoto: (png: Uint8Array, caption: string) => exclusive(() => sendPhotoLocked(png, caption)),
     sendSnapshot: (huntId: string) => exclusive(() => sendSnapshotLocked(huntId)),
     services: {
       theatres,

@@ -3,7 +3,7 @@ import { copyFor, LOCALES } from "../src/i18n/index.js";
 
 const EMOJI = /\p{Extended_Pictographic}/u;
 const EMOJI_ALL = /\p{Extended_Pictographic}/gu;
-const EMOJI_KEYS = new Set(["telegram.huntHeader", "telegram.digest.header", "telegram.noNews.header", "telegram.test.header", "telegram.archived", "telegram.mutedNotice", "errors.huntFailed"]);
+const EMOJI_KEYS = new Set(["telegram.huntHeader", "telegram.digest.header", "telegram.noNews.header", "telegram.test.header", "telegram.archived", "telegram.mutedNotice", "telegram.ticketCaption", "errors.huntFailed"]);
 
 const SHARED = new Set([
   "ui.common.appName",
@@ -19,6 +19,10 @@ const SHARED = new Set([
   "ui.theatres.luxe",
   "ui.search.resultsTitle",
   "ui.settings.sections.telegram",
+  "ui.settings.sections.wallet",
+  "ui.settings.fields.walletIssuerId",
+  "ui.tickets.fields.title",
+  "ui.tickets.fields.theatre",
   "ui.settings.backup.file",
 ]);
 
