@@ -106,15 +106,13 @@ function TicketCard(props: { ticket: Ticket; walletReady: boolean }) {
   return (
     <Card>
       <img src={image} alt={alt} width="900" height="440" loading="lazy" class="h-auto w-full max-w-2xl rounded-lg" />
-      <div class="mt-4 flex flex-wrap items-center gap-2">
+      <div class="mt-4 flex flex-col gap-2">
         {props.walletReady ? (
-          <a href={`/tickets/${ticket.id}/wallet`} target="_blank" rel="noopener noreferrer" class={buttonClass("primary")}>
-            <Icon name="wallet" />
-            <span>{ui.actions.wallet}</span>
-          </a>
-        ) : null}
-        {props.walletReady ? (
-          <>
+          <div class="flex flex-wrap items-center gap-2">
+            <a href={`/tickets/${ticket.id}/wallet`} target="_blank" rel="noopener noreferrer" class={buttonClass("primary")}>
+              <Icon name="wallet" />
+              <span>{ui.actions.wallet}</span>
+            </a>
             <button type="button" data-wallet-link={`/tickets/${ticket.id}/wallet/link`} data-mode="copy" data-done={ui.actions.walletCopied} data-failed={ui.actions.walletLinkFailed} class={buttonClass("outline")}>
               <Icon name="copy" />
               <span data-label>{ui.actions.walletCopy}</span>
@@ -123,22 +121,24 @@ function TicketCard(props: { ticket: Ticket; walletReady: boolean }) {
               <Icon name="share2" />
               <span data-label>{ui.actions.walletShare}</span>
             </button>
-          </>
+          </div>
         ) : null}
-        <a href={image} download={`ticket-${ticket.id}.png`} class={buttonClass("outline")}>
-          <Icon name="download" />
-          <span>{ui.actions.download}</span>
-        </a>
-        <button type="button" hidden data-share={image} data-share-title={alt} class={buttonClass("outline")}>
-          <Icon name="share2" />
-          <span>{ui.actions.share}</span>
-        </button>
-        <ActionForm action={`/tickets/${ticket.id}/telegram`}>
-          <Button label={ui.actions.telegram} icon="send" variant="outline" confirm={ui.actions.confirmTelegram} />
-        </ActionForm>
-        <ActionForm action={`/tickets/${ticket.id}/delete`}>
-          <Button label={ui.actions.delete} icon="trash2" variant="danger" confirm={copy.ui.common.actions.confirmDelete} />
-        </ActionForm>
+        <div class="flex flex-wrap items-center gap-2">
+          <a href={image} download={`ticket-${ticket.id}.png`} class={buttonClass("outline")}>
+            <Icon name="download" />
+            <span>{ui.actions.download}</span>
+          </a>
+          <button type="button" hidden data-share={image} data-share-title={alt} class={buttonClass("outline")}>
+            <Icon name="share2" />
+            <span>{ui.actions.share}</span>
+          </button>
+          <ActionForm action={`/tickets/${ticket.id}/telegram`}>
+            <Button label={ui.actions.telegram} icon="send" variant="outline" confirm={ui.actions.confirmTelegram} />
+          </ActionForm>
+          <ActionForm action={`/tickets/${ticket.id}/delete`} class="ml-auto">
+            <Button label={ui.actions.delete} icon="trash2" variant="danger" confirm={copy.ui.common.actions.confirmDelete} />
+          </ActionForm>
+        </div>
       </div>
       {props.walletReady ? <input type="text" readonly hidden data-wallet-url aria-label={ui.actions.walletCopy} class={cx(inputClass, "mt-3")} /> : null}
       <p class="mt-3 text-xs text-muted">
