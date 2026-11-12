@@ -4,7 +4,7 @@ import { SLUG } from "../../keys.js";
 import type { Config, Hunt } from "../../model.js";
 import type { Theatre } from "../../types.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { LinkButton, Notice, PageHeader } from "../components.js";
+import { LinkButton, Notice, PageHeader, TextLink } from "../components.js";
 import { absoluteSummary, bodyText, noErrors, splitErrors, type FieldErrors } from "../parts/forms.js";
 import { ErrorList, HuntFormBody, huntFieldOf, huntOfValues, preferListed, valuesOfBody, valuesOfHunt, valuesOfQuery, type HuntValues } from "../parts/hunt-form.js";
 import { StatusCards } from "../parts/hunt-status.js";
@@ -16,6 +16,7 @@ type PageContext = Parameters<typeof renderPage>[0];
 
 const ui = localized((all) => all.ui.hunts);
 const common = localized((all) => all.ui.common);
+const tickets = localized((all) => all.ui.tickets);
 
 async function loadTheatres(deps: AppDeps): Promise<Theatre[] | null> {
   try {
@@ -60,6 +61,11 @@ export function registerHuntsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
           {hunt && c.req.query("sent") === "ok" ? <Notice tone="success">{ui.sent.ok}</Notice> : null}
           {hunt && c.req.query("sent") === "fail" ? <Notice tone="danger">{ui.sent.fail}</Notice> : null}
           {restore ? <Notice tone="gold">{ui.restoreDates}</Notice> : null}
+          {hunt !== null && hunt.archivedAt !== null && !restore ? (
+            <Notice tone="muted">
+              {tickets.afterBought} <TextLink href="/tickets">{tickets.afterBoughtLink}</TextLink>
+            </Notice>
+          ) : null}
           {hunt ? (
             <div class="mb-4 flex flex-col gap-4">
               <StatusCards hunt={hunt} state={watcher.state().hunts[hunt.id]} theatreNames={theatreNames} />

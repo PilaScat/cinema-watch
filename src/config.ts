@@ -21,6 +21,7 @@ export const DEFAULT_SETTINGS: Settings = {
   radiusKm: null,
   t18Hosts: [],
   language: "en",
+  wallet: null,
 };
 
 export function defaultConfig(): Config {
@@ -102,6 +103,10 @@ export function telegramSource(config: Config, env: NodeJS.ProcessEnv): { token:
 
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 const TOKEN_FORMAT = /^\d{6,}:[A-Za-z0-9_-]{30,}$/;
+const ISSUER_ID = /^\d{6,30}$/;
+const SERVICE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PRIVATE_KEY = /^-----BEGIN PRIVATE KEY-----[A-Za-z0-9+/=\s]+-----END PRIVATE KEY-----\s*$/;
+const MAX_KEY_LENGTH = 5000;
 const CHAT_ID = /^(-?\d+|@[A-Za-z0-9_]{5,})$/;
 
 function isRealDay(value: string): boolean {
@@ -265,6 +270,13 @@ const settingsSchema = z.strictObject({
   radiusKm: intIn(1, 1000).nullable(),
   t18Hosts: z.array(z.string().refine(isT18Host, say("t18HostFormat"))),
   language: z.enum(LOCALES),
+  wallet: z
+    .strictObject({
+      issuerId: z.string().regex(ISSUER_ID, say("walletIssuerId")),
+      clientEmail: z.string().regex(SERVICE_EMAIL, say("walletEmail")).max(200, say("walletEmail")),
+      privateKey: z.string().regex(PRIVATE_KEY, say("walletKey")).max(MAX_KEY_LENGTH, say("walletKey")),
+    })
+    .nullable(),
 });
 
 const configSchema = z
@@ -335,7 +347,7 @@ function toVersion3(json: Record<string, unknown>): Record<string, unknown> {
 
 function toVersion5(json: Record<string, unknown>): Record<string, unknown> {
   const settings = json["settings"];
-  return { ...json, schemaVersion: 5, settings: isRecord(settings) ? { language: "it", ...settings } : settings };
+  return { ...json, schemaVersion: 5, settings: isRecord(settings) ? { language: "it", wallet: null, ...settings } : settings };
 }
 
 export function migrateConfig(json: unknown): unknown {
@@ -372,7 +384,10 @@ export function parseConfig(json: unknown): ParseResult {
 
 export function exportConfig(config: Config, options: { includeToken: boolean }): string {
   const clone = structuredClone(config);
-  if (!options.includeToken) clone.settings.telegram.token = null;
+  if (!options.includeToken) {
+    clone.settings.telegram.token = null;
+    clone.settings.wallet = null;
+  }
   return JSON.stringify(clone, null, 2);
 }
 
@@ -391,6 +406,9 @@ export function importConfig(current: Config, text: string): ParseResult {
     if (telegram["token"] === undefined || telegram["token"] === null) {
       telegram["token"] = current.settings.telegram.token;
     }
+  }
+  if (isRecord(raw) && isRecord(raw["settings"]) && (raw["settings"]["wallet"] === undefined || raw["settings"]["wallet"] === null)) {
+    raw["settings"]["wallet"] = current.settings.wallet;
   }
   return parseConfig(raw);
 }

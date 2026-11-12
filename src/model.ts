@@ -1,4 +1,5 @@
 import type { Locale } from "./i18n/index.js";
+import type { WalletCredentials } from "./tickets/wallet.js";
 import type {
   DayWindow,
   HhMm,
@@ -69,6 +70,7 @@ export interface Settings {
   radiusKm: number | null;
   t18Hosts: string[];
   language: Locale;
+  wallet: WalletCredentials | null;
 }
 
 export interface Config {

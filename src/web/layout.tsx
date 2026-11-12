@@ -6,7 +6,7 @@ import { isNewerVersion } from "./version.js";
 import { LOCALE_NAMES, LOCALES, type Locale } from "../i18n/index.js";
 import { copy, currentLocale } from "./i18n.js";
 
-export type Section = "hunts" | "theatres" | "search" | "log" | "settings" | "none";
+export type Section = "hunts" | "theatres" | "search" | "tickets" | "log" | "settings" | "none";
 
 export interface PageContext {
   nonce: string;
@@ -25,6 +25,7 @@ const nav: Array<{ section: Exclude<Section, "none">; href: string; icon: IconNa
   { section: "hunts", href: "/", icon: "ticket" },
   { section: "theatres", href: "/theatres", icon: "film" },
   { section: "search", href: "/search", icon: "search" },
+  { section: "tickets", href: "/tickets", icon: "qrCode" },
   { section: "log", href: "/log", icon: "scrollText" },
   { section: "settings", href: "/settings", icon: "settings" },
 ];

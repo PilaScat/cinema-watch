@@ -57,6 +57,7 @@ describe("defaults", () => {
       radiusKm: null,
       t18Hosts: [],
       language: "en",
+      wallet: null,
     });
   });
 
@@ -207,6 +208,7 @@ function fullConfig(): Config {
     radiusKm: 80,
     t18Hosts: ["splendorbari.18tickets.it"],
     language: "it",
+    wallet: null,
   };
   config.hunts = [
     {

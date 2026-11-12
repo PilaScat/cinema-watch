@@ -24,7 +24,7 @@ export function askingFor<App extends Awaited<ReturnType<typeof createApp>>>(ins
   return instance;
 }
 
-export async function createWebApp(harness: Harness, options: { env?: NodeJS.ProcessEnv; mutate?: (config: Config) => void; publicDir?: string; venues?: VenueList | null; spaceVenues?: SpaceVenueList; t18Venues?: T18VenueList; language?: string | null } = {}) {
+export async function createWebApp(harness: Harness, options: { env?: NodeJS.ProcessEnv; mutate?: (config: Config) => void; publicDir?: string; venues?: VenueList | null; spaceVenues?: SpaceVenueList; t18Venues?: T18VenueList; language?: string | null; fetch?: typeof fetch } = {}) {
   const config = await harness.seed(options.mutate, { ...(options.venues === undefined ? {} : { venues: options.venues }), ...(options.spaceVenues === undefined ? {} : { spaceVenues: options.spaceVenues }), ...(options.t18Venues === undefined ? {} : { t18Venues: options.t18Venues }) });
   const watcher = await harness.watcher({ env: options.env ?? {} });
   const instance = await createApp({
@@ -35,6 +35,7 @@ export async function createWebApp(harness: Harness, options: { env?: NodeJS.Pro
     now: () => harness.now(),
     publicDir: options.publicDir ?? publicDir,
     assetsDir,
+    ...(options.fetch === undefined ? {} : { fetch: options.fetch }),
   });
   if (options.language !== null) askingFor(instance, options.language ?? "it");
   return { instance, watcher, config, huntId: config.hunts[0]?.id ?? "" };
