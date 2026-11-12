@@ -1,7 +1,7 @@
 import type { Hono } from "hono";
 import type { Hunt, HuntState } from "../../model.js";
 import { backTo, renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { ActionForm, Badge, Button, Card, Empty, LinkButton, Notice, PageHeader, type Tone } from "../components.js";
+import { ActionForm, Badge, Button, Card, cx, displayClass, Empty, LinkButton, Notice, PageHeader, type Tone } from "../components.js";
 import { windowEnded } from "../../watcher-rules.js";
 import { copy, formatDay, formatTime } from "../i18n.js";
 
@@ -36,7 +36,7 @@ function HuntCard(props: { hunt: Hunt; state: HuntState | undefined; theatres: R
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-2">
-            <a href={`/hunts/${hunt.id}`} class="font-display text-2xl tracking-wide hover:text-primary">
+            <a href={`/hunts/${hunt.id}`} class={cx(displayClass, "hover:text-primary")}>
               {hunt.name}
             </a>
             <Badge tone={badge.tone}>{badge.text}</Badge>
@@ -135,7 +135,7 @@ export function registerHomeRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
           )}
           {archived.length > 0 ? (
             <details class="mt-8">
-              <summary class="cursor-pointer font-display text-2xl tracking-wide text-muted">{ui.archived}</summary>
+              <summary class={cx("cursor-pointer text-muted", displayClass)}>{ui.archived}</summary>
               <div class="mt-4 grid gap-4">
                 {archived.map((hunt) => (
                   <HuntCard hunt={hunt} state={state.hunts[hunt.id]} theatres={theatres} now={now()} />

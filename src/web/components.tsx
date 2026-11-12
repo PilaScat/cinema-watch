@@ -24,6 +24,35 @@ export function Icon(props: { name: IconName; class?: string }) {
   );
 }
 
+export const displayClass = "font-display text-2xl tracking-wide";
+export const tileClass = "rounded-xl border border-border bg-surface";
+export const linkTileClass = `${tileClass} hover:border-primary`;
+export const textLinkClass = "font-semibold text-primary hover:underline";
+
+export function SectionTitle(props: { children: Child }) {
+  return <h2 class={cx("mb-3 text-muted", displayClass)}>{props.children}</h2>;
+}
+
+export function TextLink(props: { href: string; children: Child; class?: string }) {
+  return (
+    <a href={props.href} class={cx(textLinkClass, props.class)}>
+      {props.children}
+    </a>
+  );
+}
+
+export function Rows(props: { children: Child; class?: string }) {
+  return <ul class={cx("flex flex-col divide-y divide-border", props.class)}>{props.children}</ul>;
+}
+
+export function FilterForm(props: { action: string; children: Child }) {
+  return (
+    <form method="get" action={props.action} class="mb-6 flex flex-wrap items-end gap-3">
+      {props.children}
+    </form>
+  );
+}
+
 export function PageHeader(props: { title: string; description?: string; actions?: Child }) {
   return (
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -38,10 +67,10 @@ export function PageHeader(props: { title: string; description?: string; actions
 
 export function Card(props: { title?: string; actions?: Child; children?: Child; class?: string; id?: string }) {
   return (
-    <section id={props.id} class={cx("rounded-xl border border-border bg-surface p-4 sm:p-5", props.class)}>
+    <section id={props.id} class={cx(tileClass, "p-4 sm:p-5", props.class)}>
       {props.title || props.actions ? (
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-          {props.title ? <h2 class="font-display text-2xl tracking-wide">{props.title}</h2> : <span />}
+          {props.title ? <h2 class={displayClass}>{props.title}</h2> : <span />}
           {props.actions ? <div class="flex items-center gap-2">{props.actions}</div> : null}
         </div>
       ) : null}
@@ -175,8 +204,11 @@ export function Badge(props: { tone?: Tone; children: Child }) {
   );
 }
 
-export const inputClass =
-  "h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring";
+const controlClass = "w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring";
+
+export const inputClass = `h-10 ${controlClass}`;
+export const textareaClass = `py-2 ${controlClass}`;
+export const smallSelectClass = "h-8 rounded-lg border border-border bg-background px-2 text-foreground focus-visible:outline-2 focus-visible:outline-ring";
 
 export function Field(props: { label: string; for: string; hint?: string; error?: string; children: Child }) {
   return (
@@ -193,7 +225,7 @@ export function Field(props: { label: string; for: string; hint?: string; error?
 
 export function Stat(props: { label: string; value?: string | number; tone?: "gold"; class?: string; children?: Child }) {
   return (
-    <div class={cx("rounded-xl border border-border bg-surface px-4 py-3", props.class)}>
+    <div class={cx(tileClass, "px-4 py-3", props.class)}>
       <dt class="text-xs font-semibold uppercase tracking-wide text-muted">{props.label}</dt>
       {props.value === undefined ? null : <dd class={cx("font-display text-4xl leading-tight tracking-wide", props.tone === "gold" && "text-gold")}>{props.value}</dd>}
       {props.children ? <dd class="mt-1.5 flex flex-wrap gap-1.5">{props.children}</dd> : null}

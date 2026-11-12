@@ -10,7 +10,7 @@ import { localIdOfSlug } from "../../webtic-direct.js";
 import { normalizeTitle } from "../../uci.js";
 import { searchMovies } from "../../movie-search.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { Badge, buttonClass, Card, Chips, Empty, Field, inputClass, LinkButton, Notice, PageHeader, Stat } from "../components.js";
+import { Badge, buttonClass, Card, Chips, Empty, Field, FilterForm, inputClass, LinkButton, Notice, PageHeader, Stat, TextLink } from "../components.js";
 import { DayTabs, HallPair, HallPreview, MovieCard, ShowingRow, TheatreGroup, TrendSection } from "../parts/browse.js";
 import { backHref, fromOf, hereOf, withFrom } from "../parts/navigation.js";
 import { movieTitleFor } from "../parts/titles.js";
@@ -92,9 +92,9 @@ function TheatreList(props: { theatres: Theatre[]; settings: Settings; showAll: 
       {near.length > 0 ? <TheatreGroup region={ui.nearTitle(props.settings.radiusKm)} theatres={near.map((item) => item.theatre)} distances={distances} /> : null}
       {far.length > 0 && props.showAll ? <TheatreGroup region={ui.farTitle} theatres={far.map((item) => item.theatre)} distances={distances} /> : null}
       {far.length > 0 && !props.showAll ? (
-        <a href={props.farHref} class="font-semibold text-primary hover:underline">
+        <TextLink href={props.farHref}>
           {ui.showFar(far.length)}
-        </a>
+        </TextLink>
       ) : null}
     </>
   );
@@ -107,7 +107,7 @@ function TheatresPage(props: { theatres: Theatre[] | null; query: string; settin
   return (
     <>
       <PageHeader title={ui.title} description={props.settings.home === null ? ui.description : ui.descriptionNear} />
-      <form method="get" action="/theatres" class="mb-6 flex flex-wrap items-end gap-3">
+      <FilterForm action="/theatres">
         <div class="w-full max-w-sm">
           <Field label={ui.filterLabel} for="q">
             <input id="q" name="q" type="search" value={props.query} placeholder={ui.filterPlaceholder} maxlength={MAX_QUERY} class={inputClass} />
@@ -116,7 +116,7 @@ function TheatresPage(props: { theatres: Theatre[] | null; query: string; settin
         <button type="submit" class={buttonClass("secondary")}>
           {ui.filterButton}
         </button>
-      </form>
+      </FilterForm>
       {props.theatres === null ? <Notice tone="danger">{ui.loadError}</Notice> : null}
       {props.venues.checkedAt === null && props.venues.probing ? <Notice>{ui.venuesLoading(props.venues.venues)}</Notice> : null}
       {shown.length === 0 ? (
@@ -258,9 +258,9 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
                 ))}
               </div>
               {ordered.length > shown.length ? (
-                <a href={`?${queryString({ day: selected[0], from: fromOf(c) ?? undefined, all: "1" })}`} class="mt-3 inline-block font-semibold text-primary hover:underline">
+                <TextLink href={`?${queryString({ day: selected[0], from: fromOf(c) ?? undefined, all: "1" })}`} class="mt-3 inline-block">
                   {theatresUi.showAll(ordered.length)}
-                </a>
+                </TextLink>
               ) : null}
             </>
           ) : (
@@ -293,7 +293,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
       body: (
         <>
           <PageHeader title={searchUi.title} description={searchUi.description} />
-          <form method="get" action="/search" class="mb-6 flex flex-wrap items-end gap-3">
+          <FilterForm action="/search">
             <div class="w-full max-w-sm">
               <Field label={searchUi.label} for="q">
                 <input id="q" name="q" type="search" value={query} placeholder={searchUi.placeholder} maxlength={MAX_QUERY} class={inputClass} />
@@ -302,7 +302,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
             <button type="submit" class={buttonClass("primary")}>
               {searchUi.button}
             </button>
-          </form>
+          </FilterForm>
           {catalog === null ? <Notice tone="danger">{searchUi.catalogUnavailable}</Notice> : null}
           <div class="grid gap-6">
             {showTheatres ? (
@@ -322,9 +322,9 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
                   </ul>
                 )}
                 {hidden > 0 ? (
-                  <a href={`/search?${queryString({ q: query, movie: selected, all: "1" })}`} class="mt-3 inline-block font-semibold text-primary hover:underline">
+                  <TextLink href={`/search?${queryString({ q: query, movie: selected, all: "1" })}`} class="mt-3 inline-block">
                     {theatresUi.showFar(hidden)}
-                  </a>
+                  </TextLink>
                 ) : null}
               </Card>
             ) : null}

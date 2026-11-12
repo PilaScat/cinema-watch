@@ -3,7 +3,7 @@ import { issueLines, type TelegramSource } from "../../config.js";
 import { isLocale, LOCALE_NAMES, LOCALES } from "../../i18n/index.js";
 import type { Config, Settings } from "../../model.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { Button, Card, Field, inputClass, LinkButton, Notice, PageHeader, type Tone } from "../components.js";
+import { Button, Card, cx, Field, inputClass, LinkButton, Notice, PageHeader, textLinkClass, type Tone } from "../components.js";
 import { copy, localized } from "../i18n.js";
 import {
   absoluteSummary,
@@ -260,7 +260,7 @@ function SettingsPage(props: {
             <FormGrid>
               <Wide>
                 <TextField name="home" label={ui.fields.home} value={values.home} hint={ui.fields.homeHint} error={fieldError["home"]} />
-                <button type="button" data-home-picker hidden class="mt-2 text-sm font-semibold text-primary hover:underline">
+                <button type="button" data-home-picker hidden class={cx("mt-2 text-sm", textLinkClass)}>
                   {ui.fields.homeLocate}
                 </button>
               </Wide>

@@ -1,5 +1,5 @@
 import type { Hunt, HuntState } from "../../model.js";
-import { ActionForm, Badge, Button, Card, LinkButton, PreviewButton, PreviewPanel } from "../components.js";
+import { ActionForm, Badge, Button, Card, LinkButton, PreviewButton, PreviewPanel, Rows, TextLink } from "../components.js";
 import { copy, formatDay, localized } from "../i18n.js";
 
 const ui = localized((all) => all.ui.hunts);
@@ -38,7 +38,7 @@ export function StatusCards(props: { hunt: Hunt; state: HuntState | undefined; t
         {showings.length === 0 ? (
           <p class="text-sm text-muted">{ui.empty.showings}</p>
         ) : (
-          <ul class="flex flex-col divide-y divide-border">
+          <Rows>
             {showings.map((showing) => {
               const query = new URLSearchParams({ hunt: hunt.id, movie: showing.movieSlug, theatre: showing.theatreSlug, from: `/hunts/${hunt.id}#showings` });
               const free = showing.seats?.freeInZone;
@@ -59,20 +59,20 @@ export function StatusCards(props: { hunt: Hunt; state: HuntState | undefined; t
                         class={showing.seats?.ok ? "font-semibold text-gold" : "text-muted"}
                       />
                     )}
-                    <a href={`/showings/${showing.key}?${query.toString()}`} class="font-semibold text-primary hover:underline">
+                    <TextLink href={`/showings/${showing.key}?${query.toString()}`}>
                       {ui.showing.open}
-                    </a>
+                    </TextLink>
                   </div>
                   <PreviewPanel />
                 </li>
               );
             })}
-          </ul>
+          </Rows>
         )}
       </Card>
       {pending.length > 0 ? (
         <Card title={ui.sections.pending}>
-          <ul class="flex flex-col divide-y divide-border">
+          <Rows>
             {pending.map((slug) => (
               <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
                 <span class="min-w-0 font-semibold">{slug}</span>
@@ -82,7 +82,7 @@ export function StatusCards(props: { hunt: Hunt; state: HuntState | undefined; t
                 </ActionForm>
               </li>
             ))}
-          </ul>
+          </Rows>
         </Card>
       ) : null}
       <HallZonesCard hunt={hunt} state={props.state} />
@@ -102,7 +102,7 @@ function HallZonesCard(props: { hunt: Hunt; state: HuntState | undefined }) {
   return (
     <Card title={ui.sections.halls}>
       {zones.length === 0 ? <p class="text-sm text-muted">{ui.empty.halls}</p> : null}
-      <ul class="flex flex-col divide-y divide-border">
+      <Rows>
         {zones.map(([key, zone]) => (
           <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
             <span class="min-w-0">
@@ -115,7 +115,7 @@ function HallZonesCard(props: { hunt: Hunt; state: HuntState | undefined }) {
             </ActionForm>
           </li>
         ))}
-      </ul>
+      </Rows>
       {rooms.size > 0 ? (
         <ul class="mt-3 flex flex-col gap-2">
           {[...rooms.values()].map((room) => (
