@@ -190,6 +190,12 @@ describe("Google Wallet from the tickets page", () => {
     expect(page).not.toContain("Google Wallet non configurato.");
     expect(page).toContain(`data-wallet-link="/tickets/${ticket?.id}/wallet/link" data-mode="copy" data-done="Link copiato"`);
     expect(page).toContain('data-mode="share"');
+    const groups = page.slice(page.indexOf(`/tickets/${ticket?.id}/card.png" alt=`)).split('<div class="flex flex-wrap items-center gap-2">').slice(1, 3);
+    expect(groups.map((group) => [...(group.split("</div>")[0] ?? "").matchAll(/<span[^>]*>([^<]+)<\/span>/g)].map((match) => match[1]))).toEqual([
+      ["Aggiungi a Google Wallet", "Copia il link di Wallet", "Condividi il link di Wallet"],
+      ["Scarica immagine", "Condividi", "Invia su Telegram", "Elimina"],
+    ]);
+    expect(page).toContain(`<form method="post" action="/tickets/${ticket?.id}/delete" class="inline ml-auto">`);
     expect(link.headers.get("cache-control")).toBe("private, no-store");
     expect(answer.url?.startsWith(WALLET_SAVE_URL)).toBe(true);
     expect(opened.status).toBe(303);
