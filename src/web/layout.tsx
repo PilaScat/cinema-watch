@@ -91,7 +91,7 @@ export function Layout(props: { title: string; section: Section; context: PageCo
           </div>
         </header>
         <main class="mx-auto max-w-6xl px-4 py-6 sm:py-8">{props.children}</main>
-        <footer class="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 pb-8 text-xs text-muted">
+        <footer class="mx-auto flex max-w-6xl flex-wrap items-center gap-2 border-t border-border px-4 py-4 text-xs text-muted">
           <span>{ui.version.current(props.context.version)}</span>
           {isNewerVersion(props.context.latestVersion, props.context.version) && props.context.latestVersion ? (
             <a href="https://github.com/PilaScat/cinema-watch/releases" target="_blank" rel="noopener noreferrer">
@@ -100,7 +100,7 @@ export function Layout(props: { title: string; section: Section; context: PageCo
           ) : null}
           <form method="post" action="/language" class="ml-auto flex items-center gap-2">
             <label for="language">{ui.language.label}</label>
-            <select id="language" name="language" class="rounded-md border border-border bg-surface px-2 py-1 text-foreground">
+            <select id="language" name="language" class="h-8 rounded-lg border border-border bg-background px-2 text-foreground focus-visible:outline-2 focus-visible:outline-ring">
               <option value="auto" selected={props.context.languageChoice === "auto"}>
                 {ui.language.auto}
               </option>

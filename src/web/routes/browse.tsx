@@ -10,8 +10,8 @@ import { localIdOfSlug } from "../../webtic-direct.js";
 import { normalizeTitle } from "../../uci.js";
 import { searchMovies } from "../../movie-search.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { Badge, buttonClass, Card, Empty, Field, inputClass, LinkButton, Notice, PageHeader } from "../components.js";
-import { DayTabs, HallPair, HallPreview, MovieCard, ShowingRow, Stat, TheatreGroup, TrendSection } from "../parts/browse.js";
+import { Badge, buttonClass, Card, Chips, Empty, Field, inputClass, LinkButton, Notice, PageHeader, Stat } from "../components.js";
+import { DayTabs, HallPair, HallPreview, MovieCard, ShowingRow, TheatreGroup, TrendSection } from "../parts/browse.js";
 import { backHref, fromOf, hereOf, withFrom } from "../parts/navigation.js";
 import { movieTitleFor } from "../parts/titles.js";
 import { ISO_DAY, SHOWING_KEY, SLUG } from "../../keys.js";
@@ -407,8 +407,8 @@ async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
   const time = performance.startTime.slice(11, 16);
   const subtitle = ui.subtitle(performance.screenName, formatDay(day), time);
   const movieTitle = await movieTitleFor(deps, key, performance.title, theatre ? [theatre] : []);
-  const svgOptions = { title: movieTitle, subtitle, labels: copy.hall.labels, formatTier, tiers: view.tiers };
-  const prices = view.tiers.length > 1 ? view.tiers.map(formatTier).join(" · ") : performance.priceFrom === null ? null : ui.priceFrom(formatEur(performance.priceFrom));
+  const svgOptions = { title: "", subtitle: "", labels: copy.hall.labels, formatTier, tiers: view.tiers, compact: true };
+  const prices = view.tiers.length > 1 ? view.tiers.map(formatTier) : performance.priceFrom === null ? [] : [ui.priceFrom(formatEur(performance.priceFrom))];
   const light = renderHallSvg(hall, occupancy, analysis, rule, { ...svgOptions, theme: "light" });
   const dark = renderHallSvg(hall, occupancy, analysis, rule, { ...svgOptions, theme: "dark" });
   const history = await loadHistory(deps, key);
@@ -427,7 +427,7 @@ async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
       <>
         <PageHeader
           title={movieTitle}
-          description={prices === null ? subtitle : `${subtitle} · ${prices}`}
+          description={subtitle}
           actions={
             <>
               {back ? <LinkButton href={back} label={copy.ui.common.actions.back} icon="arrowLeft" variant="outline" /> : null}
@@ -436,16 +436,14 @@ async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
             </>
           }
         />
+        {prices.length > 0 ? <Chips items={prices} class="-mt-3 mb-6" /> : null}
         <div class="grid gap-6">
           <dl class="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <Stat label={ui.free} value={analysis.free} />
-            <Stat label={ui.freeGood} value={analysis.freeInZone} />
-            <div class="col-span-2 rounded-lg bg-surface-2 px-3 py-2 sm:col-span-1">
-              <dt class="text-xs text-muted">{ui.best}</dt>
-              <dd class="mt-1 flex flex-wrap gap-1.5">
-                {analysis.best.length === 0 ? <span class="text-sm text-muted">{ui.noBest}</span> : analysis.best.map((group) => <Badge tone="gold">{formatGroup(group)}</Badge>)}
-              </dd>
-            </div>
+            <Stat label={ui.freeGood} value={analysis.freeInZone} tone={analysis.freeInZone > 0 ? "gold" : undefined} />
+            <Stat label={ui.best} class="col-span-2 sm:col-span-1">
+              {analysis.best.length === 0 ? <span class="text-sm text-muted">{ui.noBest}</span> : analysis.best.map((group) => <Badge tone="gold">{formatGroup(group)}</Badge>)}
+            </Stat>
           </dl>
           <Card title={ui.hallTitle}>
             <HallPair dark={dark} light={light} />

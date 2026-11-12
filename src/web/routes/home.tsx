@@ -64,11 +64,13 @@ function HuntCard(props: { hunt: Hunt; state: HuntState | undefined; theatres: R
           <LinkButton href={`/hunts/${hunt.id}`} label={actions.edit} icon="pencil" size="icon" variant="outline" />
         </div>
       </div>
-      <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-        <span>{ui.showings(showings.length)}</span>
-        <span class={withSeats > 0 ? "font-semibold text-gold" : "text-muted"}>{ui.withSeats(withSeats)}</span>
-        {state?.lastRun ? <span class="text-muted">{ui.lastRun(formatTime(state.lastRun.at))}</span> : null}
-        {active && state?.nextRunAt ? <span class="text-muted">{ui.nextRun(formatTime(state.nextRunAt))}</span> : null}
+      <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-3 text-sm">
+        <Badge tone="neutral">{ui.showings(showings.length)}</Badge>
+        <Badge tone={withSeats > 0 ? "gold" : "muted"}>{ui.withSeats(withSeats)}</Badge>
+        <span class="flex flex-wrap gap-x-4 text-xs text-muted sm:ml-auto">
+          {state?.lastRun ? <span>{ui.lastRun(formatTime(state.lastRun.at))}</span> : null}
+          {active && state?.nextRunAt ? <span>{ui.nextRun(formatTime(state.nextRunAt))}</span> : null}
+        </span>
       </div>
       {pending > 0 ? (
         <a href={`/hunts/${hunt.id}`} class="mt-3 inline-block">
