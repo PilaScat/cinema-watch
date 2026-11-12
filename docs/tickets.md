@@ -42,7 +42,17 @@ The button appears when the credentials are set in Settings, Google Wallet secti
 3. In the Google Pay and Wallet Console give that service account access to the Issuer account, as the same guide says.
 4. In Settings enter the Issuer ID and paste the whole JSON file of the key. The app keeps the email and the private key, shows only the email, and never writes the key in a page.
 
-A new Issuer account is in demo mode until Google grants it publishing access: the passes can be saved only by the test accounts added in the console. This part was written from Google's documentation and not tried with a real account.
+A new Issuer account is in demo mode until Google grants it publishing access: the passes can be saved only by the test accounts added in the console.
+
+### What the pass looks like
+
+- The name at the top is Cinema Watch, with the icon of the app as logo (Google fetches it from the repository on GitHub).
+- The title is the film, with the cinema under it; hall, row and seat are below, then the entry code as a QR code.
+- The poster of the film is the image of the pass, and Google takes the colour of the pass from it. The poster comes from the catalogue, when the title of the ticket is the title of a film there; otherwise the pass has no image and is dark.
+- A hall named at the end of the title is dropped when the hall already says it: "Dune - Parte Tre sala IMAX" in "SALA 1 IMAX" becomes "Dune - Parte Tre". The title can be corrected before saving.
+- `[TEST ONLY]` before the name is added by Google while the Issuer account is in demo mode.
+
+Tried with a real Issuer account in demo mode on 12/11/2026: the pass was saved from the link, and updated in place at the next click.
 
 ### What happens at the click
 
@@ -52,7 +62,7 @@ A new Issuer account is in demo mode until Google grants it publishing access: t
 
 The whole ticket does not travel in the link, because it would not fit: with the event and the ticket inside, the token of a real order was 2080 characters long, over the 1800 Google gives as safe. The link works for whoever opens it, so it is not shown: it is made at each click and opened in a new tab.
 
-Nothing is sent to Google before the click. At the click Google receives film, day and time, cinema and address, hall, row, seat, ticket type, price, order number and entry code.
+Nothing is sent to Google before the click. At the click Google receives film, day and time, cinema and address, hall, row, seat, ticket type, price, order number, entry code and the address of the poster.
 
 ### When it fails
 
