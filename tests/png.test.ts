@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import { performance } from "node:perf_hooks";
 import { describe, expect, it } from "vitest";
+import { formatTier } from "../src/format.js";
 import { renderHallSvg } from "../src/hall-svg.js";
 import { FONT_DIR, svgToPng, TELEGRAM_PHOTO_WIDTH } from "../src/png.js";
 import { analyzeSeats } from "../src/seats.js";
@@ -69,6 +70,7 @@ const svg = renderHallSvg(hall, occupancy, analyzeSeats(hall, occupancy, RULE), 
   title: "Dune: Parte Tre",
   subtitle: "UCI Verona · SALA 1 IMAX · 15/12 20:30",
   labels: LABELS,
+  formatTier,
   theme: "dark",
 });
 const SIZE = /width="(\d+)" height="(\d+)"/.exec(svg);

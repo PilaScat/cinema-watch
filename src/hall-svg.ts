@@ -1,4 +1,3 @@
-import { formatTier } from "./format.js";
 import { isSellable, seatState } from "./seats.js";
 import type {
   Hall,
@@ -168,6 +167,7 @@ function legendEntries(
   analysis: SeatAnalysis,
   palette: Record<PaletteKey, string>,
   paints: TierPaint[],
+  formatTier: (tier: PriceTier) => string,
 ): LegendEntry[] {
   const bestSeats = new Set(analysis.best.flatMap((group) => group.seatIds)).size;
   const states = LEGEND_STATES.map((state) => ({
@@ -393,7 +393,7 @@ export function renderHallSvg(
     renderRowLetters(rowLabels(hall), theme, bounds, originX, originX + gridWidth, originY),
     seats,
     renderZoneOutlines(hall, analysis, theme, bounds, originX, originY),
-    renderLegend(legendEntries(labels, counts, analysis, palette, paints), theme, width, legendTop),
+    renderLegend(legendEntries(labels, counts, analysis, palette, paints, options.formatTier), theme, width, legendTop),
     "</svg>",
   ];
   return parts.join("");

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { describe, expect, it } from "vitest";
+import { formatTier } from "../src/format.js";
 import { HALL_PALETTE, escapeXml, renderHallSvg } from "../src/hall-svg.js";
 import { copy } from "../src/copy.js";
 import { analyzeSeats } from "../src/seats.js";
@@ -76,7 +77,7 @@ const occupancy = loadOccupancy("occupancy-5116-575978.json");
 const analysis = analyzeSeats(hall, occupancy, RULE);
 
 function options(theme: ThemeName, title = "Dune: Parte Tre"): HallRenderOptions {
-  return { title, subtitle: "UCI Verona · SALA 1 IMAX · 15/12 20:30", labels: LABELS, theme };
+  return { title, subtitle: "UCI Verona · SALA 1 IMAX · 15/12 20:30", labels: LABELS, formatTier, theme };
 }
 
 function render(theme: ThemeName, title?: string): string {
@@ -181,7 +182,7 @@ describe("seats that the zone picker can read in every circuit", () => {
     const occupancy = { key: "space-1-2", taken: {} };
     const rule = { zone: { kind: "relative" as const, rowsFromPercent: 0, rowsToPercent: 100, centerPercent: 100 }, together: 1, sellableTypes: ["STANDARD"] };
 
-    const svg = renderHallSvg(hall, occupancy, analyzeSeats(hall, occupancy, rule), rule, { title: "T", subtitle: "S", labels: copy.hall.labels, theme: "dark" });
+    const svg = renderHallSvg(hall, occupancy, analyzeSeats(hall, occupancy, rule), rule, { title: "T", subtitle: "S", labels: copy.hall.labels, formatTier, theme: "dark" });
 
     expect(svg).toContain('data-seat="A22" data-row="A" data-number="22"');
   });

@@ -71,6 +71,8 @@ describe("language of the page", () => {
 
     expect(html).toContain(">SCREEN</text>");
     expect(html).toContain("Normale €12.90");
+    expect(html).toContain(">Vip €13.90</text>");
+    expect(html).not.toContain("13,90 €");
     expect(html).toContain("Best seats");
     expect(html).toContain("Wed 16/12");
     expect(html).not.toContain("Pianta");
@@ -217,6 +219,13 @@ describe("texts of the pages", () => {
 
     expect(sources.length).toBeGreaterThan(15);
     expect(fixed.map(({ name }) => name)).toEqual([]);
+  });
+
+  it("reach the drawings from whoever asks for them: seat map and trend import no format of their own", () => {
+    const srcDir = fileURLToPath(new URL("../src/", import.meta.url));
+    const drawings = ["hall-svg.ts", "chart-svg.ts"].map((name) => readFileSync(join(srcDir, name), "utf8"));
+
+    for (const text of drawings) expect(text).not.toMatch(/\bformat(Eur|Day|DayOf|DayTime|DayLong|Time|Tier)\b[^}]*\} from "\.\/format\.js"/);
   });
 
   it("are not read once at startup: outside a function a page only prepares them", () => {

@@ -365,7 +365,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const huntId = huntParam !== undefined && deps.watcher.huntById(huntParam) !== null ? huntParam : undefined;
     const view = await hallOf(deps, key, huntId, theatre);
     if (!view) return c.html(<p class="mt-3 text-sm text-muted">{copy.ui.performance.hallError}</p>, 502);
-    const options = { title: "", subtitle: "", labels: copy.hall.labels, tiers: view.tiers, compact: true };
+    const options = { title: "", subtitle: "", labels: copy.hall.labels, formatTier, tiers: view.tiers, compact: true };
     return c.html(
       <HallPreview
         light={renderHallSvg(view.hall, view.occupancy, view.analysis, view.rule, { ...options, theme: "light" })}
@@ -407,7 +407,7 @@ async function performancePage(c: Context<AppEnv>, deps: AppDeps) {
   const time = performance.startTime.slice(11, 16);
   const subtitle = ui.subtitle(performance.screenName, formatDay(day), time);
   const movieTitle = await movieTitleFor(deps, key, performance.title, theatre ? [theatre] : []);
-  const svgOptions = { title: movieTitle, subtitle, labels: copy.hall.labels, tiers: view.tiers };
+  const svgOptions = { title: movieTitle, subtitle, labels: copy.hall.labels, formatTier, tiers: view.tiers };
   const prices = view.tiers.length > 1 ? view.tiers.map(formatTier).join(" · ") : performance.priceFrom === null ? null : ui.priceFrom(formatEur(performance.priceFrom));
   const light = renderHallSvg(hall, occupancy, analysis, rule, { ...svgOptions, theme: "light" });
   const dark = renderHallSvg(hall, occupancy, analysis, rule, { ...svgOptions, theme: "dark" });
