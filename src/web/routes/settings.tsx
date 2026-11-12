@@ -3,7 +3,7 @@ import { issueLines, type TelegramSource } from "../../config.js";
 import { isLocale, LOCALE_NAMES, LOCALES } from "../../i18n/index.js";
 import type { Config, Settings } from "../../model.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { Button, Card, cx, Field, inputClass, LinkButton, Notice, PageHeader, textLinkClass, textareaClass, type Tone } from "../components.js";
+import { Button, Card, cx, Field, fileInputClass, inputClass, LinkButton, Notice, PageHeader, textareaClass, textLinkClass, type Tone } from "../components.js";
 import { copy, localized } from "../i18n.js";
 import {
   absoluteSummary,
@@ -314,9 +314,6 @@ function SettingsPage(props: {
                 error={fieldError["walletIssuerId"]}
                 autocomplete="off"
               />
-              <div class="flex items-end pb-2">
-                <CheckBox name="walletClear" value="1" label={ui.fields.walletClear} checked={false} />
-              </div>
               <Wide>
                 <Field label={ui.fields.walletKey} for="walletKey" hint={ui.fields.walletKeyHint} error={fieldError["walletKey"]}>
                   <textarea
@@ -329,6 +326,9 @@ function SettingsPage(props: {
                     class={textareaClass}
                   ></textarea>
                 </Field>
+                <div class="mt-3">
+                  <CheckBox name="walletClear" value="1" label={ui.fields.walletClear} checked={false} />
+                </div>
               </Wide>
             </FormGrid>
           </Card>
@@ -363,7 +363,7 @@ function SettingsPage(props: {
               <label for="file" class="text-sm font-semibold">
                 {ui.backup.file}
               </label>
-              <input id="file" name="file" type="file" accept="application/json,.json" class="text-sm" />
+              <input id="file" name="file" type="file" accept="application/json,.json" class={fileInputClass} />
             </div>
             <div>
               <Button label={ui.actions.import} icon="upload" variant="outline" />

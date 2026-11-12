@@ -9,7 +9,7 @@ import { parseUciTickets } from "../../tickets/uci.js";
 import { normalizeTitle } from "../../uci.js";
 import { WALLET_HOSTS, WalletError, walletSaveUrl } from "../../tickets/wallet.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { ActionForm, Button, buttonClass, Card, cx, Empty, Icon, inputClass, LinkButton, Notice, PageHeader, TextLink, type Tone } from "../components.js";
+import { ActionForm, Button, buttonClass, Card, cx, Empty, fileInputClass, Icon, inputClass, LinkButton, Notice, PageHeader, TextLink, type Tone } from "../components.js";
 import { copy, currentLocale, formatDayOf, localized } from "../i18n.js";
 import { bodyValues, FormGrid, type FormBody } from "../parts/forms.js";
 
@@ -187,18 +187,18 @@ export function registerTicketsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
           )}
           <div class="grid gap-4">
             <Card title={ui.upload.title}>
-              <form method="post" action="/tickets/read" enctype="multipart/form-data" class="flex flex-wrap items-end gap-3">
-                <div class="flex min-w-0 flex-col gap-1.5">
-                  <label for="pdf" class="text-sm font-semibold">
-                    {ui.upload.file}
-                  </label>
-                  <input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf" required class="text-sm" />
-                  <p class="text-xs text-muted">{ui.upload.hint}</p>
+              <form method="post" action="/tickets/read" enctype="multipart/form-data" class="flex flex-col gap-1.5">
+                <label for="pdf" class="text-sm font-semibold">
+                  {ui.upload.file}
+                </label>
+                <div class="flex flex-wrap items-center gap-3">
+                  <input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf" required class={fileInputClass} />
+                  <Button label={ui.upload.button} icon="upload" variant="primary" />
+                  <TextLink href="/tickets/new" class="text-sm">
+                    {ui.upload.byHand}
+                  </TextLink>
                 </div>
-                <Button label={ui.upload.button} icon="upload" variant="primary" />
-                <TextLink href="/tickets/new" class="pb-2 text-sm">
-                  {ui.upload.byHand}
-                </TextLink>
+                <p class="text-xs text-muted">{ui.upload.hint}</p>
               </form>
             </Card>
             {tickets.length === 0 ? <Empty text={ui.empty} hint={ui.emptyHint} /> : tickets.map((ticket) => <TicketCard ticket={ticket} walletReady={walletReady} />)}

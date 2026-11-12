@@ -208,6 +208,8 @@ const controlClass = "w-full rounded-lg border border-border bg-background px-3 
 
 export const inputClass = `h-10 ${controlClass}`;
 export const textareaClass = `py-2 ${controlClass}`;
+export const fileInputClass =
+  "w-full max-w-md cursor-pointer rounded-lg border border-border bg-background text-sm text-muted file:mr-3 file:h-10 file:cursor-pointer file:border-0 file:border-r file:border-border file:bg-surface-2 file:px-4 file:font-semibold file:text-foreground hover:file:bg-border focus-visible:outline-2 focus-visible:outline-ring";
 export const smallSelectClass = "h-8 rounded-lg border border-border bg-background px-2 text-foreground focus-visible:outline-2 focus-visible:outline-ring";
 
 export function Field(props: { label: string; for: string; hint?: string; error?: string; children: Child }) {
