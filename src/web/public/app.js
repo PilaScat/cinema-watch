@@ -39,6 +39,18 @@ function disarm(button) {
   if (label && button.dataset.idleLabel) label.textContent = button.dataset.idleLabel;
 }
 
+function bindFilePickers() {
+  document.querySelectorAll("input[data-file-input]").forEach((input) => {
+    const name = input.parentElement.querySelector("[data-file-name]");
+    const show = () => {
+      const [file] = input.files;
+      name.textContent = file ? file.name : name.dataset.empty;
+    };
+    input.addEventListener("change", show);
+    show();
+  });
+}
+
 function bindConfirm() {
   document.querySelectorAll("button[data-confirm]").forEach((button) => {
     const label = button.querySelector("[data-label]");
@@ -103,6 +115,7 @@ window.addEventListener("pageshow", (event) => {
 });
 
 bindTheme();
+bindFilePickers();
 bindConfirm();
 bindBusy();
 bindPreview();
