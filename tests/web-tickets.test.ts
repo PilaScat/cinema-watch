@@ -24,7 +24,7 @@ afterEach(async () => {
 
 const pair = generateKeyPairSync("rsa", { modulusLength: 2048, privateKeyEncoding: { type: "pkcs8", format: "pem" }, publicKeyEncoding: { type: "spki", format: "pem" } });
 const wallet = { issuerId: "3388000000012345678", clientEmail: "cinema-watch@example-project.iam.gserviceaccount.com", privateKey: pair.privateKey };
-const draft: TicketDraft = { title: "Dune - Parte Tre sala IMAX", day: "2026-12-21", time: "20:20", theatre: "UCI Cinemas Verona", address: "S.Giovanni Lupatoto", room: "SALA 1 IMAX", sector: "PLATEA", row: "H", seat: "9", kind: "Top Intero WEB", total: 14.9, order: SYNTHETIC_ORDER, code: "00112233AABBCCDD" };
+const draft: TicketDraft = { title: "Dune: Parte Tre", day: "2026-12-21", time: "20:20", theatre: "UCI Cinemas Verona", address: "S.Giovanni Lupatoto", room: "SALA 1 IMAX", sector: "PLATEA", row: "H", seat: "9", kind: "Top Intero WEB", total: 14.9, order: SYNTHETIC_ORDER, code: "00112233AABBCCDD" };
 
 function upload(pdf: Uint8Array, name = "tickets.pdf") {
   const body = new FormData();
@@ -65,7 +65,7 @@ describe("tickets page", () => {
     expect(saved.headers.get("location")).toBe("/tickets?saved=2");
     expect(again.headers.get("location")).toBe("/tickets?saved=0");
     expect(await watcher.tickets.list()).toHaveLength(2);
-    expect(first).toMatchObject(draft);
+    expect(first).toMatchObject({ ...draft, title: "Dune - Parte Tre" });
     expect(page).toContain("2 biglietti salvati.");
     expect([...page.matchAll(/<img src="\/tickets\/[a-z0-9]{12}\/card\.png"/g)]).toHaveLength(2);
     expect(page).toContain("Si elimina da solo dopo lun 28/12");
@@ -147,7 +147,7 @@ describe("tickets page", () => {
     expect(page).toMatch(/data-confirm="Conferma: la card porta il codice d(&#39;|')ingresso"/);
     expect(sent.headers.get("location")).toBe("/tickets?sent=ok");
     expect(harness.world.telegram.map((call) => [call.method, call.chatId, call.photos])).toEqual([["sendPhoto", PRIMARY_CHAT, 1]]);
-    expect(harness.world.telegram[0]?.caption).toContain("<b>Dune - Parte Tre sala IMAX</b>");
+    expect(harness.world.telegram[0]?.caption).toContain("<b>Dune: Parte Tre</b>");
     expect(deleted.headers.get("location")).toBe("/tickets?deleted=1");
     expect(await watcher.tickets.list()).toEqual([]);
     expect((await instance.request(`/tickets/${ticket?.id}/telegram`, post())).status).toBe(404);
@@ -167,9 +167,11 @@ describe("tickets page", () => {
 describe("Google Wallet from the tickets page", () => {
   it("offers the button only with the credentials, and opens the link Google gives after creating the pass", async () => {
     const calls: string[] = [];
-    const google: typeof fetch = (input) => {
+    const bodies: string[] = [];
+    const google: typeof fetch = (input, init) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
       calls.push(url);
+      bodies.push(typeof init?.body === "string" ? init.body : "");
       return Promise.resolve(new Response(JSON.stringify(url === TOKEN_URL ? { access_token: "token" } : {}), { status: 200 }));
     };
     const { instance, watcher } = await createWebApp(harness, { mutate: (config) => (config.settings.wallet = wallet), fetch: google });
@@ -184,6 +186,7 @@ describe("Google Wallet from the tickets page", () => {
     expect(opened.status).toBe(303);
     expect(opened.headers.get("location")?.startsWith(WALLET_SAVE_URL)).toBe(true);
     expect(calls.map((url) => new URL(url).hostname)).toEqual(["oauth2.googleapis.com", "walletobjects.googleapis.com", "walletobjects.googleapis.com"]);
+    expect(bodies[1]).toMatch(/"heroImage":\{"sourceUri":\{"uri":"https:\/\/[^"]+"\}\}/);
   });
 
   it("comes back with the reason when Google refuses, and has no link without the credentials", async () => {

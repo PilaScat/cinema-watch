@@ -6,6 +6,7 @@ import { ticketCaption, ticketCardPng } from "../../tickets/card.js";
 import { showtimeOf, TICKET_KEEP_DAYS, ticketDraftSchema, type Ticket, type TicketDraft, type TicketField } from "../../tickets/model.js";
 import { PdfError, pdfTextStreams } from "../../tickets/pdf-text.js";
 import { parseUciTickets } from "../../tickets/uci.js";
+import { normalizeTitle } from "../../uci.js";
 import { WALLET_HOSTS, WalletError, walletSaveUrl } from "../../tickets/wallet.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { ActionForm, Button, buttonClass, Card, cx, Empty, Icon, inputClass, LinkButton, Notice, PageHeader, TextLink, type Tone } from "../components.js";
@@ -157,6 +158,12 @@ export function registerTicketsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
   const review = (c: Context<AppEnv>, drafts: DraftValues[], notice: PageNotice | null, status: 200 | 400 = 200) =>
     renderPage(c, deps, { title: ui.review.title, section: "tickets", status, body: <ReviewPage drafts={drafts} notice={notice} /> });
 
+  async function posterOf(title: string): Promise<string | null> {
+    const wanted = normalizeTitle(title);
+    const movies = await watcher.services.movies().catch(() => []);
+    return movies.find((movie) => normalizeTitle(movie.title) === wanted)?.poster ?? null;
+  }
+
   async function ticketOf(c: Context<AppEnv>): Promise<Ticket | null> {
     const id = c.req.param("id") ?? "";
     return TICKET_ID.test(id) ? watcher.tickets.get(id) : null;
@@ -238,7 +245,8 @@ export function registerTicketsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const settings = watcher.config().settings;
     if (ticket === null || settings.wallet === null) return c.notFound();
     try {
-      return c.redirect(await walletSaveUrl(ticket, settings.wallet, settings.language, now(), walletFetch), 303);
+      const pass = { ticket, language: settings.language, posterUrl: await posterOf(ticket.title) };
+      return c.redirect(await walletSaveUrl(pass, settings.wallet, now(), walletFetch), 303);
     } catch (error) {
       if (!(error instanceof WalletError)) throw error;
       watcher.logger.warn("wallet", { problem: error.problem, status: error.status });
