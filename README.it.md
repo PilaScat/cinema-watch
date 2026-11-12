@@ -30,6 +30,7 @@
 - **Zona buona**: le file e i posti che vanno bene, relativi alla sala o fissati cliccando sulla pianta, con il numero di posti vicini richiesto.
 - **Pulsanti nel messaggio**: Acquista, Apri sala, Aggiorna ora, Silenzia 24 h e Acquistato, con Riattiva e Ripristina per tornare indietro; `/refresh` rilegge tutte le cacce.
 - **Cinema**: UCI Cinemas, i 35 The Space Cinema, circa 300 cinema che vendono con Webtic (Notorious, Cinelandia, Movie Planet e molti indipendenti) e i cinema 18Tickets, ordinabili per distanza da casa; un cinema 18Tickets che manca si aggiunge nelle Impostazioni.
+- **Biglietti**: dal PDF dell'ordine, una card col codice d'ingresso per ogni biglietto, da salvare in Google Wallet, scaricare, condividere o inviare su Telegram ([come](docs/tickets.md)).
 - **Web UI**: cacce, programmazione, pagina dello spettacolo con la pianta dal vivo e l'andamento dei posti, ricerca di un film anche con un errore di battitura; si installa come app dietro HTTPS.
 
 <p align="center">
@@ -152,6 +153,7 @@ I documenti sono in inglese.
 | [docs/MEMORY.md](docs/MEMORY.md) | Decisioni e trappole del progetto. |
 | [docs/api.md](docs/api.md) | API di UCI e Webtic usate, API esposte dall'app. |
 | [docs/telegram.md](docs/telegram.md) | Bot, chat, avvisi, pulsanti e limiti di invio. |
+| [docs/tickets.md](docs/tickets.md) | Biglietti dal PDF dell'ordine, card e Google Wallet. |
 | [docs/homepage.md](docs/homepage.md) | Widget per gethomepage. |
 | [docs/operations.md](docs/operations.md) | Deploy, aggiornamenti, backup, rilascio e smoke test. |
 | [docs/UI-COPY.md](docs/UI-COPY.md) | Regole per i testi visibili. |

@@ -56,6 +56,7 @@ The backup is a copy of the data folder (`/data` in the container). Writes are a
 |---|---|
 | `config.json` | Settings and hunts, Telegram token included. It is the only file really needed |
 | `state.json` | State of the rounds: known showings, mutes, next round |
+| `tickets.json` | Saved tickets with their entry codes, see [tickets.md](tickets.md); each one is deleted 7 days after its showing |
 | `screens/` | Cached seat maps of the halls |
 | `history/` | Trend of the free seats of each showing |
 | `events.jsonl` | Log of the last 500 events |
