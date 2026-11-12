@@ -19,7 +19,8 @@ const WALLET_SCOPE = "https://www.googleapis.com/auth/wallet_object.issuer";
 const TOKEN_SECONDS = 600;
 const REQUEST_TIMEOUT_MS = 15_000;
 
-const ISSUER_NAME = "cinema-watch";
+const ISSUER_NAME = "Cinema Watch";
+const LOGO_URL = "https://raw.githubusercontent.com/PilaScat/cinema-watch/main/assets/icons/icon-512.png";
 const BACKGROUND = "#121014";
 const ID_LENGTH = 24;
 
@@ -48,7 +49,11 @@ function present<T extends Record<string, unknown>>(entries: T): Partial<T> {
   return Object.fromEntries(Object.entries(entries).filter(([, value]) => value !== undefined)) as Partial<T>;
 }
 
-function walletPayload(ticket: TicketDraft, issuerId: string, language: Locale) {
+function image(uri: string): { sourceUri: { uri: string } } {
+  return { sourceUri: { uri } };
+}
+
+function walletPayload(ticket: TicketDraft, issuerId: string, language: Locale, posterUrl: string | null) {
   const classId = idOf(issuerId, ticket.title, ticket.day, ticket.time, ticket.theatre, ticket.room);
   const optional = (value: string) => (value === "" ? undefined : localized(value, language));
   const venue = ticket.theatre === "" ? undefined : { name: localized(ticket.theatre, language), address: localized(ticket.address === "" ? ticket.theatre : ticket.address, language) };
@@ -57,6 +62,8 @@ function walletPayload(ticket: TicketDraft, issuerId: string, language: Locale) 
       id: classId,
       ...present({
         issuerName: ISSUER_NAME,
+        logo: image(LOGO_URL),
+        heroImage: posterUrl === null ? undefined : image(posterUrl),
         reviewStatus: "UNDER_REVIEW",
         eventName: localized(ticket.title, language),
         eventId: classId.slice(issuerId.length + 1),
@@ -70,7 +77,7 @@ function walletPayload(ticket: TicketDraft, issuerId: string, language: Locale) 
       ...present({
         classId,
         state: "ACTIVE",
-        hexBackgroundColor: BACKGROUND,
+        hexBackgroundColor: posterUrl === null ? BACKGROUND : undefined,
         barcode: { type: "QR_CODE", value: ticket.code, alternateText: ticket.code },
         seatInfo: present({ section: optional(ticket.room), row: optional(ticket.row), seat: optional(ticket.seat) }),
         ticketType: optional(ticket.kind),
@@ -121,8 +128,15 @@ async function upsert(doFetch: GuardedFetch, token: string, kind: "eventTicketCl
   if (!updated.ok) throw new WalletError("refused", updated.status);
 }
 
-export async function walletSaveUrl(ticket: TicketDraft, credentials: WalletCredentials, language: Locale, now: number, doFetch: GuardedFetch): Promise<string> {
-  const payload = walletPayload(ticket, credentials.issuerId, language);
+export interface WalletPass {
+  ticket: TicketDraft;
+  language: Locale;
+  posterUrl: string | null;
+}
+
+export async function walletSaveUrl(pass: WalletPass, credentials: WalletCredentials, now: number, doFetch: GuardedFetch): Promise<string> {
+  const posterUrl = pass.posterUrl !== null && pass.posterUrl.startsWith("https://") ? pass.posterUrl : null;
+  const payload = walletPayload(pass.ticket, credentials.issuerId, pass.language, posterUrl);
   const token = await accessToken(doFetch, credentials, now);
   await upsert(doFetch, token, "eventTicketClass", payload.ticketClass);
   await upsert(doFetch, token, "eventTicketObject", payload.ticketObject);

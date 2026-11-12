@@ -16,7 +16,7 @@ import { TOKEN_URL, WALLET_API, WALLET_SAVE_URL, WalletError, walletSaveUrl, typ
 import { contentStream, flate, pdfOf, syntheticTicket, ticketPdf } from "./support/ticket-pdf.js";
 
 const DAY_MS = 24 * 60 * 60_000;
-const draft: TicketDraft = { title: "Dune - Parte Tre sala IMAX", day: "2026-12-21", time: "20:20", theatre: "UCI Cinemas Verona", address: "S.Giovanni Lupatoto", room: "SALA 1 IMAX", sector: "PLATEA", row: "H", seat: "9", kind: "Top Intero WEB", total: 14.9, order: "UCI00000000", code: "00112233AABBCCDD" };
+const draft: TicketDraft = { title: "Dune - Parte Tre", day: "2026-12-21", time: "20:20", theatre: "UCI Cinemas Verona", address: "S.Giovanni Lupatoto", room: "SALA 1 IMAX", sector: "PLATEA", row: "H", seat: "9", kind: "Top Intero WEB", total: 14.9, order: "UCI00000000", code: "00112233AABBCCDD" };
 
 describe("text of a PDF", () => {
   it("reads the strings shown with Tj and TJ, with their escapes, and skips the images", () => {
@@ -64,6 +64,16 @@ describe("tickets of a UCI order", () => {
     expect(tickets[0]).toEqual(draft);
     expect(tickets.map((ticket) => `${ticket.row} ${ticket.seat} ${ticket.code}`)).toEqual(["H 9 00112233AABBCCDD", "H 10 1122334455667788", "H 11 99AABBCCDDEEFF00"]);
     expect(tickets.every((ticket) => ticketDraftSchema.safeParse(ticket).success)).toBe(true);
+  });
+
+  it("drops the hall from the end of the title when the hall says it already, and only then", () => {
+    const titleOf = (title: string, room: string): string => parseUciTickets(pdfTextStreams(ticketPdf([syntheticTicket({ title, room })])))[0]?.title ?? "";
+
+    expect(titleOf("Dune - Parte Tre sala IMAX", "SALA 1 IMAX")).toBe("Dune - Parte Tre");
+    expect(titleOf("Dune - Parte Tre Sala imax", "SALA 1 IMAX")).toBe("Dune - Parte Tre");
+    expect(titleOf("Dune - Parte Tre sala IMAX", "SALA 05")).toBe("Dune - Parte Tre sala IMAX");
+    expect(titleOf("La sala professori", "SALA 3")).toBe("La sala professori");
+    expect(titleOf("Avengers sala XL", "SALA 07 XL")).toBe("Avengers");
   });
 
   it("finds no ticket in a PDF that is something else, and leaves a missing price empty", () => {
@@ -154,7 +164,7 @@ describe("card of a ticket", () => {
   it("carries film, day, hall, row, seat and the entry code as a QR code and as text", () => {
     const svg = renderTicketCard(draft, { labels: copy.ui.tickets.card, when: "lun 21/12 20:20", price: "14,90 €" });
 
-    for (const text of ["UCI CINEMAS VERONA", "Dune - Parte Tre sala IMAX", "lun 21/12 20:20", "SALA 1 IMAX", ">H<", ">9<", "Top Intero WEB · 14,90 €", "Ordine UCI00000000", ">00112233AABBCCDD<"]) expect(svg).toContain(text);
+    for (const text of ["UCI CINEMAS VERONA", "Dune - Parte Tre", "lun 21/12 20:20", "SALA 1 IMAX", ">H<", ">9<", "Top Intero WEB · 14,90 €", "Ordine UCI00000000", ">00112233AABBCCDD<"]) expect(svg).toContain(text);
     expect(svg).toMatch(/<path transform="translate\(\d+ \d+\)" fill="#121014" d="M[\d. ]+h[\d.]+v[\d.]+h-[\d.]+z/);
   });
 
@@ -210,7 +220,7 @@ describe("Google Wallet link", () => {
   it("creates the pass at Google and gives a short link signed with the key, that names the pass only", async () => {
     const { calls, doFetch } = google();
 
-    const url = await walletSaveUrl(draft, credentials, "it", now, doFetch);
+    const url = await walletSaveUrl({ ticket: draft, language: "it", posterUrl: "https://storage.googleapis.com/posters/dune.jpg" }, credentials, now, doFetch);
     const jwt = url.slice(WALLET_SAVE_URL.length);
     const [header = "", payload = "", signature = ""] = jwt.split(".");
     const [, ticketClass, ticketObject] = calls.map((call) => (call.body.startsWith("{") ? (JSON.parse(call.body) as Record<string, unknown>) : {}));
@@ -221,8 +231,9 @@ describe("Google Wallet link", () => {
     expect(calls.map((call) => `${call.method} ${call.url}`)).toEqual([`POST ${TOKEN_URL}`, `POST ${WALLET_API}/eventTicketClass`, `POST ${WALLET_API}/eventTicketObject`]);
     expect(calls.slice(1).map((call) => call.authorization)).toEqual(["Bearer token-1", "Bearer token-1"]);
     expect(claimsOf(new URLSearchParams(calls[0]?.body).get("assertion") ?? "")).toMatchObject({ iss: credentials.clientEmail, aud: TOKEN_URL, scope: "https://www.googleapis.com/auth/wallet_object.issuer" });
-    expect(ticketClass).toMatchObject({ issuerName: "cinema-watch", reviewStatus: "UNDER_REVIEW", eventName: { defaultValue: { language: "it", value: draft.title } }, dateTime: { start: "2026-12-21T20:20:00" }, venue: { name: { defaultValue: { value: "UCI Cinemas Verona" } } } });
+    expect(ticketClass).toMatchObject({ issuerName: "Cinema Watch", logo: { sourceUri: { uri: expect.stringMatching(/^https:\/\/raw\.githubusercontent\.com\/PilaScat\/cinema-watch\/main\/assets\/icons\/icon-512\.png$/) as unknown } }, heroImage: { sourceUri: { uri: "https://storage.googleapis.com/posters/dune.jpg" } }, reviewStatus: "UNDER_REVIEW", eventName: { defaultValue: { language: "it", value: draft.title } }, dateTime: { start: "2026-12-21T20:20:00" }, venue: { name: { defaultValue: { value: "UCI Cinemas Verona" } } } });
     expect(ticketObject).toMatchObject({ classId: ticketClass?.["id"], state: "ACTIVE", barcode: { type: "QR_CODE", value: draft.code }, seatInfo: { row: { defaultValue: { value: "H" } }, seat: { defaultValue: { value: "9" } } }, faceValue: { micros: "14900000", currencyCode: "EUR" } });
+    expect(ticketObject).not.toHaveProperty("hexBackgroundColor");
     expect(String(ticketObject?.["id"])).toMatch(/^3388000000012345678\.cw-[0-9a-f]{24}$/);
     expect(claimsOf(jwt)).toMatchObject({ iss: credentials.clientEmail, aud: "google", typ: "savetowallet", payload: { eventTicketObjects: [{ id: ticketObject?.["id"], classId: ticketClass?.["id"] }] } });
     expect(JSON.stringify(claimsOf(jwt))).not.toContain(draft.code);
@@ -231,12 +242,14 @@ describe("Google Wallet link", () => {
   it("updates a pass that Google already has, and leaves out what the ticket does not say", async () => {
     const { calls, doFetch } = google({ [`POST ${WALLET_API}/eventTicketClass`]: 409, [`POST ${WALLET_API}/eventTicketObject`]: 409 });
 
-    await walletSaveUrl({ ...draft, theatre: "", room: "", row: "", seat: "", kind: "", order: "", total: null }, credentials, "en", now, doFetch);
+    await walletSaveUrl({ ticket: { ...draft, theatre: "", room: "", row: "", seat: "", kind: "", order: "", total: null }, language: "en", posterUrl: "http://plain.example/poster.jpg" }, credentials, now, doFetch);
     const puts = calls.filter((call) => call.method === "PUT");
     const bodies = puts.map((call) => JSON.parse(call.body) as Record<string, unknown>);
 
     expect(puts.map((call) => call.url.slice(0, call.url.lastIndexOf("/")))).toEqual([`${WALLET_API}/eventTicketClass`, `${WALLET_API}/eventTicketObject`]);
     expect(bodies[0]).not.toHaveProperty("venue");
+    expect(bodies[0]).not.toHaveProperty("heroImage");
+    expect(bodies[1]).toMatchObject({ hexBackgroundColor: "#121014" });
     expect(bodies[1]).toMatchObject({ seatInfo: {} });
     for (const key of ["ticketType", "reservationInfo", "faceValue"]) expect(bodies[1]).not.toHaveProperty(key);
   });
@@ -244,11 +257,12 @@ describe("Google Wallet link", () => {
   it("says what went wrong: a key that does not sign, a refused account, a refused ticket, no answer", async () => {
     const failing = async (run: () => Promise<string>): Promise<string> => run().then(() => "saved", problemOf);
     const down = (): Promise<Response> => Promise.reject(new Error("offline"));
+    const pass = { ticket: draft, language: "it" as const, posterUrl: null };
 
-    expect(await failing(() => walletSaveUrl(draft, { ...credentials, privateKey: "not a key" }, "it", now, google().doFetch))).toBe("key");
-    expect(await failing(() => walletSaveUrl(draft, credentials, "it", now, google({ [`POST ${TOKEN_URL}`]: 401 }).doFetch))).toBe("auth 401");
-    expect(await failing(() => walletSaveUrl(draft, credentials, "it", now, google({ [`POST ${WALLET_API}/eventTicketClass`]: 400 }).doFetch))).toBe("refused 400");
-    expect(await failing(() => walletSaveUrl(draft, credentials, "it", now, google({ [`POST ${WALLET_API}/eventTicketObject`]: 403 }).doFetch))).toBe("refused 403");
-    expect(await failing(() => walletSaveUrl(draft, credentials, "it", now, down))).toBe("network");
+    expect(await failing(() => walletSaveUrl(pass, { ...credentials, privateKey: "not a key" }, now, google().doFetch))).toBe("key");
+    expect(await failing(() => walletSaveUrl(pass, credentials, now, google({ [`POST ${TOKEN_URL}`]: 401 }).doFetch))).toBe("auth 401");
+    expect(await failing(() => walletSaveUrl(pass, credentials, now, google({ [`POST ${WALLET_API}/eventTicketClass`]: 400 }).doFetch))).toBe("refused 400");
+    expect(await failing(() => walletSaveUrl(pass, credentials, now, google({ [`POST ${WALLET_API}/eventTicketObject`]: 403 }).doFetch))).toBe("refused 403");
+    expect(await failing(() => walletSaveUrl(pass, credentials, now, down))).toBe("network");
   });
 });
