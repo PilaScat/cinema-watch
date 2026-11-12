@@ -192,12 +192,13 @@ describe("performance page", () => {
     expect((await instance.request("/showings/5116-575978?theatre=Bad_Slug")).status).toBe(404);
   });
 
-  it("shows the lowest price in the heading", async () => {
+  it("shows the lowest price under the heading", async () => {
     const { instance } = await createWebApp(harness);
 
     const html = await (await instance.request(PERFORMANCE_PAGE)).text();
 
-    expect(html).toMatch(/SALA 1 IMAX · mar 15\/12 20:30 · da 14,90\s€/);
+    expect(html).toContain("SALA 1 IMAX · mar 15/12 20:30</p>");
+    expect(html).toMatch(/<li><span class="[^"]*">da 14,90\s€<\/span><\/li>/);
   });
 
   it("leaves the price out of the heading when Webtic gives none", async () => {

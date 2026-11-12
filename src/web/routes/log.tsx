@@ -3,7 +3,7 @@ import { SHOWING_KEY } from "../../keys.js";
 import { romeToday } from "../../dates.js";
 import type { EventEntry } from "../../events.js";
 import { renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { Badge, Button, Card, Empty, inputClass, PageHeader, type Tone } from "../components.js";
+import { Badge, Button, Card, Empty, inputClass, PageHeader, Rows, TextLink, tileClass, type Tone } from "../components.js";
 import { hereOf } from "../parts/navigation.js";
 import { formatDay, formatTime, localized } from "../i18n.js";
 
@@ -76,7 +76,7 @@ export function registerLogRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
           {entries.length === 0 ? (
             <Empty text={ui.empty} />
           ) : (
-            <ul class="flex flex-col divide-y divide-border rounded-xl border border-border bg-surface">
+            <Rows class={tileClass}>
               {entries.map((entry) => {
                 const link = showingLink(entry, hereOf(c));
                 const huntName = entry.huntId === null ? null : (names.get(entry.huntId) ?? ui.deletedHunt);
@@ -90,15 +90,15 @@ export function registerLogRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
                     <span class="min-w-0 break-words">
                       {entry.detail ?? ""}
                       {link ? (
-                        <a href={link} class="ml-2 font-semibold text-primary hover:underline">
+                        <TextLink href={link} class="ml-2">
                           {ui.openShowing}
-                        </a>
+                        </TextLink>
                       ) : null}
                     </span>
                   </li>
                 );
               })}
-            </ul>
+            </Rows>
           )}
         </>
       ),

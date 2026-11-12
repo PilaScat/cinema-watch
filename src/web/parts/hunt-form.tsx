@@ -2,7 +2,7 @@ import { ISO_DAY } from "../../keys.js";
 import { byDistance } from "../../distance.js";
 import type { Hunt, NotifyFlags, Settings } from "../../model.js";
 import type { Theatre } from "../../types.js";
-import { Button, Card, Field, inputClass, Notice } from "../components.js";
+import { Button, Card, Field, inputClass, Notice, textareaClass } from "../components.js";
 import {
   bodyText,
   bodyValues,
@@ -462,7 +462,7 @@ export function HuntFormBody(props: {
               id="extraChats"
               name="extraChats"
               rows={3}
-              class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+              class={textareaClass}
             >
               {values.extraChats}
             </textarea>

@@ -1,6 +1,6 @@
 import type { Child } from "hono/jsx";
 import { raw } from "hono/html";
-import { Badge, cx, Icon } from "./components.js";
+import { Badge, cx, displayClass, Icon, smallSelectClass } from "./components.js";
 import type { IconName } from "./icon-set.js";
 import { isNewerVersion } from "./version.js";
 import { LOCALE_NAMES, LOCALES, type Locale } from "../i18n/index.js";
@@ -58,7 +58,7 @@ export function Layout(props: { title: string; section: Section; context: PageCo
           <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
             <a href="/" class="flex items-center gap-2">
               <img src="/assets/logo.svg" alt="" width="32" height="32" class="size-8" />
-              <span class="font-display text-2xl tracking-wide">{ui.appName}</span>
+              <span class={displayClass}>{ui.appName}</span>
             </a>
             <nav aria-label={ui.nav.label} class="order-3 -mx-1 flex w-full gap-1 overflow-x-auto [scrollbar-width:none] sm:order-none sm:w-auto sm:flex-1">
               {nav.map((item) => (
@@ -91,36 +91,38 @@ export function Layout(props: { title: string; section: Section; context: PageCo
           </div>
         </header>
         <main class="mx-auto max-w-6xl px-4 py-6 sm:py-8">{props.children}</main>
-        <footer class="mx-auto flex max-w-6xl flex-wrap items-center gap-2 border-t border-border px-4 py-4 text-xs text-muted">
-          <span>{ui.version.current(props.context.version)}</span>
-          {isNewerVersion(props.context.latestVersion, props.context.version) && props.context.latestVersion ? (
-            <a href="https://github.com/PilaScat/cinema-watch/releases" target="_blank" rel="noopener noreferrer">
-              <Badge tone="gold">{ui.version.update(props.context.latestVersion)}</Badge>
-            </a>
-          ) : null}
-          <form method="post" action="/language" class="ml-auto flex items-center gap-2">
-            <label for="language">{ui.language.label}</label>
-            <select id="language" name="language" class="h-8 rounded-lg border border-border bg-background px-2 text-foreground focus-visible:outline-2 focus-visible:outline-ring">
-              <option value="auto" selected={props.context.languageChoice === "auto"}>
-                {ui.language.auto}
-              </option>
-              {LOCALES.map((locale) => (
-                <option value={locale} selected={props.context.languageChoice === locale}>
-                  {LOCALE_NAMES[locale]}
+        <footer class="mx-auto max-w-6xl px-4 text-xs text-muted">
+          <div class="flex flex-wrap items-center gap-2 border-t border-border py-4">
+            <span>{ui.version.current(props.context.version)}</span>
+            {isNewerVersion(props.context.latestVersion, props.context.version) && props.context.latestVersion ? (
+              <a href="https://github.com/PilaScat/cinema-watch/releases" target="_blank" rel="noopener noreferrer">
+                <Badge tone="gold">{ui.version.update(props.context.latestVersion)}</Badge>
+              </a>
+            ) : null}
+            <form method="post" action="/language" class="ml-auto flex items-center gap-2">
+              <label for="language">{ui.language.label}</label>
+              <select id="language" name="language" class={smallSelectClass}>
+                <option value="auto" selected={props.context.languageChoice === "auto"}>
+                  {ui.language.auto}
                 </option>
-              ))}
-            </select>
-            <button type="submit" class="font-semibold hover:text-foreground">
-              {ui.language.apply}
-            </button>
-          </form>
-          {props.context.canLogout ? (
-            <form method="post" action="/logout">
+                {LOCALES.map((locale) => (
+                  <option value={locale} selected={props.context.languageChoice === locale}>
+                    {LOCALE_NAMES[locale]}
+                  </option>
+                ))}
+              </select>
               <button type="submit" class="font-semibold hover:text-foreground">
-                {ui.login.logout}
+                {ui.language.apply}
               </button>
             </form>
-          ) : null}
+            {props.context.canLogout ? (
+              <form method="post" action="/logout">
+                <button type="submit" class="font-semibold hover:text-foreground">
+                  {ui.login.logout}
+                </button>
+              </form>
+            ) : null}
+          </div>
         </footer>
       </body>
     </html>

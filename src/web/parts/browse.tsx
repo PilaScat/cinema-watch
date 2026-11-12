@@ -3,7 +3,7 @@ import { romeMidnightsBetween } from "../../dates.js";
 import type { HistoryPoint } from "../../history.js";
 import { renderTrendSvg } from "../../chart-svg.js";
 import type { SeatAnalysis, Showing, Theatre } from "../../types.js";
-import { Badge, Card, cx, Icon, PreviewButton, PreviewPanel } from "../components.js";
+import { Badge, Card, cx, displayClass, Icon, linkTileClass, PreviewButton, PreviewPanel, SectionTitle } from "../components.js";
 import { copy, formatDayOf, formatDayTime, formatKm } from "../i18n.js";
 
 const TREND_WIDTH = 640;
@@ -17,10 +17,10 @@ export function TheatreGroup(props: { region: string; theatres: Theatre[]; dista
   const ui = copy.ui.theatres;
   return (
     <section class="mb-8">
-      <h2 class="mb-3 font-display text-2xl tracking-wide text-muted">{props.region}</h2>
+      <SectionTitle>{props.region}</SectionTitle>
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {props.theatres.map((theatre) => (
-          <a href={`/theatres/${theatre.slug}`} class="block rounded-xl border border-border bg-surface p-4 hover:border-primary">
+          <a href={`/theatres/${theatre.slug}`} class={cx("block p-4", linkTileClass)}>
             <div class="flex items-start justify-between gap-2">
               <span class="font-semibold">{theatre.name}</span>
               <span class="flex shrink-0 gap-1.5">
@@ -46,7 +46,7 @@ export function TheatreGroup(props: { region: string; theatres: Theatre[]; dista
 
 export function MovieCard(props: { href: string; title: string; poster: string | null; formats: string[]; detail: string }) {
   return (
-    <a href={props.href} class="flex gap-3 rounded-xl border border-border bg-surface p-3 hover:border-primary">
+    <a href={props.href} class={cx("flex gap-3 p-3", linkTileClass)}>
       {props.poster ? (
         <img src={props.poster} alt="" loading="lazy" class="h-28 w-20 shrink-0 rounded-md object-cover" />
       ) : (
@@ -90,9 +90,9 @@ export function ShowingRow(props: { href: string; previewUrl: string; showing: S
   const ui = copy.ui.theatres;
   const { showing, analysis } = props;
   return (
-    <div data-preview-row class="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-border bg-surface px-4 py-3 hover:border-primary">
+    <div data-preview-row class={cx("flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3", linkTileClass)}>
       <a href={props.href} class="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1">
-        <span class="font-display text-2xl tracking-wide">{showing.time}</span>
+        <span class={displayClass}>{showing.time}</span>
         <Badge>{showing.formatGroup}</Badge>
         {showing.language ? <span class="text-sm text-muted">{showing.language}</span> : null}
         <span class="text-sm text-muted">{showing.room}</span>
