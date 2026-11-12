@@ -189,6 +189,7 @@ Protected like the rest of the UI. How they work is in [tickets.md](tickets.md).
 | `POST /tickets` | Saves the tickets of the form, up to 20; a ticket with an entry code already saved is skipped |
 | `GET /tickets/<id>/card.png` | The card, in the language of the page, never cached |
 | `GET /tickets/<id>/wallet` | Creates the pass at Google and redirects to the save link; `404` without the credentials, back to `/tickets?wallet=<reason>` when Google refuses |
+| `GET /tickets/<id>/wallet/link` | The same link as JSON (`{ "url": … }`), for the copy and share buttons; `502` with `{ "problem": … }` when Google refuses |
 | `POST /tickets/<id>/telegram` | Sends the card to the main chat |
 | `POST /tickets/<id>/delete` | Deletes the ticket |
 
