@@ -3,7 +3,7 @@ import { issueLines, type TelegramSource } from "../../config.js";
 import { isLocale, LOCALE_NAMES, LOCALES } from "../../i18n/index.js";
 import type { Config, Settings } from "../../model.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { Button, Card, cx, Field, fileInputClass, inputClass, LinkButton, Notice, PageHeader, textareaClass, textLinkClass, type Tone } from "../components.js";
+import { Button, Card, cx, Field, FilePicker, inputClass, LinkButton, Notice, PageHeader, textareaClass, textLinkClass, type Tone } from "../components.js";
 import { copy, localized } from "../i18n.js";
 import {
   absoluteSummary,
@@ -123,14 +123,12 @@ function keyOf(text: string): { clientEmail: string; privateKey: string } {
 }
 
 function walletOf(issuerId: string, change: WalletChange, base: Settings["wallet"]): Settings["wallet"] {
-  if (change.clear) return null;
   if (change.key !== "") return { issuerId, ...keyOf(change.key) };
   return base === null ? null : { ...base, issuerId };
 }
 
 interface WalletChange {
   key: string;
-  clear: boolean;
 }
 
 function settingsOfValues(values: SettingsValues, tokenChange: { token: string; clear: boolean }, base: Settings, walletChange: WalletChange): Settings {
@@ -326,9 +324,11 @@ function SettingsPage(props: {
                     class={textareaClass}
                   ></textarea>
                 </Field>
-                <div class="mt-3">
-                  <CheckBox name="walletClear" value="1" label={ui.fields.walletClear} checked={false} />
-                </div>
+                {props.walletEmail === null ? null : (
+                  <div class="mt-3">
+                    <Button label={ui.fields.walletClear} icon="trash2" variant="danger" formaction="/settings/wallet/delete" confirm={copy.ui.common.actions.confirmDelete} />
+                  </div>
+                )}
               </Wide>
             </FormGrid>
           </Card>
@@ -363,7 +363,7 @@ function SettingsPage(props: {
               <label for="file" class="text-sm font-semibold">
                 {ui.backup.file}
               </label>
-              <input id="file" name="file" type="file" accept="application/json,.json" class={fileInputClass} />
+              <FilePicker id="file" name="file" accept="application/json,.json" choose={copy.ui.common.file.choose} none={copy.ui.common.file.none} />
             </div>
             <div>
               <Button label={ui.actions.import} icon="upload" variant="outline" />
@@ -419,15 +419,23 @@ export function registerSettingsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
           ? { tone: "danger", text: ui.test.fail }
           : c.req.query("saved") === "1"
             ? { tone: "success", text: ui.saved }
-            : null;
+            : c.req.query("wallet") === "deleted"
+              ? { tone: "success", text: ui.walletDeleted }
+              : null;
     return page(c, { notice });
+  });
+
+  app.post("/settings/wallet/delete", async (c) => {
+    const config = watcher.config();
+    await watcher.saveConfig({ ...config, settings: { ...config.settings, wallet: null } });
+    return c.redirect("/settings?wallet=deleted", 303);
   });
 
   app.post("/settings", async (c) => {
     const config = watcher.config();
     const body = await c.req.parseBody({ all: true });
     const values = valuesOfBody(body);
-    const walletChange = { key: bodyText(body, "walletKey"), clear: bodyValues(body, "walletClear").length > 0 };
+    const walletChange = { key: bodyText(body, "walletKey") };
     const settings = settingsOfValues(values, { token: bodyText(body, "token"), clear: bodyValues(body, "clearToken").length > 0 }, config.settings, walletChange);
     const result = await watcher.saveConfig({ ...config, settings });
     if (result.ok) return c.redirect("/settings?saved=1", 303);
