@@ -105,6 +105,7 @@ Calls to 18Tickets go through the client in `src/circuits/t18.ts`: `https` only,
 | `*.18tickets.it` | 18Tickets: cinema and group pages, seat maps and seats | `src/circuits/t18.ts` |
 | `api.github.com` | Latest Release (`/repos/PilaScat/cinema-watch/releases/latest`), once a day, to announce a new version | `src/http.ts` |
 | `api.telegram.org` | Sending messages and reading commands, see [telegram.md](telegram.md) | `src/telegram.ts` |
+| `oauth2.googleapis.com`, `walletobjects.googleapis.com` | Google Wallet: access token and creation of the pass, only at the click on Add to Google Wallet, see [tickets.md](tickets.md) | `src/tickets/wallet.ts` |
 
 The browser of whoever uses the UI loads the posters from `storage.googleapis.com`, `secure.webtic.it`, `www.thespacecinema.it` and `cdn.18tickets.net`, allowed by the CSP; it is the browser that does this, not the app. The "Buy" links lead to `ucicinemas.it`, to `secure.webtic.it`, to `www.thespacecinema.it` or to the 18Tickets domain of the cinema, and the app does not open them.
 
@@ -175,6 +176,21 @@ The totals `activeHunts`, `showings` and `withSeats` count only the active hunts
 ### `GET /showings/<chiave>/preview`
 
 HTML fragment with the compact seat map of a showing in both themes, the free seats, the prices by level and the best seats: it is what the UI loads when the seat count in a list is pressed. Optional parameters `theatre` (slug of the cinema) and `hunt` (to use the zone of a hunt). It answers `404` for a malformed key or slug and `502` if the seat map cannot be read. Protected like the rest of the UI.
+
+### Tickets
+
+Protected like the rest of the UI. How they work is in [tickets.md](tickets.md).
+
+| Route | What it does |
+|---|---|
+| `GET /tickets` | The saved tickets with their cards, and the upload form |
+| `POST /tickets/read` | Reads the PDF in the `pdf` field (multipart, up to 10 MB: it is the only route with this limit, the others stop at 1 MiB) and answers with the fields to check; nothing is saved |
+| `GET /tickets/new` | The same fields, empty |
+| `POST /tickets` | Saves the tickets of the form, up to 20; a ticket with an entry code already saved is skipped |
+| `GET /tickets/<id>/card.png` | The card, in the language of the page, never cached |
+| `GET /tickets/<id>/wallet` | Creates the pass at Google and redirects to the save link; `404` without the credentials, back to `/tickets?wallet=<reason>` when Google refuses |
+| `POST /tickets/<id>/telegram` | Sends the card to the main chat |
+| `POST /tickets/<id>/delete` | Deletes the ticket |
 
 ### `POST /language`
 

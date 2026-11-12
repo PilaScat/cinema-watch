@@ -30,6 +30,7 @@
 - **Good zone**: the rows and seats that suit, relative to the hall or fixed by clicking on the seat map, with the number of seats together required.
 - **Buttons in the message**: Buy, Open hall, Refresh now, Mute for 24 h and Bought, with Resume and Restore to go back; `/refresh` rereads all the hunts.
 - **Cinemas**: UCI Cinemas, the 35 The Space Cinema, about 300 cinemas that sell with Webtic (Notorious, Cinelandia, Movie Planet and many independents) and the 18Tickets cinemas, sortable by distance from home; a missing 18Tickets cinema is added in Settings.
+- **Tickets**: from the PDF of the order, a card with the entry code for each ticket, to save in Google Wallet, download, share or send to Telegram ([how](docs/tickets.md)).
 - **Web UI**: hunts, programme, showing page with the live seat map and the trend of the seats, search for a film even with a typo; it installs as an app behind HTTPS.
 
 <p align="center">
@@ -150,6 +151,7 @@ Settings shows when the token or the chat come from the environment.
 | [docs/MEMORY.md](docs/MEMORY.md) | Decisions and pitfalls of the project. |
 | [docs/api.md](docs/api.md) | UCI and Webtic APIs used, APIs exposed by the app. |
 | [docs/telegram.md](docs/telegram.md) | Bot, chat, alerts, buttons and sending limits. |
+| [docs/tickets.md](docs/tickets.md) | Tickets from the PDF of the order, cards and Google Wallet. |
 | [docs/homepage.md](docs/homepage.md) | Widget for gethomepage. |
 | [docs/operations.md](docs/operations.md) | Deploy, updates, backup, release and smoke test. |
 | [docs/UI-COPY.md](docs/UI-COPY.md) | Rules for the visible texts. |
