@@ -151,15 +151,6 @@ export function HallPair(props: { dark: string; light: string }) {
   );
 }
 
-export function Stat(props: { label: string; value: string | number }) {
-  return (
-    <div class="rounded-lg bg-surface-2 px-3 py-2">
-      <dt class="text-xs text-muted">{props.label}</dt>
-      <dd class="font-display text-3xl tracking-wide">{props.value}</dd>
-    </div>
-  );
-}
-
 export function TrendSection(props: { points: HistoryPoint[] }) {
   const ui = copy.ui.performance;
   if (props.points.length < 2) {

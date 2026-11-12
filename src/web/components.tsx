@@ -191,6 +191,28 @@ export function Field(props: { label: string; for: string; hint?: string; error?
   );
 }
 
+export function Stat(props: { label: string; value?: string | number; tone?: "gold"; class?: string; children?: Child }) {
+  return (
+    <div class={cx("rounded-xl border border-border bg-surface px-4 py-3", props.class)}>
+      <dt class="text-xs font-semibold uppercase tracking-wide text-muted">{props.label}</dt>
+      {props.value === undefined ? null : <dd class={cx("font-display text-4xl leading-tight tracking-wide", props.tone === "gold" && "text-gold")}>{props.value}</dd>}
+      {props.children ? <dd class="mt-1.5 flex flex-wrap gap-1.5">{props.children}</dd> : null}
+    </div>
+  );
+}
+
+export function Chips(props: { items: string[]; tone?: Tone; class?: string }) {
+  return (
+    <ul class={cx("flex flex-wrap gap-1.5", props.class)}>
+      {props.items.map((item) => (
+        <li>
+          <Badge tone={props.tone}>{item}</Badge>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function Empty(props: { text: string; hint?: Child }) {
   return (
     <div class="rounded-xl border border-dashed border-border p-8 text-center">
