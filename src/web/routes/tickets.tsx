@@ -9,7 +9,7 @@ import { parseUciTickets } from "../../tickets/uci.js";
 import { normalizeTitle } from "../../uci.js";
 import { WALLET_HOSTS, WalletError, walletSaveUrl } from "../../tickets/wallet.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { ActionForm, Button, buttonClass, Card, cx, Empty, fileInputClass, Icon, inputClass, LinkButton, Notice, PageHeader, TextLink, type Tone } from "../components.js";
+import { ActionForm, Button, buttonClass, Card, cx, Empty, FilePicker, Icon, inputClass, LinkButton, Notice, PageHeader, TextLink, type Tone } from "../components.js";
 import { copy, currentLocale, formatDayOf, localized } from "../i18n.js";
 import { bodyValues, FormGrid, type FormBody } from "../parts/forms.js";
 
@@ -113,6 +113,18 @@ function TicketCard(props: { ticket: Ticket; walletReady: boolean }) {
             <span>{ui.actions.wallet}</span>
           </a>
         ) : null}
+        {props.walletReady ? (
+          <>
+            <button type="button" data-wallet-link={`/tickets/${ticket.id}/wallet/link`} data-mode="copy" data-done={ui.actions.walletCopied} data-failed={ui.actions.walletLinkFailed} class={buttonClass("outline")}>
+              <Icon name="copy" />
+              <span data-label>{ui.actions.walletCopy}</span>
+            </button>
+            <button type="button" hidden data-wallet-link={`/tickets/${ticket.id}/wallet/link`} data-mode="share" data-failed={ui.actions.walletLinkFailed} data-share-title={alt} class={buttonClass("outline")}>
+              <Icon name="share2" />
+              <span data-label>{ui.actions.walletShare}</span>
+            </button>
+          </>
+        ) : null}
         <a href={image} download={`ticket-${ticket.id}.png`} class={buttonClass("outline")}>
           <Icon name="download" />
           <span>{ui.actions.download}</span>
@@ -128,8 +140,9 @@ function TicketCard(props: { ticket: Ticket; walletReady: boolean }) {
           <Button label={ui.actions.delete} icon="trash2" variant="danger" confirm={copy.ui.common.actions.confirmDelete} />
         </ActionForm>
       </div>
+      {props.walletReady ? <input type="text" readonly hidden data-wallet-url aria-label={ui.actions.walletCopy} class={cx(inputClass, "mt-3")} /> : null}
       <p class="mt-3 text-xs text-muted">
-        {[ui.keptUntil(formatDayOf(showtimeOf(ticket) + TICKET_KEEP_DAYS * DAY_MS)), props.walletReady ? ui.walletNote : ""].filter((part) => part !== "").join(" ")}
+        {[ui.keptUntil(formatDayOf(showtimeOf(ticket) + TICKET_KEEP_DAYS * DAY_MS)), props.walletReady ? ui.walletNote : ""].filter((part) => part !== "").join(" · ")}
       </p>
     </Card>
   );
@@ -192,7 +205,7 @@ export function registerTicketsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
                   {ui.upload.file}
                 </label>
                 <div class="flex flex-wrap items-center gap-3">
-                  <input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf" required class={fileInputClass} />
+                  <FilePicker id="pdf" name="pdf" accept="application/pdf,.pdf" required choose={copy.ui.common.file.choose} none={copy.ui.common.file.none} />
                   <Button label={ui.upload.button} icon="upload" variant="primary" />
                   <TextLink href="/tickets/new" class="text-sm">
                     {ui.upload.byHand}
@@ -240,18 +253,30 @@ export function registerTicketsRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     return c.body(new Uint8Array(png), 200, { "content-type": "image/png", "cache-control": "private, no-store" });
   });
 
-  app.get("/tickets/:id/wallet", async (c) => {
+  async function walletLink(c: Context<AppEnv>): Promise<{ url: string } | { problem: WalletError["problem"] } | null> {
     const ticket = await ticketOf(c);
     const settings = watcher.config().settings;
-    if (ticket === null || settings.wallet === null) return c.notFound();
+    if (ticket === null || settings.wallet === null) return null;
     try {
       const pass = { ticket, language: settings.language, posterUrl: await posterOf(ticket.title) };
-      return c.redirect(await walletSaveUrl(pass, settings.wallet, now(), walletFetch), 303);
+      return { url: await walletSaveUrl(pass, settings.wallet, now(), walletFetch) };
     } catch (error) {
       if (!(error instanceof WalletError)) throw error;
       watcher.logger.warn("wallet", { problem: error.problem, status: error.status });
-      return c.redirect(`/tickets?wallet=${error.problem}`, 303);
+      return { problem: error.problem };
     }
+  }
+
+  app.get("/tickets/:id/wallet", async (c) => {
+    const link = await walletLink(c);
+    if (link === null) return c.notFound();
+    return c.redirect("url" in link ? link.url : `/tickets?wallet=${link.problem}`, 303);
+  });
+
+  app.get("/tickets/:id/wallet/link", async (c) => {
+    const link = await walletLink(c);
+    if (link === null) return c.notFound();
+    return c.json(link, "url" in link ? 200 : 502, { "cache-control": "private, no-store" });
   });
 
   app.post("/tickets/:id/telegram", async (c) => {

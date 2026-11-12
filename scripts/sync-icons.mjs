@@ -12,6 +12,7 @@ const names = [
   "check",
   "circle-alert",
   "clock",
+  "copy",
   "download",
   "external-link",
   "film",

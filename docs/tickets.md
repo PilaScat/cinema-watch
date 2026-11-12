@@ -60,7 +60,7 @@ Tried with a real Issuer account in demo mode on 12/11/2026: the pass was saved 
 2. It creates the event class and the ticket on Google's servers (`walletobjects.googleapis.com`), or updates them if they are already there.
 3. It answers with a redirect to `https://pay.google.com/gp/v/save/<token>`, where the token names the ticket only.
 
-The whole ticket does not travel in the link, because it would not fit: with the event and the ticket inside, the token of a real order was 2080 characters long, over the 1800 Google gives as safe. The link works for whoever opens it, so it is not shown: it is made at each click and opened in a new tab.
+The whole ticket does not travel in the link, because it would not fit: with the event and the ticket inside, the token of a real order was 2080 characters long, over the 1800 Google gives as safe. The link is made at each click and opened in a new tab. Copy the Wallet link and Share the Wallet link give the same link to pass on: it works for whoever opens it, so whoever receives it can save the ticket. Where the browser cannot write to the clipboard (a page opened over plain http from another device) the link appears in a field to copy by hand.
 
 Nothing is sent to Google before the click. At the click Google receives film, day and time, cinema and address, hall, row, seat, ticket type, price, order number, entry code and the address of the poster.
 
@@ -77,4 +77,4 @@ The status Google answered with is in the container log (event `wallet`).
 
 ### The key
 
-The private key is handled like the bot token: it stays out of Export without token, an import that does not carry it keeps the current one, and the log never writes it. If the key leaks, delete it in Google Cloud and create a new one; Delete the Google Wallet credentials in Settings removes it from the app.
+The private key is handled like the bot token: it stays out of Export without token, an import that does not carry it keeps the current one, and the log never writes it. If the key leaks, delete it in Google Cloud and create a new one; Delete the Google Wallet credentials in Settings removes it from the app at once.

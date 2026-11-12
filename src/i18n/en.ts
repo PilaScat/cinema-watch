@@ -13,6 +13,10 @@ export const en = {
         settings: "Settings",
         label: "Main navigation",
       },
+      file: {
+        choose: "Choose file",
+        none: "No file chosen",
+      },
       theme: {
         label: "Theme",
         light: "Light",
@@ -335,6 +339,10 @@ export const en = {
       },
       actions: {
         wallet: "Add to Google Wallet",
+        walletCopy: "Copy the Wallet link",
+        walletShare: "Share the Wallet link",
+        walletCopied: "Link copied",
+        walletLinkFailed: "Link not available",
         download: "Download image",
         share: "Share",
         telegram: "Send to Telegram",
@@ -439,6 +447,7 @@ export const en = {
         failed: "Import failed.",
         empty: "No configuration to import.",
       },
+      walletDeleted: "Google Wallet credentials deleted.",
       saved: "Settings saved.",
     },
   },

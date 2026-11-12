@@ -46,6 +46,9 @@ describe("tickets page", () => {
     expect(html).toContain("Nessun biglietto.");
     expect(html).toContain("Google Wallet non configurato.");
     expect(html).toContain('enctype="multipart/form-data"');
+    expect(html).toMatch(/<input id="pdf" name="pdf" type="file"[^>]*data-file-input/);
+    expect(html).toMatch(/<label for="pdf"[^>]*>.*?Scegli file<\/label>/);
+    expect(html).toContain('data-empty="Nessun file scelto"');
   });
 
   it("reads the PDF of an order into fields to check, saves them and shows a card for each ticket", async () => {
@@ -179,13 +182,19 @@ describe("Google Wallet from the tickets page", () => {
 
     const page = await (await instance.request("/tickets")).text();
     const opened = await instance.request(`/tickets/${ticket?.id}/wallet`);
+    const link = await instance.request(`/tickets/${ticket?.id}/wallet/link`);
+    const answer = (await link.json()) as { url?: string };
 
     expect(page).toContain(`href="/tickets/${ticket?.id}/wallet" target="_blank" rel="noopener noreferrer"`);
     expect(page).toContain("Il link di Google Wallet vale per chiunque lo apra.");
     expect(page).not.toContain("Google Wallet non configurato.");
+    expect(page).toContain(`data-wallet-link="/tickets/${ticket?.id}/wallet/link" data-mode="copy" data-done="Link copiato"`);
+    expect(page).toContain('data-mode="share"');
+    expect(link.headers.get("cache-control")).toBe("private, no-store");
+    expect(answer.url?.startsWith(WALLET_SAVE_URL)).toBe(true);
     expect(opened.status).toBe(303);
     expect(opened.headers.get("location")?.startsWith(WALLET_SAVE_URL)).toBe(true);
-    expect(calls.map((url) => new URL(url).hostname)).toEqual(["oauth2.googleapis.com", "walletobjects.googleapis.com", "walletobjects.googleapis.com"]);
+    expect(calls.slice(0, 3).map((url) => new URL(url).hostname)).toEqual(["oauth2.googleapis.com", "walletobjects.googleapis.com", "walletobjects.googleapis.com"]);
     expect(bodies[1]).toMatch(/"heroImage":\{"sourceUri":\{"uri":"https:\/\/[^"]+"\}\}/);
   });
 
@@ -197,6 +206,10 @@ describe("Google Wallet from the tickets page", () => {
     const refused = await configured.instance.request(`/tickets/${ticket?.id}/wallet`);
     const explained = await (await configured.instance.request("/tickets?wallet=auth")).text();
 
+    const asLink = await configured.instance.request(`/tickets/${ticket?.id}/wallet/link`);
+
+    expect(asLink.status).toBe(502);
+    expect(await asLink.json()).toEqual({ problem: "auth" });
     expect(refused.headers.get("location")).toBe("/tickets?wallet=auth");
     expect(explained).toContain("Google Wallet: Google ha rifiutato il service account.");
   });
@@ -206,6 +219,7 @@ describe("Google Wallet from the tickets page", () => {
     const [ticket] = await watcher.tickets.add([draft]);
 
     expect((await instance.request(`/tickets/${ticket?.id}/wallet`)).status).toBe(404);
+    expect((await instance.request(`/tickets/${ticket?.id}/wallet/link`)).status).toBe(404);
     expect(await (await instance.request("/tickets")).text()).not.toContain(`/tickets/${ticket?.id}/wallet`);
   });
 });
@@ -234,14 +248,19 @@ describe("Google Wallet credentials", () => {
 
     const badKey = await instance.request("/settings", post(settingsForm({ walletIssuerId: wallet.issuerId, walletKey: "-----BEGIN PRIVATE KEY-----" })));
     const badIssuer = await instance.request("/settings", post(settingsForm({ walletIssuerId: "abc" })));
-    const cleared = await instance.request("/settings", post(settingsForm({ walletIssuerId: wallet.issuerId, walletClear: "1" })));
+    const offered = await (await instance.request("/settings")).text();
+    const cleared = await instance.request("/settings/wallet/delete", post(settingsForm({ walletIssuerId: wallet.issuerId })));
+    const after = await (await instance.request("/settings?wallet=deleted")).text();
 
     expect(badKey.status).toBe(400);
     expect(await badKey.text()).toContain("email del service account");
     expect(badIssuer.status).toBe(400);
     expect(await badIssuer.text()).toContain("solo cifre");
-    expect(cleared.status).toBe(303);
+    expect(offered).toContain('formaction="/settings/wallet/delete"');
+    expect(cleared.headers.get("location")).toBe("/settings?wallet=deleted");
     expect(watcher.config().settings.wallet).toBeNull();
+    expect(after).toContain("Credenziali di Google Wallet eliminate.");
+    expect(after).not.toContain('formaction="/settings/wallet/delete"');
   });
 
   it("stay out of an export without secrets, survive an import that does not carry them and are missing in an old config", async () => {

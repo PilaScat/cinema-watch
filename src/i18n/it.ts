@@ -15,6 +15,10 @@ export const it: Copy = {
         settings: "Impostazioni",
         label: "Navigazione principale",
       },
+      file: {
+        choose: "Scegli file",
+        none: "Nessun file scelto",
+      },
       theme: {
         label: "Tema",
         light: "Chiaro",
@@ -337,6 +341,10 @@ export const it: Copy = {
       },
       actions: {
         wallet: "Aggiungi a Google Wallet",
+        walletCopy: "Copia il link di Wallet",
+        walletShare: "Condividi il link di Wallet",
+        walletCopied: "Link copiato",
+        walletLinkFailed: "Link non disponibile",
         download: "Scarica immagine",
         share: "Condividi",
         telegram: "Invia su Telegram",
@@ -441,6 +449,7 @@ export const it: Copy = {
         failed: "Importazione non riuscita.",
         empty: "Nessuna configurazione da importare.",
       },
+      walletDeleted: "Credenziali di Google Wallet eliminate.",
       saved: "Impostazioni salvate.",
     },
   },
