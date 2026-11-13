@@ -4,6 +4,10 @@ Versions follow the `vYYYY.MM.N` format. Each section is written before its tag.
 
 ## v2026.11.2
 
+### New
+
+- **The programme of a single cinema is reread when its page opens**, and with the Refresh now button on the page, at most once every 30 seconds for each cinema. Before, it stayed as read for 10 minutes. If the reread fails the page keeps the programme it has.
+
 ### Fixes
 
 - **Buttons of a ticket in order.** The Google Wallet ones on one row, the ones of the image on the next, Delete apart on the right.

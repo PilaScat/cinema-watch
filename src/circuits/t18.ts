@@ -607,7 +607,7 @@ export function createT18Circuit(deps: T18CircuitDeps): Circuit {
         return days.map((day): DayResult => ({ day, error }));
       }
     },
-    programming: (theatreSlug) => load(theatreSlug, false),
+    programming: (theatreSlug, fresh) => load(theatreSlug, fresh),
     async seats(key, fresh) {
       const [theatreSlug, uuid] = parseT18Key(key);
       const info = await infoOf(key);
