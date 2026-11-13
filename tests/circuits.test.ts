@@ -80,8 +80,8 @@ describe("Webtic circuit", () => {
   }
 
   it("refuses the programming of a slug that is not Webtic or not known", async () => {
-    await expect(webtic(true).programming("uci-cinemas-verona")).rejects.toThrow("not a Webtic cinema");
-    await expect(webtic(false).programming("webtic-999")).rejects.toThrow("unknown cinema");
+    await expect(webtic(true).programming("uci-cinemas-verona", false)).rejects.toThrow("not a Webtic cinema");
+    await expect(webtic(false).programming("webtic-999", false)).rejects.toThrow("unknown cinema");
     expect(await webtic(true).programmingDays("uci-cinemas-verona", ["2026-12-15"], false)).toEqual([{ day: "2026-12-15", error: expect.any(ApiShapeError) as unknown }]);
   });
 

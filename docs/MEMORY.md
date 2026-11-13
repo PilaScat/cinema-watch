@@ -120,6 +120,7 @@ What you cannot tell from reading the code. The APIs are described in [api.md](a
 ## Performance
 
 - **Film page over 12 showings**: "Show all" lists them, but the seats are read only for the first 12, because every showing is a seat map request queued one at a time; the others have "Open seat map", which reads it on click (`GET /showings/<chiave>/preview`).
+- **Programme of a cinema**: the page of a cinema rereads it on opening and with Refresh now, at most once every 30 seconds for each cinema (`MANUAL_REFRESH_MS`); the other pages keep it for 10 minutes. The page waits for the reread (Filippo's choice, 12/11/2026): the request goes in the same per-host queue as the hunts, so it waits behind a round in progress. `fresh` also reaches the circuit, because 18Tickets keeps the home page of a cinema for one minute underneath. A failed reread leaves the programme already read.
 - **resvg on Windows is slow with text**: the Verona seat map is drawn in about 800 ms on
   Windows and in about 50 ms on Linux Alpine (measured on 16/10/2026). The cost is in the layout
   of the texts, not in the pixels or in loading the fonts. The 500 ms test holds only on Linux; on

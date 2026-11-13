@@ -177,6 +177,10 @@ The totals `activeHunts`, `showings` and `withSeats` count only the active hunts
 
 HTML fragment with the compact seat map of a showing in both themes, the free seats, the prices by level and the best seats: it is what the UI loads when the seat count in a list is pressed. Optional parameters `theatre` (slug of the cinema) and `hunt` (to use the zone of a hunt). It answers `404` for a malformed key or slug and `502` if the seat map cannot be read. Protected like the rest of the UI.
 
+### `POST /theatres/<slug>/refresh`
+
+Rereads the programme of one cinema and answers `303` to its page. `GET /theatres/<slug>` does the same reread when the page opens, except for a browser prefetch (`Sec-Purpose` or `Purpose` header with `prefetch`). Both reread at most once every 30 seconds for each cinema: within the interval, or when the circuit does not answer, the programme already read is used. The other pages keep the programme for 10 minutes. `404` for a malformed slug. Protected like the rest of the UI.
+
 ### Tickets
 
 Protected like the rest of the UI. How they work is in [tickets.md](tickets.md).

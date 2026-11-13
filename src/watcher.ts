@@ -136,7 +136,7 @@ export interface VenueStatus {
 
 export interface WatcherServices {
   theatres(): Promise<Theatre[]>;
-  programming(theatreSlug: string): Promise<Map<IsoDay, Showing[]>>;
+  programming(theatreSlug: string, options?: { fresh?: boolean }): Promise<Map<IsoDay, Showing[]>>;
   movieTheatres(movieSlug: string): Promise<MovieTheatre[]>;
   movies(): Promise<CatalogMovie[]>;
   hall(showingKey: string, huntId?: string, theatreSlug?: string): Promise<HallView>;
@@ -310,6 +310,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   let t18RetryAt = 0;
   const theatreList = createTtlCache<Theatre[]>({ ttlMs: PERFORMANCE_TTL_MS, clock });
   const fullProgramming = createTtlCache<Map<IsoDay, Showing[]>>({ ttlMs: PROGRAMMING_TTL_MS, maxEntries: 3, clock });
+  const programmingReadAt = new Map<string, number>();
   const catalog = createTtlCache<CatalogMovie[]>({ ttlMs: CATALOG_TTL_MS, clock });
   const history = createHistory(store);
   const eventLog = createEventLog(store);
@@ -416,8 +417,30 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     return isDirectLocal(localId) ? "webtic" : "uci";
   }
 
-  function programmingOf(theatreSlug: string): Promise<Map<IsoDay, Showing[]>> {
-    return fullProgramming.getOrLoad(theatreSlug, () => circuits.forSlug(theatreSlug).programming(theatreSlug));
+  function rereadDue(theatreSlug: string): boolean {
+    const last = programmingReadAt.get(theatreSlug);
+    return last === undefined || now() - last >= MANUAL_REFRESH_MS;
+  }
+
+  function markProgrammingRead(theatreSlug: string): void {
+    for (const [slug, at] of programmingReadAt) if (now() - at >= MANUAL_REFRESH_MS) programmingReadAt.delete(slug);
+    programmingReadAt.set(theatreSlug, now());
+  }
+
+  async function programmingOf(theatreSlug: string, options: { fresh?: boolean } = {}): Promise<Map<IsoDay, Showing[]>> {
+    const fresh = options.fresh === true && rereadDue(theatreSlug);
+    const load = (): Promise<Map<IsoDay, Showing[]>> => {
+      markProgrammingRead(theatreSlug);
+      return circuits.forSlug(theatreSlug).programming(theatreSlug, fresh);
+    };
+    if (!fresh) return fullProgramming.getOrLoad(theatreSlug, load);
+    const known = fullProgramming.get(theatreSlug);
+    try {
+      return await fullProgramming.getOrLoad(theatreSlug, load, { bypass: true });
+    } catch (error) {
+      if (known === undefined) throw error;
+      return known;
+    }
   }
 
   async function movieTheatres(movieSlug: string): Promise<MovieTheatre[]> {

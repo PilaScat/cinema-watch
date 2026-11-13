@@ -10,7 +10,7 @@ import { localIdOfSlug } from "../../webtic-direct.js";
 import { normalizeTitle } from "../../uci.js";
 import { searchMovies } from "../../movie-search.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
-import { Badge, buttonClass, Card, Chips, Empty, Field, FilterForm, inputClass, LinkButton, Notice, PageHeader, Stat, TextLink } from "../components.js";
+import { ActionForm, Badge, Button, buttonClass, Card, Chips, Empty, Field, FilterForm, inputClass, LinkButton, Notice, PageHeader, Stat, TextLink } from "../components.js";
 import { DayTabs, HallPair, HallPreview, MovieCard, ShowingRow, TheatreGroup, TrendSection } from "../parts/browse.js";
 import { backHref, fromOf, hereOf, withFrom } from "../parts/navigation.js";
 import { movieTitleFor } from "../parts/titles.js";
@@ -20,6 +20,10 @@ import { copy, formatDay, formatEur, formatKm, formatTier, localized } from "../
 const NUMERIC = /^\d+$/;
 const MAX_SHOWINGS = 12;
 const MAX_QUERY = 100;
+
+function isPrefetch(c: Context<AppEnv>): boolean {
+  return [c.req.header("sec-purpose"), c.req.header("purpose")].some((value) => value !== undefined && value.toLowerCase().includes("prefetch"));
+}
 
 function validDay(value: string): boolean {
   return ISO_DAY.test(value) && !Number.isNaN(Date.parse(`${value}T12:00:00Z`));
@@ -33,9 +37,9 @@ async function loadTheatres(deps: AppDeps): Promise<Theatre[] | null> {
   }
 }
 
-async function loadProgramming(deps: AppDeps, slug: string): Promise<Map<IsoDay, Showing[]> | null> {
+async function loadProgramming(deps: AppDeps, slug: string, fresh = false): Promise<Map<IsoDay, Showing[]> | null> {
   try {
-    return await deps.watcher.services.programming(slug);
+    return await deps.watcher.services.programming(slug, { fresh });
   } catch {
     return null;
   }
@@ -173,7 +177,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const theatres = await loadTheatres(deps);
     const theatre = theatres?.find((item) => item.slug === slug);
     if (theatres !== null && !theatre) return c.notFound();
-    const programming = await loadProgramming(deps, slug);
+    const programming = await loadProgramming(deps, slug, !isPrefetch(c));
     const movies = new Map<string, { title: string; poster: string | null; formats: Set<string>; days: Set<IsoDay> }>();
     for (const [day, showings] of [...(programming?.entries() ?? [])].sort(([a], [b]) => a.localeCompare(b))) {
       for (const showing of showings) {
@@ -189,7 +193,18 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
       section: "theatres",
       body: (
         <>
-          <PageHeader title={name} description={theatresUi.programmingDescription} actions={<LinkButton href="/theatres" label={copy.ui.common.actions.back} icon="arrowLeft" variant="outline" />} />
+          <PageHeader
+            title={name}
+            description={theatresUi.programmingDescription}
+            actions={
+              <>
+                <LinkButton href="/theatres" label={copy.ui.common.actions.back} icon="arrowLeft" variant="outline" />
+                <ActionForm action={`/theatres/${slug}/refresh`}>
+                  <Button label={copy.ui.common.actions.refresh} icon="refreshCw" variant="outline" />
+                </ActionForm>
+              </>
+            }
+          />
           {programming === null ? <Notice tone="danger">{theatresUi.programmingError}</Notice> : null}
           {movies.size === 0 ? (
             <Empty text={theatresUi.emptyMovies} />
@@ -209,6 +224,13 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
         </>
       ),
     });
+  });
+
+  app.post("/theatres/:slug/refresh", async (c) => {
+    const slug = c.req.param("slug");
+    if (!SLUG.test(slug)) return c.notFound();
+    await loadProgramming(deps, slug, true);
+    return c.redirect(`/theatres/${slug}`, 303);
   });
 
   app.get("/theatres/:slug/movies/:movie", async (c) => {

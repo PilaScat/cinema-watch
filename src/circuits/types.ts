@@ -14,7 +14,7 @@ export interface Circuit {
   programmingSource: string;
   seatsSource: string;
   programmingDays(theatreSlug: string, days: IsoDay[], fresh: boolean): Promise<DayResult[]>;
-  programming(theatreSlug: string): Promise<Map<IsoDay, Showing[]>>;
+  programming(theatreSlug: string, fresh: boolean): Promise<Map<IsoDay, Showing[]>>;
   seats(showingKey: string, fresh: boolean): Promise<SeatView>;
   cartUrl(showingKey: string, performance: PerformanceInfo, movieSlug: string | undefined): string | null;
 }
