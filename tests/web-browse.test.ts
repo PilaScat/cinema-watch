@@ -280,7 +280,7 @@ describe("search", () => {
     const html = await page(instance, "/search?q=avenger");
 
     expect(html).toContain("Avengers: Doomsday");
-    expect(html).toContain("Avengers: Endgame Extra (Infinity Vision)");
+    expect(html).toContain("Avengers: Endgame Extra");
     expect(html).toContain('href="/search?q=avenger&amp;movie=avengers-doomsday"');
     expect(html).toContain("INFINITY VISION");
     expect(html).not.toContain("Cinema con");

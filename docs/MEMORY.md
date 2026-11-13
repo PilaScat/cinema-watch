@@ -49,6 +49,13 @@ What you cannot tell from reading the code. The APIs are described in [api.md](a
   "Use my position" button appears only over HTTPS.
 - **UCI login**: Cloudflare and captcha. The app does not log in and does not buy: it reads only public data.
 
+## Films merged in the search
+
+- **Closed list, no distance between titles** (`src/movie-groups.ts`): a film key is the title without a final parenthesis (unless it holds a number or a word like part, vol, live, remake), without a final ` - wording` segment, without a bare format at the end (`3d`, `4k`, `Atmos`, `Sala Imax`, `V.M.14`) and without a leading `Premiere -`, `Atmos -`, `Energia -`. Language and event words (`It`, `Talk`, `Evento`) count only in parentheses or after a dash: `Stop It` and `Pillow Talk` are films. A bare year is never removed (`Blade Runner 2049`); a year in parentheses splits the group when there are two different ones.
+- **The group has the slug of one of its versions** (the one equal to the plain title, else the shortest), so every old link works: `/search?movie=` takes the slug of any version. Nothing is saved: the groups are computed from the catalogue at each search.
+- **Checked on the real catalogue**: `tests/fixtures/catalog/` holds the 786 titles of 12/11/2026 (UCI, Webtic, 18Tickets, The Space) and the 67 merged groups, each checked by hand. A new rule must leave that list right and add its pair to `tests/movie-groups.test.ts`.
+- **UCI is asked for the cinemas of a film only for its own films**: a group can have 30 versions and each would be a request.
+
 ## Webtic cinemas
 
 - **Two paths for Webtic**: the UCI `LocalId`s are Webtic `LocalId`s, but the UCI proxy answers only for UCI venues. The other cinemas go through `secure.webtic.it` directly, with slug `webtic-<LocalId>`; the UCI cinemas stay on the proxy because it also gives the price. In the round they are sorted by slug, in the showing page by `LocalId`.

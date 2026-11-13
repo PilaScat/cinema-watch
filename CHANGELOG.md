@@ -6,6 +6,7 @@ Versions follow the `vYYYY.MM.N` format. Each section is written before its tag.
 
 ### New
 
+- **One result per film in the search.** The versions a cinema writes in the title (language, format, hall, age rating, guests, running time, year) are merged into one film, with all its cinemas; a cinema with more than one version lists them under its name. Different films are never merged: sequels, parts, remakes with another year. The hunts do not change.
 - **The programme of a single cinema is reread when its page opens**, and with the Refresh now button on the page, at most once every 30 seconds for each cinema. Before, it stayed as read for 10 minutes. If the reread fails the page keeps the programme it has.
 
 ### Fixes

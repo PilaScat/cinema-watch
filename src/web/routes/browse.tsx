@@ -9,6 +9,7 @@ import { byDistance } from "../../distance.js";
 import { localIdOfSlug } from "../../webtic-direct.js";
 import { normalizeTitle } from "../../uci.js";
 import { searchMovies } from "../../movie-search.js";
+import { groupCatalog, groupOfSlug, type MovieGroup, type MovieVariant } from "../../movie-groups.js";
 import { pageContext, renderPage, type AppDeps, type AppEnv } from "../app.js";
 import { ActionForm, Badge, Button, buttonClass, Card, Chips, Empty, Field, FilterForm, inputClass, LinkButton, Notice, PageHeader, Stat, TextLink } from "../components.js";
 import { DayTabs, HallPair, HallPreview, MovieCard, ShowingRow, TheatreGroup, TrendSection } from "../parts/browse.js";
@@ -153,10 +154,36 @@ async function nearestFirst(deps: AppDeps, items: Array<{ slug: string; name: st
 
 async function loadMovieTheatres(deps: AppDeps, movie: string): Promise<Array<{ slug: string; name: string }>> {
   try {
-    return (await deps.watcher.services.movieTheatres(movie)).map((item) => ({ slug: item.slug, name: item.name })).sort((a, b) => a.name.localeCompare(b.name, "it"));
+    return (await deps.watcher.services.movieTheatres(movie)).map((item) => ({ slug: item.slug, name: item.name }));
   } catch {
     return [];
   }
+}
+
+interface GroupTheatres {
+  theatres: Array<{ slug: string; name: string }>;
+  versions: Map<string, MovieVariant[]>;
+}
+
+async function loadGroupTheatres(deps: AppDeps, variants: MovieVariant[]): Promise<GroupTheatres> {
+  const lists = await Promise.all(variants.map((variant) => loadMovieTheatres(deps, variant.slug)));
+  const names = new Map<string, string>();
+  const versions = new Map<string, MovieVariant[]>();
+  lists.forEach((list, index) => {
+    for (const theatre of list) {
+      names.set(theatre.slug, theatre.name);
+      const known = versions.get(theatre.slug) ?? [];
+      const variant = variants[index];
+      if (variant && !known.some((item) => item.slug === variant.slug)) versions.set(theatre.slug, [...known, variant]);
+    }
+  });
+  const theatres = [...names.entries()].map(([slug, name]) => ({ slug, name })).sort((a, b) => a.name.localeCompare(b.name, "it"));
+  return { theatres, versions };
+}
+
+function groupsOfResults(groups: MovieGroup[], results: CatalogMovie[]): MovieGroup[] {
+  const bySlug = new Map(groups.flatMap((group) => group.variants.map((variant) => [variant.slug, group] as const)));
+  return [...new Set(results.flatMap((movie) => bySlug.get(movie.slug) ?? []))];
 }
 
 export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
@@ -298,12 +325,17 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const chosen = c.req.query("movie");
     if (chosen !== undefined && !SLUG.test(chosen)) return c.notFound();
     const catalog = query === "" && chosen === undefined ? [] : await loadCatalog(deps);
-    const results = catalog === null || query === "" ? [] : searchMovies(catalog, query);
+    const groups = groupCatalog(catalog ?? []);
+    const results = catalog === null || query === "" ? [] : groupsOfResults(groups, searchMovies(catalog, query));
     const [only] = results;
     const exactSlug = normalizeTitle(query).replaceAll(" ", "-");
-    const selected = chosen ?? (catalog === null && exactSlug !== "" ? exactSlug : results.length === 1 && only ? only.slug : undefined);
-    const selectedTitle = (catalog ?? []).find((movie) => movie.slug === selected)?.title ?? selected ?? "";
-    const theatres = selected === undefined ? [] : await nearestFirst(deps, await loadMovieTheatres(deps, selected));
+    const wanted = chosen ?? (catalog === null && exactSlug !== "" ? exactSlug : results.length === 1 && only ? only.slug : undefined);
+    const group = wanted === undefined ? null : groupOfSlug(groups, wanted);
+    const selected = group?.slug ?? wanted;
+    const selectedTitle = group?.title ?? selected ?? "";
+    const found = selected === undefined ? null : await loadGroupTheatres(deps, group?.variants ?? [{ slug: selected, title: selected }]);
+    const theatres = found === null ? [] : await nearestFirst(deps, found.theatres);
+    const versionsOf = (theatre: string): MovieVariant[] => found?.versions.get(theatre) ?? [];
     const showAll = c.req.query("all") === "1";
     const visible = showAll ? theatres : theatres.filter((item) => !item.far);
     const hidden = theatres.length - visible.length;
@@ -333,14 +365,31 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
                   <p class="text-sm text-muted">{searchUi.noTheatres}</p>
                 ) : (
                   <ul class="grid gap-2 sm:grid-cols-2">
-                    {visible.map((item) => (
-                      <li>
-                        <a href={withFrom(`/theatres/${item.slug}/movies/${selected}`, hereOf(c))} class="font-semibold hover:text-primary">
-                          {item.name}
-                        </a>
-                        {item.km === null ? null : <span class="text-sm text-muted">{` · ${formatKm(item.km)}`}</span>}
-                      </li>
-                    ))}
+                    {visible.map((item) => {
+                      const versions = versionsOf(item.slug);
+                      const [single] = versions;
+                      return (
+                        <li>
+                          {versions.length === 1 && single ? (
+                            <a href={withFrom(`/theatres/${item.slug}/movies/${single.slug}`, hereOf(c))} class="font-semibold hover:text-primary">
+                              {item.name}
+                            </a>
+                          ) : (
+                            <span class="font-semibold">{item.name}</span>
+                          )}
+                          {item.km === null ? null : <span class="text-sm text-muted">{` · ${formatKm(item.km)}`}</span>}
+                          {versions.length > 1 ? (
+                            <ul class="mt-1 flex flex-col gap-0.5 text-sm">
+                              {versions.map((version) => (
+                                <li>
+                                  <TextLink href={withFrom(`/theatres/${item.slug}/movies/${version.slug}`, hereOf(c))}>{version.title}</TextLink>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : null}
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
                 {hidden > 0 ? (

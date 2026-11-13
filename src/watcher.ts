@@ -444,7 +444,9 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   }
 
   async function movieTheatres(movieSlug: string): Promise<MovieTheatre[]> {
-    const fromUci = await uci.movieTheatres(movieSlug).catch((): MovieTheatre[] => []);
+    const uciMovies = catalog.get("all");
+    const inUci = uciMovies === undefined || uciMovies.some((movie) => movie.slug === movieSlug);
+    const fromUci = inUci ? await uci.movieTheatres(movieSlug).catch((): MovieTheatre[] => []) : [];
     const names = new Map(spaceTheatres().map((theatre) => [theatre.slug, theatre.name]));
     const fromSpace = (await spaceCatalog())
       .filter((movie) => movie.slug === movieSlug)
