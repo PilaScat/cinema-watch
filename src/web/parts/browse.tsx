@@ -86,7 +86,7 @@ export function DayTabs(props: { days: Array<{ day: string; label: string }>; se
   );
 }
 
-export function ShowingRow(props: { href: string; previewUrl: string; showing: Showing; analysis: SeatAnalysis | null | undefined }) {
+export function ShowingRow(props: { href: string; previewUrl: string; showing: Showing; analysis: SeatAnalysis | null | undefined; version?: string }) {
   const ui = copy.ui.theatres;
   const { showing, analysis } = props;
   return (
@@ -96,6 +96,7 @@ export function ShowingRow(props: { href: string; previewUrl: string; showing: S
         <Badge>{showing.formatGroup}</Badge>
         {showing.language ? <span class="text-sm text-muted">{showing.language}</span> : null}
         <span class="text-sm text-muted">{showing.room}</span>
+        {props.version ? <span class="text-sm text-muted">{props.version}</span> : null}
       </a>
       <span class="flex flex-wrap items-center gap-x-4 text-sm">
         {analysis ? (

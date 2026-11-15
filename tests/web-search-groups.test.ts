@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createHarness, type Harness } from "./support/harness.js";
-import { createWebApp, interceptFetch, UCI_HOST } from "./support/web.js";
+import { createWebApp, interceptFetch, rewriteJson, UCI_HOST } from "./support/web.js";
 
 const PLAIN = "avengers-endgame-extra";
 const VISION = "avengers-endgame-extra-infinity-vision";
@@ -38,7 +38,7 @@ describe("search with the versions of a film merged", () => {
     expect(html).toContain("INFINITY VISION");
   });
 
-  it("lists each cinema once, with its versions when it has more than one", async () => {
+  it("lists each cinema once, leading to the film in that cinema", async () => {
     const { instance } = await createWebApp(harness);
 
     const html = await (await instance.request(`/search?q=avenger&movie=${PLAIN}&all=1`)).text();
@@ -47,9 +47,7 @@ describe("search with the versions of a film merged", () => {
     expect(html.match(/UCI Cinemas Verona/g)).toHaveLength(1);
     expect(html).toContain(`href="/theatres/uci-cinemas-arezzo/movies/${PLAIN}?from=`);
     expect(html).toContain(`href="/theatres/uci-cinemas-verona/movies/${PLAIN}?from=`);
-    expect(html).toContain(`href="/theatres/uci-cinemas-verona/movies/${VISION}?from=`);
-    expect(html).toContain(">Avengers: Endgame Extra (Infinity Vision)</a>");
-    expect(html).not.toContain(`href="/theatres/uci-cinemas-arezzo/movies/${VISION}`);
+    expect(html).not.toContain(`/movies/${VISION}`);
   });
 
   it("takes the slug of any version and shows the whole film", async () => {
@@ -59,6 +57,30 @@ describe("search with the versions of a film merged", () => {
 
     expect(html).toContain("Cinema con Avengers: Endgame Extra");
     expect(html).toContain(`href="/theatres/uci-cinemas-arezzo/movies/${PLAIN}?from=`);
+  });
+
+  it("merges the versions on the page of a cinema and lists them all on the page of the film", async () => {
+    rewriteJson(
+      harness,
+      (url) => url.hostname === UCI_HOST && url.pathname === "/api/theatres/uci-cinemas-verona/programming",
+      (json) => {
+        const days = (json as { data: Array<Record<string, Array<{ slug: string; title: string }>>> }).data;
+        for (const film of days.flatMap((day) => day["2026-12-16"] ?? [])) if (film.slug === "avengers-doomsday") Object.assign(film, { slug: "avengers-doomsday-it", title: "Avengers: Doomsday (It)" });
+        return json;
+      },
+    );
+    const { instance } = await createWebApp(harness);
+
+    const theatre = await (await instance.request("/theatres/uci-cinemas-verona")).text();
+    const first = await (await instance.request("/theatres/uci-cinemas-verona/movies/avengers-doomsday?day=2026-12-16")).text();
+    const version = await (await instance.request("/theatres/uci-cinemas-verona/movies/avengers-doomsday-it")).text();
+
+    expect(theatre.match(/href="\/theatres\/uci-cinemas-verona\/movies\/avengers-doomsday[^"]*"/g)).toEqual(['href="/theatres/uci-cinemas-verona/movies/avengers-doomsday"']);
+    expect(first).toContain(">Avengers: Doomsday (It)</span>");
+    expect(first).toContain("movie=avengers-doomsday-it&amp;from=");
+    expect(first).toContain("?day=2026-12-15");
+    expect(version).toContain("?day=2026-12-16");
+    expect(version).toContain("movie=avengers-doomsday&amp;from=");
   });
 
   it("asks UCI only for the films of its own catalogue", async () => {

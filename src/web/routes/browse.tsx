@@ -73,9 +73,25 @@ function groupByRegion(theatres: Theatre[]): Array<[string, Theatre[]]> {
     .map(([region, items]) => [region, items.sort((a, b) => a.name.localeCompare(b.name, "it"))]);
 }
 
-function movieShowings(programming: Map<IsoDay, Showing[]>, movie: string): Array<[IsoDay, Showing[]]> {
+function programmeGroups(programming: Map<IsoDay, Showing[]>): MovieGroup[] {
+  const movies = new Map<string, CatalogMovie>();
+  for (const [day, showings] of [...programming.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+    for (const showing of showings) {
+      const known = movies.get(showing.movie.slug);
+      if (known) {
+        known.lastDay = day;
+        if (!known.formats.includes(showing.formatGroup)) known.formats.push(showing.formatGroup);
+      } else {
+        movies.set(showing.movie.slug, { ...showing.movie, firstDay: day, lastDay: day, formats: [showing.formatGroup] });
+      }
+    }
+  }
+  return groupCatalog([...movies.values()]);
+}
+
+function movieShowings(programming: Map<IsoDay, Showing[]>, movies: Set<string>): Array<[IsoDay, Showing[]]> {
   return [...programming.entries()]
-    .map(([day, showings]): [IsoDay, Showing[]] => [day, showings.filter((showing) => showing.movie.slug === movie)])
+    .map(([day, showings]): [IsoDay, Showing[]] => [day, showings.filter((showing) => movies.has(showing.movie.slug))])
     .filter(([, showings]) => showings.length > 0)
     .sort(([a], [b]) => a.localeCompare(b));
 }
@@ -205,15 +221,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const theatre = theatres?.find((item) => item.slug === slug);
     if (theatres !== null && !theatre) return c.notFound();
     const programming = await loadProgramming(deps, slug, !isPrefetch(c));
-    const movies = new Map<string, { title: string; poster: string | null; formats: Set<string>; days: Set<IsoDay> }>();
-    for (const [day, showings] of [...(programming?.entries() ?? [])].sort(([a], [b]) => a.localeCompare(b))) {
-      for (const showing of showings) {
-        const entry = movies.get(showing.movie.slug) ?? { title: showing.movie.title, poster: showing.movie.poster, formats: new Set<string>(), days: new Set<IsoDay>() };
-        entry.formats.add(showing.formatGroup);
-        entry.days.add(day);
-        movies.set(showing.movie.slug, entry);
-      }
-    }
+    const movies = programmeGroups(programming ?? new Map<IsoDay, Showing[]>()).map((group) => ({ group, days: movieShowings(programming ?? new Map<IsoDay, Showing[]>(), new Set(group.variants.map((variant) => variant.slug))).length }));
     const name = theatre?.name ?? slug;
     const read = programming === null ? null : deps.watcher.services.programmingRead(slug);
     return renderPage(c, deps, {
@@ -235,17 +243,17 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
           />
           {programming === null ? <Notice tone="danger">{theatresUi.programmingError}</Notice> : null}
           {read?.failed ? <Notice tone="gold">{theatresUi.refreshFailed(formatTime(read.readAt))}</Notice> : null}
-          {movies.size === 0 ? (
+          {movies.length === 0 ? (
             <Empty text={theatresUi.emptyMovies} />
           ) : (
             <div class="grid gap-3 md:grid-cols-2">
-              {[...movies.entries()].map(([movie, entry]) => (
+              {movies.map(({ group, days }) => (
                 <MovieCard
-                  href={`/theatres/${slug}/movies/${movie}`}
-                  title={entry.title}
-                  poster={entry.poster}
-                  formats={[...entry.formats]}
-                  detail={[theatresUi.days(entry.days.size), theatresUi.firstDay(formatDay([...entry.days][0] ?? ""))].join(" · ")}
+                  href={`/theatres/${slug}/movies/${group.slug}`}
+                  title={group.title}
+                  poster={group.poster}
+                  formats={group.formats}
+                  detail={[theatresUi.days(days), theatresUi.firstDay(formatDay(group.firstDay ?? ""))].join(" · ")}
                 />
               ))}
             </div>
@@ -271,13 +279,15 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const theatre = theatres?.find((item) => item.slug === slug);
     if (theatres !== null && !theatre) return c.notFound();
     const programming = await loadProgramming(deps, slug);
-    const days = programming ? movieShowings(programming, movie) : [];
+    const group = programming ? groupOfSlug(programmeGroups(programming), movie) : null;
+    const versions = new Set(group?.variants.map((variant) => variant.slug) ?? [movie]);
+    const days = programming ? movieShowings(programming, versions) : [];
     const selected = days.find(([day]) => day === dayParam) ?? days[0];
     const ordered = [...(selected?.[1] ?? [])].sort((a, b) => a.time.localeCompare(b.time) || a.room.localeCompare(b.room));
     const showAll = c.req.query("all") === "1";
     const shown = showAll ? ordered : ordered.slice(0, MAX_SHOWINGS);
     const analyses = await Promise.all(shown.slice(0, MAX_SHOWINGS).map(async (showing) => (await hallOf(deps, showing.key, undefined, showing.theatreSlug))?.analysis ?? null));
-    const title = days[0]?.[1][0]?.movie.title ?? movie;
+    const title = group?.title ?? movie;
     const huntQuery = queryString({ theatre: slug, movie });
     return renderPage(c, deps, {
       title,
@@ -301,9 +311,10 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
               <div class="grid gap-3">
                 {shown.map((showing, index) => (
                   <ShowingRow
-                    href={withFrom(`/showings/${showing.key}?${huntQuery}`, hereOf(c))}
+                    href={withFrom(`/showings/${showing.key}?${queryString({ theatre: slug, movie: showing.movie.slug })}`, hereOf(c))}
                     previewUrl={`/showings/${showing.key}/preview?${queryString({ theatre: slug })}`}
                     showing={showing}
+                    version={versions.size > 1 ? showing.movie.title : undefined}
                     analysis={index < MAX_SHOWINGS ? (analyses[index] ?? null) : undefined}
                   />
                 ))}
@@ -337,7 +348,6 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
     const selectedTitle = group?.title ?? selected ?? "";
     const found = selected === undefined ? null : await loadGroupTheatres(deps, group?.variants ?? [{ slug: selected, title: selected }]);
     const theatres = found === null ? [] : await nearestFirst(deps, found.theatres);
-    const versionsOf = (theatre: string): MovieVariant[] => found?.versions.get(theatre) ?? [];
     const showAll = c.req.query("all") === "1";
     const visible = showAll ? theatres : theatres.filter((item) => !item.far);
     const hidden = theatres.length - visible.length;
@@ -367,31 +377,14 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
                   <p class="text-sm text-muted">{searchUi.noTheatres}</p>
                 ) : (
                   <ul class="grid gap-2 sm:grid-cols-2">
-                    {visible.map((item) => {
-                      const versions = versionsOf(item.slug);
-                      const [single] = versions;
-                      return (
-                        <li>
-                          {versions.length === 1 && single ? (
-                            <a href={withFrom(`/theatres/${item.slug}/movies/${single.slug}`, hereOf(c))} class="font-semibold hover:text-primary">
-                              {item.name}
-                            </a>
-                          ) : (
-                            <span class="font-semibold">{item.name}</span>
-                          )}
-                          {item.km === null ? null : <span class="text-sm text-muted">{` · ${formatKm(item.km)}`}</span>}
-                          {versions.length > 1 ? (
-                            <ul class="mt-1 flex flex-col gap-0.5 text-sm">
-                              {versions.map((version) => (
-                                <li>
-                                  <TextLink href={withFrom(`/theatres/${item.slug}/movies/${version.slug}`, hereOf(c))}>{version.title}</TextLink>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : null}
-                        </li>
-                      );
-                    })}
+                    {visible.map((item) => (
+                      <li>
+                        <a href={withFrom(`/theatres/${item.slug}/movies/${found?.versions.get(item.slug)?.[0]?.slug ?? selected}`, hereOf(c))} class="font-semibold hover:text-primary">
+                          {item.name}
+                        </a>
+                        {item.km === null ? null : <span class="text-sm text-muted">{` · ${formatKm(item.km)}`}</span>}
+                      </li>
+                    ))}
                   </ul>
                 )}
                 {hidden > 0 ? (
