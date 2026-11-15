@@ -134,9 +134,15 @@ export interface VenueStatus {
   venues: number;
 }
 
+export interface ProgrammingRead {
+  readAt: number;
+  failed: boolean;
+}
+
 export interface WatcherServices {
   theatres(): Promise<Theatre[]>;
   programming(theatreSlug: string, options?: { fresh?: boolean }): Promise<Map<IsoDay, Showing[]>>;
+  programmingRead(theatreSlug: string): ProgrammingRead | null;
   movieTheatres(movieSlug: string): Promise<MovieTheatre[]>;
   movies(): Promise<CatalogMovie[]>;
   hall(showingKey: string, huntId?: string, theatreSlug?: string): Promise<HallView>;
@@ -311,6 +317,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
   const theatreList = createTtlCache<Theatre[]>({ ttlMs: PERFORMANCE_TTL_MS, clock });
   const fullProgramming = createTtlCache<Map<IsoDay, Showing[]>>({ ttlMs: PROGRAMMING_TTL_MS, maxEntries: 3, clock });
   const programmingReadAt = new Map<string, number>();
+  const programmingReads = createTtlCache<ProgrammingRead>({ ttlMs: PROGRAMMING_TTL_MS, maxEntries: 3, clock });
   const catalog = createTtlCache<CatalogMovie[]>({ ttlMs: CATALOG_TTL_MS, clock });
   const history = createHistory(store);
   const eventLog = createEventLog(store);
@@ -429,9 +436,11 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
 
   async function programmingOf(theatreSlug: string, options: { fresh?: boolean } = {}): Promise<Map<IsoDay, Showing[]>> {
     const fresh = options.fresh === true && rereadDue(theatreSlug);
-    const load = (): Promise<Map<IsoDay, Showing[]>> => {
+    const load = async (): Promise<Map<IsoDay, Showing[]>> => {
       markProgrammingRead(theatreSlug);
-      return circuits.forSlug(theatreSlug).programming(theatreSlug, fresh);
+      const programming = await circuits.forSlug(theatreSlug).programming(theatreSlug, fresh);
+      programmingReads.set(theatreSlug, { readAt: now(), failed: false });
+      return programming;
     };
     if (!fresh) return fullProgramming.getOrLoad(theatreSlug, load);
     const known = fullProgramming.get(theatreSlug);
@@ -439,6 +448,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
       return await fullProgramming.getOrLoad(theatreSlug, load, { bypass: true });
     } catch (error) {
       if (known === undefined) throw error;
+      programmingReads.set(theatreSlug, { readAt: programmingReads.get(theatreSlug)?.readAt ?? now(), failed: true });
       return known;
     }
   }
@@ -865,6 +875,7 @@ export async function createWatcher(options: WatcherOptions): Promise<Watcher> {
     services: {
       theatres,
       programming: programmingOf,
+      programmingRead: (theatreSlug: string) => programmingReads.get(theatreSlug) ?? null,
       movieTheatres,
       movies: async () => mergeCatalogs(await catalog.getOrLoad("all", () => uci.catalog()), [...currentVenues().flatMap((venue) => venue.movies), ...(await spaceCatalog()), ...(t18Venues?.venues ?? []).flatMap((venue) => venue.movies)]),
       hall: hallView,

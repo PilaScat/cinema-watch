@@ -225,6 +225,8 @@ export const it: Copy = {
       showFar: (count: number): string => `Mostra anche i lontani (${count})`,
       programmingDescription: "Film in programmazione.",
       programmingError: "Programmazione non disponibile.",
+      refreshedAt: (time: string): string => `Aggiornati alle ${time}.`,
+      refreshFailed: (time: string): string => `Aggiornamento non riuscito: questa è la programmazione delle ${time}.`,
       emptyMovies: "Nessun film in programmazione.",
       days: (count: number): string => (count === 1 ? "1 giorno" : `${count} giorni`),
       firstDay: (day: string): string => `dal ${day}`,

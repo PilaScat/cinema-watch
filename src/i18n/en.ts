@@ -223,6 +223,8 @@ export const en = {
       showFar: (count: number): string => `Show the far ones too (${count})`,
       programmingDescription: "Films showing.",
       programmingError: "Programme not available.",
+      refreshedAt: (time: string): string => `Refreshed at ${time}.`,
+      refreshFailed: (time: string): string => `Refresh failed: this is the programme of ${time}.`,
       emptyMovies: "No films showing.",
       days: (count: number): string => (count === 1 ? "1 day" : `${count} days`),
       firstDay: (day: string): string => `from ${day}`,

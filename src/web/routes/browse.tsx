@@ -16,7 +16,7 @@ import { DayTabs, HallPair, HallPreview, MovieCard, ShowingRow, TheatreGroup, Tr
 import { backHref, fromOf, hereOf, withFrom } from "../parts/navigation.js";
 import { movieTitleFor } from "../parts/titles.js";
 import { ISO_DAY, SHOWING_KEY, SLUG } from "../../keys.js";
-import { copy, formatDay, formatEur, formatKm, formatTier, localized } from "../i18n.js";
+import { copy, formatDay, formatEur, formatKm, formatTier, formatTime, localized } from "../i18n.js";
 
 const NUMERIC = /^\d+$/;
 const MAX_SHOWINGS = 12;
@@ -215,6 +215,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
       }
     }
     const name = theatre?.name ?? slug;
+    const read = programming === null ? null : deps.watcher.services.programmingRead(slug);
     return renderPage(c, deps, {
       title: name,
       section: "theatres",
@@ -222,7 +223,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
         <>
           <PageHeader
             title={name}
-            description={theatresUi.programmingDescription}
+            description={read === null || read.failed ? theatresUi.programmingDescription : `${theatresUi.programmingDescription} ${theatresUi.refreshedAt(formatTime(read.readAt))}`}
             actions={
               <>
                 <LinkButton href="/theatres" label={copy.ui.common.actions.back} icon="arrowLeft" variant="outline" />
@@ -233,6 +234,7 @@ export function registerBrowseRoutes(app: Hono<AppEnv>, deps: AppDeps): void {
             }
           />
           {programming === null ? <Notice tone="danger">{theatresUi.programmingError}</Notice> : null}
+          {read?.failed ? <Notice tone="gold">{theatresUi.refreshFailed(formatTime(read.readAt))}</Notice> : null}
           {movies.size === 0 ? (
             <Empty text={theatresUi.emptyMovies} />
           ) : (

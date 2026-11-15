@@ -50,6 +50,7 @@ describe("programme of a single cinema", () => {
 
     expect(html).toContain(`<form method="post" action="${VERONA}/refresh" class="inline">`);
     expect(html).toContain("Aggiorna ora");
+    expect(html).toContain("Film in programmazione. Aggiornati alle 11:00.");
     expect([tooSoon.status, tooSoon.headers.get("location"), afterTooSoon]).toEqual([303, VERONA, 1]);
     expect([pressed.status, pressed.headers.get("location"), programmeReads()]).toEqual([303, VERONA, 2]);
     expect((await instance.request("/theatres/Bad_Slug/refresh", post())).status).toBe(404);
@@ -65,6 +66,8 @@ describe("programme of a single cinema", () => {
 
     expect(html).toContain('href="/theatres/uci-cinemas-verona/movies/dune-parte-tre"');
     expect(html).not.toContain("Programmazione non disponibile");
+    expect(html).toContain("Aggiornamento non riuscito: questa è la programmazione delle 11:00.");
+    expect(html).not.toContain("Aggiornati alle");
   });
 
   it("goes past the one minute cache of the 18Tickets home page", async () => {

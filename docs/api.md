@@ -179,7 +179,7 @@ HTML fragment with the compact seat map of a showing in both themes, the free se
 
 ### `POST /theatres/<slug>/refresh`
 
-Rereads the programme of one cinema and answers `303` to its page. `GET /theatres/<slug>` does the same reread when the page opens, except for a browser prefetch (`Sec-Purpose` or `Purpose` header with `prefetch`). Both reread at most once every 30 seconds for each cinema: within the interval, or when the circuit does not answer, the programme already read is used. The other pages keep the programme for 10 minutes. `404` for a malformed slug. Protected like the rest of the UI.
+Rereads the programme of one cinema and answers `303` to its page. `GET /theatres/<slug>` does the same reread when the page opens, except for a browser prefetch (`Sec-Purpose` or `Purpose` header with `prefetch`). Both reread at most once every 30 seconds for each cinema: within the interval, or when the circuit does not answer, the programme already read is used; the page shows the time it was read, and a notice when the last reread failed. The other pages keep the programme for 10 minutes. `404` for a malformed slug. Protected like the rest of the UI.
 
 ### Tickets
 
