@@ -155,6 +155,8 @@ Settings shows when the token or the chat come from the environment.
 | [docs/homepage.md](docs/homepage.md) | Widget for gethomepage. |
 | [docs/operations.md](docs/operations.md) | Deploy, updates, backup, release and smoke test. |
 | [docs/UI-COPY.md](docs/UI-COPY.md) | Rules for the visible texts. |
+| [docs/foreign-circuits.md](docs/foreign-circuits.md) | Survey of the circuits outside Italy: what can be read without a login. |
+| [docs/italian-circuits.md](docs/italian-circuits.md) | Survey of the Italian ticketing platforms not covered. |
 | [docs/backlog.md](docs/backlog.md) | What is left to decide or to do in the next releases. |
 | [docs/best-practices.md](docs/best-practices.md) | Answers to the OpenSSF Best Practices questionnaire. |
 | [CHANGELOG.md](CHANGELOG.md) | Notes of each version. |

@@ -157,6 +157,8 @@ I documenti sono in inglese.
 | [docs/homepage.md](docs/homepage.md) | Widget per gethomepage. |
 | [docs/operations.md](docs/operations.md) | Deploy, aggiornamenti, backup, rilascio e smoke test. |
 | [docs/UI-COPY.md](docs/UI-COPY.md) | Regole per i testi visibili. |
+| [docs/foreign-circuits.md](docs/foreign-circuits.md) | Ricognizione dei circuiti fuori dall'Italia: cosa si legge senza login. |
+| [docs/italian-circuits.md](docs/italian-circuits.md) | Ricognizione delle piattaforme di biglietteria italiane non coperte. |
 | [docs/backlog.md](docs/backlog.md) | Cosa resta da decidere o da fare nei prossimi rilasci. |
 | [docs/best-practices.md](docs/best-practices.md) | Risposte al questionario OpenSSF Best Practices. |
 | [CHANGELOG.md](CHANGELOG.md) | Note di ogni versione. |
