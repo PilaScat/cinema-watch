@@ -11,6 +11,7 @@ Versions follow the `vYYYY.MM.N` format. Each section is written before its tag.
 
 ### Fixes
 
+- **18Tickets cinemas with no address on their home page** take it from the impressum page of the same site, so they get a city and a region and appear among the near cinemas of their region.
 - **Buttons of a ticket in order.** The Google Wallet ones on one row, the ones of the image on the next, Delete apart on the right.
 
 ### Security

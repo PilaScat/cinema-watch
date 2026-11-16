@@ -12,6 +12,7 @@ import {
   parseHome,
   parseSeatState,
   parseTheater,
+  parseImpressum,
   placeOf,
   programmingOf,
   saveT18Venues,
@@ -308,6 +309,38 @@ describe("weekly check", () => {
     expect(list.checkedHosts).toHaveLength(15);
     expect(list.checkedHosts).toContain("tibur.cdr.18tickets.it");
     expect(world.t18Calls).toContain("cdr.18tickets.it/select_cinema?mandatory=true");
+  });
+
+  it("takes the address of a cinema from the impressum page when the home page has none", async () => {
+    const { t18, world } = client();
+    const capitol = "capitol.filmclub.18tickets.it";
+    const massimo = "massimo.18tickets.it";
+    const lost = "lost.18tickets.it";
+    world.setT18Page(capitol, "/", "<title>Filmclub Cinema Capitol</title>");
+    world.setT18Page(capitol, "/impressum", textFixture("t18/impressum-filmclub.html"));
+    world.setT18Page(massimo, "/", "<title>Cinema Massimo</title>");
+    world.setT18Page(massimo, "/impressum", textFixture("t18/impressum-filmclub.html"));
+    world.setT18Page(lost, "/", "<title>Lost</title>");
+    world.setT18Page(lost, "/impressum", 503);
+
+    const list = await buildT18Venues(t18, { hosts: [ANDROMEDA, capitol, massimo, lost], previous: null, now: () => 7 });
+
+    expect(list.venues.map((venue) => [venue.theatre.name, venue.theatre.city, venue.theatre.province, venue.theatre.region])).toEqual([
+      ["Andromeda Roma", "Roma", "RM", "Lazio"],
+      ["Filmclub Cinema Capitol", "Bolzano", null, "Trentino Alto Adige"],
+      ["Cinema Massimo", "", null, null],
+      ["Lost", "", null, null],
+    ]);
+    expect(world.t18Calls).not.toContain(`${ANDROMEDA}/impressum`);
+    expect(world.t18Calls.filter((call) => call.endsWith("/impressum"))).toEqual([`${capitol}/impressum`, `${massimo}/impressum`, `${lost}/impressum`]);
+  });
+
+  it("reads the cinemas of an impressum page, without the company that runs them", () => {
+    const entries = parseImpressum(textFixture("t18/impressum-filmclub.html"));
+
+    expect(entries).toHaveLength(8);
+    expect(entries.find((entry) => entry.name === "Filmclub Cinema Capitol")?.address).toBe("VIA DOTT. JOSEF STREITER, 8/D, 39100 Bolzano");
+    expect(placeOf("Viale Francesco Lo Re, 3, 73100 Lecce")).toEqual({ city: "Lecce", province: null, region: "Puglia" });
   });
 
   it("keeps a cinema of the previous list that does not answer and refuses an empty list", async () => {

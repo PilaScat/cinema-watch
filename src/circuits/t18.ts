@@ -6,6 +6,7 @@ import { readLimitedText, type GuardedFetch } from "../http.js";
 import { regionOfPostalCode, regionOfProvince } from "../regions.js";
 import type { createStore } from "../store.js";
 import type { HallStore } from "../webtic.js";
+import { normalizeTitle } from "../uci.js";
 import { parseTitle } from "../webtic-direct.js";
 import type { CatalogMovie, Hall, IsoDay, Occupancy, PerformanceInfo, Seat, Showing, TakenStatus, Theatre } from "../types.js";
 import type { Circuit, DayResult } from "./types.js";
@@ -23,6 +24,7 @@ const VENUE_CHECK_MS = 7 * 24 * 60 * 60 * 1000;
 const HALL_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const PAGE_TIMEOUT_MS = 20_000;
 const MAX_CHECKED_HOSTS = 300;
+const IMPRESSUM_PATH = "/impressum";
 const DAY_HEADER = /(\d{2})\/(\d{2})\/(\d{4})/;
 const DURATION = /\s*\((\d{1,2})H(\d{2})'\)\s*/i;
 const ORIGINAL_MARK = /[\s-]*\bV\.\s?O\.(?:\s?S\.)?(?=\s|$|\()/i;
@@ -194,11 +196,17 @@ export function parseHome(html: string, host: string): T18Home {
   return { title, places, address: address === undefined ? null : decodeEntities(address).trim(), films, cinemaHosts };
 }
 
+export function parseImpressum(html: string): Array<{ name: string; address: string }> {
+  return [...html.matchAll(/<p class='lead'>[^<]*<\/p>\s*<p>\s*([^<]+?)\s*<\/p>\s*<p>\s*([^<]+?)\s*<\/p>/g)]
+    .map((match) => ({ name: decodeEntities(match[1] as string).trim(), address: decodeEntities(match[2] as string).trim() }))
+    .filter((entry) => /\b\d{5}\b/.test(entry.address));
+}
+
 export function placeOf(address: string | null): { city: string; province: string | null; region: string | null } {
   const parts = (address ?? "").split(",").map((part) => part.trim()).filter(Boolean);
   const last = parts[parts.length - 1] ?? "";
   const province = /^[A-Z]{2}$/.test(last) ? last : null;
-  const city = province !== null ? (parts[parts.length - 2] ?? "") : "";
+  const city = province !== null ? (parts[parts.length - 2] ?? "") : (/\b\d{5}\s+([^,]+)$/.exec(last)?.[1]?.trim() ?? "");
   const postalCode = /\b(\d{5})\b/.exec(address ?? "")?.[1];
   const region = (province !== null ? regionOfProvince(province) : null) ?? (postalCode === undefined ? null : regionOfPostalCode(postalCode));
   return { city, province, region };
@@ -425,8 +433,8 @@ const venueListSchema = z.object({
   ),
 });
 
-export function venueOf(host: string, home: T18Home): T18Venue {
-  const place = placeOf(home.address);
+export function venueOf(host: string, home: T18Home, fallbackAddress: string | null = null): T18Venue {
+  const place = placeOf(home.address ?? fallbackAddress);
   const name = home.places.length === 1 ? (home.places[0] as string) : home.title || host;
   return {
     host,
@@ -442,6 +450,17 @@ function isTransient(error: unknown): boolean {
 
 function isGroup(home: T18Home): boolean {
   return home.cinemaHosts.length >= 2 || home.places.length > 1;
+}
+
+async function impressumAddress(client: T18Client, host: string, name: string): Promise<string | null> {
+  try {
+    const page = await client.page(host, IMPRESSUM_PATH);
+    if (page.kind !== "page") return null;
+    const wanted = normalizeTitle(name);
+    return parseImpressum(page.html).find((entry) => normalizeTitle(entry.name) === wanted)?.address ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export interface T18CheckOptions {
@@ -482,7 +501,8 @@ export async function buildT18Venues(client: T18Client, options: T18CheckOptions
         enqueue(home.cinemaHosts);
         continue;
       }
-      const venue = venueOf(host, home);
+      const located = venueOf(host, home);
+      const venue = located.theatre.region === null ? venueOf(host, home, await impressumAddress(client, host, located.theatre.name)) : located;
       venues.push(venue);
       options.onVenue?.(venue);
     } catch (error) {
