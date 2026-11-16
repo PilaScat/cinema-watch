@@ -385,6 +385,48 @@ describe("weekly check", () => {
     expect(world.t18Calls.filter((call) => call === `${ANDROMEDA}/`)).toHaveLength(3);
   });
 
+  describe("a host that fails once", () => {
+    async function checkWithOneFailure(failure: () => Promise<Response>): Promise<{ found: string[]; attempts: number }> {
+      const world = createFakeWorld();
+      let attempts = 0;
+      const pacer = createPacer({ intervalMs: 0, cooldownMs: 0, now: () => 0, sleep: () => Promise.resolve() });
+      const flaky = createT18Client({
+        pacer,
+        userAgent: "test",
+        fetch: (url, init) => {
+          if (new URL(url).hostname !== ANDROMEDA) return world.fetch(url, init);
+          attempts += 1;
+          return attempts === 1 ? failure() : world.fetch(url, init);
+        },
+      });
+      const found: string[] = [];
+      await buildT18Venues(flaky, { hosts: [ANDROMEDA], previous: null, now: () => 1, onVenue: (venue) => found.push(venue.host) }).catch(() => undefined);
+      return { found, attempts };
+    }
+
+    const answer = (status: number) => () => Promise.resolve(new Response("", { status }));
+    const failure = (error: Error) => () => Promise.reject(error);
+
+    it.each([
+      ["429", answer(429)],
+      ["500", answer(500)],
+      ["503", answer(503)],
+      ["a timeout", failure(new HttpError("timeout", ANDROMEDA, "timeout"))],
+      ["a network error", failure(new HttpError("network", ANDROMEDA, "network"))],
+      ["a fetch that throws", failure(new TypeError("broken"))],
+    ])("is tried again after %s", async (_label, fail) => {
+      expect(await checkWithOneFailure(fail)).toEqual({ found: [ANDROMEDA], attempts: 2 });
+    });
+
+    it.each([
+      ["404", answer(404)],
+      ["403", answer(403)],
+      ["a page that cannot be parsed", failure(new HttpError("parse", ANDROMEDA, "parse"))],
+    ])("is left alone after %s", async (_label, fail) => {
+      expect(await checkWithOneFailure(fail)).toEqual({ found: [], attempts: 1 });
+    });
+  });
+
   it("ignores a redirect to another place", async () => {
     const { t18, world } = client();
     world.setT18Page("cdr.18tickets.it", "/", 302);
