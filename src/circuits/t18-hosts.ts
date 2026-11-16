@@ -60,6 +60,7 @@ export const T18_SEED_HOSTS: readonly string[] = [
   "sanpietro.ccgenova.18tickets.it",
   "sassarimoderno.18tickets.it",
   "sivori.ccgenova.18tickets.it",
+  "spaziocinema.18tickets.it",
   "splendorbari.18tickets.it",
   "unical.cosenzacinema.18tickets.it",
   "visionario.cec.18tickets.it",
