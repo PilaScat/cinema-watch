@@ -18,6 +18,7 @@ Versions follow the `vYYYY.MM.N` format. Each section is written before its tag.
 ### Project
 
 - Surveys of the circuits outside Italy ([docs/foreign-circuits.md](docs/foreign-circuits.md)) and of the Italian ticketing platforms not covered ([docs/italian-circuits.md](docs/italian-circuits.md)).
+- Tests for a round that breaks after the alert went out and for the hosts 18Tickets tries again in the weekly check.
 
 ### Security
 
