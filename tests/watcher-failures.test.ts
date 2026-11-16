@@ -1,4 +1,5 @@
-import { mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdirSync, rmSync } from "node:fs";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createHarness, duneHunt, MINUTE, type Harness } from "./support/harness.js";
@@ -56,6 +57,81 @@ describe("a failing disk", () => {
     await watcher.tick();
 
     expect(sentMessages()).toBeGreaterThan(0);
+  });
+});
+
+describe("a round that breaks after the alert went out", () => {
+  const statePath = () => join(harness.dataDir, "state.json");
+
+  function breakStateWhileSending(): void {
+    let broken = false;
+    interceptFetch(harness, (url, passthrough) => {
+      if (url.pathname.includes("/send") && !broken) {
+        broken = true;
+        rmSync(statePath(), { force: true });
+        mkdirSync(statePath());
+      }
+      return passthrough();
+    });
+  }
+
+  function repairStateOnRoundError(line: string): void {
+    if (line.includes('"msg":"round"')) rmSync(statePath(), { recursive: true, force: true });
+  }
+
+  it("marks the hunt as failed, writes the error in the log and plans the next round", async () => {
+    await harness.seed();
+    breakStateWhileSending();
+    const watcher = await harness.watcher({ logSink: repairStateOnRoundError });
+    const huntId = watcher.config().hunts[0]?.id ?? "";
+    const at = harness.now();
+
+    await watcher.tick();
+
+    const huntState = watcher.state().hunts[huntId];
+    expect(huntState?.lastRun).toMatchObject({ at, ok: false, showings: 0 });
+    expect(huntState?.lastRun?.error).toMatch(/state\.json/);
+    expect(huntState?.errorSince).toBe(at);
+    expect(huntState?.nextRunAt).toBeGreaterThan(at);
+    const saved = JSON.parse(await readFile(statePath(), "utf8")) as { hunts: Record<string, { lastRun: { ok: boolean } }> };
+    expect(saved.hunts[huntId]?.lastRun.ok).toBe(false);
+    const logged = (await readFile(join(harness.dataDir, "events.jsonl"), "utf8")).trim().split("\n").map((line) => JSON.parse(line) as { huntId: string; kind: string; detail: string; t: number });
+    expect(logged.filter((entry) => entry.kind === "error")).toEqual([{ t: at, huntId, kind: "error", key: null, detail: huntState?.lastRun?.error }]);
+  });
+
+  it("does not send the alert again at the next round and clears the failure", async () => {
+    await harness.seed();
+    breakStateWhileSending();
+    const watcher = await harness.watcher({ logSink: repairStateOnRoundError });
+    const huntId = watcher.config().hunts[0]?.id ?? "";
+
+    await watcher.tick();
+    const afterFailedRound = sentMessages();
+    harness.advance(10 * MINUTE);
+    await watcher.tick();
+
+    expect(afterFailedRound).toBeGreaterThan(0);
+    expect(sentMessages()).toBe(afterFailedRound);
+    expect(watcher.state().hunts[huntId]?.lastRun).toMatchObject({ ok: true, error: null });
+    expect(watcher.state().hunts[huntId]?.errorSince).toBeNull();
+  });
+
+  it("still closes the round when the log cannot be written either", async () => {
+    await harness.seed();
+    await mkdir(join(harness.dataDir, "events.jsonl"));
+    breakStateWhileSending();
+    const lines: string[] = [];
+    const watcher = await harness.watcher({
+      logSink: (line) => {
+        lines.push(line);
+        repairStateOnRoundError(line);
+      },
+    });
+
+    await watcher.tick();
+
+    expect(watcher.state().hunts[watcher.config().hunts[0]?.id ?? ""]?.lastRun?.ok).toBe(false);
+    expect(lines.filter((line) => line.includes('"msg":"event log"'))).toHaveLength(1);
   });
 });
 

@@ -21,7 +21,7 @@ export interface Harness {
   advance(ms: number): void;
   set(at: number): void;
   seed(mutate?: (config: Config) => void, options?: { venues?: VenueList | null; spaceVenues?: SpaceVenueList | null; t18Venues?: T18VenueList | null }): Promise<Config>;
-  watcher(options?: { env?: NodeJS.ProcessEnv }): ReturnType<typeof createWatcher>;
+  watcher(options?: { env?: NodeJS.ProcessEnv; logSink?: (line: string) => void }): ReturnType<typeof createWatcher>;
   sleep: (ms: number) => Promise<void>;
   dispose(): Promise<void>;
 }
@@ -104,7 +104,7 @@ export async function createHarness(start = Date.parse("2026-12-01T10:00:00Z")):
         random: () => 0,
         sleep,
         version: "v0.0.0-test",
-        logSink: () => undefined,
+        logSink: options.logSink ?? (() => undefined),
       }),
     sleep,
     dispose: () => rm(dataDir, { recursive: true, force: true }),
