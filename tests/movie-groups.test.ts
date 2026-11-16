@@ -28,7 +28,7 @@ describe("the real catalogue of 12/11/2026", () => {
         .sort(([a], [b]) => a.localeCompare(b)),
     );
 
-    expect([titles.length, groups.length]).toEqual([786, 609]);
+    expect([titles.length, groups.length]).toEqual([786, 578]);
     expect(merged).toEqual(fixture("groups"));
   });
 
@@ -63,7 +63,12 @@ describe("different films stay apart", () => {
     ["Cineforum A Sorpresa 1 2026/27", "Cineforum A Sorpresa 2 2026/27"],
     ["Bts World Tour Arirang - Live Jakarta", "Bts World Tour Arirang - Live Kaohsiung"],
     ["Carlo Acutis", "Carlo Acutis - Il Giovane Santo"],
-    ["Avengers", "Avengers Infinity"],
+    ["Avengers", "Avengers: Infinity War"],
+    ["La Storia", "La Storia Infinita"],
+    ["Festival In Corto Prg 1", "Festival In Corto Prg 10"],
+    ["Una Notte Da Leon", "Una Notte Da Leoni 2"],
+    ["Novecento", "Novecento 100 Anni"],
+    ["Minnie E Moskowitz", "Minnie And Moskowitz"],
     ["Spider-Man", "Spider"],
     ["Doomsday", "3d Doomsday"],
     ["Henry", "Henry V"],
@@ -98,8 +103,40 @@ describe("versions of one film go together", () => {
     ["Clayface", "Premiere - Atmos Clayface I.V."],
     ["Clayface", "Clayface Infinity Vision-Atmos"],
     ["Clayface", "4senses- Clayface Infinity V."],
+    ["Clayface", "Clayface Infinity"],
+    ["Clayface", "Clayface Infinity - Atmos"],
+    ["Clayface", "Clayface Laser Infinity"],
+    ["Clayface", "Clayface - Regista In Sala"],
+    ["Clayface", "CLAYFACE - AL CINEMA CON TE'"],
+    ["Clayface", "Clayface - 30° Anniversario 4k"],
+    ["Clayface", "CLAYFACE (40°ANNIVERSARIO)"],
+    ["Clayface", "Clayface 4k 10° Ann"],
+    ["Clayface", "CLAYFACE – 25TH ANNIVERSARY"],
+    ["Clayface", "Clayface Vers. Originale"],
+    ["Clayface", "Clayface-O.V. 16/12 Ore 00:01"],
+    ["Minnie E Moskowitz", "Minnie & Moskowitz"],
   ])("%s and %s", (first, second) => {
     expect(grouped([first, second])).toEqual([[first, second]]);
+  });
+
+  it("joins a title cut by the cinema to the only title it can be the start of", () => {
+    expect(grouped(["George Michael: The Faith Tour", "Energia - George Michael: The F.", "George Michael: The Fa", "George Michael: The Faith T. Imax"])).toEqual([
+      ["George Michael: The Faith Tour", "Energia - George Michael: The F.", "George Michael: The Fa", "George Michael: The Faith T. Imax"],
+    ]);
+    expect(grouped(["Spezie E Bugie - La Piccola Cucina Di M.", "Spezie E Bugie–La Piccola Cucina Di Mehd"])).toEqual([["Spezie E Bugie–La Piccola Cucina Di Mehd", "Spezie E Bugie - La Piccola Cucina Di M."]]);
+    expect(grouped(["Avengers: Doomsday", "Premiere - Atmos Avengers: Doomsday Infi"])).toEqual([["Avengers: Doomsday", "Premiere - Atmos Avengers: Doomsday Infi"]]);
+  });
+
+  it("looks for the whole title before a cut wording", () => {
+    expect(grouped(["La Storia", "La Storia Infinita", "La Storia Infi"])).toEqual([["La Storia"], ["La Storia Infinita", "La Storia Infi"]]);
+  });
+
+  it("stops a cut title at the first whole title, and leaves it alone between two films", () => {
+    expect(grouped(["Premiere - Hunger Games - L'Alba Sulla M", "Hunger Games: L'alba sulla mietitura", "Hunger Games: L'Alba Sulla Mietitura - E"])).toEqual([
+      ["Hunger Games: L'alba sulla mietitura", "Premiere - Hunger Games - L'Alba Sulla M"],
+      ["Hunger Games: L'Alba Sulla Mietitura - E"],
+    ]);
+    expect(grouped(["George Michael: The F.", "George Michael: The Faith Tour", "George Michael: The Final Show"])).toEqual([["George Michael: The F."], ["George Michael: The Faith Tour"], ["George Michael: The Final Show"]]);
   });
 
   it("gives the group the slug that matches the plain title, else the shortest", () => {

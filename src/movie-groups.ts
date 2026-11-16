@@ -13,9 +13,10 @@ export interface MovieGroup extends CatalogMovie {
 const LANGUAGE = ["it", "ita", "italiano", "en", "eng", "inglese", "de", "vos", "v o s", "o v", "v o", "vo", "ov", "sub ita", "v originale sub ita", "vers originale", "versione originale", "original version", "original language", "lingua originale"];
 const FORMAT = ["2d", "3d", "4k", "in 4k", "70mm", "imax", "sala imax", "atmos", "dolby atmos", "sala atmos", "laser", "screenx", "infinity", "infinity vision", "infinity v", "i v"];
 const RATING = ["v m 1[48]", "vm ?1[48]", "v m 1[48] anni"];
-const EVENT = ["ospiti", "ospiti in sala", "ospite regista", "evento", "talk", "screen talk", "dibattito", "film cena", "con colazione", "anteprima", "ried", "riedizione", "re release", "re rel"];
+const ANNIVERSARY = "\\d+(?:th)? ann(?:iversario|iversary)?";
+const EVENT = ["ospiti", "ospiti in sala", "ospite regista", "evento", "talk", "screen talk", "dibattito", "film cena", "con colazione", "anteprima", "ried", "riedizione", "re release", "re rel", "regista in sala", "al cinema con te", ANNIVERSARY];
 const TIMING = ["h \\d \\d\\d", "\\d \\d\\d", "\\d ?h ?\\d\\d", "\\d{1,2} \\d{1,2} ore \\d\\d \\d\\d", "\\d{1,2} (?:gen|feb|mar|apr|mag|giu|lug|ago|set|ott|nov|dic)"];
-const BARE = ["3d", "4k", "in 4k", "imax", "sala imax", "atmos", "dolby atmos", "sala atmos", "screenx", "laser 4k", "atmos laser 4k", "infinity vision", "infinity visi", "infinity v", "i v", "infinity vision 4k", "infinity screenx", ...RATING, "\\d{1,2} \\d{1,2} ore \\d\\d \\d\\d"];
+const BARE = ["3d", "4k", "in 4k", "imax", "sala imax", "atmos", "dolby atmos", "sala atmos", "screenx", "laser 4k", "atmos laser 4k", "infinity vision", "infinity visi", "infinity v", "i v", "infinity vision 4k", "infinity screenx", "infinity", "laser infinity", "vers originale", ANNIVERSARY, ...RATING, "\\d{1,2} \\d{1,2} ore \\d\\d \\d\\d"];
 const LEADING = ["premiere", "atmos", "energia", "70mm energia", "3d", "vos", "o\\.?v\\.?", "4senses"];
 
 const alternatives = (wordings: string[]): string => `(?:${wordings.join("|")})`;
@@ -26,8 +27,13 @@ const LEADING_SEGMENT = new RegExp(`^\\s*${alternatives(LEADING)}\\s*[-–]\\s+(
 const LEADING_PARENTHESIS = /^\s*\(([^()]*)\)\s*/;
 const TRAILING_PARENTHESIS = /\s*\(([^()]*)\)\s*$/;
 const TRAILING_SEGMENT = /(?:\s+[-–|]\s*|[-–|]\s+)([^-–|()]*)$/;
-const TRAILING_ABBREVIATION = /\s+C\.A\.\s*$/;
+const TRAILING_ABBREVIATION = /(?:\s+C\.A\.|-[Oo]\.[Vv]\.)\s*$/;
 const YEAR = /^(?:19|20)\d\d$/;
+const AMPERSAND = /\s*&\s*/g;
+const CUT_WORDINGS = ["infinity"];
+const CUT_MIN_WORDS = 3;
+const CUT_MIN_LENGTH = 12;
+const CUT_WORDING_MIN_LENGTH = 4;
 const DISTINGUISHING = /\b(?:\d+\w*|parte|part|pt|vol|volume|capitolo|chapter|episodio|ii|iii|iv|vi|vii|viii|ix|live|action|concerto|remake)\b/;
 
 interface TitleKey {
@@ -70,7 +76,7 @@ function withoutLeading(title: string): string | null {
 }
 
 export function titleKey(title: string): TitleKey {
-  let current = title.trim();
+  let current = title.replace(AMPERSAND, " e ").trim();
   let year: string | null = null;
   for (;;) {
     const parenthesis = withoutParenthesis(current);
@@ -85,6 +91,34 @@ export function titleKey(title: string): TitleKey {
   }
   const text = normalizeTitle(current);
   return { text: text === "" ? normalizeTitle(title) : text, year };
+}
+
+function wholeOfCut(key: string, keys: string[]): string | null {
+  if (key.length < CUT_MIN_LENGTH || key.split(" ").length < CUT_MIN_WORDS) return null;
+  const longer = keys.filter((other) => other.length > key.length && other.startsWith(key) && other[key.length] !== " ").sort((a, b) => a.length - b.length);
+  const [next] = longer;
+  if (next === undefined) return null;
+  const oneFilm = longer.every((other, index) => index === 0 || other.startsWith(longer[index - 1] as string));
+  return oneFilm && !DISTINGUISHING.test(next.slice(key.lastIndexOf(" ") + 1)) ? next : null;
+}
+
+function titleOfCutWording(key: string, keys: string[]): string | null {
+  const end = key.lastIndexOf(" ");
+  const wording = key.slice(end + 1);
+  const cut = wording.length >= CUT_WORDING_MIN_LENGTH && CUT_WORDINGS.some((whole) => whole !== wording && whole.startsWith(wording));
+  return cut && keys.includes(key.slice(0, end)) ? key.slice(0, end) : null;
+}
+
+function wholeKeys(keys: string[]): Map<string, string> {
+  const next = new Map(keys.flatMap((key) => {
+    const whole = wholeOfCut(key, keys) ?? titleOfCutWording(key, keys);
+    return whole === null ? [] : [[key, whole] as const];
+  }));
+  const last = (key: string): string => {
+    const whole = next.get(key);
+    return whole === undefined ? key : last(whole);
+  };
+  return new Map(keys.map((key) => [key, last(key)]));
 }
 
 function earliest(a: string | null, b: string | null): string | null {
@@ -117,11 +151,11 @@ function groupOfMembers(members: CatalogMovie[], text: string): MovieGroup {
 }
 
 export function groupCatalog(movies: CatalogMovie[]): MovieGroup[] {
+  const keyed = movies.map((movie) => ({ movie, key: titleKey(movie.title) }));
+  const whole = wholeKeys([...new Set(keyed.map(({ key }) => key.text))]);
   const buckets = new Map<string, Array<{ movie: CatalogMovie; year: string | null }>>();
-  for (const movie of movies) {
-    const key = titleKey(movie.title);
-    buckets.set(key.text, [...(buckets.get(key.text) ?? []), { movie, year: key.year }]);
-  }
+  for (const text of new Set(whole.values())) buckets.set(text, []);
+  for (const { movie, key } of keyed) buckets.get(whole.get(key.text) ?? key.text)?.push({ movie, year: key.year });
   const groups: MovieGroup[] = [];
   for (const [text, entries] of buckets) {
     const years = new Set(entries.flatMap((entry) => (entry.year === null ? [] : [entry.year])));
