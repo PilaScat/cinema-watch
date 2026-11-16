@@ -89,6 +89,7 @@ What you cannot tell from reading the code. The APIs are described in [api.md](a
 - **Format and language**: the format comes from the label or the title (3D, IMAX, 4DX; INFINITY VISION is an edition of 2D). The language is `VO` if the label says INGLESE or LINGUA ORIGINALE, if the title carries "V.O." or "V.O.S.", or if "Lingua:" is not Italian; the label counts more than the field, which sometimes says "Italiano" even for the English version. The duration "(1H50')" is removed from the title and becomes `durationMinutes`.
 - **Seat map and seats**: the seat map id `g_<fila>_<colonna>` matches `{x: colonna, y: fila}` of the taken seats (105 out of 105 in the test hall). Rows grow from the screen (row A = 2). `userhide` seats do not exist for sale (outside the `total`); visible `special` ones are `RISERVATO`. `bought` is sold; `locked`, `reserved`, `quarantined`, `preemption` and `mine` count as taken. No price: `priceFrom` stays empty.
 - **Hall of a screening**: the home does not say; it comes from `data-theater` in the film page, read only when the seat map is needed.
+- **Address from `/impressum`**: when the home page of a cinema has no map link, the weekly check reads `/impressum` of the same host (one more page, only for those cinemas) and takes the address of the entry with the same name as the cinema. The first block of that page is the company that runs the cinemas, not a cinema: it is skipped because it has no name before the address.
 
 ## Alerts
 
