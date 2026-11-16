@@ -13,6 +13,10 @@ Versions follow the `vYYYY.MM.N` format. Each section is written before its tag.
 
 - **Buttons of a ticket in order.** The Google Wallet ones on one row, the ones of the image on the next, Delete apart on the right.
 
+### Security
+
+- **`minimatch` pinned to 11.0.1** (development only: ESLint and Stryker use it): the versions before it can be slowed down by a crafted pattern.
+
 ## v2026.11.1
 
 ### Breaking changes
