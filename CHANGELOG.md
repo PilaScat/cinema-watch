@@ -2,6 +2,16 @@
 
 Versions follow the `vYYYY.MM.N` format. Each section is written before its tag. Sections up to v2026.10.15 are in Italian, as they were released; the later ones are in English.
 
+## v2026.11.3
+
+### Fixes
+
+- **Two Eplanet cinemas were missing**: Vasquez in Siracusa and Le Vigne in Agrigento sell through Webtic but no title of its list points to them, and their name was not among the ones taken as a cinema. They enter at the next weekly check of the Webtic cinemas.
+
+### Project
+
+- Targeted tests on The Space and 18Tickets after the mutation run of 16/11: `the-space.ts` from 73.39% to 83.49%, `t18.ts` from 76.30% to 83.68%.
+
 ## v2026.11.2
 
 ### New
