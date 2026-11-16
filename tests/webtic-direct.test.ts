@@ -54,6 +54,16 @@ describe("parseVenueCandidates", () => {
     expect(venues.find((venue) => venue.slug === "webtic-5848")).toMatchObject({ name: "Notorious Cinemas Ferrara", region: "Emilia Romagna", lat: null, lon: null });
   });
 
+  it("keeps an Eplanet cinema that no title of the list points to", () => {
+    const local = (LocalId: number, Description: string) => ({ LocalId, Description, District: "Siracusa", DistrictAbbreviation: "SR", Town: "Siracusa", Latitude: null, Longitude: null });
+    const venues = parseVenueCandidates({
+      userdata: { StatusOk: true },
+      DS: { LocalsTitles: { Locals: { "5637": local(5637, "EPLANET VASQUEZ"), "5640": local(5640, "Eplanet Le Vigne"), "9": local(9, "TEATRO VASQUEZ") }, Titles: [] } },
+    });
+
+    expect(venues.map((venue) => venue.slug)).toEqual(["webtic-5640", "webtic-5637"]);
+  });
+
   it("rejects a refused or malformed answer", () => {
     expect(() => parseVenueCandidates(fixture("webtic-direct/scheduling-dead.json"))).toThrow(WebticError);
     expect(() => parseVenueCandidates({ DS: {} })).toThrow(ApiShapeError);
