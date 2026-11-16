@@ -11,8 +11,13 @@ Versions follow the `vYYYY.MM.N` format. Each section is written before its tag.
 
 ### Fixes
 
+- **The Anteo and spazioCinema cinemas** (Milan, Monza, Treviglio, Cremona and others) are among the 18Tickets cinemas: their site was not in the list the weekly check starts from.
 - **18Tickets cinemas with no address on their home page** take it from the impressum page of the same site, so they get a city and a region and appear among the near cinemas of their region.
 - **Buttons of a ticket in order.** The Google Wallet ones on one row, the ones of the image on the next, Delete apart on the right.
+
+### Project
+
+- Surveys of the circuits outside Italy ([docs/foreign-circuits.md](docs/foreign-circuits.md)) and of the Italian ticketing platforms not covered ([docs/italian-circuits.md](docs/italian-circuits.md)).
 
 ### Security
 

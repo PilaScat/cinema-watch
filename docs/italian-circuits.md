@@ -12,7 +12,7 @@ Survey of 16/11/2026 of the ticketing platforms of Italian cinemas beyond UCI, W
 | Giometti | about 12 | 6 are in the Webtic list of the app | see whether the others sell elsewhere |
 | Movie Planet | 9 in the list | Already in the Webtic list of the app | nothing |
 | Starplex | 4 in the list | Already in the Webtic list of the app | nothing |
-| Anteo, spazioCinema | about 12 | Sells on `spaziocinema.18tickets.it`, which is not among the 18Tickets hosts the app knows (checked on the list of 10/11) | add the host in Settings, 18Tickets cinemas, or among the seed hosts |
+| Anteo, spazioCinema | about 12 | Sells on `spaziocinema.18tickets.it`, which was not among the 18Tickets hosts the app knew | added to the seed hosts in v2026.11.2: the cinemas appear after the next weekly check |
 | Liveticket | about 90 venues with a cinema name, among about 466 organisers | Its own platform. Venue list and programme are public, as HTML. The showing looked at has unnumbered seats: a price table and a "tickets available" notice, no seat map and no taken seats | programme and prices only; seat alerts are not possible where seats are unnumbered |
 | Vivaticket | not counted | The cinema page redirects to a Queue-it waiting room | not surveyed |
 
