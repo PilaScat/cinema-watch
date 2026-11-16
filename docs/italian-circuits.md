@@ -6,7 +6,7 @@ Survey of 16/11/2026 of the ticketing platforms of Italian cinemas beyond UCI, W
 
 | Platform or chain | Cinemas | What it is | Left to do |
 |---|---|---|---|
-| Eplanet | 8 in Sicily | Sells through Webtic: its showing page loads the Webtic script from `secure.webtic.it`. 5 of the 8 are already in the Webtic list of the app (Eplanet Catania, Eplanet Lopo, La Torre Palermo, King Palermo, Hollywood Gela) | nothing: see why Vasquez (Siracusa), Le Vigne (Agrigento) and Ariston (Catania) are not in the list |
+| Eplanet | 8 in Sicily | Sells through Webtic: its showing page loads the Webtic script from `secure.webtic.it`. 6 of the 8 were already in the Webtic list of the app (Eplanet Catania, Eplanet Lopo, La Torre Palermo, King Palermo, Hollywood Gela, and Ariston as "CINE CITY ARISTON CATANIA", `webtic-5291`) | done: Vasquez (Siracusa, `webtic-5637`) and Le Vigne (Agrigento, `webtic-5640`) were dropped because no title of the Webtic list points to them and their name matched none of the cinema names; "EPLANET" is now one of those names |
 | Notorious Cinemas | 9 | Already in the Webtic list of the app, all 9 | nothing |
 | Cineplexx (Bolzano, Lagundo) | 2 | Already in the Webtic list of the app | nothing |
 | Giometti | about 12 | 6 are in the Webtic list of the app | see whether the others sell elsewhere |
@@ -40,6 +40,10 @@ No JSON programme was found, unlike the note of 19/10. The page code has a branc
 | `GET https://www.eplanetcinemas.it/` | 200: films and cinemas as JSON inside the page |
 | `GET https://www.eplanetcinemas.it/king` | 200: showings with links `/eticket/king/<film>/<showing>/` |
 | `GET https://www.eplanetcinemas.it/eticket/king/1244/43348/` | 200: loads `secure.webtic.it/angwt/js/webapi/jquery.webtic.api.4.0.js` |
+| `GET https://www.eplanetcinemas.it/vasquez`, `/le-vigne` (16/11, second round) | 200: ticket links `/eticket/vasquez/918/31437/`, `/eticket/le-vigne/1074/38353/` |
+| `GET` of those two ticket pages | 200: `localId:5637` and `localId:5640` |
+| `GET secure.webtic.it/api/wtjsonservices.ashx?wtid=getLocalsTitles` | 200: 1199 venues; "EPLANET VASQUEZ" and "EPLANET LE VIGNE" are there, in no title |
+| `GET …?wtid=getFullScheduling&localid=5637`, `5640` | 200: 78 showings of 11 films and 96 showings of 15 films, over 18 days |
 
 ## Not verified
 
