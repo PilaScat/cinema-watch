@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildT18Venues,
   createPacer,
+  createT18Circuit,
   createT18Client,
   decodeEntities,
   isT18Key,
@@ -20,7 +21,11 @@ import {
   t18VenuesDue,
   tenantOf,
   venueOf,
+  type T18Client,
+  type T18Film,
 } from "../src/circuits/t18.js";
+import { createTtlCache } from "../src/cache.js";
+import type { Hall, Seat, TakenStatus } from "../src/types.js";
 import { ApiShapeError, HttpError } from "../src/errors.js";
 import { isT18Host } from "../src/keys.js";
 import { analyzeSeats, DEFAULT_SELLABLE_TYPES } from "../src/seats.js";
@@ -127,6 +132,27 @@ describe("home of a cinema", () => {
     expect(programming.get("2026-12-16")?.map((showing) => showing.key)).toContain(`t18-roma-andromeda-${T18_PROJECTION}`);
     expect(programming.get("2026-12-16")?.find((showing) => showing.key.endsWith(T18_PROJECTION))).toMatchObject({ theatreSlug: "t18-roma-andromeda", room: "Sala 1", movie: { slug: "avengers-doomsday" } });
     expect(movies.find((movie) => movie.slug === "avengers-doomsday")).toMatchObject({ firstDay: "2026-12-16", formats: ["2D - INFINITY VISION", "2D"] });
+  });
+
+  it("gives a film listed in more blocks its earliest and latest day, whatever the order", () => {
+    const block = (format: string, poster: string | null, days: string[]): T18Film => ({
+      filmId: "1",
+      slug: "dune-parte-tre",
+      title: "Dune",
+      poster,
+      format,
+      formatGroup: "2D",
+      language: "ITA",
+      durationMinutes: null,
+      projections: days.map((day) => ({ uuid: day, day, startsAt: `${day}T21:00:00`, time: "21:00", room: "Sala 1", cartUrl: "" })),
+    });
+    const movies = (films: T18Film[]) => moviesOfHome({ title: "", places: [], address: null, cinemaHosts: [], films });
+
+    expect(movies([block("2D", null, ["2026-12-18", "2026-12-16"]), block("IMAX", "poster.jpg", ["2026-12-20", "2026-12-14"]), block("2D", "other.jpg", [])])).toEqual([
+      { slug: "dune-parte-tre", title: "Dune", poster: "poster.jpg", firstDay: "2026-12-14", lastDay: "2026-12-20", formats: ["2D", "IMAX"] },
+    ]);
+    expect(movies([block("2D", null, ["2026-12-20", "2026-12-14"]), block("2D", null, ["2026-12-18", "2026-12-16"])])[0]).toMatchObject({ firstDay: "2026-12-14", lastDay: "2026-12-20" });
+    expect(movies([block("2D", null, [])])[0]).toMatchObject({ firstDay: null, lastDay: null });
   });
 
   it("skips blocks without a title and projections before a day", () => {
@@ -272,6 +298,38 @@ describe("client", () => {
     await expect(t18.seats(ANDROMEDA, "x")).rejects.toThrow("Response is not JSON");
     await expect(t18.seats(ANDROMEDA, "y")).rejects.toThrow("Status 404");
     await expect(t18.home("evil.example.com")).rejects.toThrow(HttpError);
+  });
+
+  it("takes as a redirect only an answer between 300 and 399 that says where to go", async () => {
+    const pacer = createPacer({ intervalMs: 0, cooldownMs: 0, now: () => 0, sleep: () => Promise.resolve() });
+    const sent: RequestInit[] = [];
+    const answering = (status: number, location: string | null) =>
+      createT18Client({
+        pacer,
+        userAgent: "cinema-watch/test",
+        fetch: (_url, init) => {
+          sent.push(init ?? {});
+          return Promise.resolve(new Response(status === 304 ? null : "<html></html>", { status, headers: location === null ? {} : { location } }));
+        },
+      }).page(ANDROMEDA);
+
+    expect(await answering(300, "/a")).toEqual({ kind: "redirect", location: "/a" });
+    expect(await answering(399, "/a")).toEqual({ kind: "redirect", location: "/a" });
+    expect(await answering(200, "/a")).toEqual({ kind: "page", html: "<html></html>" });
+    expect(await answering(299, "/a")).toEqual({ kind: "page", html: "<html></html>" });
+    await expect(answering(302, null)).rejects.toMatchObject({ kind: "status", status: 302, message: "Status 302", host: ANDROMEDA });
+    await expect(answering(400, "/a")).rejects.toMatchObject({ kind: "status", status: 400 });
+    await expect(answering(404, "/a")).rejects.toMatchObject({ kind: "status", status: 404 });
+    expect(new Headers(sent[0]?.headers).get("user-agent")).toBe("cinema-watch/test");
+    expect(sent[0]?.redirect).toBe("manual");
+  });
+
+  it("names the host it refuses and a failure that has no message", async () => {
+    const pacer = createPacer({ intervalMs: 0, cooldownMs: 0, now: () => 0, sleep: () => Promise.resolve() });
+    const failing = createT18Client({ fetch: () => Promise.reject(Object.create(null) as Error), pacer, userAgent: "test" });
+
+    await expect(failing.page("evil.example.com")).rejects.toMatchObject({ kind: "host", host: "evil.example.com", message: "Host not allowed: evil.example.com" });
+    await expect(failing.page(ANDROMEDA)).rejects.toMatchObject({ kind: "network", host: ANDROMEDA, message: "Network error" });
   });
 
   it("reports a network failure as a network error", async () => {
@@ -450,5 +508,141 @@ describe("weekly check", () => {
     expect(t18VenuesDue(list, 6 * DAY)).toBe(false);
     expect(t18VenuesDue(list, 7 * DAY)).toBe(true);
     await rm(dir, { recursive: true, force: true });
+  });
+});
+
+describe("circuit", () => {
+  const SLUG = "t18-roma-andromeda";
+  const KEY = `${SLUG}-${T18_PROJECTION}`;
+  const HALL_KEY = `${SLUG}-${T18_THEATER}`;
+  const WEEK = 7 * DAY;
+  const seat = (id: string): Seat => ({ id, rowLabel: id.slice(0, 1), number: Number(id.slice(1)), row: 1, column: Number(id.slice(1)), sector: "", type: "STANDARD" });
+
+  function circuit() {
+    let clock = 1000;
+    let seats = [seat("A1"), seat("A2")];
+    let taken: Record<string, TakenStatus> = { A1: "sold" };
+    let films = home();
+    let host: string | null = ANDROMEDA;
+    let halls = new Map<string, string>([[T18_PROJECTION, T18_THEATER]]);
+    const stored = new Map<string, Hall>();
+    const calls = { theater: 0, home: 0 };
+    const client = {
+      home: () => {
+        calls.home += 1;
+        return Promise.resolve(films);
+      },
+      theaters: () => Promise.resolve(halls),
+      theater: () => {
+        calls.theater += 1;
+        return Promise.resolve(seats);
+      },
+      seats: () => Promise.resolve(taken),
+    } as unknown as T18Client;
+    const subject = createT18Circuit({
+      client,
+      hostOf: () => host,
+      homes: createTtlCache({ ttlMs: 60_000, clock: { now: () => clock } }),
+      theaters: createTtlCache({ ttlMs: 60_000, clock: { now: () => 0 } }),
+      hallStore: { get: (key) => Promise.resolve(stored.get(key) ?? null), set: (hall) => Promise.resolve(void stored.set(hall.key, hall)) },
+      describe: () => null,
+      now: () => clock,
+    });
+    return {
+      subject,
+      calls,
+      stored,
+      advance: (ms: number) => {
+        clock += ms;
+      },
+      setSeats: (next: Seat[]) => {
+        seats = next;
+      },
+      setTaken: (next: Record<string, TakenStatus>) => {
+        taken = next;
+      },
+      setFilms: (next: typeof films) => {
+        films = next;
+      },
+      setHost: (next: string | null) => {
+        host = next;
+      },
+      setHalls: (next: typeof halls) => {
+        halls = next;
+      },
+    };
+  }
+
+  it("reads the seats of a projection with its hall, time, title and room, and keeps the hall", async () => {
+    const { subject, stored } = circuit();
+
+    const read = await subject.seats(KEY, false);
+
+    expect(read.performance).toMatchObject({ key: KEY, hallKey: HALL_KEY, eventRef: "81500", screenName: "Sala 1", title: "AVENGERS: DOOMSDAY", priceFrom: null });
+    expect(read.performance.startTime).toMatch(/^2026-12-16T\d{2}:\d{2}/);
+    expect(read.hall.key).toBe(HALL_KEY);
+    expect(read.hall.seats.map((item) => item.id)).toEqual(["A1", "A2"]);
+    expect(read.occupancy).toEqual({ key: KEY, taken: { A1: "sold" } });
+    expect(read.hallChanged).toBe(false);
+    expect([...stored.keys()]).toEqual([HALL_KEY]);
+  });
+
+  it("keeps the hall for a week and reads it again at the seventh day, when asked fresh or when a taken seat is not in it", async () => {
+    const { subject, calls, advance, setTaken } = circuit();
+    await subject.seats(KEY, false);
+
+    advance(WEEK - 1);
+    await subject.seats(KEY, false);
+    const withinTheWeek = calls.theater;
+    advance(1);
+    await subject.seats(KEY, false);
+    const atTheSeventhDay = calls.theater;
+    await subject.seats(KEY, false);
+    const justRead = calls.theater;
+    await subject.seats(KEY, true);
+    const fresh = calls.theater;
+    setTaken({ Z9: "sold" });
+    await subject.seats(KEY, false);
+
+    expect([withinTheWeek, atTheSeventhDay, justRead, fresh, calls.theater]).toEqual([1, 2, 2, 3, 4]);
+  });
+
+  it("says the hall changed only when its seats are different, whatever their order", async () => {
+    const { subject, setSeats } = circuit();
+    const first = await subject.seats(KEY, true);
+    setSeats([seat("A2"), seat("A1")]);
+    const reordered = await subject.seats(KEY, true);
+    setSeats([seat("A1"), seat("A2"), seat("A3")]);
+    const grown = await subject.seats(KEY, true);
+    const settled = await subject.seats(KEY, true);
+
+    expect([first, reordered, grown, settled].map((read) => read.hallChanged)).toEqual([false, false, true, false]);
+  });
+
+  it("refuses a projection without a hall, an unknown projection and an unknown cinema", async () => {
+    const { subject, setHalls, setHost } = circuit();
+    const missing = `${SLUG}-00000000-0000-0000-0000-000000000000`;
+    setHalls(new Map());
+
+    await expect(subject.seats(missing, false)).rejects.toThrow(`unknown projection: ${missing}`);
+    await expect(subject.seats(KEY, false)).rejects.toThrow(`no hall for ${KEY}`);
+    setHost(null);
+    expect(await subject.programmingDays(SLUG, ["2026-12-16"], true)).toEqual([{ day: "2026-12-16", error: expect.objectContaining({ message: expect.stringContaining(`unknown cinema: ${SLUG}`) as unknown }) as unknown }]);
+  });
+
+  it("forgets the projections that left the home and gives the days asked, empty ones included", async () => {
+    const { subject, setFilms } = circuit();
+    const performance = (await subject.seats(KEY, false)).performance;
+    const known = subject.cartUrl(KEY, performance, undefined);
+    setFilms({ ...home(), films: [] });
+
+    const days = await subject.programmingDays(SLUG, ["2026-12-16", "2026-12-17"], true);
+
+    expect(known).toContain(`https://${ANDROMEDA}/`);
+    expect(subject.cartUrl(KEY, performance, undefined)).toBeNull();
+    expect(days).toEqual([
+      { day: "2026-12-16", showings: [] },
+      { day: "2026-12-17", showings: [] },
+    ]);
   });
 });
