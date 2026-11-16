@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildSpaceVenues,
   cinemaIdOfSlug,
+  createSpaceCircuit,
   createSpaceClient,
   isSpaceKey,
   parseCinemaPage,
@@ -11,7 +12,11 @@ import {
   parseSeats,
   spaceHallKey,
   theatreOf,
+  type SpaceClient,
+  type SpaceSeats,
 } from "../src/circuits/the-space.js";
+import { createTtlCache } from "../src/cache.js";
+import type { PerformanceInfo, Seat } from "../src/types.js";
 import { ApiShapeError } from "../src/errors.js";
 import { createGuardedFetch, createHttpClient } from "../src/http.js";
 import { analyzeSeats, DEFAULT_SELLABLE_TYPES } from "../src/seats.js";
@@ -57,6 +62,33 @@ describe("cinemas", () => {
     expect(parseCinemaPage("<html></html>")).toEqual({ lat: null, lon: null, province: null, postalCode: null });
     expect(parseCinemaPage("q=0, 0")).toEqual({ lat: null, lon: null, province: null, postalCode: null });
     expect(theatreOf({ cinemaId: "9", name: "X", pageUrl: null }, null)).toMatchObject({ region: null, lat: null, province: null });
+  });
+
+  it("keeps coordinates up to the edge of the map and drops both when one is zero or off the map", () => {
+    const at = (lat: string, lon: string) => {
+      const page = parseCinemaPage(`<a href="https://maps.example/?q=${lat},${lon}">map</a>`);
+      return [page.lat, page.lon];
+    };
+
+    expect(at("-45.5", "-7.25")).toEqual([-45.5, -7.25]);
+    expect(at("90", "180")).toEqual([90, 180]);
+    expect(at("-90", "-180")).toEqual([-90, -180]);
+    expect(at("0", "7.5")).toEqual([null, null]);
+    expect(at("45.5", "0")).toEqual([null, null]);
+    expect(at("90.5", "7.5")).toEqual([null, null]);
+    expect(at("-90.5", "7.5")).toEqual([null, null]);
+    expect(at("45.5", "180.5")).toEqual([null, null]);
+    expect(at("45.5", "-180.5")).toEqual([null, null]);
+  });
+
+  it("tells an answer of the wrong shape from a result that is not a list", () => {
+    expect(() => parseCinemas(null)).toThrow("cinemas: unexpected shape");
+    expect(() => parseCinemas("x")).toThrow("cinemas: unexpected shape");
+    expect(() => parseCinemas({})).toThrow("cinemas: unexpected shape");
+    expect(() => parseCinemas({ result: null })).toThrow("cinemas: unexpected shape");
+    expect(() => parseCinemas({ result: 0 })).toThrow("cinemas: not a list");
+    expect(() => parseCinemas({ result: "x" })).toThrow("cinemas: not a list");
+    expect(parseCinemas({ result: [] })).toEqual([]);
   });
 
   it("takes the region from the postal code when the address has no province", () => {
@@ -261,6 +293,52 @@ describe("client", () => {
     await expect(working.seats("1028", "1")).rejects.toThrow("Status 404");
   });
 
+  it("keeps the token up to its last millisecond and renews it at the eleventh hour", async () => {
+    let clock = 0;
+    const { world, space } = client(createFakeWorld(), () => clock);
+    const tokens = () => world.spaceCalls.filter((call) => call === "/auth/token").length;
+    await space.cinemas();
+
+    clock = 11 * 60 * 60 * 1000 - 1;
+    await space.cinemas();
+    const beforeExpiry = tokens();
+    clock = 11 * 60 * 60 * 1000;
+    await space.cinemas();
+
+    expect(beforeExpiry).toBe(1);
+    expect(tokens()).toBe(2);
+  });
+
+  it("does not ask a new token after an error that is not a refusal", async () => {
+    const { world, space } = client();
+
+    await expect(space.seats("1028", "1")).rejects.toThrow("Status 404");
+
+    expect(world.spaceCalls.filter((call) => call === "/auth/token")).toHaveLength(1);
+    expect(world.spaceCalls.filter((call) => call.includes("/seats"))).toHaveLength(1);
+  });
+
+  it("names the app when it asks the token and the page of a cinema", async () => {
+    const world = createFakeWorld();
+    const sent: Array<{ path: string; method: string; headers: Headers }> = [];
+    const spy = (input: Parameters<typeof fetch>[0], init?: RequestInit) => {
+      sent.push({ path: new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url).pathname, method: init?.method ?? "GET", headers: new Headers(init?.headers) });
+      return world.fetch(input, init);
+    };
+    const http = createHttpClient({ allowedHosts: [HOST], userAgent: "test", fetch: world.fetch });
+    const space = createSpaceClient({ http, fetch: createGuardedFetch([HOST], spy), userAgent: "cinema-watch/test", now: () => 0 });
+
+    await space.cinemas();
+    await space.cinemaPage("https://www.thespacecinema.it/cinema/beinasco/al-cinema");
+
+    const token = sent.find((call) => call.path.endsWith("/auth/token"));
+    const page = sent.find((call) => call.path === "/cinema/beinasco/al-cinema");
+    expect(token?.method).toBe("POST");
+    expect(token?.headers.get("user-agent")).toBe("cinema-watch/test");
+    expect(token?.headers.get("accept")).toBe("application/json");
+    expect(page?.headers.get("user-agent")).toBe("cinema-watch/test");
+  });
+
   it("builds the list of cinemas with the place read from each page", async () => {
     const { space } = client();
 
@@ -270,5 +348,98 @@ describe("client", () => {
     expect(list.theatres).toHaveLength(35);
     expect(list.theatres.find((theatre) => theatre.slug === "space-1028")).toMatchObject({ region: "Piemonte", lat: 45.021899 });
     await expect(space.cinemaPage("https://www.thespacecinema.it/manca")).rejects.toThrow("Status 401");
+  });
+});
+
+describe("circuit", () => {
+  const KEY = "space-1028-58489";
+  const PERFORMANCE: PerformanceInfo = { key: KEY, hallKey: "space-1028-sala-7", eventRef: "", screenName: "Sala 7", startTime: "2026-12-16T14:10:00", title: "AVENGERS: DOOMSDAY", priceFrom: null, priceTiers: [] };
+  const seat =(id: string): Seat => ({ id, rowLabel: id.slice(0, 1), number: Number(id.slice(1)), row: 1, column: Number(id.slice(1)), sector: "A", type: "STANDARD" });
+
+  function circuit() {
+    let programming = parseProgramming(fixture("space/programming-1028.json"), "1028");
+    let seats: SpaceSeats = { screenName: "Sala 7", seats: [seat("A1"), seat("A2")], taken: { A1: "sold" }, priceFrom: 9.2, priceTiers: [{ sector: "A", name: "", price: 9.2 }] };
+    const calls = { programming: 0, seats: 0 };
+    const client = {
+      programming: () => {
+        calls.programming += 1;
+        return Promise.resolve(programming);
+      },
+      seats: () => {
+        calls.seats += 1;
+        return Promise.resolve(seats);
+      },
+    } as unknown as SpaceClient;
+    const subject = createSpaceCircuit({ client, schedule: createTtlCache({ ttlMs: 60_000 }), seats: createTtlCache({ ttlMs: 60_000 }), describe: () => null, now: () => 77 });
+    return {
+      subject,
+      calls,
+      setSeats: (next: Partial<SpaceSeats>) => {
+        seats = { ...seats, ...next };
+      },
+      setProgramming: (next: typeof programming) => {
+        programming = next;
+      },
+    };
+  }
+
+  it("reads the seats of a session it has not listed yet, with its hall, time, title and prices", async () => {
+    const { subject, calls } = circuit();
+
+    const read = await subject.seats(KEY, false);
+
+    expect(calls.programming).toBe(1);
+    expect(read.performance).toEqual({ key: KEY, hallKey: "space-1028-sala-7", eventRef: "", screenName: "Sala 7", startTime: "2026-12-16T14:10:00", title: "AVENGERS: DOOMSDAY", priceFrom: 9.2, priceTiers: [{ sector: "A", name: "", price: 9.2 }] });
+    expect(read.hall).toEqual({ key: "space-1028-sala-7", seats: [seat("A1"), seat("A2")], fetchedAt: 77 });
+    expect(read.occupancy).toEqual({ key: KEY, taken: { A1: "sold" } });
+    expect(read.hallChanged).toBe(false);
+  });
+
+  it("says the hall changed only when its seats are different, whatever their order", async () => {
+    const { subject, setSeats } = circuit();
+    const first = await subject.seats(KEY, true);
+    setSeats({ seats: [seat("A2"), seat("A1")] });
+    const reordered = await subject.seats(KEY, true);
+    setSeats({ seats: [seat("A1"), seat("A2"), seat("A3")] });
+    const grown = await subject.seats(KEY, true);
+    const settled = await subject.seats(KEY, true);
+    setSeats({ screenName: "Sala 8", seats: [seat("B1")] });
+    const otherHall = await subject.seats(KEY, true);
+
+    expect([first, reordered, grown, settled, otherHall].map((read) => read.hallChanged)).toEqual([false, false, true, false, false]);
+    expect(otherHall.hall.key).toBe("space-1028-sala-8");
+  });
+
+  it("reads the seats again only when asked for fresh ones", async () => {
+    const { subject, calls } = circuit();
+
+    await subject.seats(KEY, false);
+    await subject.seats(KEY, false);
+    const cached = calls.seats;
+    await subject.seats(KEY, true);
+
+    expect(cached).toBe(1);
+    expect(calls.seats).toBe(2);
+  });
+
+  it("refuses a session that the programme does not have", async () => {
+    const { subject } = circuit();
+
+    await expect(subject.seats("space-1028-1", false)).rejects.toThrow("unknown session: space-1028-1");
+  });
+
+  it("forgets the sessions that left the programme and gives the days asked, empty ones included", async () => {
+    const { subject, setProgramming } = circuit();
+    await subject.programming("space-1028", false);
+    const known = subject.cartUrl(KEY, PERFORMANCE, undefined);
+    setProgramming(new Map());
+    await subject.programming("space-1028", false);
+
+    expect(known).toBe("https://www.thespacecinema.it/prenotare-il-biglietto/summary/1028/HO00003467/58489");
+    expect(subject.cartUrl(KEY, PERFORMANCE, undefined)).toBeNull();
+    expect(await subject.programmingDays("space-1028", ["2026-12-16", "2026-12-17"], true)).toEqual([
+      { day: "2026-12-16", showings: [] },
+      { day: "2026-12-17", showings: [] },
+    ]);
   });
 });
