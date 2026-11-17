@@ -6,7 +6,7 @@ Versions follow the `vYYYY.MM.N` format. Each section is written before its tag.
 
 ### Fixes
 
-- **More versions of a film go together in the search.** A title cut by the cinema (`George Michael: The Fa`, `Hunger Games: L'Alba Sulla Miet. Imax`) joins its whole title when the catalogue has only one it can be the start of; `Infinity` alone at the end, `&` and `e`, "Regista In Sala", "Al Cinema Con Te", the anniversary editions, "Vers. Originale" and an `-O.V.` stuck to the title no longer make a separate film. On the catalogue of 12/11/2026 the 786 titles go from 609 films to 578. Typos and added subtitles stay apart.
+- **More versions of a film go together in the search.** A title cut by the cinema (`George Michael: The Fa`, `Hunger Games: L'Alba Sulla Miet. Imax`) joins its whole title when the catalogue has only one it can be the start of; `Infinity` alone at the end, `&` and `e`, "Regista In Sala", "Al Cinema Con Te", the anniversary editions, "Vers. Originale" and `O.V.` at the end no longer make a separate film, nor do `Vos`, `Energia` or `Talk Imax` in front of a title the catalogue already has. On the catalogue of 12/11/2026 the 786 titles go from 609 films to 567. Typos and added subtitles stay apart.
 
 - **Two Eplanet cinemas were missing**: Vasquez in Siracusa and Le Vigne in Agrigento sell through Webtic but no title of its list points to them, and their name was not among the ones taken as a cinema. They enter at the next weekly check of the Webtic cinemas.
 
