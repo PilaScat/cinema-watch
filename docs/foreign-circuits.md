@@ -63,4 +63,37 @@ Not verified, from search only: AMC has a developer API with a key (`X-AMC-Vendo
 
 ## Before any code
 
-A circuit is wired today in about eight places: `Chain` in `src/types.ts`, the slug prefix, the construction in `src/watcher.ts`, the allowed hosts, the image hosts of the CSP, the regions, the time zone and the currency. A second country needs first a registry of the circuits (chain, slug prefix, hosts, image hosts, country, time zone, currency), `Theatre.country`, and time zone and currency as parameters of the formatters, with the existing keys left as they are. With that, Vue UK, Vue NL and CinemaxX DE would be a host and a currency each, on the code of The Space.
+Put off on 17/11/2026. What was measured on 16/11, to start from when the work is taken up again.
+
+A second country needs first a registry of the circuits, with no change of behaviour: one static descriptor per circuit (chain, slug prefix, shape of the keys, site, image hosts, cinema file, name, country, default time zone and currency), carried by `Circuit` (`src/circuits/types.ts`) and built in `createCircuits` (`src/circuits/index.ts`), which are already a registry: they are extended, not doubled. With that, Vue UK, Vue NL and CinemaxX DE would be a host and a currency each, on the code of The Space.
+
+A circuit is wired today in these places:
+
+| Where | What |
+|---|---|
+| `src/types.ts` | `Chain` |
+| `src/circuits/index.ts` | `chainOfSlug`: a slug with an unknown prefix goes to UCI |
+| `src/watcher.ts` | `chainOf` with `isSpaceKey` and `isT18Key`; the allowed hosts of the two HTTP clients |
+| `src/keys.ts` | `HALL_KEY` and `SHOWING_KEY`: they validate the zones of the config and guard seat map, zone and log with a 404; a key with a new prefix is refused today |
+| `src/web/routes/browse.tsx` | the fallback to `uci` or `webtic` |
+| `src/web/app.tsx` | `imgSrc` of the CSP |
+| `src/i18n/en.ts`, `it.ts` | the names of the circuits in `ui.chains` |
+| `src/circuits/the-space.ts` | `SPACE_SITE`, `SPACE_API`, `SPACE_VENUE_FILE`, the `space-` prefix, the name, and the parts made for Italy: `COLOUR_NAMES`, `PROVINCE` and `POSTAL_CODE`, `LANGUAGES`, the regions |
+| `src/dates.ts`, `src/format.ts`, `src/circuits/t18.ts` | the time zone of Rome, used in 9 files; the currency in `src/format.ts` |
+
+Things to know:
+
+- A showing carries the local day and time of its cinema, but "is it already past?" is decided against the time of Rome (`src/round.ts`, `src/maintenance.ts`, `src/watcher-rules.ts`): for London it would be an hour off. The Netherlands and Germany have the time zone of Rome and the euro.
+- `myvue.com` serves the UK and Ireland: pounds and euros on the same site. The cinema list gives the currency per cinema and `cinemaSchema` drops it today, so time zone and currency belong to the cinema, not to the circuit.
+- The prices of The Space come from `areaMainPriceInCents / 100`: nothing assumes the euro there.
+- `settingsSchema` is a `z.strictObject`: a new key in the settings makes an earlier version refuse `config.json`. A hunt on a new slug, read by an earlier version, is asked to UCI at every round.
+- Programme and seat map of `vuecinemas.nl` and `cinemaxx.de`, and the host of their posters, were not tried.
+
+Choices left to Filippo when the work starts:
+
+| Choice | Proposal |
+|---|---|
+| New sites as new values of `Chain` (`vuenl`, `cinemaxx`, `vueuk`) or as `space` with a `site` field | new values: on the page the circuit is called Vue |
+| Slug prefixes | `vuenl-`, `cinemaxx-`: they end up in the hunts and cannot change later |
+| Who sees the foreign cinemas | an environment variable that turns them on: off, the app does not contact the foreign sites and `config.json` does not change |
+| The Irish cinemas of `myvue.com` | to decide |
