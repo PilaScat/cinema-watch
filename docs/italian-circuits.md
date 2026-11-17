@@ -9,7 +9,7 @@ Survey of 16/11/2026 of the ticketing platforms of Italian cinemas beyond UCI, W
 | Eplanet | 8 in Sicily | Sells through Webtic: its showing page loads the Webtic script from `secure.webtic.it`. 6 of the 8 were already in the Webtic list of the app (Eplanet Catania, Eplanet Lopo, La Torre Palermo, King Palermo, Hollywood Gela, and Ariston as "CINE CITY ARISTON CATANIA", `webtic-5291`) | done: Vasquez (Siracusa, `webtic-5637`) and Le Vigne (Agrigento, `webtic-5640`) were dropped because no title of the Webtic list points to them and their name matched none of the cinema names; "EPLANET" is now one of those names |
 | Notorious Cinemas | 9 | Already in the Webtic list of the app, all 9 | nothing |
 | Cineplexx (Bolzano, Lagundo) | 2 | Already in the Webtic list of the app | nothing |
-| Giometti | about 12 | 6 are in the Webtic list of the app | see whether the others sell elsewhere |
+| Giometti | 11 | All 11 are in the Webtic list of the app (checked on 17/11): 6 with "Giometti" in the name, and Tolentino (`webtic-5041`), Matelica (`webtic-5042`), Le Befane Rimini (`webtic-5077`), Omnia Prato (`webtic-5078`) and Cinepalace Riccione (`webtic-5080`) under the name Webtic gives them | nothing |
 | Movie Planet | 9 in the list | Already in the Webtic list of the app | nothing |
 | Starplex | 4 in the list | Already in the Webtic list of the app | nothing |
 | Anteo, spazioCinema | about 12 | Sells on `spaziocinema.18tickets.it`, which was not among the 18Tickets hosts the app knew | added to the seed hosts in v2026.11.2: the cinemas appear after the next weekly check |
@@ -44,6 +44,19 @@ No JSON programme was found, unlike the note of 19/10. The page code has a branc
 | `GET` of those two ticket pages | 200: `localId:5637` and `localId:5640` |
 | `GET secure.webtic.it/api/wtjsonservices.ashx?wtid=getLocalsTitles` | 200: 1199 venues; "EPLANET VASQUEZ" and "EPLANET LE VIGNE" are there, in no title |
 | `GET …?wtid=getFullScheduling&localid=5637`, `5640` | 200: 78 showings of 11 films and 96 showings of 15 films, over 18 days |
+
+## Giometti
+
+Checked on 17/11/2026, with the User-Agent of the app.
+
+| Call | Answer |
+|---|---|
+| `GET https://www.giomettirealestatecinema.it/robots.txt` | 200: content signals only, no path disallowed |
+| `GET https://www.giomettirealestatecinema.it/` | 200: a link to `/cinema` |
+| `GET https://www.giomettirealestatecinema.it/cinema` | 200: 11 cinemas, each with a `/cinema/<name>/programmazione` page: Ancona, Fano, Jesi, Pesaro, Porto Sant'Elpidio, Senigallia, Tolentino, Matelica, Le Befane Rimini, Omnia Center Prato, Cineplace Riccione |
+| `GET secure.webtic.it/api/wtjsonservices.ashx?wtid=getLocalsTitles` | 200: the 11 are among the 1199 venues, with ids 5583, 5586, 5594, 5596, 5602, 5603, 5041, 5042, 5077, 5078, 5080 |
+
+The 11 ids are all in `webtic-venues.json` of the running app. The five without "Giometti" in the name are kept because a film of the Webtic list points to them. The purchase pages of the Giometti site were not read.
 
 ## Not verified
 
