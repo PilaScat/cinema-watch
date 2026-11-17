@@ -41,7 +41,8 @@
   "premiere-avengers-doomsday-i-v",
   "premiere-avengers-doomsday-infinity-v",
   "premiere-avengers-doomsday-it",
-  "premiere-o-v-avengers-doomsday"
+  "premiere-o-v-avengers-doomsday",
+  "vos-avengers-doomsday"
  ],
  "bts-world-tour-arirang-in-jakarta-live-viewing": [
   "bts-world-tour-arirang-in-jakarta-live-viewing-lingua-originale"
@@ -69,10 +70,16 @@
  "come-rapinare-una-banca": [
   "come-rapinare-una-banca-how-to-rob-a-bank"
  ],
+ "digger": [
+  "vos-digger"
+ ],
  "dio-ride": [
   "dio-ride-h-1-55",
   "dio-ride-it",
   "dio-ride-ospiti-in-sala"
+ ],
+ "doomsday": [
+  "energia-doomsday"
  ],
  "dune-3": [
   "dune-3-de"
@@ -80,7 +87,8 @@
  "dune-part-three": [
   "70mm-energia-dune-part-three",
   "dune-part-three-en",
-  "dune-part-three-original-language"
+  "dune-part-three-original-language",
+  "vos-dune-part-three"
  ],
  "dune-parte-tre": [
   "70mm-energia-dune-parte-tre",
@@ -93,6 +101,7 @@
   "dune-parte-tre-h-2-20",
   "dune-parte-tre-sala-atmos",
   "dune-parte-tre-sala-imax",
+  "energia-dune-parte-tre",
   "premiere-dune-parte-tre"
  ],
  "emil-und-die-detektive": [
@@ -113,7 +122,8 @@
   "george-michael-the-faith-tour-en",
   "george-michael-the-faith-tour-lingua-originale",
   "george-michael-the-faith-tour-original-language",
-  "george-michael-the-faith-tour-vos"
+  "george-michael-the-faith-tour-vos",
+  "vos-george-michael-the-faith-tour"
  ],
  "godzilla-minus-zero": [
   "energia-godzilla-minus-zero",
@@ -125,6 +135,7 @@
   "good-boy-v-originale-sub-ita"
  ],
  "hope": [
+  "energia-hope",
   "hope-2026",
   "hope-2h45",
   "hope-h-2-40",
@@ -132,6 +143,7 @@
   "hope-sala-imax"
  ],
  "hunger-games-l-alba-sulla-mietitura": [
+  "energia-hunger-games-l-alba-sulla-miet",
   "hunger-games-l-alba-sulla-miet-imax",
   "hunger-games-lalba-sulla-mietitura",
   "premiere-hunger-games-l-alba-sulla-m"
@@ -284,6 +296,7 @@
   "scrooge-e-gli-spiriti-del-natale-film-cena"
  ],
  "se-domani-non-torno": [
+  "energia-se-domani-non-torno",
   "se-domani-non-torno-dibattito",
   "se-domani-non-torno-film-cena",
   "se-domani-non-torno-h-1-50",
@@ -329,6 +342,8 @@
   "un-weekend-artificiale-ospiti-in-sala"
  ],
  "wild-horse-nine": [
+  "energia-wild-horse-nine",
+  "vos-wild-horse-nine",
   "wild-horse-nine-en",
   "wild-horse-nine-film-cena",
   "wild-horse-nine-h-2-00",

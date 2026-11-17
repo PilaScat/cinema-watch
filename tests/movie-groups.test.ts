@@ -28,7 +28,7 @@ describe("the real catalogue of 12/11/2026", () => {
         .sort(([a], [b]) => a.localeCompare(b)),
     );
 
-    expect([titles.length, groups.length]).toEqual([786, 578]);
+    expect([titles.length, groups.length]).toEqual([786, 567]);
     expect(merged).toEqual(fixture("groups"));
   });
 
@@ -51,7 +51,7 @@ describe("different films stay apart", () => {
     ["Alien", "Alien Evento"],
     ["Stop", "Stop It"],
     ["Pillow", "Pillow Talk"],
-    ["Doomsday", "Energia Doomsday"],
+    ["Energia The Hunger Games: Sunrise", "The Hunger Games: Sunrise On The Reaping"],
     ["Rocky", "Rocky III"],
     ["Ninja Il Padrino - Parte II", "Ninja Il Padrino - Parte III"],
     ["Trenque Lauquen", "Trenque Lauquen 2a parte"],
@@ -114,6 +114,10 @@ describe("versions of one film go together", () => {
     ["Clayface", "CLAYFACE – 25TH ANNIVERSARY"],
     ["Clayface", "Clayface Vers. Originale"],
     ["Clayface", "Clayface-O.V. 16/12 Ore 00:01"],
+    ["Clayface", "Clayface O.V."],
+    ["Clayface", "Vos Clayface"],
+    ["Clayface", "Energia Clayface"],
+    ["Clayface", "Talk Imax Clayface"],
     ["Minnie E Moskowitz", "Minnie & Moskowitz"],
   ])("%s and %s", (first, second) => {
     expect(grouped([first, second])).toEqual([[first, second]]);
@@ -125,6 +129,39 @@ describe("versions of one film go together", () => {
     ]);
     expect(grouped(["Spezie E Bugie - La Piccola Cucina Di M.", "Spezie E Bugie–La Piccola Cucina Di Mehd"])).toEqual([["Spezie E Bugie–La Piccola Cucina Di Mehd", "Spezie E Bugie - La Piccola Cucina Di M."]]);
     expect(grouped(["Avengers: Doomsday", "Premiere - Atmos Avengers: Doomsday Infi"])).toEqual([["Avengers: Doomsday", "Premiere - Atmos Avengers: Doomsday Infi"]]);
+  });
+
+  it("drops a leading wording without a dash only when the rest is a title of the catalogue", () => {
+    expect(grouped(["Energia Clayface 2"])).toEqual([["Energia Clayface 2"]]);
+    expect(grouped(["Vos Clayface", "Clayface 2"])).toEqual([["Vos Clayface"], ["Clayface 2"]]);
+  });
+
+  it("joins every version of a film cut in more ways, as on the catalogue of 17/11/2026", () => {
+    expect(
+      grouped([
+        "Hunger Games - L'Alba Sulla Mietitura",
+        "Hunger Games:L'Alba Sulla Mietitura O.V.",
+        "Hunger Games: L'Alba Sulla Mietitura - E",
+        "Hunger Games - L'Alba Sulla Mieti",
+        "Hunger Games: L'Alba Sulla Miet. Imax",
+        "Energia Hunger Games - L'Alba Sulla Miet",
+        "Vos Hunger Games - L'Alba Sulla Mieti",
+        "Premiere - Hunger Games - L'Alba Sulla M",
+        "Talk Imax Hunger Games: Lalba Sulla Mi.",
+      ]),
+    ).toEqual([
+      [
+        "Hunger Games - L'Alba Sulla Mietitura",
+        "Hunger Games:L'Alba Sulla Mietitura O.V.",
+        "Hunger Games - L'Alba Sulla Mieti",
+        "Hunger Games: L'Alba Sulla Miet. Imax",
+        "Energia Hunger Games - L'Alba Sulla Miet",
+        "Vos Hunger Games - L'Alba Sulla Mieti",
+        "Premiere - Hunger Games - L'Alba Sulla M",
+      ],
+      ["Hunger Games: L'Alba Sulla Mietitura - E"],
+      ["Talk Imax Hunger Games: Lalba Sulla Mi."],
+    ]);
   });
 
   it("looks for the whole title before a cut wording", () => {

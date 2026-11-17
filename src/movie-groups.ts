@@ -27,8 +27,9 @@ const LEADING_SEGMENT = new RegExp(`^\\s*${alternatives(LEADING)}\\s*[-–]\\s+(
 const LEADING_PARENTHESIS = /^\s*\(([^()]*)\)\s*/;
 const TRAILING_PARENTHESIS = /\s*\(([^()]*)\)\s*$/;
 const TRAILING_SEGMENT = /(?:\s+[-–|]\s*|[-–|]\s+)([^-–|()]*)$/;
-const TRAILING_ABBREVIATION = /(?:\s+C\.A\.|-[Oo]\.[Vv]\.)\s*$/;
+const TRAILING_ABBREVIATION = /(?:\s+C\.A\.|(?:\s+|-)[Oo]\.[Vv]\.)\s*$/;
 const YEAR = /^(?:19|20)\d\d$/;
+const LEADING_WITHOUT_DASH = /^(?:vos|energia|talk imax) (.+)$/;
 const AMPERSAND = /\s*&\s*/g;
 const CUT_WORDINGS = ["infinity"];
 const CUT_MIN_WORDS = 3;
@@ -102,6 +103,11 @@ function wholeOfCut(key: string, keys: string[]): string | null {
   return oneFilm && !DISTINGUISHING.test(next.slice(key.lastIndexOf(" ") + 1)) ? next : null;
 }
 
+function titleWithoutLeadingWording(key: string, keys: Set<string>): string | null {
+  const rest = LEADING_WITHOUT_DASH.exec(key)?.[1];
+  return rest !== undefined && keys.has(rest) ? rest : null;
+}
+
 function titleOfCutWording(key: string, keys: string[]): string | null {
   const end = key.lastIndexOf(" ");
   const wording = key.slice(end + 1);
@@ -110,15 +116,16 @@ function titleOfCutWording(key: string, keys: string[]): string | null {
 }
 
 function wholeKeys(keys: string[]): Map<string, string> {
+  const known = new Set(keys);
   const next = new Map(keys.flatMap((key) => {
-    const whole = wholeOfCut(key, keys) ?? titleOfCutWording(key, keys);
+    const whole = titleWithoutLeadingWording(key, known) ?? wholeOfCut(key, keys) ?? titleOfCutWording(key, keys);
     return whole === null ? [] : [[key, whole] as const];
   }));
-  const last = (key: string): string => {
+  const last = (key: string, seen: Set<string>): string => {
     const whole = next.get(key);
-    return whole === undefined ? key : last(whole);
+    return whole === undefined || seen.has(whole) ? key : last(whole, seen.add(key));
   };
-  return new Map(keys.map((key) => [key, last(key)]));
+  return new Map(keys.map((key) => [key, last(key, new Set())]));
 }
 
 function earliest(a: string | null, b: string | null): string | null {
