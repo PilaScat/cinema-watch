@@ -27,9 +27,9 @@
     "sync:icons": "node scripts/sync-icons.mjs"
   },
   "dependencies": {
-    "@hono/node-server": "2.1.6",
+    "@hono/node-server": "2.1.8",
     "@resvg/resvg-js": "2.6.2",
-    "hono": "4.13.16",
+    "hono": "4.13.19",
     "qrcode-generator": "2.0.4",
     "zod": "4.6.7"
   },
